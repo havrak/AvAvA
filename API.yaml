@@ -18,7 +18,6 @@ paths:
                 properties:
                   state:
                     $ref: '#/components/schemas/ResourceState'
-                  
   /stateDetailed:
     get:
       responses:
@@ -164,7 +163,7 @@ paths:
       responses:
         '200':
           description: OK
-  /instances/{id}/backups/{backupId}/export:
+  /instances/{id}/export:
     get:
       parameters:
         - in: path
@@ -173,12 +172,66 @@ paths:
           schema:
             type: integer
           description: Id kontejneru, ke kterému vztahujeme naši operaci
+      responses:
+        '200':
+          description: OK
+  /instances/{id}/start:
+    post:
+      parameters:
         - in: path
           required: true
-          name: backupId
+          name: id
           schema:
             type: integer
-          description: Id snapshotu, ke kterému vztahujeme naši operaci
+          description: Id kontejneru, ke kterému vztahujeme naši operaci
+      responses:
+        '200':
+          description: OK
+  /instances/{id}/stop:
+    post:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: Id kontejneru, ke kterému vztahujeme naši operaci
+      responses:
+        '200':
+          description: OK
+  /instances/{id}/delete:
+    post:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: Id kontejneru, ke kterému vztahujeme naši operaci
+      responses:
+        '200':
+          description: OK
+  /instances/{id}/freeze:
+    post:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: Id kontejneru, ke kterému vztahujeme naši operaci
+      responses:
+        '200':
+          description: OK
+  /instances/{id}/unfreeze:
+    post:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: Id kontejneru, ke kterému vztahujeme naši operaci
       responses:
         '200':
           description: OK
