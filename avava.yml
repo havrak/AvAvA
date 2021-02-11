@@ -7,7 +7,7 @@ servers:
 paths:
   /state:
     get:
-      summary: statistika využitých zdrojů všech kontejnerů uživatele vůči přiděleným zdrojům uživatele
+      summary: statistika využitých zdrojů všech kontejnerů uživatele vůči přiděleným zdrojům uživatele. V případě, že uživatel klikne na frontendu na možnost statistiky, tak se API volá každou vteřinu
       responses:
         '200':
           description: A User object
@@ -21,15 +21,37 @@ paths:
                     properties:
                       consumedTime:
                         type: integer
-                        description: Čas práce procesoru za posledních deset sekund
+                        description: Čas práce procesoru v sekundách
                       percentConsumed:
                         type: integer
                         description: Procento přidělené kapacity procesoru využité všemi kontejnery dohromady
-                  username:
-                    type: string
-                    description: The user name.
-
-
+                  RAM:
+                    type: object
+                    properties:
+                      currentlyConsumedMemory:
+                        type: integer
+                        description: Využití paměti RAM v KB
+                      percentConsumed:
+                        type: integer
+                        description: Procento přidělené kapacity RAM využité všemi kontejnery dohromady
+                  drive:
+                    type: object
+                    properties:
+                      currentlyConsumedMemory:
+                        type: integer
+                        description: Využití paměti disku v KB
+                      percentConsumed:
+                        type: integer
+                        description: Procento přidělené kapacity RAM využité všemi kontejnery dohromady
+                  network:
+                    type: object
+                    properties:
+                      uploadInKB:
+                        type: integer
+                        description: Využití uploadu v KB
+                      downloadKB:
+                        type: integer
+                        description: Využití downloadu v KB
   /stateDetailed:
     get:
       responses:
