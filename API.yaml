@@ -109,7 +109,7 @@ paths:
       responses:
         '200':
           description: OK
-  /instances/{id}/console:
+  /instances/{id}/console: #TODO
     get:
       parameters:
         - in: path
@@ -121,7 +121,7 @@ paths:
       responses:
         '200':
           description: OK
-  #/instances/{id}/files:
+  #/instances/{id}/files: TODO
   #  get:
   #    parameters:
   #      - in: path
@@ -171,10 +171,10 @@ paths:
           name: id
           schema:
             type: integer
-          description: Id kontejneru, ke kterému vztahujeme naši operaci
+          description: Id kontejneru, který startujeme
       responses:
         '200':
-          description: OK
+          description: started
   /instances/{id}/start:
     post:
       parameters:
@@ -187,6 +187,8 @@ paths:
       responses:
         '200':
           description: OK
+        '500':
+          description: Kontejner nebyl spuštěn
   /instances/{id}/stop:
     post:
       parameters:
@@ -195,10 +197,12 @@ paths:
           name: id
           schema:
             type: integer
-          description: Id kontejneru, ke kterému vztahujeme naši operaci
+          description: Id kontejneru, který zastavujeme
       responses:
         '200':
           description: OK
+        '500':
+          description: Kontejner nebyl zastaven
   /instances/{id}/delete:
     post:
       parameters:
@@ -207,10 +211,12 @@ paths:
           name: id
           schema:
             type: integer
-          description: Id kontejneru, ke kterému vztahujeme naši operaci
+          description: Id kontejneru, který mažeme
       responses:
         '200':
           description: OK
+        '500':
+          description: Kontejner vymazán zastaven
   /instances/{id}/freeze:
     post:
       parameters:
@@ -219,10 +225,12 @@ paths:
           name: id
           schema:
             type: integer
-          description: Id kontejneru, ke kterému vztahujeme naši operaci
+          description: Id kontejneru, který zmrazíme
       responses:
         '200':
           description: OK
+        '500':
+          description: Kontejner nebyl zmrazen
   /instances/{id}/unfreeze:
     post:
       parameters:
@@ -231,10 +239,12 @@ paths:
           name: id
           schema:
             type: integer
-          description: Id kontejneru, ke kterému vztahujeme naši operaci
+          description: Id kontejneru, který rozmrazíme
       responses:
         '200':
           description: OK
+        '500':
+          description: Kontejner nebyl rozmrazen
 components:
   schemas:
     ResourceState:
