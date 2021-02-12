@@ -146,7 +146,7 @@ paths:
         '200':
           description: OK
   /instances/{id}/snapshots/{snapshotId}:
-    get:
+    patch:
       parameters:
         - in: path
           required: true
@@ -176,7 +176,7 @@ paths:
         '200':
           description: started
   /instances/{id}/start:
-    post:
+    patch:
       parameters:
         - in: path
           required: true
@@ -190,7 +190,7 @@ paths:
         '500':
           description: Kontejner nebyl spuštěn
   /instances/{id}/stop:
-    post:
+    patch:
       parameters:
         - in: path
           required: true
@@ -204,7 +204,7 @@ paths:
         '500':
           description: Kontejner nebyl zastaven
   /instances/{id}/delete:
-    post:
+    delete:
       parameters:
         - in: path
           required: true
@@ -218,7 +218,7 @@ paths:
         '500':
           description: Kontejner vymazán zastaven
   /instances/{id}/freeze:
-    post:
+    patch:
       parameters:
         - in: path
           required: true
@@ -232,7 +232,7 @@ paths:
         '500':
           description: Kontejner nebyl zmrazen
   /instances/{id}/unfreeze:
-    post:
+    patch:
       parameters:
         - in: path
           required: true
