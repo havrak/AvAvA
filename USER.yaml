@@ -1,0 +1,513 @@
+openapi: '3.0.2'
+info:
+  title: User API
+  version: '1.0'
+servers:
+  - url: https://api.server.test/v1
+paths:
+  /state:
+    get:
+      description: State of all used resources of all containers of the current user in percentage of the total resources allocated for the user. In case user visits the frontend statistics, the function is called every second.
+      responses:
+        '200':
+          description: objekt stavu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    $ref: '#/components/schemas/ResourceState'
+#  /stateDetailed: #nebo /instances#get ??
+  /instances:
+    get:
+      description: Get all available containers
+      parameters:
+        - in: query
+          required: false
+          name: allUserContainers
+          schema:
+            type: boolean
+          description: If containers of other users should be returned too (available only for admins)
+      responses:
+        '200':
+          description: All containers available for this user were successfully returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Container'
+    post:
+      description: Create a new instance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                autostart:
+                  type: boolean
+                persistent:
+                  type: boolean
+                configurationType:
+                  type: string
+                applicationToInstall:
+                  type: array
+                  items:
+                    description: Application name
+                    type: string
+                enableGUIAccess:
+                  type: boolean
+                customLimits:
+                  type: object
+                  properties:
+                    RAM:
+                      type: integer
+                    CPU:
+                      type: integer
+                    disk:
+                      type: integer
+                    network:
+                      type: object
+                      properties:
+                        upload:
+                          type: integer
+                        download:
+                          type: integer
+              required:
+                - name
+                - autostart
+                - persistent
+                - configurationType
+                - applicationToInstall
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationState'
+  /instances/createConfigData:
+    get:
+      responses:
+        '200':
+          description: Returns all data that are necesarry to create a container
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templateTypes:
+                    type: array
+                    items:
+                      type: string
+                      description: Name of templates
+                  applicationsToInstall:
+                    type: array
+                    items:
+                      type: string
+                      description: Application name
+                  upperLimitBoundaries:
+                    type: object
+                    description: The maximum amount of certain resources that is user allowed to assign to this container. User is not obligated to set those; if he does not, server will automaticly allocate reasources by default configuration.
+                    properties:
+                      RAM:
+                        type: integer
+                      CPU:
+                        type: integer
+                      disk:
+                        type: integer
+                      network:
+                        type: object
+                        properties:
+                          upload:
+                            type: integer
+                          download:
+                            type: integer
+                  defaultLimits:
+                    type: object
+                    description: Default amount of certain resources that are going to be assigned to the container if user does not specify them.
+                    properties:
+                      RAM:
+                        type: integer
+                      CPU:
+                        type: integer
+                      disk:
+                        type: integer
+                      network:
+                        type: object
+                        properties:
+                          upload:
+                            type: integer
+                          download:
+                            type: integer
+  /instances/{id}:
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be querried
+      responses:
+        '200':
+          description: Successful state info return
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Container'
+    delete:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be deleted
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationState'
+  /instances/{id}/state: #nebo /info
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container which state is requested
+      responses:
+        '200':
+          description: Successful state info return
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceState'
+  /instances/{id}/console: #TODO
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container for which we start the console
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: TODO
+  #/instances/{id}/files: TODO
+  #  get:
+  #    parameters:
+  #      - in: path
+  #        required: true
+  #        name: id
+  #        schema:
+  #          type: integer
+  #        description: Id kontejneru, ke kterému vztahujeme naši operaci
+  #    responses:
+  #      '200':
+  #        description: OK
+  /instances/{id}/snapshots:
+    get: 
+      description: Retreives the list of all snapshots for given container
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be snapshotted
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Snapshot'
+    post:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be snapshotted
+        - in: query
+          required: false
+          name: snapshotName
+          schema:
+            type: string
+          description: Name of the snapshot to be created
+      responses:
+         '200':
+          description: OK
+  /instances/{id}/restore/{snapshotId}:
+    patch:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be reverted
+        - in: path
+          required: true
+          name: snapshotId
+          schema:
+            type: integer
+          description: ID of the snapshot to be used for updating the container files
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationState'
+  /instances/{id}/export:
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the downloaded container
+      responses:
+        '200':
+          description: Running
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: ID to the process
+  /instances/import:
+    put:
+      parameters:
+        - in: cookie
+          required: true
+          name: containerFile
+          schema:
+             type: string
+             format: binary
+          description: The container file to be uploaded
+      responses:
+         '200':
+            description: File is uploading
+            content:
+               application/json:
+                  schema:
+                     type: integer
+                     description: ID to the process
+  /instances/{id}/start:
+    patch:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the used container
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationState'
+  /instances/{id}/stop:
+    patch:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be stopped
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationState'
+  /instances/{id}/freeze:
+    patch:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be frozen
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationState'
+  /instances/{id}/unfreeze:
+    patch:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be unfrozen
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationState'
+components:
+  schemas:
+    Container:
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: number
+        ipv4:
+          type: string
+        ipv6:
+          type: string
+        persistent:
+          type: boolean
+        timestamp:
+          type: integer
+        running:
+          type: boolean
+        statusCode:
+          type: integer
+    ResourceState:
+      type: object
+      properties:
+        status:
+          type: string
+        statusCode:
+          type: integer
+        CPU:
+          type: object
+          properties:
+            consumedTime:
+              type: integer
+              description: Time used by the CPU
+            percentConsumed:
+              type: integer
+              description: Percentage of CPU allocated from the overall CPU available
+        RAM:
+          type: object
+          properties:
+            usage:
+              type: integer
+              description: last measured RAM usage in B
+            usagePeak:
+              type: integer
+              description: maximum measured RAM usage in B
+            percentConsumed:
+              type: integer
+              description: Percentage of RAM allocated from the overall RAM available
+        disk:
+          type: object
+          properties:
+            currentlyConsumedMemory:
+              type: array
+              items:
+                type: object
+                properties:
+                  userName: 
+                    type: string
+                  usage: 
+                    type: integer
+                    description: Disk usage of this user in B
+            percentConsumed:
+              type: integer
+              description: Percentage of the allocated disk memory from the overall memory available
+        networks:
+          type: array
+          items:
+            type: object
+            properties:
+              networkName:
+                type: string
+              adresses:
+                type: array
+                items:
+                  type: object
+                  properties: 
+                    family:
+                      type: string
+                    adress:
+                      type: string
+                    netmask: 
+                      type: integer
+                    scope:
+                      type: string
+              counters:
+                type: object
+                properties:
+                  bytesReceived:
+                    type: integer
+                  bytesSent:
+                    type: integer
+                  packetsReceived: 
+                    type: integer
+                  packetsSent:
+                    type: integer
+              hwaddr:
+                type: string
+              hostName:
+                type: string
+              mtu: 
+                type: integer
+              state:
+                type: string
+              type:
+                type: string
+        numberOfProcesses:
+          type: integer
+          description: Process count
+    Snapshot:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID of the snapshot
+        name:
+          type: string
+          description: Name of the snapshot
+        timestamp:
+          type: integer
+          description: The time of creation
+        stateful:
+          type: boolean
+          description: True if state of the container should be maintained
+    OperationState:
+      type: object
+      properties: 
+        status:
+          type: string
+        statusCode:
+          type: integer
+        metadata:
+          type: object
