@@ -1,11 +1,13 @@
-var express = require("express");
-var app = express();
-var mysql = require("mysql");
-var sql = require("mssql");
-var config = require("./sqlconfig");
+import fs from "fs";
+import path from "path";
+import mysql from "mysql";
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const config = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, "../config/sql.json"))
+);
 //const axios = require("axios");
 
-module.exports = class SQLInterface {
+class SQLInterface {
   constructor() {}
 
   static test() {
@@ -31,4 +33,6 @@ module.exports = class SQLInterface {
     //   //  res.send(recordset);
     // });
   }
-};
+}
+
+export { SQLInterface };

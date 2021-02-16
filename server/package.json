@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "server",
   "version": "1.0.0",
   "description": "Avava Backend",
@@ -14,6 +15,7 @@
     "express": "^4.17.1",
     "mssql": "^6.3.1",
     "mysql": "^2.18.1",
+    "node": "^15.8.0",
     "passport": "^0.4.1",
     "passport-google-oauth": "^2.0.0"
   }

@@ -1,17 +1,19 @@
-const express = require("express");
-const app = express();
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const passport = require("passport");
-const cookieSession = require("cookie-session");
-const SQLInterface = require("./databaseInterface.js");
+import express from "express";
+import cors from "cors";
+//import * as bodyParser from "body-parser";
+import passport from "passport";
+import * as cookieSession from "cookie-session";
+import { SQLInterface } from "./databaseInterface.js";
+import * as lxd from "./lxd.js";
 
-require("./passport-setup");
+lxd.request.end();
+const app = express();
+import "./passport-setup.js";
 
 app.use(cors());
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 // app.use(
 //    cookieSession({
