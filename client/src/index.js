@@ -29,11 +29,18 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import AdminLayout from "layouts/Admin.js";
 
 ReactDOM.render(
-  <BrowserRouter>
-    <Switch>
-      <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
-      <Redirect from="/" to="/admin/dashboard" />
-    </Switch>
-  </BrowserRouter>,
-  document.getElementById("root")
+   <BrowserRouter>
+      <Switch>
+         <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
+         {/* <Redirect from="/" to="/admin/dashboard" /> */}
+         <Route
+            path="/"
+            component={() => {
+               window.location.href = "http://localhost:3001/auth/google";
+               return null;
+            }}
+         />
+      </Switch>
+   </BrowserRouter>,
+   document.getElementById("root")
 );

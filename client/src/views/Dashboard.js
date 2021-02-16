@@ -175,9 +175,7 @@ function Dashboard() {
                                     "screen and (max-width: 640px)",
                                     {
                                        axisX: {
-                                          labelInterpolationFnc: function (
-                                             value
-                                          ) {
+                                          labelInterpolationFnc: function (value) {
                                              return value[0];
                                           },
                                        },
@@ -206,15 +204,10 @@ function Dashboard() {
                   <Card>
                      <Card.Header>
                         <Card.Title as="h4">Email Statistics</Card.Title>
-                        <p className="card-category">
-                           Last Campaign Performance
-                        </p>
+                        <p className="card-category">Last Campaign Performance</p>
                      </Card.Header>
                      <Card.Body>
-                        <div
-                           className="ct-chart ct-perfect-fourth"
-                           id="chartPreferences"
-                        >
+                        <div className="ct-chart ct-perfect-fourth" id="chartPreferences">
                            <ChartistGraph
                               data={{
                                  labels: ["40%", "20%", "40%"],
@@ -243,9 +236,7 @@ function Dashboard() {
                   <Card>
                      <Card.Header>
                         <Card.Title as="h4">2017 Sales</Card.Title>
-                        <p className="card-category">
-                           All products including Taxes
-                        </p>
+                        <p className="card-category">All products including Taxes</p>
                      </Card.Header>
                      <Card.Body>
                         <div className="ct-chart" id="chartActivity">
@@ -310,9 +301,7 @@ function Dashboard() {
                                     {
                                        seriesBarDistance: 5,
                                        axisX: {
-                                          labelInterpolationFnc: function (
-                                             value
-                                          ) {
+                                          labelInterpolationFnc: function (value) {
                                              return value[0];
                                           },
                                        },
@@ -325,8 +314,7 @@ function Dashboard() {
                      <Card.Footer>
                         <div className="legend">
                            <i className="fas fa-circle text-info"></i>
-                           Tesla Model S{" "}
-                           <i className="fas fa-circle text-danger"></i>
+                           Tesla Model S <i className="fas fa-circle text-danger"></i>
                            BMW 5 Series
                         </div>
                         <hr></hr>
@@ -360,8 +348,8 @@ function Dashboard() {
                                        </Form.Check>
                                     </td>
                                     <td>
-                                       Sign contract for "What are conference
-                                       organizers afraid of?"
+                                       Sign contract for "What are conference organizers
+                                       afraid of?"
                                     </td>
                                     <td className="td-actions text-right">
                                        <OverlayTrigger
@@ -410,8 +398,8 @@ function Dashboard() {
                                        </Form.Check>
                                     </td>
                                     <td>
-                                       Lines From Great Russian Literature? Or
-                                       E-mails From My Boss?
+                                       Lines From Great Russian Literature? Or E-mails
+                                       From My Boss?
                                     </td>
                                     <td className="td-actions text-right">
                                        <OverlayTrigger
@@ -460,9 +448,9 @@ function Dashboard() {
                                        </Form.Check>
                                     </td>
                                     <td>
-                                       Flooded: One year later, assessing what
-                                       was lost and what was found when a
-                                       ravaging rain swept through metro Detroit
+                                       Flooded: One year later, assessing what was lost
+                                       and what was found when a ravaging rain swept
+                                       through metro Detroit
                                     </td>
                                     <td className="td-actions text-right">
                                        <OverlayTrigger
@@ -510,8 +498,8 @@ function Dashboard() {
                                        </Form.Check>
                                     </td>
                                     <td>
-                                       Create 4 Invisible User Experiences you
-                                       Never Knew About
+                                       Create 4 Invisible User Experiences you Never Knew
+                                       About
                                     </td>
                                     <td className="td-actions text-right">
                                        <OverlayTrigger
@@ -558,9 +546,7 @@ function Dashboard() {
                                           </Form.Check.Label>
                                        </Form.Check>
                                     </td>
-                                    <td>
-                                       Read "Following makes Medium better"
-                                    </td>
+                                    <td>Read "Following makes Medium better"</td>
                                     <td className="td-actions text-right">
                                        <OverlayTrigger
                                           overlay={
