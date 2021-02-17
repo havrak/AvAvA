@@ -6,13 +6,11 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 passport.serializeUser((user, done) => {
    //metoda se volá, když je potřeba do session souboru uložit něco, podle čeho se pozná aktuální uživatel. Ten se pozná podle id, které je uložené v databázi uživatelů. Vrať tedy done(null, user.id)
-   console.log(user);
    done(null, user.id);
 });
 
 passport.deserializeUser((id, done) => {
    //V proměnné id je uložené id uživatele, které je vráceno metodou serializeUser a uloženo v session souboru. Na základě něj přistup do databáze a zavolej done(null, userFromDatabaseWithAllTheData)
-   console.log(id);
    done(null, { id: id, email: "email, který vyhledáš v databázi" });
 });
 
