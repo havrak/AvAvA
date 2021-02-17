@@ -3,7 +3,7 @@ import path from "path";
 import mysql from "mysql";
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const config = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "../config/sql.json"))
+  fs.readFileSync(path.resolve(__dirname, "../config/sqlconfig.json"))
 );
 //const axios = require("axios");
 

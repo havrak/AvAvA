@@ -1,68 +1,60 @@
+
+
 import express from "express";
-import cors from "cors";
-//import * as bodyParser from "body-parser";
-import passport from "passport";
-import * as cookieSession from "cookie-session";
-import { SQLInterface } from "./databaseInterface.js";
-import * as lxd from "./lxd.js";
-
-lxd.request.end();
 const app = express();
-import "./passport-setup.js";
+// import cors from "cors";
+import {keys} from "../config/keys.js";
+import cookieSession from "cookie-session";
+import passport from "passport";
+const PORT = process.env.PORT || 5000;
+import "./models/User.js";
+import "./services/passport.js";
+//import * as bodyParser from "body-parser";
+// import { SQLInterface } from "./databaseInterface.js";
+// import * as lxd from "./lxd.js";
 
-app.use(cors());
+// lxd.request.end();
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-// app.use(
-//    cookieSession({
-//       name: "tuto-session",
-//       keys: ["key1", "key2"],
-//    })
-// );
-
-SQLInterface.test();
-
-const isLoggedIn = (req, res, next) => {
-  if (req.user) {
-    next();
-  } else {
-    res.sendStatus(401);
-  }
-};
+app.use(
+   cookieSession({
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      keys: [keys.cookieKey],
+   })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get("/", (req, res) => res.send("Example Home page!"));
-app.get("/failed", (req, res) => res.send("You Failed to log in!"));
+import authRoutes from "./routes/authRoute.js";
+authRoutes(app);
 
-app.get("/dashboard", isLoggedIn, (req, res) =>
-  res.send(`Welcome mr ${req.user.displayName}!`)
-);
+// app.use(cors());
 
-app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile"] })
-);
+//v produkci bude react soubory obsluhovat node server
+if (process.env.NODE_ENV === "production") {
+   app.use(express.static("client/build"));
+   const path = require("path");
+   app.get("*", (req, res) => {
+      res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+   });
+}
 
-app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "http://localhost:3001/auth/google",
-  }),
-  function (req, res) {
-    res.send(req.user);
-  }
-);
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
-app.get("/logout", (req, res) => {
-  req.session = null;
-  req.logout();
-  res.sendStatus(200);
-});
+// SQLInterface.test();
 
-const PORT = 3001;
+const isLoggedIn = (req, res, next) => {
+   //na req.user.role se bude dát získat role uživatele a pomocí ní zjistit, zda má uživatel přístup k části API
+   // pro autentizaci předejte jako middleware:
+   //app.get("/api/containers", isLoggedIn, (req, res) =>
+   //res.send(`Welcome mr ${req.user.displayName}!`)
+   //);
+   if (req.user) {
+      next();
+   } else {
+      res.sendStatus(401);
+   }
+};
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));

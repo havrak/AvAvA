@@ -5,17 +5,22 @@
   "description": "Avava Backend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/app.js",
+    "client": "npm run start --prefix client",
+    "dev": "concurrently \"npm run client\" \"nodemon src/app.js\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "concurrently": "^5.3.0",
     "cookie-session": "^1.4.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mssql": "^6.3.1",
     "mysql": "^2.18.1",
     "node": "^15.8.0",
+    "package.json": "^2.0.1",
     "passport": "^0.4.1",
     "passport-google-oauth": "^2.0.0"
   }
