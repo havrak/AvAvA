@@ -53,8 +53,8 @@ paths:
                   type: boolean
                 persistent:
                   type: boolean
-                configurationType:
-                  type: string
+                templateId:
+                  type: integer
                 applicationToInstall:
                   type: array
                   items:
@@ -104,8 +104,7 @@ paths:
                   templateTypes:
                     type: array
                     items:
-                      type: string
-                      description: Name of templates
+                      $ref: '#/components/schemas/Template'
                   applicationsToInstall:
                     type: array
                     items:
@@ -161,21 +160,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Container'
-    delete:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container to be deleted
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationState'
+    
   /instances/{id}/state: #nebo /info
     get:
       parameters:
@@ -383,10 +368,12 @@ components:
     Container:
       type: object
       properties:
-        name:
-          type: string
         id:
           type: number
+        name:
+          type: string
+        template: 
+          $ref: '#/components/schemas/Template'
         ipv4:
           type: string
         ipv6:
@@ -399,6 +386,19 @@ components:
           type: boolean
         statusCode:
           type: integer
+    Template:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Id of a template generatd by database
+        name:
+          type: string
+        image:
+          type: string
+        somethingElse:
+          type: string
+          description: TODO
     ResourceState:
       type: object
       properties:
