@@ -1,8 +1,8 @@
-import path from "path";
+//import path from "path";
 import mysql from "mysql";
 import config from "../config/sqlconfig.js";
 
-class SQLInterface {
+export class SQLInterface {
   constructor() {}
 
   static test() {
@@ -76,4 +76,3 @@ class SQLInterface {
     });
   }
 }
-export { SQLInterface };
