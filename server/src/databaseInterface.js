@@ -1,11 +1,6 @@
-import fs from "fs";
 import path from "path";
 import mysql from "mysql";
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
-const config = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "../config/sqlconfig.json"))
-);
-//const axios = require("axios");
+import config from "../config/sqlconfig.js";
 
 class SQLInterface {
   constructor() {}
@@ -16,22 +11,50 @@ class SQLInterface {
       if (err) throw err;
 
       console.log("Data received from Db:");
-      console.log(rows);
+      console.log(rows[0]);
     });
-    // console.log(config.port);
-    // sql.connect(config, function (err) {
-    //   if (err) console.log(err);
-    //   console.log("Connected to shitty SQL database");
-    //   var request = new sql.Request();
+  }
 
-    //   request.query("show tables", function (err, recordset) {
-    //     console.log("asdassfaaaaaaaaaaad");
-    //     if (err) console.log(err);
-    //     console.log(recordset);
-    //   });
-    //   // send records as a response
-    //   //  res.send(recordset);
-    // });
+  static getUserByOauthID(id) {
+    const con = mysql.createConnection(config);
+    con.query(
+      "SELECT * FROM users WHERE OauthId LIKE ?",
+      [id], // by default user is standart user
+      (err, rows) => {
+        if (err) throw err;
+        console.log("Data received from Db:");
+        console.log("Funguje je: " + rows[0].id);
+        return rows[0];
+      }
+    );
+  }
+
+  /*
+   * adds new user do database
+   *
+   */
+  static addNewUserToDatabase(user) {
+    const con = mysql.createConnection(config);
+    console.log("Added new user");
+    con.query(
+      "INSERT INTO users (id, OauthId, email, given_name, family_name, role) VALUES (NULL,?,?,?,?,?);",
+      [
+        user.id,
+        user.emails[0].value,
+        user.name.givenName,
+        user.name.familyName,
+        0,
+      ], // by default user is standart user
+      (err, rows) => {
+        if ((err.code = "ER_DUP_ENTRY")) {
+          console.log("User is already stored in DB");
+        } else if (err) {
+          throw err;
+        }
+        console.log("Data received from Db:");
+        console.log(rows);
+      }
+    );
   }
 }
 
