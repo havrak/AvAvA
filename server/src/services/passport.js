@@ -5,20 +5,26 @@ import { SQLInterface } from "./../databaseInterface.js";
 
 //import { SQLInterface } from "./../databaseInterface.js";
 
-//možná bude nutné u serializeUser, deserializeUser a třetí metodě (accessToken, refreshToken, profile, done) přidat do hlavičky async a pracovat s await, jelikož v nich pracujete s databází, což je asynchronní operace. Potom byste to museli přidávat i do všech routů, ze kterých to voláte. Udělejte to pouze, když to bez nich nebude fungovat
+//možná bude nutné u serializeUser, deserializeUser a třetí metodě (accessToken, refreshToken, profile, done) přidat do hlavičky async a pracovat s await, jelikož v nich pracujete s databází, což je asynchronní operace. Potom byste to museli přidávat i do všech routů, ze kterých to voláte. Udělejte to pouze, když to bez nich nebude fungovat //asynchronní
 
 passport.serializeUser((user, done) => {
   //metoda se volá, když je potřeba do session souboru uložit něco, podle čeho se pozná aktuální uživatel. Ten se pozná podle id, které je uložené v databázi uživatelů. Vrať tedy done(null, user.id)
+  //  na základě mailu
+  //
   console.log("serialize");
-  done(null, user.id);
+  SQLInterface.getIdForUser(user.email).then((result) => {
+    done(null, result.id);
+  });
+  done(null, null);
 });
 
 passport.deserializeUser((id, done) => {
   //V proměnné id je uložené id uživatele, které je vráceno metodou serializeUser a uloženo v session souboru. Na základě něj přistup do databáze a zavolej done(null, userFromDatabaseWithAllTheData)
   console.log("deserialize");
   console.log(id);
-  console.log(SQLInterface.getUserByOauthID(id)); // NEFUNGUJE
-  done(null, { id: id, email: "email, který vyhledáš v databázi" });
+  SQLInterface.getUserByOauthID(id).then((result) =>
+    done(null, { id: result.id, email: result.email })
+  );
 });
 
 passport.use(
@@ -32,7 +38,7 @@ passport.use(
     (accessToken, refreshToken, profile, done) => {
       console.log("New user");
       console.log(profile);
-      SQLInterface.addNewUserToDatabase(profile);
+      SQLInterface.addNewUserToDatabase(profile).then(); //asynchronní
       const user = {
         id: profile.id,
         email: profile.emails[0].value,
