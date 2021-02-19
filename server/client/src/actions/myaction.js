@@ -1,10 +1,18 @@
 import axios from "axios";
+import { getCurrentUser, logout as apilogout } from "api";
 
 export const fetchUserAction = () => {
    return (dispatch) => {
-      axios.get("/api/current_user").then((res) => {
-         console.log(res);
+      getCurrentUser.then((res) => {
          dispatch({ type: "GET_USER", payload: res.data });
+      });
+   };
+};
+
+export const logout = () => {
+   return (dispatch) => {
+      apilogout.then((res) => {
+         dispatch({ type: "LOGOUT", payload: res.data });
       });
    };
 };

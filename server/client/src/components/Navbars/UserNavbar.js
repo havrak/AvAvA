@@ -20,9 +20,11 @@ import { useLocation } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
 
 import routes from "routes.js";
-import { logout } from "api";
 
-function Header() {
+import { connect } from "react-redux";
+import { logout as logoutFunction } from "../../actions/myaction";
+
+function Header({logout}) {
    const location = useLocation();
    const mobileSidebarToggle = (e) => {
       e.preventDefault();
@@ -166,7 +168,7 @@ function Header() {
                   <Nav.Item>
                      <Nav.Link
                         className="m-0"
-                        href="#pablo"
+                        href="/"
                         onClick={(e) => {
                            logout();
                         }}
@@ -180,5 +182,12 @@ function Header() {
       </Navbar>
    );
 }
+const mapDispathToProps = (dispatch) => {
+   return {
+      logout: () => {
+         dispatch(logoutFunction());
+      },
+   };
+};
 
-export default Header;
+export default connect(null, mapDispathToProps)(Header);

@@ -1,7 +1,6 @@
 {
   "name": "light-bootstrap-dashboard-react",
   "version": "2.0.0",
-  "type": "module",
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.15.2",
     "axios": "^0.21.1",
@@ -16,9 +15,13 @@
     "react-chartist": "0.14.3",
     "react-dom": "17.0.1",
     "react-notification-alert": "0.0.13",
+    "react-redux": "^7.2.2",
     "react-router": "5.2.0",
     "react-router-dom": "5.2.0",
-    "react-scripts": "4.0.1"
+    "react-scripts": "4.0.1",
+    "react-thunk": "^1.0.0",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0"
   },
   "optionalDependencies": {
     "jquery": "3.5.1",
