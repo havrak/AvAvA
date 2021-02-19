@@ -24,7 +24,7 @@ export function test() {
 }
 
 function mkRequest(opts) {
-  return new Promise((resolve, err) => {
+  return new Promise((resolve, err) =>
     https.get(opts, (res) => {
       let body = "";
       res.on("data", (d) => (body += d));
@@ -32,8 +32,8 @@ function mkRequest(opts) {
         body = JSON.parse(body.toString());
         res.statusCode < 400 ? resolve(body.metadata) : err(body);
       });
-    });
-  });
+    })
+  );
 }
 
 export function getInstances() {

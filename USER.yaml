@@ -1,7 +1,7 @@
-openapi: '3.0.2'
+openapi: "3.0.2"
 info:
   title: User API
-  version: '1.0'
+  version: "1.0"
 servers:
   - url: https://api.server.test/v1
 paths:
@@ -9,7 +9,7 @@ paths:
     get:
       description: State of all used resources of all containers of the current user in percentage of the total resources allocated for the user. In case user visits the frontend statistics, the function is called every second.
       responses:
-        '200':
+        "200":
           description: objekt stavu
           content:
             application/json:
@@ -17,8 +17,8 @@ paths:
                 type: object
                 properties:
                   state:
-                    $ref: '#/components/schemas/ResourceState'
-#  /stateDetailed: #nebo /instances#get ??
+                    $ref: "#/components/schemas/ResourceState"
+  #  /stateDetailed: #nebo /instances#get ??
   /instances:
     get:
       description: Get all available containers
@@ -30,14 +30,14 @@ paths:
             type: boolean
           description: If containers of other users should be returned too (available only for admins)
       responses:
-        '200':
+        "200":
           description: All containers available for this user were successfully returned
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Container'
+                  $ref: "#/components/schemas/Container"
     post:
       description: Create a new instance
       requestBody:
@@ -85,16 +85,16 @@ paths:
                 - configurationType
                 - applicationToInstall
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OperationState'
+                $ref: "#/components/schemas/OperationState"
   /instances/createConfigData:
     get:
       responses:
-        '200':
+        "200":
           description: Returns all data that are necesarry to create a container
           content:
             application/json:
@@ -104,7 +104,7 @@ paths:
                   templateTypes:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Template'
+                      $ref: "#/components/schemas/Template"
                   applicationsToInstall:
                     type: array
                     items:
@@ -154,13 +154,13 @@ paths:
             type: integer
           description: ID of the container to be querried
       responses:
-        '200':
+        "200":
           description: Successful state info return
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Container'
-    
+                $ref: "#/components/schemas/Container"
+
   /instances/{id}/state: #nebo /info
     get:
       parameters:
@@ -171,12 +171,12 @@ paths:
             type: integer
           description: ID of the container which state is requested
       responses:
-        '200':
+        "200":
           description: Successful state info return
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResourceState'
+                $ref: "#/components/schemas/ResourceState"
   /instances/{id}/console: #TODO
     get:
       parameters:
@@ -187,7 +187,7 @@ paths:
             type: integer
           description: ID of the container for which we start the console
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -207,7 +207,7 @@ paths:
   #      '200':
   #        description: OK
   /instances/{id}/snapshots:
-    get: 
+    get:
       description: Retreives the list of all snapshots for given container
       parameters:
         - in: path
@@ -217,14 +217,14 @@ paths:
             type: integer
           description: ID of the container to be snapshotted
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Snapshot'
+                  $ref: "#/components/schemas/Snapshot"
     post:
       parameters:
         - in: path
@@ -240,7 +240,7 @@ paths:
             type: string
           description: Name of the snapshot to be created
       responses:
-         '200':
+        "200":
           description: OK
   /instances/{id}/restore/{snapshotId}:
     patch:
@@ -258,12 +258,12 @@ paths:
             type: integer
           description: ID of the snapshot to be used for updating the container files
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OperationState'
+                $ref: "#/components/schemas/OperationState"
   /instances/{id}/export:
     get:
       parameters:
@@ -274,7 +274,7 @@ paths:
             type: integer
           description: ID of the downloaded container
       responses:
-        '200':
+        "200":
           description: Running
           content:
             application/json:
@@ -288,17 +288,17 @@ paths:
           required: true
           name: containerFile
           schema:
-             type: string
-             format: binary
+            type: string
+            format: binary
           description: The container file to be uploaded
       responses:
-         '200':
-            description: File is uploading
-            content:
-               application/json:
-                  schema:
-                     type: integer
-                     description: ID to the process
+        "200":
+          description: File is uploading
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: ID to the process
   /instances/{id}/start:
     patch:
       parameters:
@@ -309,12 +309,12 @@ paths:
             type: integer
           description: ID of the used container
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OperationState'
+                $ref: "#/components/schemas/OperationState"
   /instances/{id}/stop:
     patch:
       parameters:
@@ -325,12 +325,12 @@ paths:
             type: integer
           description: ID of the container to be stopped
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OperationState'
+                $ref: "#/components/schemas/OperationState"
   /instances/{id}/freeze:
     patch:
       parameters:
@@ -341,12 +341,12 @@ paths:
             type: integer
           description: ID of the container to be frozen
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OperationState'
+                $ref: "#/components/schemas/OperationState"
   /instances/{id}/unfreeze:
     patch:
       parameters:
@@ -357,12 +357,12 @@ paths:
             type: integer
           description: ID of the container to be unfrozen
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OperationState'
+                $ref: "#/components/schemas/OperationState"
 components:
   schemas:
     Container:
@@ -372,8 +372,8 @@ components:
           type: number
         name:
           type: string
-        template: 
-          $ref: '#/components/schemas/Template'
+        template:
+          $ref: "#/components/schemas/Template"
         ipv4:
           type: string
         ipv6:
@@ -435,9 +435,9 @@ components:
               items:
                 type: object
                 properties:
-                  userName: 
+                  userName:
                     type: string
-                  usage: 
+                  usage:
                     type: integer
                     description: Disk usage of this user in B
             percentConsumed:
@@ -450,16 +450,16 @@ components:
             properties:
               networkName:
                 type: string
-              adresses:
+              addresses:
                 type: array
                 items:
                   type: object
-                  properties: 
+                  properties:
                     family:
                       type: string
-                    adress:
+                    address:
                       type: string
-                    netmask: 
+                    netmask:
                       type: integer
                     scope:
                       type: string
@@ -470,7 +470,7 @@ components:
                     type: integer
                   bytesSent:
                     type: integer
-                  packetsReceived: 
+                  packetsReceived:
                     type: integer
                   packetsSent:
                     type: integer
@@ -478,7 +478,7 @@ components:
                 type: string
               hostName:
                 type: string
-              mtu: 
+              mtu:
                 type: integer
               state:
                 type: string
@@ -504,10 +504,11 @@ components:
           description: True if state of the container should be maintained
     OperationState:
       type: object
-      properties: 
+      properties:
         status:
           type: string
         statusCode:
           type: integer
         metadata:
           type: object
+
