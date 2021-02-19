@@ -28,6 +28,7 @@ function mkOpts(path) {
     rejectUnauthorized: false,
   };
 }
+
 function mkRequest(opts) {
   return new Promise((resolve, err) =>
     https.get(opts, (res) => {
@@ -44,9 +45,9 @@ function mkRequest(opts) {
 export async function test() {
   let instance = await getInstances();
   instance = await getInstance(instance[0].substring("15"));
-  console.log(instance);
+  //console.log(instance);
   //console.log((await getSnapshots(instance.id))[0]);
-  //console.log(await getState(instance.id));
+  //console.log((await getState(instance.id)).CPU.percentConsumed);
 }
 
 // may need userID, not sure what it's supposed to do
@@ -58,7 +59,7 @@ export async function getInstances() {
   return mkRequest(mkOpts("/1.0/instances"));
 }
 
-// Returns Instance object, filled in
+// Returns Instance object, filled in Template.image,
 // id, persistent, timestamp, OperationState.
 export async function getInstance(id) {
   let data = await mkRequest(mkOpts("/1.0/instances/" + id));
@@ -121,10 +122,9 @@ export async function getState(id) {
   }, 1000);
   let dataNew = await mkRequest(mkOpts("/1.0/instances/" + id + "/state"));
   rs.CPU.percentConsumed =
-    ((dataNew.cpu.usage - data.cpu.usage) /
-      1000000 /
-      (limit < 1 ? os.cpus().length : limit)) *
-    1000;
+    (dataNew.cpu.usage - data.cpu.usage) /
+    10000000 /
+    (limit < 1 ? os.cpus().length - 6 : limit);
   return rs;
 }
 
