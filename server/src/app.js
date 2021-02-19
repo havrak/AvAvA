@@ -9,9 +9,9 @@ import "./models/User.js";
 import "./services/passport.js";
 //import * as bodyParser from "body-parser";
 // import { SQLInterface } from "./databaseInterface.js";
-import * as lxd from "./routes/lxdquery.js";
+//import * as lxd from "./routes/lxdquery.js";
 
-lxd.test();
+//lxd.test();
 
 app.use(
   cookieSession({

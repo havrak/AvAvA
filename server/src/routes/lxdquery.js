@@ -4,6 +4,7 @@ import path from "path";
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 import * as RS from "../models/ResourceState.js";
 import Instance from "../models/Instance.js";
+import Template from "../models/Template.js";
 import OperationState from "../models/OperationState.js";
 import Snapshot from "../models/Snapshot.js";
 import os from "os";
@@ -40,12 +41,12 @@ function mkRequest(opts) {
   );
 }
 
-//Promise.all
 export async function test() {
   let instance = await getInstances();
   instance = await getInstance(instance[0].substring("15"));
+  console.log(instance);
   //console.log((await getSnapshots(instance.id))[0]);
-  console.log(await getState(instance.id));
+  //console.log(await getState(instance.id));
 }
 
 // may need userID, not sure what it's supposed to do
@@ -65,6 +66,12 @@ export async function getInstance(id) {
   instance.OperationState = new OperationState(data.status, data.status_code);
   instance.timestamp = new Date(data.created_at).getTime();
   instance.persistent = data.type == "persistent";
+  instance.template = new Template();
+  if (data.config["image.os"] !== undefined) {
+    instance.template.image.os = data.config["image.os"];
+    instance.template.image.version = data.config["image.version"];
+    instance.template.image.description = data.config["image.description"];
+  }
   return instance;
 }
 

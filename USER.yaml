@@ -392,6 +392,9 @@ components:
           description: Id of a template generatd by database
         name:
           type: string
+        timestamp:
+          type: integer
+          description: Date of Template creation
         image:
           type: object
           properties:
@@ -399,11 +402,14 @@ components:
               type: string
               description: Distribution name
             version:
-              type: integer
+              type: string
               description: Version of the distribution
-        somethingElse:
+            description:
+              type: string
+              description: Further description of the image
+        description:
           type: string
-          description: TODO
+          description: Everything else client should know
     ResourceState:
       type: object
       properties:
@@ -512,4 +518,3 @@ components:
           type: string
         statusCode:
           type: integer
-

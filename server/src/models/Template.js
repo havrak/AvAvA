@@ -1,9 +1,11 @@
-export default {
-  id: 0,
-  name: "",
-  image: {
-    os: "",
-    version: 0,
-  },
-  options: null,
-};
+export default class Template {
+  id;
+  name;
+  timestamp;
+  image = {
+    os: undefined,
+    version: undefined,
+    description: undefined,
+  };
+  description;
+}
