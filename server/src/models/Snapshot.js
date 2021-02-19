@@ -1,6 +1,13 @@
-export default {
-  id: 0,
-  name: "",
-  timestamp: 0,
-  stateful: false,
-};
+export default class Snapshot {
+  constructor(id, name, timestamp, stateful) {
+    this.id = id;
+    this.name = name;
+    this.timestamp = timestamp;
+    this.stateful = stateful;
+  }
+
+  id;
+  name;
+  timestamp;
+  stateful;
+}

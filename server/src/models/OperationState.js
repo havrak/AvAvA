@@ -1,5 +1,9 @@
-export default {
-  status: "",
-  statusCode: 0,
-  metadata: null,
-};
+export default class OperationState {
+  constructor(status, statusCode) {
+    this.status = status;
+    this.statusCode = statusCode;
+  }
+
+  status;
+  statusCode;
+}

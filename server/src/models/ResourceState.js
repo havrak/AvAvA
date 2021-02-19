@@ -1,47 +1,46 @@
-export default {
-  status: "",
-  statusCode: 0,
-  CPU: {
-    consumedTime: 0,
-    percentConsumed: 0,
-  },
-  RAM: {
-    usage: 0,
-    usagePeak: 0,
-    percentConsumed: 0,
-  },
-  disk: {
+export class ResourceState {
+  OperationState;
+  CPU = {
+    consumedTime: undefined,
+    percentConsumed: undefined,
+  };
+  RAM = {
+    usage: undefined,
+    usagePeak: undefined,
+    percentConsumed: undefined,
+  };
+  disk = {
     currentlyCosumedMemory: [],
-    percentConsumed: 0,
-  },
-  networks: [],
-  numberOfProcesses: 0,
-};
+    percentConsumed: undefined,
+  };
+  networks = new Array();
+  numberOfProcesses;
+}
 
-export const userDiskSpace = {
-  user: "",
-  usage: 0,
-};
+export class UserDiskSpace {
+  user;
+  usage;
+}
 
-export const network = {
-  networkName: "",
-  addresses: [],
-  counters: {
-    bytesRecieved: 0,
-    bytesSent: 0,
-    packetsRecieved: 0,
-    packetsSent: 0,
-  },
-  hwaddr: "",
-  hostName: "",
-  mtu: 0,
-  state: "",
-  type: "",
-};
+export class Network {
+  networkName;
+  addresses = new Array();
+  counters = {
+    bytesRecieved: undefined,
+    bytesSent: undefined,
+    packetsRecieved: undefined,
+    packetsSent: undefined,
+  };
+  hwaddr;
+  hostName;
+  mtu;
+  state;
+  type;
+}
 
-export const address = {
-  family: "",
-  address: "",
-  netmask: 0,
-  scope: 0,
-};
+export class Address {
+  family;
+  address;
+  netmask;
+  scope;
+}

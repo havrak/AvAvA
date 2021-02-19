@@ -1,6 +1,9 @@
 export default {
   id: 0,
   name: "",
-  image: "",
+  image: {
+    os: "",
+    version: 0,
+  },
   options: null,
 };

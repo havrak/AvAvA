@@ -159,7 +159,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Container"
+                $ref: "#/components/schemas/Instance"
 
   /instances/{id}/state: #nebo /info
     get:
@@ -365,7 +365,7 @@ paths:
                 $ref: "#/components/schemas/OperationState"
 components:
   schemas:
-    Container:
+    Instance:
       type: object
       properties:
         id:
@@ -382,10 +382,8 @@ components:
           type: boolean
         timestamp:
           type: integer
-        running:
-          type: boolean
-        statusCode:
-          type: integer
+        OperationState:
+          $ref: "#/components/schemas/OperationState"
     Template:
       type: object
       properties:
@@ -395,17 +393,22 @@ components:
         name:
           type: string
         image:
-          type: string
+          type: object
+          properties:
+            os:
+              type: string
+              description: Distribution name
+            version:
+              type: integer
+              description: Version of the distribution
         somethingElse:
           type: string
           description: TODO
     ResourceState:
       type: object
       properties:
-        status:
-          type: string
-        statusCode:
-          type: integer
+        OperationState:
+          $ref: "#/components/schemas/OperationState"
         CPU:
           type: object
           properties:
@@ -509,6 +512,4 @@ components:
           type: string
         statusCode:
           type: integer
-        metadata:
-          type: object
 
