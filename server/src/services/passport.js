@@ -1,6 +1,7 @@
 import passport from "passport";
 import { keys } from "../../config/keys.js";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { SQLInterface } from "./databaseInterface.js";
 
 //možná bude nutné u serializeUser, deserializeUser a třetí metodě (accessToken, refreshToken, profile, done) přidat do hlavičky async a pracovat s await, jelikož v nich pracujete s databází, což je asynchronní operace. Potom byste to museli přidávat i do všech routů, ze kterých to voláte. Udělejte to pouze, když to bez nich nebude fungovat //asynchronní
 

@@ -1,11 +1,11 @@
 export default class Template {
-  id;
-  name;
-  timestamp;
+  id; // corresponds to id
+  name; // corresponds to profileName
+  timestamp; // corresponds to timestamp
   image = {
-    os: undefined,
-    version: undefined,
-    description: undefined,
+    os: undefined, // corresponds to imageName
+    version: undefined, // corresponds to version
+    description: undefined, // correspond to imageDescription
   };
-  description;
+  description; // corresponds to profileDescription
 }
