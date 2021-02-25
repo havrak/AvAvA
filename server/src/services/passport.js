@@ -20,9 +20,7 @@ passport.deserializeUser((id, done) => {
   //V proměnné id je uložené id uživatele, které je vráceno metodou serializeUser a uloženo v session souboru. Na základě něj přistup do databáze a zavolej done(null, userFromDatabaseWithAllTheData)
   console.log("deserialize");
   console.log(id);
-  SQLInterface.getUserByOauthID(id).then((result) =>
-    done(null, { id: result.id, email: result.email })
-  );
+  SQLInterface.getUserByID(id).then((result) => done(null, result));
 });
 
 passport.use(
