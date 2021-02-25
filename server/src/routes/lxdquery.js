@@ -1,4 +1,5 @@
 import https from "https";
+import querystring from "querystring";
 import fs from "fs";
 import path from "path";
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
@@ -15,9 +16,9 @@ const crt = fs.readFileSync(
   path.resolve(__dirname, "../../config/lxcclient.crt")
 );
 
-function mkOpts(path) {
+function mkOpts(path, method) {
   return {
-    method: "GET",
+    method: method || "GET",
     hostname: "127.0.0.1",
     port: 8443,
     path: path,
@@ -29,25 +30,43 @@ function mkOpts(path) {
   };
 }
 
-function mkRequest(opts) {
-  return new Promise((resolve, err) =>
-    https.get(opts, (res) => {
+function mkRequest(path, method, data) {
+  let opts = mkOpts(path, method);
+  if (data !== undefined) {
+    data = querystring.stringify({
+      compilation_level: "ADVANCED_OPTIMIZATIONS",
+      output_format: "json",
+      output_info: "compiled_code",
+      warning_level: "QUIET",
+      js_code: data,
+    });
+    opts.headers = {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Length": Buffer.byteLength(data),
+    };
+  }
+  return new Promise((resolve, err) => {
+    let req = https.request(opts, (res) => {
       let body = "";
+      res.setEncoding("utf8");
       res.on("data", (d) => (body += d));
       res.on("end", () => {
-        body = JSON.parse(body.toString());
-        res.statusCode < 400 ? resolve(body.metadata) : err(body);
+        res.statusCode < 400
+          ? resolve(JSON.parse(body.toString()).metadata)
+          : console.log(body);
       });
-    })
-  );
+    });
+    if (data !== undefined) req.write(data);
+    req.end();
+    console.log(req);
+  });
 }
 
 export async function test() {
-  let instance = await getInstances();
-  instance = await getInstance(instance[0].substring("15"));
-  //console.log(instance);
+  //console.log(await getInstance("test"));
+  console.log(await exportInstance("test"));
   //console.log((await getSnapshots(instance.id))[0]);
-  //console.log((await getState(instance.id)).CPU.percentConsumed);
+  //console.log(await getState(instances[0].id));
 }
 
 // may need userID, not sure what it's supposed to do
@@ -56,13 +75,18 @@ export async function getOverallState() {
 }
 
 export async function getInstances() {
-  return mkRequest(mkOpts("/1.0/instances"));
+  let routes = await mkRequest("/1.0/instances");
+  let instances = new Array();
+  for (let i = 0; i < routes.length; i++) {
+    instances.push(await getInstance(routes[i].substring("15")));
+  }
+  return instances;
 }
 
 // Returns Instance object, filled in Template.image,
 // id, persistent, timestamp, OperationState.
 export async function getInstance(id) {
-  let data = await mkRequest(mkOpts("/1.0/instances/" + id));
+  let data = await mkRequest("/1.0/instances/" + id);
   let instance = new Instance(id);
   instance.OperationState = new OperationState(data.status, data.status_code);
   instance.timestamp = new Date(data.created_at).getTime();
@@ -78,14 +102,14 @@ export async function getInstance(id) {
 
 export async function getState(id) {
   let limit;
-  mkRequest(mkOpts("/1.0/instances/" + id)).then(
+  mkRequest("/1.0/instances/" + id).then(
     (d) =>
       (limit =
         d.config.limits === undefined || d.config.limits.cpu === undefined
           ? 0
           : d.config.limits.cpu)
   );
-  let data = await mkRequest(mkOpts("/1.0/instances/" + id + "/state"));
+  let data = await mkRequest("/1.0/instances/" + id + "/state");
   let rs;
   //use the time efficiently and while the measurement waits
   //for another measure, we put all available data in its place
@@ -120,7 +144,7 @@ export async function getState(id) {
     rs.numberOfProcesses = data.processes;
     setTimeout(resolve, 1000);
   }, 1000);
-  let dataNew = await mkRequest(mkOpts("/1.0/instances/" + id + "/state"));
+  let dataNew = await mkRequest("/1.0/instances/" + id + "/state");
   rs.CPU.percentConsumed =
     (dataNew.cpu.usage - data.cpu.usage) /
     10000000 /
@@ -130,7 +154,7 @@ export async function getState(id) {
 
 // Returns array of snapshot objects for the given container.
 export async function getSnapshots(id) {
-  let snaps = await mkRequest(mkOpts("/1.0/instances/" + id + "/snapshots"));
+  let snaps = await mkRequest("/1.0/instances/" + id + "/snapshots");
   let prefix = ("/1.0/instances/" + id + "/snapshots/").length;
   let snapshots = new Array();
   for (let i = 0; i < snaps.length; i++) {
@@ -149,4 +173,14 @@ export async function getSnapshot(id, sid) {
     new Date(data.created_at).getTime(),
     data.stateful
   );
+}
+
+export async function exportInstance(id) {
+  let req = await mkRequest("/1.0/instances/" + id + "/backups", "POST", {
+    name: "b1",
+    expiry: 1200,
+    instance_only: true,
+    optimized_storage: true,
+  });
+  console.log(req);
 }
