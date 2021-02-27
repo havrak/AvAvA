@@ -10,10 +10,7 @@ passport.serializeUser((user, done) => {
   //  na základě mailu
   //
   console.log("serialize");
-  SQLInterface.getIdForUser(user.email).then((result) => {
-    done(null, result.id);
-  });
-  done(null, null);
+  done(null, user.id);
 });
 
 passport.deserializeUser((id, done) => {
@@ -34,12 +31,10 @@ passport.use(
     (accessToken, refreshToken, profile, done) => {
       console.log("New user");
       console.log(profile);
-      SQLInterface.addNewUserToDatabase(profile).then(); //asynchronní
-      const user = {
-        id: profile.id,
-        email: profile.emails[0].value,
-      };
-      done(null, user);
+      SQLInterface.addNewUserToDatabaseAndReturnIt(profile).then((result) => {
+        done(null, result);
+      });
+      //done(null, user);
       //TATO METODA SE VOLÁ JEN JEDNOU a to při přihlášení, jinak se volají serialize a deserializeUser, které využívají na autentifikaci session
       //zjisti, zda uživatel s profile.emails[0].value je uložen v databázi. Pokud ano, vrať objekt získaný z databáze - zavolej done(null, existingUser).
       //Pokud ne, ulož do databáze nového uživatele a zavolej done(null, newUser)

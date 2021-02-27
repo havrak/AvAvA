@@ -27,7 +27,7 @@ export class SQLInterface {
       const con = mysql.createConnection(config);
       con.query("SELECT * FROM templates", (err, rows) => {
         if (err) throw err;
-        toReturn = [rows.length];
+        let toReturn = [rows.length];
         for (i = 0; i < rows.length; i++) {
           toReturn[i] = new Template();
           toReturn[i].id = rows[i].id;
@@ -69,15 +69,23 @@ export class SQLInterface {
     });
   }
 
-  static getIdForUser(email) {
+  static getUserByEmail(email) {
+    console.log(email);
     return new Promise((resolve) => {
       const con = mysql.createConnection(config);
       con.query(
-        "SELECT id FROM users WHERE email LIKE ?",
+        "SELECT * FROM users WHERE email LIKE ?",
         [email], // by default user is standart user
         (err, rows) => {
           if (err) throw err;
-          resolve(rows[0]);
+          let user = new User();
+          console.log(rows[0]);
+          user.id = rows[0].id;
+          user.email = rows[0].email;
+          user.familyName = rows[0].family_name;
+          user.givenName = rows[0].given_name;
+          user.role = rows[0].role;
+          resolve(user);
         }
       );
     });
@@ -91,13 +99,13 @@ export class SQLInterface {
         [id], // by default user is standart user
         (err, rows) => {
           if (err) throw err;
-          user = new User();
+          let user = new User();
 
           user.id = rows[0].id;
           user.email = rows[0].email;
           user.familyName = rows[0].family_name;
           user.givenName = rows[0].given_name;
-          user.role = role;
+          user.role = rows[0].role;
           resolve(user);
         }
       );
@@ -108,7 +116,7 @@ export class SQLInterface {
    * adds new user do database
    *
    */
-  static addNewUserToDatabase(user) {
+  static addNewUserToDatabaseAndReturnIt(user) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(config);
       console.log("Added new user");
@@ -121,7 +129,20 @@ export class SQLInterface {
           } else if (err) {
             throw err;
           }
-          resolve("done");
+        }
+      );
+      con.query(
+        "SELECT * FROM users WHERE email LIKE ?",
+        [user.emails[0].value], // by default user is standart user
+        (err, rows) => {
+          if (err) throw err;
+          let user = new User();
+          user.id = rows[0].id;
+          user.email = rows[0].email;
+          user.familyName = rows[0].family_name;
+          user.givenName = rows[0].given_name;
+          user.role = rows[0].role;
+          resolve(user);
         }
       );
     });
