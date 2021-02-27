@@ -14,10 +14,10 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-   //V proměnné id je uložené id uživatele, které je vráceno metodou serializeUser a uloženo v session souboru. Na základě něj přistup do databáze a zavolej done(null, userFromDatabaseWithAllTheData)
-   console.log("deserialize");
-   console.log(id);
-   SQLInterface.getUserByID(id).then((user) => done(null, user));
+  //V proměnné id je uložené id uživatele, které je vráceno metodou serializeUser a uloženo v session souboru. Na základě něj přistup do databáze a zavolej done(null, userFromDatabaseWithAllTheData)
+  console.log("deserialize");
+  console.log(id);
+  SQLInterface.getUserByID(id).then((result) => done(null, result));
 });
 
 passport.use(

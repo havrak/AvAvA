@@ -5,24 +5,27 @@ import User from "./../models/User.js";
 import config from "./../../config/sqlconfig.js";
 
 export class SQLInterface {
-   constructor() {}
+  constructor() {}
 
-   static getProfilePath(id) {
-      return new Promise((resolve) => {
-         const con = mysql.createConnection(config);
-         con.query(
-            "SELECT profilePath FROM templates WHERE id = ?",
-            [id],
-            (err, rows) => {
-               if (err) throw err;
-               resolve(rows[0].profilePath);
-            }
-         );
-         resolve(null);
-      });
-   }
+  static getProfilePath(id) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(config);
+      con.query(
+        "SELECT profilePath FROM templates WHERE id = ?",
+        [id],
+        (err, rows) => {
+          if (err) throw err;
+          resolve(rows[0].profilePath);
+        }
+      );
+      resolve(null);
+    });
+  }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 33842c2... 	modified:   server/src/services/databaseInterface.js
   static getAllTemplates() {
     return new Promise((resolve) => {
       const con = mysql.createConnection(config);
@@ -40,6 +43,7 @@ export class SQLInterface {
           toReturn[i].description = rows[i].profileDescription;
         }
         resolve(toReturn);
+<<<<<<< HEAD
 =======
    static getAllTemplates() {
       return new Promise((resolve) => {
@@ -61,35 +65,42 @@ export class SQLInterface {
          });
          resolve(null);
 >>>>>>> 1950d72... 	modified:   server/src/services/databaseInterface.js
+=======
+>>>>>>> 33842c2... 	modified:   server/src/services/databaseInterface.js
       });
-   }
+      resolve(null);
+    });
+  }
 
-   static addNewTemplate(template, templatePath) {
-      return new Promise((resolve) => {
-         const con = mysql.createConnection(config);
-         con.query(
-            "INSERT INTO templates (id, timestamp, profileName, imageName, version, profileDescription, imageDescription, profilePath) VALUES (NULL, 'CURRENT_TIMESTAMP(6).000000', ?, ?, ?, ?, ?, ?)",
-            [
-               (template.name,
-               template.image.os,
-               template.image.version,
-               template.description,
-               template.image.description,
-               templatePath),
-            ], // by default user is standart user
-            (err, rows) => {
-               if ((err.code = "ER_DUP_ENTRY")) {
-                  console.log("Template is already stored in DB");
-               } else if (err) {
-                  throw err;
-               }
-               resolve("done");
-            }
-         );
-      });
-   }
+  static addNewTemplate(template, templatePath) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(config);
+      con.query(
+        "INSERT INTO templates (id, timestamp, profileName, imageName, version, profileDescription, imageDescription, profilePath) VALUES (NULL, 'CURRENT_TIMESTAMP(6).000000', ?, ?, ?, ?, ?, ?)",
+        [
+          (template.name,
+          template.image.os,
+          template.image.version,
+          template.description,
+          template.image.description,
+          templatePath),
+        ], // by default user is standart user
+        (err, rows) => {
+          if ((err.code = "ER_DUP_ENTRY")) {
+            console.log("Template is already stored in DB");
+          } else if (err) {
+            throw err;
+          }
+          resolve("done");
+        }
+      );
+    });
+  }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 33842c2... 	modified:   server/src/services/databaseInterface.js
   static getUserByEmail(email) {
     console.log(email);
     return new Promise((resolve) => {
@@ -111,6 +122,7 @@ export class SQLInterface {
       );
     });
   }
+<<<<<<< HEAD
 
   static getUserByID(id) {
     return new Promise((resolve) => {
@@ -182,28 +194,31 @@ export class SQLInterface {
          );
       });
    }
+=======
+>>>>>>> 33842c2... 	modified:   server/src/services/databaseInterface.js
 
-   static getUserByID(id) {
-      return new Promise((resolve) => {
-         const con = mysql.createConnection(config);
-         con.query(
-            "SELECT * FROM users WHERE id LIKE ?",
-            [id], // by default user is standart user
-            (err, rows) => {
-               if (err) throw err;
-               user = new User();
+  static getUserByID(id) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(config);
+      con.query(
+        "SELECT * FROM users WHERE id LIKE ?",
+        [id], // by default user is standart user
+        (err, rows) => {
+          if (err) throw err;
+          let user = new User();
 
-               user.id = rows[0].id;
-               user.email = rows[0].email;
-               user.familyName = rows[0].family_name;
-               user.givenName = rows[0].given_name;
-               user.role = role;
-               resolve(user);
-            }
-         );
-      });
-   }
+          user.id = rows[0].id;
+          user.email = rows[0].email;
+          user.familyName = rows[0].family_name;
+          user.givenName = rows[0].given_name;
+          user.role = rows[0].role;
+          resolve(user);
+        }
+      );
+    });
+  }
 
+<<<<<<< HEAD
    /*
     * adds new user do database
     *
@@ -228,3 +243,41 @@ export class SQLInterface {
    }
 >>>>>>> 1950d72... 	modified:   server/src/services/databaseInterface.js
 }
+=======
+  /*
+   * adds new user do database
+   *
+   */
+  static addNewUserToDatabaseAndReturnIt(user) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(config);
+      console.log("Added new user");
+      con.query(
+        "INSERT INTO users (id, email, given_name, family_name, role) VALUES (NULL,?,?,?,?);",
+        [user.emails[0].value, user.name.givenName, user.name.familyName, 0], // by default user is standart user
+        (err, rows) => {
+          if ((err.code = "ER_DUP_ENTRY")) {
+            console.log("User is already stored in DB");
+          } else if (err) {
+            throw err;
+          }
+        }
+      );
+      con.query(
+        "SELECT * FROM users WHERE email LIKE ?",
+        [user.emails[0].value], // by default user is standart user
+        (err, rows) => {
+          if (err) throw err;
+          let user = new User();
+          user.id = rows[0].id;
+          user.email = rows[0].email;
+          user.familyName = rows[0].family_name;
+          user.givenName = rows[0].given_name;
+          user.role = rows[0].role;
+          resolve(user);
+        }
+      );
+    });
+  }
+}
+>>>>>>> 33842c2... 	modified:   server/src/services/databaseInterface.js
