@@ -1,11 +1,20 @@
 import axios from "axios";
-import { getCurrentUser, logout as apilogout } from "api";
 
-export const fetchUserAction = () => {
+import * as UserApi from "../api/index";
+
+const api = new UserApi.DefaultApi();
+
+export const combinedDataGet = () => {
    return (dispatch) => {
-      getCurrentUser.then((res) => {
-         dispatch({ type: "GET_USER", payload: res.data });
-      });
+      const callback = function (error, data, response) {
+         if (error) {
+            console.error(error);
+         } else {
+            dispatch({ type: "COMBINED_DATA_GET", payload: data });
+            console.log(data);
+         }
+      };
+      api.combinedDataGet(callback);
    };
 };
 

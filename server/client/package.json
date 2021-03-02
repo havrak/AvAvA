@@ -21,7 +21,8 @@
     "react-scripts": "4.0.1",
     "react-thunk": "^1.0.0",
     "redux": "^4.0.5",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "superagent": "^6.1.0"
   },
   "optionalDependencies": {
     "jquery": "3.5.1",

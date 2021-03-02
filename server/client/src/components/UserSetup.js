@@ -1,14 +1,14 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { fetchUserAction } from "../actions/myaction";
+import { combinedDataGet } from "../actions/myaction";
 import { Redirect } from "react-router-dom";
 import { isConstructorDeclaration } from "typescript";
 import axios from "axios";
 
-function UserSetup({ fetchUser, user }) {
+function UserSetup({ combinedDataGet, user }) {
    useEffect(()=> {
-      fetchUser();
+      combinedDataGet();
    },[])
    if (user) {
       console.log("user:" + user.email);
@@ -26,8 +26,8 @@ const mapStateToProps = (state) => {
 
 const mapDispathToProps = (dispatch) => {
    return {
-      fetchUser: () => {
-         dispatch(fetchUserAction());
+      combinedDataGet: () => {
+         dispatch(combinedDataGet());
       },
    };
 };

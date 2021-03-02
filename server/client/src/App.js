@@ -35,7 +35,7 @@ function App(props) {
    return (
       <BrowserRouter>
          <Switch>
-            <ProtectedRoute path="/user" component={UserLayout} />
+            <Route path="/user" component={UserLayout} />
             {/* <Redirect from="/" to="/user/dashboard" /> */}
             <Route path="/userSetup">
                <UserSetup />
