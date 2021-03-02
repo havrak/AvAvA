@@ -1,6 +1,6 @@
-export const authReducer = (state = null, action) => {
+export const combinedUserDataReducer = (state = null, action) => {
    switch (action.type) {
-      case "GET_USER":
+      case "COMBINED_DATA_GET":
          return action.payload || false;
       case "LOGOUT":
          return null;

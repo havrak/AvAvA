@@ -6,12 +6,12 @@ import { Redirect } from "react-router-dom";
 import { isConstructorDeclaration } from "typescript";
 import axios from "axios";
 
-function UserSetup({ combinedDataGet, user }) {
+function UserSetup({ combinedDataGet, userData }) {
    useEffect(()=> {
       combinedDataGet();
    },[])
-   if (user) {
-      console.log("user:" + user.email);
+   if (userData.user) {
+      console.log("user:" + userData.user.email);
       return <Redirect to="/user/dashboard" />;
    } else {
       return <div>Loading</div>;
@@ -20,7 +20,7 @@ function UserSetup({ combinedDataGet, user }) {
 
 const mapStateToProps = (state) => {
    return {
-      user: state.auth,
+      userData: state.combinedUserData,
    };
 };
 

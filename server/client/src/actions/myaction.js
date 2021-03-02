@@ -7,6 +7,8 @@ const api = new UserApi.DefaultApi();
 export const combinedDataGet = () => {
    return (dispatch) => {
       const callback = function (error, data, response) {
+         console.log(data);
+         console.log(response);
          if (error) {
             console.error(error);
          } else {

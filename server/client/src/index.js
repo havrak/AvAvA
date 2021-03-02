@@ -4,7 +4,7 @@ import App from "./App";
 import { Provider } from "react-redux";
 import { createStore, combineReducers, compose, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
-import { authReducer } from "./reducers/authReducer";
+import { combinedUserDataReducer } from "./reducers/combinedUserDataReducer";
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -31,7 +31,7 @@ function loadFromLocalStorage() {
 }
 
 const rootReducer = combineReducers({
-   auth: authReducer,
+   combinedUserData: combinedUserDataReducer,
 });
 
 const persistedState = loadFromLocalStorage();

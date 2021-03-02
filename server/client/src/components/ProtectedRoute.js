@@ -1,6 +1,5 @@
 import React from "react";
 import { Redirect, Route } from "react-router-dom";
-import { getCurrentUser } from "api";
 import { connect } from "react-redux";
 
 const ProtectedRoute = ({ component: Comp, user, path, ...rest }) => {
@@ -25,7 +24,7 @@ const ProtectedRoute = ({ component: Comp, user, path, ...rest }) => {
 
 const mapStateToProps = (state) => {
    return {
-      user: state.auth,
+      user: state.combinedUserData,
    };
 };
 
