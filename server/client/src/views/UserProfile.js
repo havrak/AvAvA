@@ -154,22 +154,22 @@ function User() {
                <Col md="4">
                   <Card className="card-user">
                      <div className="card-image">
-                        <img
+                        {/* <img
                            alt="..."
                            src={
                               require("assets/img/photo-1431578500526-4d9613015464.jpeg")
                                  .default
                            }
-                        ></img>
+                        ></img> */}
                      </div>
                      <Card.Body>
                         <div className="author">
                            <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                              <img
+                              {/* <img
                                  alt="..."
                                  className="avatar border-gray"
                                  src={require("assets/img/faces/face-3.jpg").default}
-                              ></img>
+                              ></img> */}
                               <h5 className="title">Mike Andrew</h5>
                            </a>
                            <p className="description">michael24</p>

@@ -37,7 +37,7 @@ import UserData from './model/UserData';
 import UserProjects from './model/UserProjects';
 import UserProjectsInfo from './model/UserProjectsInfo';
 import UserProjectsState from './model/UserProjectsState';
-import DefaultApi from './DefaultApi';
+import DefaultApi from './api/DefaultApi';
 
 /**
 * Object.<br>

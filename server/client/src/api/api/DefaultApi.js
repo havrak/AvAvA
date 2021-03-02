@@ -11,25 +11,25 @@
  *
  */
 
-import ApiClient from "./ApiClient";
-import Body from './model/Body';
-import Body1 from './model/Body1';
-import Body2 from './model/Body2';
-import Container from './model/Container';
-import ContainerInfo from './model/ContainerInfo';
-import ContainerState from './model/ContainerState';
-import CreateContainerData from './model/CreateContainerData';
-import InlineResponse200 from './model/InlineResponse200';
-import OperationState from './model/OperationState';
-import Project from './model/Project';
-import ProjectInfo from './model/ProjectInfo';
-import ProjectState from './model/ProjectState';
-import Snapshot from './model/Snapshot';
-import User from './model/User';
-import UserData from './model/UserData';
-import UserProjects from './model/UserProjects';
-import UserProjectsInfo from './model/UserProjectsInfo';
-import UserProjectsState from './model/UserProjectsState';
+import ApiClient from "../ApiClient";
+import Body from '../model/Body';
+import Body1 from '../model/Body1';
+import Body2 from '../model/Body2';
+import Container from '../model/Container';
+import ContainerInfo from '../model/ContainerInfo';
+import ContainerState from '../model/ContainerState';
+import CreateContainerData from '../model/CreateContainerData';
+import InlineResponse200 from '../model/InlineResponse200';
+import OperationState from '../model/OperationState';
+import Project from '../model/Project';
+import ProjectInfo from '../model/ProjectInfo';
+import ProjectState from '../model/ProjectState';
+import Snapshot from '../model/Snapshot';
+import User from '../model/User';
+import UserData from '../model/UserData';
+import UserProjects from '../model/UserProjects';
+import UserProjectsInfo from '../model/UserProjectsInfo';
+import UserProjectsState from '../model/UserProjectsState';
 
 /**
 * Default service.

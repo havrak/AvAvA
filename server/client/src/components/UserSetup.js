@@ -11,7 +11,6 @@ function UserSetup({ combinedDataGet, userData }) {
       combinedDataGet();
    },[])
    if (userData.user) {
-      console.log("user:" + userData.user.email);
       return <Redirect to="/user/dashboard" />;
    } else {
       return <div>Loading</div>;

@@ -1,0 +1,13 @@
+.navbar-user-container {
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   flex-wrap: wrap;
+
+   img {
+      height: 40px;
+      border-radius: 50%;
+      // border: 1px solid #626262;
+      margin-right: 10px;
+   }
+}

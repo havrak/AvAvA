@@ -781,6 +781,9 @@ components:
         givenName:
           type: string
           description: first name - given by parents
+        profileImage:
+          type: string
+          description: link to to source of profile image
         role:
           type: integer
           description: 0 = normal user, 1 = admin, 2 = superadmin

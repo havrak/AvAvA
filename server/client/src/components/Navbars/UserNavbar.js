@@ -18,13 +18,12 @@
 import React, { Component } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
+import UserCard from './UserCard';
 
 import routes from "routes.js";
 
-import { connect } from "react-redux";
-import { logout as logoutFunction } from "../../actions/myaction";
 
-function Header({logout}) {
+function Header({logout, user}) {
    const location = useLocation();
    const mobileSidebarToggle = (e) => {
       e.preventDefault();
@@ -71,8 +70,8 @@ function Header({logout}) {
                <span className="navbar-toggler-bar burger-lines"></span>
             </Navbar.Toggle>
             <Navbar.Collapse id="basic-navbar-nav">
-               <Nav className="nav mr-auto" navbar>
-                  <Nav.Item>
+               {/* <Nav className="nav mr-auto" navbar> */}
+                  {/* <Nav.Item>
                      <Nav.Link
                         data-toggle="dropdown"
                         href="#pablo"
@@ -82,8 +81,8 @@ function Header({logout}) {
                         <i className="nc-icon nc-palette"></i>
                         <span className="d-lg-none ml-1">Dashboard</span>
                      </Nav.Link>
-                  </Nav.Item>
-                  <Dropdown as={Nav.Item}>
+                  </Nav.Item> */}
+                  {/* <Dropdown as={Nav.Item}>
                      <Dropdown.Toggle
                         as={Nav.Link}
                         data-toggle="dropdown"
@@ -112,8 +111,8 @@ function Header({logout}) {
                            Another notification
                         </Dropdown.Item>
                      </Dropdown.Menu>
-                  </Dropdown>
-                  <Nav.Item>
+                  </Dropdown> */}
+                  {/* <Nav.Item>
                      <Nav.Link
                         className="m-0"
                         href="#pablo"
@@ -122,72 +121,17 @@ function Header({logout}) {
                         <i className="nc-icon nc-zoom-split"></i>
                         <span className="d-lg-block"> Search</span>
                      </Nav.Link>
-                  </Nav.Item>
-               </Nav>
+                  </Nav.Item> */}
+               {/* </Nav> */}
                <Nav className="ml-auto" navbar>
-                  <Nav.Item>
-                     <Nav.Link
-                        className="m-0"
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                     >
-                        <span className="no-icon">Account</span>
-                     </Nav.Link>
-                  </Nav.Item>
-                  <Dropdown as={Nav.Item}>
-                     <Dropdown.Toggle
-                        aria-expanded={false}
-                        aria-haspopup={true}
-                        as={Nav.Link}
-                        data-toggle="dropdown"
-                        id="navbarDropdownMenuLink"
-                        variant="default"
-                        className="m-0"
-                     >
-                        <span className="no-icon">Dropdown</span>
-                     </Dropdown.Toggle>
-                     <Dropdown.Menu aria-labelledby="navbarDropdownMenuLink">
-                        <Dropdown.Item href="#pablo" onClick={(e) => e.preventDefault()}>
-                           Action
-                        </Dropdown.Item>
-                        <Dropdown.Item href="#pablo" onClick={(e) => e.preventDefault()}>
-                           Another action
-                        </Dropdown.Item>
-                        <Dropdown.Item href="#pablo" onClick={(e) => e.preventDefault()}>
-                           Something
-                        </Dropdown.Item>
-                        <Dropdown.Item href="#pablo" onClick={(e) => e.preventDefault()}>
-                           Something else here
-                        </Dropdown.Item>
-                        <div className="divider"></div>
-                        <Dropdown.Item href="#pablo" onClick={(e) => e.preventDefault()}>
-                           Separated link
-                        </Dropdown.Item>
-                     </Dropdown.Menu>
-                  </Dropdown>
-                  <Nav.Item>
-                     <Nav.Link
-                        className="m-0"
-                        href="/"
-                        onClick={(e) => {
-                           logout();
-                        }}
-                     >
-                        <span className="no-icon">Log out</span>
-                     </Nav.Link>
-                  </Nav.Item>
+                  
+                  <UserCard Nav={Nav}></UserCard>
+                  
                </Nav>
             </Navbar.Collapse>
          </Container>
       </Navbar>
    );
 }
-const mapDispathToProps = (dispatch) => {
-   return {
-      logout: () => {
-         dispatch(logoutFunction());
-      },
-   };
-};
 
-export default connect(null, mapDispathToProps)(Header);
+export default Header;

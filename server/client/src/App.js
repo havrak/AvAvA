@@ -40,13 +40,6 @@ function App(props) {
             <Route path="/userSetup">
                <UserSetup />
             </Route>
-            {/* <Route
-               path="/"
-               component={() => {
-                  window.location.href = "/auth/google";
-                  return null;
-               }}
-            /> */}
          </Switch>
       </BrowserRouter>
    );

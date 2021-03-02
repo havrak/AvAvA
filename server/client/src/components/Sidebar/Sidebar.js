@@ -20,33 +20,30 @@ import { useLocation, NavLink } from "react-router-dom";
 
 import { Nav } from "react-bootstrap";
 
-import logo from "assets/img/reactlogo.png";
+import logo from "assets/img/LXD-icon.png";
 
-function Sidebar({ color, image, routes }) {
+function Sidebar({ color, routes }) {
    const location = useLocation();
    const activeRoute = (routeName) => {
       return location.pathname.indexOf(routeName) > -1 ? "active" : "";
    };
    return (
-      <div className="sidebar" data-image={image} data-color={color}>
+      <div className="sidebar" data-color={color}>
          <div
             className="sidebar-background"
-            // style={{
-            //    backgroundImage: "url(" + image + ")",
-            // }}
          />
          <div className="sidebar-wrapper">
             <div className="logo d-flex align-items-center justify-content-start">
                <a
-                  href="https://www.creative-tim.com?ref=lbd-sidebar"
+                  href="/"
                   className="simple-text logo-mini mx-1"
                >
-                  <div className="logo-img">
-                     <img src={require("assets/img/reactlogo.png").default} alt="..." />
+                  <div className="logo-img pr-2">
+                     <img src={logo} alt="..." />
                   </div>
                </a>
-               <a className="simple-text" href="http://www.creative-tim.com">
-                  Creative Tim
+               <a className="simple-text" href="/">
+                  AvAvA
                </a>
             </div>
             <Nav>
