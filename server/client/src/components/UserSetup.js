@@ -1,19 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
 import { combinedDataGet } from "../actions/myaction";
 import { Redirect } from "react-router-dom";
-import { isConstructorDeclaration } from "typescript";
-import axios from "axios";
+import BeatLoader from "react-spinners/BeatLoader";
 
 function UserSetup({ combinedDataGet, userData }) {
-   useEffect(()=> {
+   const [loading, setLoading] = useState(true);
+   useEffect(() => {
       combinedDataGet();
-   },[])
+   }, []);
    if (userData.user) {
       return <Redirect to="/user/dashboard" />;
    } else {
-      return <div>Loading</div>;
+      return (
+         <div id="pageLoader">
+            <BeatLoader color={"#212529"} loading={true} size={50} />
+         </div>
+      );
    }
 }
 
