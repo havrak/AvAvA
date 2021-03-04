@@ -682,6 +682,9 @@ components:
     ApplicationToInstall:
       type: object
       properties:
+        id:
+          type: integer
+          description: Id of application
         name:
           type: string
           description: Application name
@@ -781,12 +784,12 @@ components:
         givenName:
           type: string
           description: first name - given by parents
-        profileImage:
-          type: string
-          description: link to to source of profile image
         role:
           type: integer
           description: 0 = normal user, 1 = admin, 2 = superadmin
+        icon:
+          type: string
+          description: icon of user
         coins:
           type: integer
           description: number of coins that can be used to buy bigger resource quotas
