@@ -33,6 +33,8 @@ paths:
                   type: boolean
                 templateId:
                   type: integer
+                stateful:
+                  type: boolean
                 applicationToInstall:
                   type: array
                   items:
@@ -610,12 +612,15 @@ components:
         disk:
           type: object
           properties:
-            currentlyConsumedMemory:
+            consumedMemory:
               type: integer
               description: current disk usage in bytes
             percentConsumed:
               type: integer
               description: Percentage of the allocated disk memory from the overall memory available
+            allocatedMemory:
+              type: integer
+              description: current number of bytes that were allocated to children of this this (e.g. if this is project, then allocatedMemory is the sum of individual limits )
         network:
           type: object
           properties:
