@@ -2,7 +2,10 @@ CREATE TABLE `containers` (
   `id` int(11) NOT NULL,
   `project_id` int(11) NOT NULL,
   `name` varchar(64) COLLATE utf8_czech_ci NOT NULL,
-  `template_id` int(11) NOT NULL
+  `template_id` int(11) NOT NULL,
+  `state` int(4) NOT NULL,
+  `timestamp` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `time_started` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 ALTER TABLE `containers`
@@ -17,4 +20,3 @@ ALTER TABLE `containers`
   ADD CONSTRAINT `containers_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
   ADD CONSTRAINT `containers_ibfk_2` FOREIGN KEY (`template_id`) REFERENCES `templates` (`id`);
 COMMIT;
-
