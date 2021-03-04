@@ -487,7 +487,7 @@ components:
             download:
               type: integer
               description: in bytes/s
-    ResourceState:
+    ContainerResourceState:
       type: array
       description: Usage of resources assigned to container in time arrayIndex * 10 minutes (0 = last measurment)
       items: 
@@ -521,14 +521,19 @@ components:
                 type: integer
                 description: Percentage of RAM allocated from the overall RAM available
           disk:
-            type: object
-            properties:
-              currentlyConsumedMemory:
-                type: integer
-                description: current disk usage in bytes
-              percentConsumed:
-                type: integer
-                description: Percentage of the allocated disk memory from the overall memory available
+            type: array
+            items:
+              type: object
+              properties:
+                deviceName:
+                  type: string
+                  description: e.g. root
+                currentlyConsumedMemory:
+                  type: integer
+                  description: current disk usage in bytes
+                percentConsumed:
+                  type: integer
+                  description: Percentage of the allocated disk memory from the overall memory available
           networks:
             type: array
             items:
@@ -556,10 +561,16 @@ components:
                       type: integer
                     bytesSent:
                       type: integer
+                    uploadBandwidthUsage:
+                      type: integer
+                      description: usage of upload bandwidth in percent
                     packetsReceived: 
                       type: integer
                     packetsSent:
                       type: integer
+                    downloadBandwidthUsage:
+                      type: integer
+                      description: usage of download bandwidth in percent
                 hwaddr:
                   type: string
                 hostName:
@@ -573,6 +584,56 @@ components:
           numberOfProcesses:
             type: integer
             description: Process count
+    LightResourceState:
+      type: object
+      properties:
+        limits:
+          $ref: '#/components/schemas/Limits'
+        CPU:
+          type: object
+          properties:
+            consumedTime:
+              type: integer
+              description: Time used by the CPU in nanoseconds
+            percentConsumed:
+              type: integer
+              description: Percentage of CPU allocated from the overall CPU available
+        RAM:
+          type: object
+          properties:
+            usage:
+              type: integer
+              description: last measured RAM usage in Bytes
+            percentConsumed:
+              type: integer
+              description: Percentage of RAM allocated from the overall RAM available
+        disk:
+          type: object
+          properties:
+            currentlyConsumedMemory:
+              type: integer
+              description: current disk usage in bytes
+            percentConsumed:
+              type: integer
+              description: Percentage of the allocated disk memory from the overall memory available
+        network:
+          type: object
+          properties:
+            bytesSent:
+              type: integer
+              description: last recorded upload in bytes/s
+            uploadBandwidthUsage:
+              type: integer
+              description: usage of upload bandwidth in percent
+            bytesReceived:
+              type: integer
+              description: last recorded download in bytes/s
+            downloadBandwidthUsage:
+              type: integer
+              description: usage of download bandwidth in percent
+        numberOfProcesses:
+          type: integer
+          description: Process count
     Snapshot:
       type: object
       properties:
@@ -633,10 +694,8 @@ components:
         id:
           type: integer
           description: id of the container
-        maxResources:
-          $ref: '#/components/schemas/Limits'
         state:
-          $ref: '#/components/schemas/ResourceState'
+          $ref: '#/components/schemas/ContainerResourceState'
     Container:
       type: object
       description: LXD container with info and state
@@ -659,14 +718,12 @@ components:
           description: Date and time when container was last started
         statusCode:
           type: integer
-        maxResources:
-          $ref: '#/components/schemas/Limits'
         snapshots:
           type: array
           items:
             $ref: '#/components/schemas/Snapshot'
         state:
-          $ref: '#/components/schemas/ResourceState'
+          $ref: '#/components/schemas/ContainerResourceState'
     CreateContainerData:
       type: object
       description: All the data necessary to create a container (except for projects and resources - this has to be achieved via different ways)
@@ -718,12 +775,12 @@ components:
         id:
           type: integer
           description: id of the project
-        maxResources:
-          $ref: '#/components/schemas/Limits'
         containersState:
           type: array
           items:
             $ref: '#/components/schemas/ContainerState'
+        projectState:
+          $ref: '#/components/schemas/LightResourceState'
     Project:
       type: object
       properties:
@@ -736,8 +793,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/User'
-        maxResources: 
-          $ref: '#/components/schemas/Limits'
+        projectState:
+          $ref: '#/components/schemas/LightResourceState'
         containers:
           type: array
           items:
@@ -754,18 +811,20 @@ components:
     UserProjectsState:
       type: object
       properties:
-        maxResources:
-          $ref: '#/components/schemas/Limits'
         projectsState:
           type: array
           items:
             $ref: '#/components/schemas/ProjectState'
+        userState:
+          $ref: '#/components/schemas/LightResourceState'
     UserProjects:
       type: object
       description: object containing all the data about projects that this user participates in. This includes all of his projects and all project where user is only a participant. 
       properties:
         maxResources:
           $ref: '#/components/schemas/Limits'
+        userState:
+          $ref: '#/components/schemas/LightResourceState'
         projects:
           type: array
           items:
@@ -803,4 +862,19 @@ components:
           $ref: '#/components/schemas/UserProjects'
         createContainerData:
           $ref: '#/components/schemas/CreateContainerData'
+        hostInformation:
+          $ref: '#/components/schemas/HostInformation'
+    HostInformation:
+      type: object
+      description: Information about the host LXD is running on
+      properties:
+        CPU:
+          type: object
+          properties:
+            model:
+              type: string
+              description: e.g. Intel Core i3 1005G1 Ice Lake
+            frequency:
+              type: integer
+              description: frequency in MHz
           
