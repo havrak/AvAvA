@@ -21,17 +21,9 @@ import TableList from "views/TableList.js";
 import Typography from "views/Typography.js";
 import Icons from "views/Icons.js";
 import Notifications from "views/Notifications.js";
-import Upgrade from "views/Upgrade.js";
+// import Upgrade from "views/Upgrade.js";
 
 const dashboardRoutes = [
-  {
-    upgrade: true,
-    path: "/upgrade",
-    name: "Upgrade to PRO",
-    icon: "nc-icon nc-alien-33",
-    component: Upgrade,
-    layout: "/user",
-  },
   {
     path: "/dashboard",
     name: "Dashboard",

@@ -13,7 +13,7 @@
 
 import ApiClient from '../ApiClient';
 import ContainerState from './ContainerState';
-import Limits from './Limits';
+import LightResourceState from './LightResourceState';
 
 /**
 * The ProjectState model module.
@@ -48,11 +48,11 @@ export default class ProjectState {
             if (data.hasOwnProperty('id')) {
                 obj['id'] = ApiClient.convertToType(data['id'], 'Number');
             }
-            if (data.hasOwnProperty('maxResources')) {
-                obj['maxResources'] = Limits.constructFromObject(data['maxResources']);
-            }
             if (data.hasOwnProperty('containersState')) {
                 obj['containersState'] = ApiClient.convertToType(data['containersState'], [ContainerState]);
+            }
+            if (data.hasOwnProperty('projectState')) {
+                obj['projectState'] = LightResourceState.constructFromObject(data['projectState']);
             }
         }
         return obj;
@@ -64,13 +64,13 @@ export default class ProjectState {
     */
     'id' = undefined;
     /**
-    * @member {module:model/Limits} maxResources
-    */
-    'maxResources' = undefined;
-    /**
     * @member {Array.<module:model/ContainerState>} containersState
     */
     'containersState' = undefined;
+    /**
+    * @member {module:model/LightResourceState} projectState
+    */
+    'projectState' = undefined;
 
 
 

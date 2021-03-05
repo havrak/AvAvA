@@ -43,6 +43,9 @@ export default class ApplicationToInstall {
             obj = obj || new ApplicationToInstall();
                         
             
+            if (data.hasOwnProperty('id')) {
+                obj['id'] = ApiClient.convertToType(data['id'], 'Number');
+            }
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
@@ -56,6 +59,11 @@ export default class ApplicationToInstall {
         return obj;
     }
 
+    /**
+    * Id of application
+    * @member {Number} id
+    */
+    'id' = undefined;
     /**
     * Application name
     * @member {String} name

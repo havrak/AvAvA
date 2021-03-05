@@ -15,14 +15,14 @@ import ApiClient from '../ApiClient';
 import Limits from './Limits';
 
 /**
-* The ResourceStateInner model module.
-* @module model/ResourceStateInner
+* The ContainerResourceStateInner model module.
+* @module model/ContainerResourceStateInner
 * @version 1.0
 */
-export default class ResourceStateInner {
+export default class ContainerResourceStateInner {
     /**
-    * Constructs a new <code>ResourceStateInner</code>.
-    * @alias module:model/ResourceStateInner
+    * Constructs a new <code>ContainerResourceStateInner</code>.
+    * @alias module:model/ContainerResourceStateInner
     * @class
     */
 
@@ -33,15 +33,15 @@ export default class ResourceStateInner {
     }
 
     /**
-    * Constructs a <code>ResourceStateInner</code> from a plain JavaScript object, optionally creating a new instance.
+    * Constructs a <code>ContainerResourceStateInner</code> from a plain JavaScript object, optionally creating a new instance.
     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
     * @param {Object} data The plain JavaScript object bearing properties of interest.
-    * @param {module:model/ResourceStateInner} obj Optional instance to populate.
-    * @return {module:model/ResourceStateInner} The populated <code>ResourceStateInner</code> instance.
+    * @param {module:model/ContainerResourceStateInner} obj Optional instance to populate.
+    * @return {module:model/ContainerResourceStateInner} The populated <code>ContainerResourceStateInner</code> instance.
     */
     static constructFromObject(data, obj) {
         if (data) {
-            obj = obj || new ResourceStateInner();
+            obj = obj || new ContainerResourceStateInner();
                         
             
             if (data.hasOwnProperty('status')) {
@@ -60,7 +60,7 @@ export default class ResourceStateInner {
                 obj['RAM'] = ApiClient.convertToType(data['RAM'], Object);
             }
             if (data.hasOwnProperty('disk')) {
-                obj['disk'] = ApiClient.convertToType(data['disk'], Object);
+                obj['disk'] = ApiClient.convertToType(data['disk'], [Object]);
             }
             if (data.hasOwnProperty('networks')) {
                 obj['networks'] = ApiClient.convertToType(data['networks'], [Object]);
@@ -93,7 +93,7 @@ export default class ResourceStateInner {
     */
     'RAM' = undefined;
     /**
-    * @member {Object} disk
+    * @member {Array.<Object>} disk
     */
     'disk' = undefined;
     /**

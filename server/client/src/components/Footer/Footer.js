@@ -32,24 +32,13 @@ class Footer extends Component {
               </li>
               <li>
                 <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                  Company
-                </a>
-              </li>
-              <li>
-                <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                  Portfolio
-                </a>
-              </li>
-              <li>
-                <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                  Blog
+                  Github
                 </a>
               </li>
             </ul>
             <p className="copyright text-center">
               © {new Date().getFullYear()}{" "}
-              <a href="http://www.creative-tim.com">Creative Tim</a>, made with
-              love for a better web
+              <a href="http://www.creative-tim.com">Havránek, Litoš, Vávra</a>, from students for students
             </p>
           </nav>
         </Container>

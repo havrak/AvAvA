@@ -12,18 +12,18 @@
  */
 
 import ApiClient from '../ApiClient';
-import ResourceStateInner from './ResourceStateInner';
+import ContainerResourceStateInner from './ContainerResourceStateInner';
 
 /**
-* The ResourceState model module.
-* @module model/ResourceState
+* The ContainerResourceState model module.
+* @module model/ContainerResourceState
 * @version 1.0
 */
-export default class ResourceState extends Array {
+export default class ContainerResourceState extends Array {
     /**
-    * Constructs a new <code>ResourceState</code>.
+    * Constructs a new <code>ContainerResourceState</code>.
     * Usage of resources assigned to container in time arrayIndex * 10 minutes (0 &#x3D; last measurment)
-    * @alias module:model/ResourceState
+    * @alias module:model/ContainerResourceState
     * @class
     * @extends Array
     */
@@ -36,16 +36,16 @@ export default class ResourceState extends Array {
     }
 
     /**
-    * Constructs a <code>ResourceState</code> from a plain JavaScript object, optionally creating a new instance.
+    * Constructs a <code>ContainerResourceState</code> from a plain JavaScript object, optionally creating a new instance.
     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
     * @param {Object} data The plain JavaScript object bearing properties of interest.
-    * @param {module:model/ResourceState} obj Optional instance to populate.
-    * @return {module:model/ResourceState} The populated <code>ResourceState</code> instance.
+    * @param {module:model/ContainerResourceState} obj Optional instance to populate.
+    * @return {module:model/ContainerResourceState} The populated <code>ContainerResourceState</code> instance.
     */
     static constructFromObject(data, obj) {
         if (data) {
-            obj = obj || new ResourceState();
-            ApiClient.constructFromObject(data, obj, 'ResourceStateInner');
+            obj = obj || new ContainerResourceState();
+            ApiClient.constructFromObject(data, obj, 'ContainerResourceStateInner');
             
             
         }

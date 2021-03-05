@@ -1,0 +1,39 @@
+.card-state-container{
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
+}
+
+.card-state-container h2{
+   margin: 0px;
+}
+
+.running{
+   color: #90EE90;
+}
+
+.stopped{
+   color: #FB404B;
+}
+
+.freezed{
+   color:#F98131
+}
+
+.card-dashboard{
+   padding-bottom: 15px;
+}
+
+.card-link{
+   color: black;
+   margin-left: 0px;
+}
+
+.card-link:hover{
+   color: black;
+}
+
+.card-link:hover .to-underline{
+   text-decoration: underline;
+}

@@ -13,6 +13,7 @@
 
 import ApiClient from '../ApiClient';
 import CreateContainerData from './CreateContainerData';
+import HostInformation from './HostInformation';
 import User from './User';
 import UserProjects from './UserProjects';
 
@@ -56,6 +57,9 @@ export default class UserData {
             if (data.hasOwnProperty('createContainerData')) {
                 obj['createContainerData'] = CreateContainerData.constructFromObject(data['createContainerData']);
             }
+            if (data.hasOwnProperty('hostInformation')) {
+                obj['hostInformation'] = HostInformation.constructFromObject(data['hostInformation']);
+            }
         }
         return obj;
     }
@@ -72,6 +76,10 @@ export default class UserData {
     * @member {module:model/CreateContainerData} createContainerData
     */
     'createContainerData' = undefined;
+    /**
+    * @member {module:model/HostInformation} hostInformation
+    */
+    'hostInformation' = undefined;
 
 
 

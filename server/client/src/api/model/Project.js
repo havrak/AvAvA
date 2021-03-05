@@ -13,7 +13,7 @@
 
 import ApiClient from '../ApiClient';
 import Container from './Container';
-import Limits from './Limits';
+import LightResourceState from './LightResourceState';
 import User from './User';
 
 /**
@@ -55,8 +55,8 @@ export default class Project {
             if (data.hasOwnProperty('coworkers')) {
                 obj['coworkers'] = ApiClient.convertToType(data['coworkers'], [User]);
             }
-            if (data.hasOwnProperty('maxResources')) {
-                obj['maxResources'] = Limits.constructFromObject(data['maxResources']);
+            if (data.hasOwnProperty('projectState')) {
+                obj['projectState'] = LightResourceState.constructFromObject(data['projectState']);
             }
             if (data.hasOwnProperty('containers')) {
                 obj['containers'] = ApiClient.convertToType(data['containers'], [Container]);
@@ -79,9 +79,9 @@ export default class Project {
     */
     'coworkers' = undefined;
     /**
-    * @member {module:model/Limits} maxResources
+    * @member {module:model/LightResourceState} projectState
     */
-    'maxResources' = undefined;
+    'projectState' = undefined;
     /**
     * @member {Array.<module:model/Container>} containers
     */

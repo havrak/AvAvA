@@ -19,7 +19,7 @@ function UserCard({ Nav, logout, user }) {
             className="m-0"
          >
             <div className="navbar-user-container">
-                  <img src={user.profileImage}/>
+                  <img src={user.icon}/>
                   <span>
                      <div className="username">
                         {user.givenName} {user.familyName}

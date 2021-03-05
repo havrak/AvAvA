@@ -18,18 +18,25 @@ import Body1 from './model/Body1';
 import Body2 from './model/Body2';
 import Container from './model/Container';
 import ContainerInfo from './model/ContainerInfo';
+import ContainerResourceState from './model/ContainerResourceState';
+import ContainerResourceStateInner from './model/ContainerResourceStateInner';
 import ContainerState from './model/ContainerState';
 import CreateContainerData from './model/CreateContainerData';
+import HostInformation from './model/HostInformation';
+import HostInformationCPU from './model/HostInformationCPU';
 import Image from './model/Image';
 import InlineResponse200 from './model/InlineResponse200';
+import LightResourceState from './model/LightResourceState';
+import LightResourceStateCPU from './model/LightResourceStateCPU';
+import LightResourceStateDisk from './model/LightResourceStateDisk';
+import LightResourceStateNetwork from './model/LightResourceStateNetwork';
+import LightResourceStateRAM from './model/LightResourceStateRAM';
 import Limits from './model/Limits';
 import LimitsNetwork from './model/LimitsNetwork';
 import OperationState from './model/OperationState';
 import Project from './model/Project';
 import ProjectInfo from './model/ProjectInfo';
 import ProjectState from './model/ProjectState';
-import ResourceState from './model/ResourceState';
-import ResourceStateInner from './model/ResourceStateInner';
 import Snapshot from './model/Snapshot';
 import Template from './model/Template';
 import User from './model/User';
@@ -114,6 +121,18 @@ export {
     ContainerInfo,
 
     /**
+     * The ContainerResourceState model constructor.
+     * @property {module:model/ContainerResourceState}
+     */
+    ContainerResourceState,
+
+    /**
+     * The ContainerResourceStateInner model constructor.
+     * @property {module:model/ContainerResourceStateInner}
+     */
+    ContainerResourceStateInner,
+
+    /**
      * The ContainerState model constructor.
      * @property {module:model/ContainerState}
      */
@@ -126,6 +145,18 @@ export {
     CreateContainerData,
 
     /**
+     * The HostInformation model constructor.
+     * @property {module:model/HostInformation}
+     */
+    HostInformation,
+
+    /**
+     * The HostInformationCPU model constructor.
+     * @property {module:model/HostInformationCPU}
+     */
+    HostInformationCPU,
+
+    /**
      * The Image model constructor.
      * @property {module:model/Image}
      */
@@ -136,6 +167,36 @@ export {
      * @property {module:model/InlineResponse200}
      */
     InlineResponse200,
+
+    /**
+     * The LightResourceState model constructor.
+     * @property {module:model/LightResourceState}
+     */
+    LightResourceState,
+
+    /**
+     * The LightResourceStateCPU model constructor.
+     * @property {module:model/LightResourceStateCPU}
+     */
+    LightResourceStateCPU,
+
+    /**
+     * The LightResourceStateDisk model constructor.
+     * @property {module:model/LightResourceStateDisk}
+     */
+    LightResourceStateDisk,
+
+    /**
+     * The LightResourceStateNetwork model constructor.
+     * @property {module:model/LightResourceStateNetwork}
+     */
+    LightResourceStateNetwork,
+
+    /**
+     * The LightResourceStateRAM model constructor.
+     * @property {module:model/LightResourceStateRAM}
+     */
+    LightResourceStateRAM,
 
     /**
      * The Limits model constructor.
@@ -172,18 +233,6 @@ export {
      * @property {module:model/ProjectState}
      */
     ProjectState,
-
-    /**
-     * The ResourceState model constructor.
-     * @property {module:model/ResourceState}
-     */
-    ResourceState,
-
-    /**
-     * The ResourceStateInner model constructor.
-     * @property {module:model/ResourceStateInner}
-     */
-    ResourceStateInner,
 
     /**
      * The Snapshot model constructor.

@@ -12,7 +12,7 @@
  */
 
 import ApiClient from '../ApiClient';
-import Limits from './Limits';
+import LightResourceState from './LightResourceState';
 import ProjectState from './ProjectState';
 
 /**
@@ -45,24 +45,24 @@ export default class UserProjectsState {
             obj = obj || new UserProjectsState();
                         
             
-            if (data.hasOwnProperty('maxResources')) {
-                obj['maxResources'] = Limits.constructFromObject(data['maxResources']);
-            }
             if (data.hasOwnProperty('projectsState')) {
                 obj['projectsState'] = ApiClient.convertToType(data['projectsState'], [ProjectState]);
+            }
+            if (data.hasOwnProperty('userState')) {
+                obj['userState'] = LightResourceState.constructFromObject(data['userState']);
             }
         }
         return obj;
     }
 
     /**
-    * @member {module:model/Limits} maxResources
-    */
-    'maxResources' = undefined;
-    /**
     * @member {Array.<module:model/ProjectState>} projectsState
     */
     'projectsState' = undefined;
+    /**
+    * @member {module:model/LightResourceState} userState
+    */
+    'userState' = undefined;
 
 
 

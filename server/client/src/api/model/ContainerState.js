@@ -12,8 +12,7 @@
  */
 
 import ApiClient from '../ApiClient';
-import Limits from './Limits';
-import ResourceState from './ResourceState';
+import ContainerResourceState from './ContainerResourceState';
 
 /**
 * The ContainerState model module.
@@ -49,11 +48,8 @@ export default class ContainerState {
             if (data.hasOwnProperty('id')) {
                 obj['id'] = ApiClient.convertToType(data['id'], 'Number');
             }
-            if (data.hasOwnProperty('maxResources')) {
-                obj['maxResources'] = Limits.constructFromObject(data['maxResources']);
-            }
             if (data.hasOwnProperty('state')) {
-                obj['state'] = ResourceState.constructFromObject(data['state']);
+                obj['state'] = ContainerResourceState.constructFromObject(data['state']);
             }
         }
         return obj;
@@ -65,11 +61,7 @@ export default class ContainerState {
     */
     'id' = undefined;
     /**
-    * @member {module:model/Limits} maxResources
-    */
-    'maxResources' = undefined;
-    /**
-    * @member {module:model/ResourceState} state
+    * @member {module:model/ContainerResourceState} state
     */
     'state' = undefined;
 

@@ -12,8 +12,7 @@
  */
 
 import ApiClient from '../ApiClient';
-import Limits from './Limits';
-import ResourceState from './ResourceState';
+import ContainerResourceState from './ContainerResourceState';
 import Snapshot from './Snapshot';
 import Template from './Template';
 
@@ -72,14 +71,11 @@ export default class Container {
             if (data.hasOwnProperty('statusCode')) {
                 obj['statusCode'] = ApiClient.convertToType(data['statusCode'], 'Number');
             }
-            if (data.hasOwnProperty('maxResources')) {
-                obj['maxResources'] = Limits.constructFromObject(data['maxResources']);
-            }
             if (data.hasOwnProperty('snapshots')) {
                 obj['snapshots'] = ApiClient.convertToType(data['snapshots'], [Snapshot]);
             }
             if (data.hasOwnProperty('state')) {
-                obj['state'] = ResourceState.constructFromObject(data['state']);
+                obj['state'] = ContainerResourceState.constructFromObject(data['state']);
             }
         }
         return obj;
@@ -120,15 +116,11 @@ export default class Container {
     */
     'statusCode' = undefined;
     /**
-    * @member {module:model/Limits} maxResources
-    */
-    'maxResources' = undefined;
-    /**
     * @member {Array.<module:model/Snapshot>} snapshots
     */
     'snapshots' = undefined;
     /**
-    * @member {module:model/ResourceState} state
+    * @member {module:model/ContainerResourceState} state
     */
     'state' = undefined;
 
