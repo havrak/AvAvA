@@ -35,7 +35,7 @@ paths:
                   type: integer
                 stateful:
                   type: boolean
-                applicationToInstall:
+                applicationToInstall: #TODO
                   type: array
                   items:
                     description: Application name
@@ -108,6 +108,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/ContainerInfo'
   /instances/{id}/state: #nebo /info
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container which state is requested
+      responses:
+        '200':
+          description: Successful state info return
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContainerResourceState'
+  /instances/{id}/stateWithHistory: #nebo /info
     get:
       parameters:
         - in: path
@@ -522,154 +538,159 @@ components:
               type: integer
               description: in bytes/s
     ContainerResourceState:
-      type: array
-      description: Usage of resources assigned to container in time arrayIndex * 10 minutes (0 = last measurment)
-      items: 
-        type: object
-        properties:
-          status:
-            type: string
-          statusCode:
-            type: integer
-          limits:
-            $ref: '#/components/schemas/Limits'
-          CPU:
+      type: object
+      properties:
+        status:
+          type: string
+        statusCode:
+          type: integer
+        limits:
+          $ref: '#/components/schemas/Limits'
+        CPU:
+          type: object
+          properties:
+            consumedTime:
+              type: integer
+              description: Time used by the CPU in nanoseconds
+            percentConsumed:
+              type: integer
+              description: Percentage of CPU allocated from the overall CPU available
+        RAM:
+          type: object
+          properties:
+            usage:
+              type: integer
+              description: last measured RAM usage in Bytes
+            usagePeak:
+              type: integer
+              description: maximum measured RAM usage in Bytes
+            percentConsumed:
+              type: integer
+              description: Percentage of RAM allocated from the overall RAM available
+        disk:
+          type: array
+          items:
             type: object
             properties:
-              consumedTime:
-                type: integer
-                description: Time used by the CPU in nanoseconds
-              percentConsumed:
-                type: integer
-                description: Percentage of CPU allocated from the overall CPU available
-          RAM:
-            type: object
-            properties:
-              usage:
-                type: integer
-                description: last measured RAM usage in Bytes
-              usagePeak:
-                type: integer
-                description: maximum measured RAM usage in Bytes
-              percentConsumed:
-                type: integer
-                description: Percentage of RAM allocated from the overall RAM available
-          disk:
-            type: array
-            items:
-              type: object
-              properties:
-                deviceName:
-                  type: string
-                  description: e.g. root
-                currentlyConsumedMemory:
-                  type: integer
-                  description: current disk usage in bytes
-                percentConsumed:
-                  type: integer
-                  description: Percentage of the allocated disk memory from the overall memory available
-          networks:
-            type: array
-            items:
-              type: object
-              properties:
-                networkName:
-                  type: string
-                adresses:
-                  type: array
-                  items:
-                    type: object
-                    properties: 
-                      family:
-                        type: string
-                      adress:
-                        type: string
-                      netmask: 
-                        type: integer
-                      scope:
-                        type: string
-                counters:
-                  type: object
-                  properties:
-                    bytesReceived:
-                      type: integer
-                    bytesSent:
-                      type: integer
-                    uploadBandwidthUsage:
-                      type: integer
-                      description: usage of upload bandwidth in percent
-                    packetsReceived: 
-                      type: integer
-                    packetsSent:
-                      type: integer
-                    downloadBandwidthUsage:
-                      type: integer
-                      description: usage of download bandwidth in percent
-                hwaddr:
-                  type: string
-                hostName:
-                  type: string
-                mtu: 
-                  type: integer
-                state:
-                  type: string
-                type:
-                  type: string
-          numberOfProcesses:
-            type: integer
-            description: Process count
-    LightResourceState:
-      type: array
-      items:
-        type: object
-        properties:
-          limits:
-            $ref: '#/components/schemas/Limits'
-          CPU:
-            type: object
-            properties:
-              consumedTime:
-                type: integer
-                description: Time used by the CPU in nanoseconds
-              percentConsumed:
-                type: integer
-                description: Percentage of CPU allocated from the overall CPU available
-          RAM:
-            type: object
-            properties:
-              usage:
-                type: integer
-                description: last measured RAM usage in Bytes
-              percentConsumed:
-                type: integer
-                description: Percentage of RAM allocated from the overall RAM available
-          disk:
-            type: object
-            properties:
-              consumedMemory:
+              deviceName:
+                type: string
+                description: e.g. root
+              currentlyConsumedMemory:
                 type: integer
                 description: current disk usage in bytes
               percentConsumed:
                 type: integer
                 description: Percentage of the allocated disk memory from the overall memory available
-          network:
+        networks:
+          type: array
+          items:
             type: object
             properties:
-              bytesSent:
+              networkName:
+                type: string
+              adresses:
+                type: array
+                items:
+                  type: object
+                  properties: 
+                    family:
+                      type: string
+                    adress:
+                      type: string
+                    netmask: 
+                      type: integer
+                    scope:
+                      type: string
+              counters:
+                type: object
+                properties:
+                  downloadBandwidthUsage:
+                    type: integer
+                    description: usage of download bandwidth in percent
+                  downloadSpeed:
+                    type: integer
+                    description: number of bytes that were downloaded in bytes/s
+                  uploadBandwidthUsage:
+                    type: integer
+                    description: usage of upload bandwidth in percent
+                  uploadSpeed:
+                    type: integer
+                    description: number of bytes that were uploaded in bytes/s
+              hwaddr:
+                type: string
+              hostName:
+                type: string
+              mtu: 
                 type: integer
-                description: last recorded upload in bytes/s
-              uploadBandwidthUsage:
-                type: integer
-                description: usage of upload bandwidth in percent
-              bytesReceived:
-                type: integer
-                description: last recorded download in bytes/s
-              downloadBandwidthUsage:
-                type: integer
-                description: usage of download bandwidth in percent
-          numberOfProcesses:
-            type: integer
-            description: Process count
+              state:
+                type: string
+              type:
+                type: string
+        numberOfProcesses:
+          type: integer
+          description: Process count
+    LightResourceState:
+      type: object
+      properties:
+        limits:
+          $ref: '#/components/schemas/Limits'
+        CPU:
+          type: object
+          properties:
+            consumedTime:
+              type: integer
+              description: Time used by the CPU in nanoseconds (sum of used time of containers)
+            percentConsumed:
+              type: integer
+              description: Percentage of CPU used from the overall CPU available
+            percentAllocated:
+              type: integer
+              description: Percentage of CPU allocated from the overall CPU available 
+        RAM:
+          type: object
+          properties:
+            usage:
+              type: integer
+              description: last measured RAM usage in Bytes (sum of usages of containers)
+            percentConsumed:
+              type: integer
+              description: Percentage of RAM used from the overall RAM available
+            allocated:
+              type: integer
+              description: last measured allocated RAM in Bytes (sum of limits of containers)
+            percentAllocated:
+              type: integer
+              description: Percentage of RAM allocated from the overall RAM available
+        disk:
+          type: object
+          properties:
+            usage:
+              type: integer
+              description: current disk usage in bytes
+            percentConsumed:
+              type: integer
+              description: Percentage of the used disk memory from the overall memory available
+            allocated:
+              type: integer
+              description: current disk allocated in bytes
+            percentAllocated:
+              type: integer
+              description: Percentage of RAM allocated from the overall RAM available
+        network:
+          type: object
+          properties:
+            uploadSpeed:
+              type: integer
+              description: last recorded upload speed in bytes/s in connection to the internet
+            uploadBandwidthUsage:
+              type: integer
+              description: usage of upload bandwidth in percent in connection to the internet
+            downloadSpeed:
+              type: integer
+              description: last recorded download speed in bytes/s in connection to the internet
+            downloadBandwidthUsage:
+              type: integer
+              description: usage of download bandwidth in percent in connection to the internet
     Snapshot:
       type: object
       properties:
@@ -729,8 +750,13 @@ components:
         id:
           type: integer
           description: id of the container
-        state:
+        currentState:
           $ref: '#/components/schemas/ContainerResourceState'
+        stateHistory:
+          type: array
+          description: history of states - 0 index = 10 min ago
+          items:
+            $ref: '#/components/schemas/LightResourceState'
     Container:
       type: object
       description: LXD container with info and state
@@ -745,6 +771,8 @@ components:
           type: string
         ipv6:
           type: string
+        stateful:
+          type: boolean
         createdOn:
           type: string
           description: Date and time of the creation of the container
@@ -804,6 +832,7 @@ components:
             $ref: '#/components/schemas/ContainerInfo'
     ProjectState:
       type: object
+      description: Object that knows state and history of project and all containers in it
       properties:
         id:
           type: integer
@@ -814,6 +843,11 @@ components:
             $ref: '#/components/schemas/ContainerState'
         projectState:
           $ref: '#/components/schemas/LightResourceState'
+        stateHistory:
+          type: array
+          description: history of states - 0 index = 10 min ago
+          items:
+            $ref: '#/components/schemas/LightResourceState'
     Project:
       type: object
       properties:
@@ -843,6 +877,7 @@ components:
             $ref: '#/components/schemas/ProjectInfo'
     UserProjectsState:
       type: object
+      description: Object that knows state and history of all projects and all containers in them
       properties:
         projectsState:
           type: array
@@ -850,6 +885,11 @@ components:
             $ref: '#/components/schemas/ProjectState'
         userState:
           $ref: '#/components/schemas/LightResourceState'
+        stateHistory:
+          type: array
+          description: history of states - 0 index = 10 min ago
+          items:
+            $ref: '#/components/schemas/LightResourceState'
     UserProjects:
       type: object
       description: object containing all the data about projects that this user participates in. This includes all of his projects and all project where user is only a participant. 
