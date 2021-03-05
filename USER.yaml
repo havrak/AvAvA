@@ -54,7 +54,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OperationState'
+                $ref: '#/components/schemas/Container'
   /instances/createConfigData:
     get:
       responses:
@@ -80,6 +80,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Container'
+    delete:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be deleted
+      responses:
+        '200':
+          description: deleted the container
   /instances/{id}/info:
     get:
       parameters:
@@ -174,8 +185,36 @@ paths:
           schema:
             type: string
           description: Name of the snapshot to be created
+        - in: query
+          required: true
+          name: stateful
+          schema:
+            type: boolean
+          description: Name of the snapshot to be created
       responses:
          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Snapshot'
+  /instances/{containerId}/snapshots/{snapshotId}:
+    delete:
+      parameters:
+        - in: path
+          required: true
+          name: containerId
+          schema:
+            type: integer
+          description: ID of the container where the snapshot is
+        - in: path
+          required: true
+          name: snapshotId
+          schema:
+            type: integer
+          description: ID of the snapshot to be deleted
+      responses:
+        '200':
           description: OK
   /instances/{id}/restore/{snapshotId}:
     patch:
@@ -214,8 +253,8 @@ paths:
           content:
             application/json:
               schema:
-                type: integer
-                description: ID to the process
+                type: string
+                description: Stream souboru
   /instances/import:
     put:
       parameters:
@@ -298,31 +337,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationState'
-  /instances/moveToDifferentProject: 
-    patch:
-      description: Move instances to another project TODO
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                sourceProjectId:
-                  type: string
-                destProjectId:
-                  type: string
-                containers:
-                  type: array
-                  items:
-                    type: integer
-                    description: container ids
-              required:
-                - name
-                - customLimits
-      responses:
-        '200':
-          description: OK
   /project:
     post:
       description: Create a new project
@@ -342,7 +356,14 @@ paths:
                 - customLimits
       responses:
         '200':
-          description: OK
+          description: Successfully created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+          
   /project/createConfigData:
     get:
       responses:
@@ -373,6 +394,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
+    delete:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the project to be deleted
+      responses:
+        '200':
+          description: deleted the container
   /project/{id}/info:
     get:
       parameters:
@@ -587,64 +619,60 @@ components:
             type: integer
             description: Process count
     LightResourceState:
-      type: object
-      properties:
-        limits:
-          $ref: '#/components/schemas/Limits'
-        CPU:
-          type: object
-          properties:
-            consumedTime:
-              type: integer
-              description: Time used by the CPU in nanoseconds
-            percentConsumed:
-              type: integer
-              description: Percentage of CPU allocated from the overall CPU available
-        RAM:
-          type: object
-          properties:
-            usage:
-              type: integer
-              description: last measured RAM usage in Bytes
-            percentConsumed:
-              type: integer
-              description: Percentage of RAM allocated from the overall RAM available
-        disk:
-          type: object
-          properties:
-            consumedMemory:
-              type: integer
-              description: current disk usage in bytes
-            percentConsumed:
-              type: integer
-              description: Percentage of the allocated disk memory from the overall memory available
-            allocatedMemory:
-              type: integer
-              description: current number of bytes that were allocated to children of this this (e.g. if this is project, then allocatedMemory is the sum of individual limits )
-        network:
-          type: object
-          properties:
-            bytesSent:
-              type: integer
-              description: last recorded upload in bytes/s
-            uploadBandwidthUsage:
-              type: integer
-              description: usage of upload bandwidth in percent
-            bytesReceived:
-              type: integer
-              description: last recorded download in bytes/s
-            downloadBandwidthUsage:
-              type: integer
-              description: usage of download bandwidth in percent
-        numberOfProcesses:
-          type: integer
-          description: Process count
+      type: array
+      items:
+        type: object
+        properties:
+          limits:
+            $ref: '#/components/schemas/Limits'
+          CPU:
+            type: object
+            properties:
+              consumedTime:
+                type: integer
+                description: Time used by the CPU in nanoseconds
+              percentConsumed:
+                type: integer
+                description: Percentage of CPU allocated from the overall CPU available
+          RAM:
+            type: object
+            properties:
+              usage:
+                type: integer
+                description: last measured RAM usage in Bytes
+              percentConsumed:
+                type: integer
+                description: Percentage of RAM allocated from the overall RAM available
+          disk:
+            type: object
+            properties:
+              consumedMemory:
+                type: integer
+                description: current disk usage in bytes
+              percentConsumed:
+                type: integer
+                description: Percentage of the allocated disk memory from the overall memory available
+          network:
+            type: object
+            properties:
+              bytesSent:
+                type: integer
+                description: last recorded upload in bytes/s
+              uploadBandwidthUsage:
+                type: integer
+                description: usage of upload bandwidth in percent
+              bytesReceived:
+                type: integer
+                description: last recorded download in bytes/s
+              downloadBandwidthUsage:
+                type: integer
+                description: usage of download bandwidth in percent
+          numberOfProcesses:
+            type: integer
+            description: Process count
     Snapshot:
       type: object
       properties:
-        id:
-          type: integer
-          description: ID of the snapshot
         name:
           type: string
           description: Name of the snapshot
@@ -684,6 +712,8 @@ components:
         stateful:
           type: boolean
           description: true if container should store its state on stop and restore it on start
+        status:
+          type: string
         statusCode:
           type: integer
         maxResources:
@@ -721,8 +751,6 @@ components:
         lastStartedOn:
           type: string
           description: Date and time when container was last started
-        statusCode:
-          type: integer
         snapshots:
           type: array
           items:
