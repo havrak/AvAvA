@@ -8,9 +8,9 @@ const PORT = process.env.PORT || 5000;
 import "./models/User.js";
 import "./services/passport.js";
 //import * as bodyParser from "body-parser";
-//import * as lxd from "./routes/lxdquery.js";
+import * as lxd from "./routes/lxdquery.js";
 
-//lxd.test();
+lxd.test();
 
 app.use(
   cookieSession({
