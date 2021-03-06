@@ -96,38 +96,6 @@ paths:
       responses:
         '200':
           description: deleted the container
-  /instances/{id}/info:
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container to be querried
-      responses:
-        '200':
-          description: Successful state info return
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ContainerInfo'
-  /instances/{id}/state: #nebo /info
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container which state is requested
-      responses:
-        '200':
-          description: Successful state info return
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ContainerResourceState'
   /instances/{id}/stateWithHistory: #nebo /info
     get:
       parameters:
@@ -426,23 +394,7 @@ paths:
       responses:
         '200':
           description: deleted the container
-  /project/{id}/info:
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the project to be querried
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectInfo'
-  /project/{id}/state:
+  /project/{id}/stateWithHistory:
     get:
       parameters:
         - in: path
@@ -467,16 +419,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserProjects'
-  /user/projects/info:
-    get:
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserProjectsInfo'
-  /user/projects/state:
+  /user/projects/stateWithHistory:
     get:
       responses:
         '200':
@@ -639,6 +582,7 @@ components:
           description: Process count
     LightResourceState:
       type: object
+      description: This object is used to represent the project and user state, their history and history of normal containers. 
       properties:
         limits:
           $ref: '#/components/schemas/Limits'
@@ -690,18 +634,73 @@ components:
         network:
           type: object
           properties:
-            uploadSpeed:
-              type: integer
-              description: last recorded upload speed in bytes/s in connection to the internet
-            uploadBandwidthUsage:
-              type: integer
-              description: usage of upload bandwidth in percent in connection to the internet
-            downloadSpeed:
-              type: integer
-              description: last recorded download speed in bytes/s in connection to the internet
-            downloadBandwidthUsage:
-              type: integer
-              description: usage of download bandwidth in percent in connection to the internet
+            upload:
+              type: object
+              properties:
+                uploadSpeed:
+                  type: integer
+                  description: last recorded upload speed in bytes/s in connection to the internet
+                uploadBandwidthUsage:
+                  type: integer
+                  description: usage of upload bandwidth in percent in connection to the internet
+                allocatedUploadSpeed:
+                  type: integer
+                  description: last recorded allocated upload speed in bytes/s in connection to the internet (sum of container limits)
+                allocatedBandwidthUsage:
+                  type: integer
+                  description: usage of upload bandwidth in percent in connection to the internet
+            download:
+              type: object
+              properties:
+                downloadSpeed:
+                  type: integer
+                  description: last recorded download speed in bytes/s in connection to the internet
+                downloadBandwidthUsage:
+                  type: integer
+                  description: usage of download bandwidth in percent in connection to the internet
+                allocatedDownloadSpeed:
+                  type: integer
+                  description: last recorded allocated download speed in bytes/s in connection to the internet (sum of container limits)
+                allocatedBandwidthUsage:
+                  type: integer
+                  description: allocation of download bandwidth in percent in connection to the internet
+        numberOfProcesses:
+          type: integer
+          description: Process count (without any limit)
+      example:
+        timestamp: Sat Mar 06 2021 18:32:43 GMT+0100 (Central European Standard Time)
+        limits:
+          RAM: 4_000_000_000
+          CPU: 14
+          disk: 50_000_000_000
+          network:
+            upload: 40_000
+            download: 200_000
+        CPU:
+          consumedTime: 195_422_124
+          percentConsumed: 60
+          percentAllocated: 5
+        RAM: 
+          usage: 3_120_000_000
+          percentConsumed: 78
+          allocated: 774_000_000
+          percentAllocated: 19.3
+        disk:
+          usage: 41_189_542_566
+          percentConsumed: 82.4
+          allocated: 1_682_544_571
+          percentAllocated: 3.4
+        network:
+          upload:
+            uploadSpeed: 2_500
+            uploadBandwidthUsage: 6.2
+            allocatedSpeed: 10_000
+            allocatedBandwidthUsage: 25
+          download:
+            downloadSpeed: 0
+            uploadBandwidthUsage: 0
+            allocatedSpeed: 55_000
+            allocatedBandwidthUsage: 27.5
     Snapshot:
       type: object
       properties:
@@ -721,39 +720,6 @@ components:
           type: string
         statusCode:
           type: integer
-    ContainerInfo:
-      type: object
-      description: LXD container info
-      properties:
-        id:
-          type: number
-        name:
-          type: string
-        template: 
-          $ref: '#/components/schemas/Template'
-        ipv4:
-          type: string
-        ipv6:
-          type: string
-        createdOn:
-          type: string
-          description: Date and time of the creation of the container
-        lastStartedOn:
-          type: string
-          description: Date and time when container was last started
-        stateful:
-          type: boolean
-          description: true if container should store its state on stop and restore it on start
-        status:
-          type: string
-        statusCode:
-          type: integer
-        maxResources:
-          $ref: '#/components/schemas/Limits'
-        snapshots:
-          type: array
-          items:
-            $ref: '#/components/schemas/Snapshot'
     ContainerState:
       type: object
       description: LXD container state
@@ -823,24 +789,6 @@ components:
         icon:
           type: string
           description: href to icon of the application - optional
-    ProjectInfo:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: id of the project
-        owner:
-          $ref: '#/components/schemas/User'
-        coworkers:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-        maxResources: 
-          $ref: '#/components/schemas/Limits'
-        containersInfo:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContainerInfo'
     ProjectState:
       type: object
       description: Object that knows state and history of project and all containers in it
@@ -877,15 +825,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Container'
-    UserProjectsInfo:
-      type: object
-      properties:
-        maxResources:
-          $ref: '#/components/schemas/Limits'
-        projectsInfo:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProjectInfo'
     UserProjectsState:
       type: object
       description: Object that knows state and history of all projects and all containers in them
@@ -921,6 +860,7 @@ components:
           description: Id of the user generated by database
         email:
           type: string
+          example: vladimir.vavra@student.gyarab.cz
         familyName:
           type: string
           description: inherited family name
@@ -936,6 +876,14 @@ components:
         coins:
           type: integer
           description: number of coins that can be used to buy bigger resource quotas
+      example:
+        id: 1
+        email: vladimir.vavra@student.gyarab.cz
+        familyName: Vávra
+        givenName: Vladimír
+        role: 0
+        icon: https://lh3.google.com/u/1/ogw/ADGmqu8Sde_1wI1aeqYj-reN2mDVllWamWh2UNT6DDg5=s83-c-mo
+        coins: 154
     UserData:
       type: object
       description: Object containing everything that is necessary for the user frontend to work
