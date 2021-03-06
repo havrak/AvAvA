@@ -12,6 +12,8 @@
  */
 
 import ApiClient from '../ApiClient';
+import LightResourceStateNetworkDownload from './LightResourceStateNetworkDownload';
+import LightResourceStateNetworkUpload from './LightResourceStateNetworkUpload';
 
 /**
 * The LightResourceStateNetwork model module.
@@ -43,42 +45,24 @@ export default class LightResourceStateNetwork {
             obj = obj || new LightResourceStateNetwork();
                         
             
-            if (data.hasOwnProperty('bytesSent')) {
-                obj['bytesSent'] = ApiClient.convertToType(data['bytesSent'], 'Number');
+            if (data.hasOwnProperty('upload')) {
+                obj['upload'] = LightResourceStateNetworkUpload.constructFromObject(data['upload']);
             }
-            if (data.hasOwnProperty('uploadBandwidthUsage')) {
-                obj['uploadBandwidthUsage'] = ApiClient.convertToType(data['uploadBandwidthUsage'], 'Number');
-            }
-            if (data.hasOwnProperty('bytesReceived')) {
-                obj['bytesReceived'] = ApiClient.convertToType(data['bytesReceived'], 'Number');
-            }
-            if (data.hasOwnProperty('downloadBandwidthUsage')) {
-                obj['downloadBandwidthUsage'] = ApiClient.convertToType(data['downloadBandwidthUsage'], 'Number');
+            if (data.hasOwnProperty('download')) {
+                obj['download'] = LightResourceStateNetworkDownload.constructFromObject(data['download']);
             }
         }
         return obj;
     }
 
     /**
-    * last recorded upload in bytes/s
-    * @member {Number} bytesSent
+    * @member {module:model/LightResourceStateNetworkUpload} upload
     */
-    'bytesSent' = undefined;
+    'upload' = undefined;
     /**
-    * usage of upload bandwidth in percent
-    * @member {Number} uploadBandwidthUsage
+    * @member {module:model/LightResourceStateNetworkDownload} download
     */
-    'uploadBandwidthUsage' = undefined;
-    /**
-    * last recorded download in bytes/s
-    * @member {Number} bytesReceived
-    */
-    'bytesReceived' = undefined;
-    /**
-    * usage of download bandwidth in percent
-    * @member {Number} downloadBandwidthUsage
-    */
-    'downloadBandwidthUsage' = undefined;
+    'download' = undefined;
 
 
 

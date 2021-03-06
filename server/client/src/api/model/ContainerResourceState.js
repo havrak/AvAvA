@@ -12,27 +12,29 @@
  */
 
 import ApiClient from '../ApiClient';
-import ContainerResourceStateInner from './ContainerResourceStateInner';
+import ContainerResourceStateCPU from './ContainerResourceStateCPU';
+import ContainerResourceStateDisk from './ContainerResourceStateDisk';
+import ContainerResourceStateNetworks from './ContainerResourceStateNetworks';
+import ContainerResourceStateRAM from './ContainerResourceStateRAM';
+import Limits from './Limits';
 
 /**
 * The ContainerResourceState model module.
 * @module model/ContainerResourceState
 * @version 1.0
 */
-export default class ContainerResourceState extends Array {
+export default class ContainerResourceState {
     /**
     * Constructs a new <code>ContainerResourceState</code>.
-    * Usage of resources assigned to container in time arrayIndex * 10 minutes (0 &#x3D; last measurment)
+    * Object representing current state of the container (not history). Each object also contains limit information that were in effect in the time of measuring the state.
     * @alias module:model/ContainerResourceState
     * @class
-    * @extends Array
     */
 
     constructor() {
-        super();
         
         
-        return this;
+        
     }
 
     /**
@@ -45,13 +47,77 @@ export default class ContainerResourceState extends Array {
     static constructFromObject(data, obj) {
         if (data) {
             obj = obj || new ContainerResourceState();
-            ApiClient.constructFromObject(data, obj, 'ContainerResourceStateInner');
+                        
             
-            
+            if (data.hasOwnProperty('status')) {
+                obj['status'] = ApiClient.convertToType(data['status'], 'String');
+            }
+            if (data.hasOwnProperty('statusCode')) {
+                obj['statusCode'] = ApiClient.convertToType(data['statusCode'], 'Number');
+            }
+            if (data.hasOwnProperty('timestamp')) {
+                obj['timestamp'] = ApiClient.convertToType(data['timestamp'], 'String');
+            }
+            if (data.hasOwnProperty('limits')) {
+                obj['limits'] = Limits.constructFromObject(data['limits']);
+            }
+            if (data.hasOwnProperty('CPU')) {
+                obj['CPU'] = ContainerResourceStateCPU.constructFromObject(data['CPU']);
+            }
+            if (data.hasOwnProperty('RAM')) {
+                obj['RAM'] = ContainerResourceStateRAM.constructFromObject(data['RAM']);
+            }
+            if (data.hasOwnProperty('disk')) {
+                obj['disk'] = ApiClient.convertToType(data['disk'], [ContainerResourceStateDisk]);
+            }
+            if (data.hasOwnProperty('networks')) {
+                obj['networks'] = ApiClient.convertToType(data['networks'], [ContainerResourceStateNetworks]);
+            }
+            if (data.hasOwnProperty('numberOfProcesses')) {
+                obj['numberOfProcesses'] = ApiClient.convertToType(data['numberOfProcesses'], 'Number');
+            }
         }
         return obj;
     }
 
+    /**
+    * @member {String} status
+    */
+    'status' = undefined;
+    /**
+    * @member {Number} statusCode
+    */
+    'statusCode' = undefined;
+    /**
+    * Date and time when this state was measured
+    * @member {String} timestamp
+    */
+    'timestamp' = undefined;
+    /**
+    * @member {module:model/Limits} limits
+    */
+    'limits' = undefined;
+    /**
+    * @member {module:model/ContainerResourceStateCPU} CPU
+    */
+    'CPU' = undefined;
+    /**
+    * @member {module:model/ContainerResourceStateRAM} RAM
+    */
+    'RAM' = undefined;
+    /**
+    * @member {Array.<module:model/ContainerResourceStateDisk>} disk
+    */
+    'disk' = undefined;
+    /**
+    * @member {Array.<module:model/ContainerResourceStateNetworks>} networks
+    */
+    'networks' = undefined;
+    /**
+    * Process count
+    * @member {Number} numberOfProcesses
+    */
+    'numberOfProcesses' = undefined;
 
 
 

@@ -1,39 +1,39 @@
-.card-state-container{
+.card-state-container {
    display: flex;
    justify-content: center;
    align-items: center;
    flex-direction: column;
 }
 
-.card-state-container h2{
+.card-state-container h2 {
    margin: 0px;
 }
 
-.running{
-   color: #90EE90;
+.running {
+   color: #66bb6a;
 }
 
-.stopped{
-   color: #FB404B;
+.stopped {
+   color: #fb404b;
 }
 
-.freezed{
-   color:#F98131
+.frozen {
+   color: #f98131;
 }
 
-.card-dashboard{
+.card-dashboard {
    padding-bottom: 15px;
 }
 
-.card-link{
+.card-link {
    color: black;
    margin-left: 0px;
 }
 
-.card-link:hover{
+.card-link:hover {
    color: black;
 }
 
-.card-link:hover .to-underline{
+.card-link:hover .to-underline {
    text-decoration: underline;
 }

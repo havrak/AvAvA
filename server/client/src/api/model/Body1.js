@@ -12,6 +12,7 @@
  */
 
 import ApiClient from '../ApiClient';
+import Limits from './Limits';
 
 /**
 * The Body1 model module.
@@ -23,11 +24,15 @@ export default class Body1 {
     * Constructs a new <code>Body1</code>.
     * @alias module:model/Body1
     * @class
+    * @param name {String} 
+    * @param customLimits {module:model/Limits} 
     */
 
-    constructor() {
+    constructor(name, customLimits) {
         
         
+        this['name'] = name;
+        this['customLimits'] = customLimits;
         
     }
 
@@ -43,31 +48,24 @@ export default class Body1 {
             obj = obj || new Body1();
                         
             
-            if (data.hasOwnProperty('sourceProjectId')) {
-                obj['sourceProjectId'] = ApiClient.convertToType(data['sourceProjectId'], 'String');
+            if (data.hasOwnProperty('name')) {
+                obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
-            if (data.hasOwnProperty('destProjectId')) {
-                obj['destProjectId'] = ApiClient.convertToType(data['destProjectId'], 'String');
-            }
-            if (data.hasOwnProperty('containers')) {
-                obj['containers'] = ApiClient.convertToType(data['containers'], ['Number']);
+            if (data.hasOwnProperty('customLimits')) {
+                obj['customLimits'] = Limits.constructFromObject(data['customLimits']);
             }
         }
         return obj;
     }
 
     /**
-    * @member {String} sourceProjectId
+    * @member {String} name
     */
-    'sourceProjectId' = undefined;
+    'name' = undefined;
     /**
-    * @member {String} destProjectId
+    * @member {module:model/Limits} customLimits
     */
-    'destProjectId' = undefined;
-    /**
-    * @member {Array.<Number>} containers
-    */
-    'containers' = undefined;
+    'customLimits' = undefined;
 
 
 

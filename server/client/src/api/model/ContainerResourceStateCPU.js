@@ -14,14 +14,14 @@
 import ApiClient from '../ApiClient';
 
 /**
-* The LightResourceStateCPU model module.
-* @module model/LightResourceStateCPU
+* The ContainerResourceStateCPU model module.
+* @module model/ContainerResourceStateCPU
 * @version 1.0
 */
-export default class LightResourceStateCPU {
+export default class ContainerResourceStateCPU {
     /**
-    * Constructs a new <code>LightResourceStateCPU</code>.
-    * @alias module:model/LightResourceStateCPU
+    * Constructs a new <code>ContainerResourceStateCPU</code>.
+    * @alias module:model/ContainerResourceStateCPU
     * @class
     */
 
@@ -32,15 +32,15 @@ export default class LightResourceStateCPU {
     }
 
     /**
-    * Constructs a <code>LightResourceStateCPU</code> from a plain JavaScript object, optionally creating a new instance.
+    * Constructs a <code>ContainerResourceStateCPU</code> from a plain JavaScript object, optionally creating a new instance.
     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
     * @param {Object} data The plain JavaScript object bearing properties of interest.
-    * @param {module:model/LightResourceStateCPU} obj Optional instance to populate.
-    * @return {module:model/LightResourceStateCPU} The populated <code>LightResourceStateCPU</code> instance.
+    * @param {module:model/ContainerResourceStateCPU} obj Optional instance to populate.
+    * @return {module:model/ContainerResourceStateCPU} The populated <code>ContainerResourceStateCPU</code> instance.
     */
     static constructFromObject(data, obj) {
         if (data) {
-            obj = obj || new LightResourceStateCPU();
+            obj = obj || new ContainerResourceStateCPU();
                         
             
             if (data.hasOwnProperty('consumedTime')) {
@@ -49,28 +49,20 @@ export default class LightResourceStateCPU {
             if (data.hasOwnProperty('percentConsumed')) {
                 obj['percentConsumed'] = ApiClient.convertToType(data['percentConsumed'], 'Number');
             }
-            if (data.hasOwnProperty('percentAllocated')) {
-                obj['percentAllocated'] = ApiClient.convertToType(data['percentAllocated'], 'Number');
-            }
         }
         return obj;
     }
 
     /**
-    * Time used by the CPU in nanoseconds (sum of used time of containers)
+    * Time used by the CPU in nanoseconds
     * @member {Number} consumedTime
     */
     'consumedTime' = undefined;
     /**
-    * Percentage of CPU used from the overall CPU available
+    * Percentage of CPU allocated from the overall CPU available
     * @member {Number} percentConsumed
     */
     'percentConsumed' = undefined;
-    /**
-    * Percentage of CPU allocated from the overall CPU available
-    * @member {Number} percentAllocated
-    */
-    'percentAllocated' = undefined;
 
 
 

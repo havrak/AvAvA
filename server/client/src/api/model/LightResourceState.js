@@ -26,6 +26,7 @@ import Limits from './Limits';
 export default class LightResourceState {
     /**
     * Constructs a new <code>LightResourceState</code>.
+    * This object is used to represent the project and user state, their history and history of normal containers. Each object also contains limit information that were in effect in the time of measuring the state.
     * @alias module:model/LightResourceState
     * @class
     */
@@ -51,6 +52,9 @@ export default class LightResourceState {
             if (data.hasOwnProperty('limits')) {
                 obj['limits'] = Limits.constructFromObject(data['limits']);
             }
+            if (data.hasOwnProperty('timestamp')) {
+                obj['timestamp'] = ApiClient.convertToType(data['timestamp'], 'String');
+            }
             if (data.hasOwnProperty('CPU')) {
                 obj['CPU'] = LightResourceStateCPU.constructFromObject(data['CPU']);
             }
@@ -75,6 +79,11 @@ export default class LightResourceState {
     */
     'limits' = undefined;
     /**
+    * Date and time when this state was measured
+    * @member {String} timestamp
+    */
+    'timestamp' = undefined;
+    /**
     * @member {module:model/LightResourceStateCPU} CPU
     */
     'CPU' = undefined;
@@ -91,7 +100,7 @@ export default class LightResourceState {
     */
     'network' = undefined;
     /**
-    * Process count
+    * Process count (without any limit)
     * @member {Number} numberOfProcesses
     */
     'numberOfProcesses' = undefined;

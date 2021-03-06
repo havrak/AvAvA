@@ -13,6 +13,7 @@
 
 import ApiClient from '../ApiClient';
 import ContainerResourceState from './ContainerResourceState';
+import LightResourceState from './LightResourceState';
 
 /**
 * The ContainerState model module.
@@ -48,8 +49,11 @@ export default class ContainerState {
             if (data.hasOwnProperty('id')) {
                 obj['id'] = ApiClient.convertToType(data['id'], 'Number');
             }
-            if (data.hasOwnProperty('state')) {
-                obj['state'] = ContainerResourceState.constructFromObject(data['state']);
+            if (data.hasOwnProperty('currentState')) {
+                obj['currentState'] = ContainerResourceState.constructFromObject(data['currentState']);
+            }
+            if (data.hasOwnProperty('stateHistory')) {
+                obj['stateHistory'] = ApiClient.convertToType(data['stateHistory'], [LightResourceState]);
             }
         }
         return obj;
@@ -61,9 +65,14 @@ export default class ContainerState {
     */
     'id' = undefined;
     /**
-    * @member {module:model/ContainerResourceState} state
+    * @member {module:model/ContainerResourceState} currentState
     */
-    'state' = undefined;
+    'currentState' = undefined;
+    /**
+    * history of states - 0 index = 10 min ago
+    * @member {Array.<module:model/LightResourceState>} stateHistory
+    */
+    'stateHistory' = undefined;
 
 
 

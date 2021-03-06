@@ -14,21 +14,17 @@
 import ApiClient from "../ApiClient";
 import Body from '../model/Body';
 import Body1 from '../model/Body1';
-import Body2 from '../model/Body2';
 import Container from '../model/Container';
-import ContainerInfo from '../model/ContainerInfo';
 import ContainerState from '../model/ContainerState';
 import CreateContainerData from '../model/CreateContainerData';
 import InlineResponse200 from '../model/InlineResponse200';
 import OperationState from '../model/OperationState';
 import Project from '../model/Project';
-import ProjectInfo from '../model/ProjectInfo';
 import ProjectState from '../model/ProjectState';
 import Snapshot from '../model/Snapshot';
 import User from '../model/User';
 import UserData from '../model/UserData';
 import UserProjects from '../model/UserProjects';
-import UserProjectsInfo from '../model/UserProjectsInfo';
 import UserProjectsState from '../model/UserProjectsState';
 
 /**
@@ -81,6 +77,42 @@ export default class DefaultApi {
 
       return this.apiClient.callApi(
         '/combinedData', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
+     * Callback function to receive the result of the instancesContainerIdSnapshotsSnapshotIdDelete operation.
+     * @callback module:api/DefaultApi~instancesContainerIdSnapshotsSnapshotIdDeleteCallback
+     * @param {String} error Error message, if any.
+     * @param data This operation does not return a value.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {module:api/DefaultApi~instancesContainerIdSnapshotsSnapshotIdDeleteCallback} callback The callback function, accepting three arguments: error, data, response
+     */
+    instancesContainerIdSnapshotsSnapshotIdDelete(containerId, snapshotId, callback) {
+      let postBody = null;
+
+      let pathParams = {
+        'containerId': containerId,
+        'snapshotId': snapshotId
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = [];
+      let accepts = [];
+      let returnType = null;
+
+      return this.apiClient.callApi(
+        '/instances/{containerId}/snapshots/{snapshotId}', 'DELETE',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -157,16 +189,51 @@ export default class DefaultApi {
       );
     }
     /**
+     * Callback function to receive the result of the instancesIdDelete operation.
+     * @callback module:api/DefaultApi~instancesIdDeleteCallback
+     * @param {String} error Error message, if any.
+     * @param data This operation does not return a value.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {module:api/DefaultApi~instancesIdDeleteCallback} callback The callback function, accepting three arguments: error, data, response
+     */
+    instancesIdDelete(id, callback) {
+      let postBody = null;
+
+      let pathParams = {
+        'id': id
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = [];
+      let accepts = [];
+      let returnType = null;
+
+      return this.apiClient.callApi(
+        '/instances/{id}', 'DELETE',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
      * Callback function to receive the result of the instancesIdExportGet operation.
      * @callback module:api/DefaultApi~instancesIdExportGetCallback
      * @param {String} error Error message, if any.
-     * @param {'Number'} data The data returned by the service call.
+     * @param {'String'} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * @param {module:api/DefaultApi~instancesIdExportGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link 'Number'}
+     * data is of type: {@link 'String'}
      */
     instancesIdExportGet(id, callback) {
       let postBody = null;
@@ -184,7 +251,7 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = 'Number';
+      let returnType = 'String';
 
       return this.apiClient.callApi(
         '/instances/{id}/export', 'GET',
@@ -260,42 +327,6 @@ export default class DefaultApi {
 
       return this.apiClient.callApi(
         '/instances/{id}', 'GET',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
-     * Callback function to receive the result of the instancesIdInfoGet operation.
-     * @callback module:api/DefaultApi~instancesIdInfoGetCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/ContainerInfo} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * @param {module:api/DefaultApi~instancesIdInfoGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/ContainerInfo}
-     */
-    instancesIdInfoGet(id, callback) {
-      let postBody = null;
-
-      let pathParams = {
-        'id': id
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = [];
-      let accepts = ['application/json'];
-      let returnType = ContainerInfo;
-
-      return this.apiClient.callApi(
-        '/instances/{id}/info', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -378,15 +409,16 @@ export default class DefaultApi {
      * Callback function to receive the result of the instancesIdSnapshotsPost operation.
      * @callback module:api/DefaultApi~instancesIdSnapshotsPostCallback
      * @param {String} error Error message, if any.
-     * @param data This operation does not return a value.
+     * @param {module:model/Snapshot} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * @param {Object} opts Optional parameters
      * @param {module:api/DefaultApi~instancesIdSnapshotsPostCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/Snapshot}
      */
-    instancesIdSnapshotsPost(id, opts, callback) {
+    instancesIdSnapshotsPost(id, stateful, opts, callback) {
       opts = opts || {};
       let postBody = null;
 
@@ -394,7 +426,8 @@ export default class DefaultApi {
         'id': id
       };
       let queryParams = {
-        'snapshotName': opts['snapshotName']
+        'snapshotName': opts['snapshotName'],
+        'stateful': stateful
       };
       let headerParams = {
       };
@@ -403,8 +436,8 @@ export default class DefaultApi {
 
       let authNames = [];
       let contentTypes = [];
-      let accepts = [];
-      let returnType = null;
+      let accepts = ['application/json'];
+      let returnType = Snapshot;
 
       return this.apiClient.callApi(
         '/instances/{id}/snapshots', 'POST',
@@ -449,18 +482,18 @@ export default class DefaultApi {
       );
     }
     /**
-     * Callback function to receive the result of the instancesIdStateGet operation.
-     * @callback module:api/DefaultApi~instancesIdStateGetCallback
+     * Callback function to receive the result of the instancesIdStateWithHistoryGet operation.
+     * @callback module:api/DefaultApi~instancesIdStateWithHistoryGetCallback
      * @param {String} error Error message, if any.
      * @param {module:model/ContainerState} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
-     * @param {module:api/DefaultApi~instancesIdStateGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * @param {module:api/DefaultApi~instancesIdStateWithHistoryGetCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/ContainerState}
      */
-    instancesIdStateGet(id, callback) {
+    instancesIdStateWithHistoryGet(id, callback) {
       let postBody = null;
 
       let pathParams = {
@@ -479,7 +512,7 @@ export default class DefaultApi {
       let returnType = ContainerState;
 
       return this.apiClient.callApi(
-        '/instances/{id}/state', 'GET',
+        '/instances/{id}/stateWithHistory', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -592,52 +625,17 @@ export default class DefaultApi {
       );
     }
     /**
-     * Callback function to receive the result of the instancesMoveToDifferentProjectPatch operation.
-     * @callback module:api/DefaultApi~instancesMoveToDifferentProjectPatchCallback
-     * @param {String} error Error message, if any.
-     * @param data This operation does not return a value.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * Move instances to another project TODO
-     * @param {module:api/DefaultApi~instancesMoveToDifferentProjectPatchCallback} callback The callback function, accepting three arguments: error, data, response
-     */
-    instancesMoveToDifferentProjectPatch(body, callback) {
-      let postBody = body;
-
-      let pathParams = {
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = ['application/json'];
-      let accepts = [];
-      let returnType = null;
-
-      return this.apiClient.callApi(
-        '/instances/moveToDifferentProject', 'PATCH',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
      * Callback function to receive the result of the instancesPost operation.
      * @callback module:api/DefaultApi~instancesPostCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/OperationState} data The data returned by the service call.
+     * @param {module:model/Container} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * Create a new instance
      * @param {module:api/DefaultApi~instancesPostCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/OperationState}
+     * data is of type: {@link module:model/Container}
      */
     instancesPost(body, callback) {
       let postBody = body;
@@ -654,7 +652,7 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = OperationState;
+      let returnType = Container;
 
       return this.apiClient.callApi(
         '/instances', 'POST',
@@ -698,6 +696,41 @@ export default class DefaultApi {
       );
     }
     /**
+     * Callback function to receive the result of the projectIdDelete operation.
+     * @callback module:api/DefaultApi~projectIdDeleteCallback
+     * @param {String} error Error message, if any.
+     * @param data This operation does not return a value.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {module:api/DefaultApi~projectIdDeleteCallback} callback The callback function, accepting three arguments: error, data, response
+     */
+    projectIdDelete(id, callback) {
+      let postBody = null;
+
+      let pathParams = {
+        'id': id
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = [];
+      let accepts = [];
+      let returnType = null;
+
+      return this.apiClient.callApi(
+        '/project/{id}', 'DELETE',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
      * Callback function to receive the result of the projectIdGet operation.
      * @callback module:api/DefaultApi~projectIdGetCallback
      * @param {String} error Error message, if any.
@@ -734,54 +767,18 @@ export default class DefaultApi {
       );
     }
     /**
-     * Callback function to receive the result of the projectIdInfoGet operation.
-     * @callback module:api/DefaultApi~projectIdInfoGetCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/ProjectInfo} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * @param {module:api/DefaultApi~projectIdInfoGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/ProjectInfo}
-     */
-    projectIdInfoGet(id, callback) {
-      let postBody = null;
-
-      let pathParams = {
-        'id': id
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = [];
-      let accepts = ['application/json'];
-      let returnType = ProjectInfo;
-
-      return this.apiClient.callApi(
-        '/project/{id}/info', 'GET',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
-     * Callback function to receive the result of the projectIdStateGet operation.
-     * @callback module:api/DefaultApi~projectIdStateGetCallback
+     * Callback function to receive the result of the projectIdStateWithHistoryGet operation.
+     * @callback module:api/DefaultApi~projectIdStateWithHistoryGetCallback
      * @param {String} error Error message, if any.
      * @param {module:model/ProjectState} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
-     * @param {module:api/DefaultApi~projectIdStateGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * @param {module:api/DefaultApi~projectIdStateWithHistoryGetCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/ProjectState}
      */
-    projectIdStateGet(id, callback) {
+    projectIdStateWithHistoryGet(id, callback) {
       let postBody = null;
 
       let pathParams = {
@@ -800,7 +797,7 @@ export default class DefaultApi {
       let returnType = ProjectState;
 
       return this.apiClient.callApi(
-        '/project/{id}/state', 'GET',
+        '/project/{id}/stateWithHistory', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -809,13 +806,14 @@ export default class DefaultApi {
      * Callback function to receive the result of the projectPost operation.
      * @callback module:api/DefaultApi~projectPostCallback
      * @param {String} error Error message, if any.
-     * @param data This operation does not return a value.
+     * @param {Array.<module:model/Project>} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * Create a new project
      * @param {module:api/DefaultApi~projectPostCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link Array.<module:model/Project>}
      */
     projectPost(body, callback) {
       let postBody = body;
@@ -831,8 +829,8 @@ export default class DefaultApi {
 
       let authNames = [];
       let contentTypes = ['application/json'];
-      let accepts = [];
-      let returnType = null;
+      let accepts = ['application/json'];
+      let returnType = [Project];
 
       return this.apiClient.callApi(
         '/project', 'POST',
@@ -911,53 +909,18 @@ export default class DefaultApi {
       );
     }
     /**
-     * Callback function to receive the result of the userProjectsInfoGet operation.
-     * @callback module:api/DefaultApi~userProjectsInfoGetCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/UserProjectsInfo} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * @param {module:api/DefaultApi~userProjectsInfoGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/UserProjectsInfo}
-     */
-    userProjectsInfoGet(callback) {
-      let postBody = null;
-
-      let pathParams = {
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = [];
-      let accepts = ['application/json'];
-      let returnType = UserProjectsInfo;
-
-      return this.apiClient.callApi(
-        '/user/projects/info', 'GET',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
-     * Callback function to receive the result of the userProjectsStateGet operation.
-     * @callback module:api/DefaultApi~userProjectsStateGetCallback
+     * Callback function to receive the result of the userProjectsStateWithHistoryGet operation.
+     * @callback module:api/DefaultApi~userProjectsStateWithHistoryGetCallback
      * @param {String} error Error message, if any.
      * @param {module:model/UserProjectsState} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
-     * @param {module:api/DefaultApi~userProjectsStateGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * @param {module:api/DefaultApi~userProjectsStateWithHistoryGetCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/UserProjectsState}
      */
-    userProjectsStateGet(callback) {
+    userProjectsStateWithHistoryGet(callback) {
       let postBody = null;
 
       let pathParams = {
@@ -975,7 +938,7 @@ export default class DefaultApi {
       let returnType = UserProjectsState;
 
       return this.apiClient.callApi(
-        '/user/projects/state', 'GET',
+        '/user/projects/stateWithHistory', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );

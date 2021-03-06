@@ -53,11 +53,17 @@ export default class Body {
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
+            if (data.hasOwnProperty('projectId')) {
+                obj['projectId'] = ApiClient.convertToType(data['projectId'], 'Number');
+            }
             if (data.hasOwnProperty('autostart')) {
                 obj['autostart'] = ApiClient.convertToType(data['autostart'], 'Boolean');
             }
             if (data.hasOwnProperty('templateId')) {
                 obj['templateId'] = ApiClient.convertToType(data['templateId'], 'Number');
+            }
+            if (data.hasOwnProperty('stateful')) {
+                obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
             }
             if (data.hasOwnProperty('applicationToInstall')) {
                 obj['applicationToInstall'] = ApiClient.convertToType(data['applicationToInstall'], ['String']);
@@ -74,6 +80,11 @@ export default class Body {
     */
     'name' = undefined;
     /**
+    * Id of project where container should be created
+    * @member {Number} projectId
+    */
+    'projectId' = undefined;
+    /**
     * @member {Boolean} autostart
     */
     'autostart' = undefined;
@@ -81,6 +92,10 @@ export default class Body {
     * @member {Number} templateId
     */
     'templateId' = undefined;
+    /**
+    * @member {Boolean} stateful
+    */
+    'stateful' = undefined;
     /**
     * @member {Array.<String>} applicationToInstall
     */

@@ -13,7 +13,6 @@
 
 import ApiClient from '../ApiClient';
 import LightResourceState from './LightResourceState';
-import Limits from './Limits';
 import Project from './Project';
 
 /**
@@ -47,9 +46,6 @@ export default class UserProjects {
             obj = obj || new UserProjects();
                         
             
-            if (data.hasOwnProperty('maxResources')) {
-                obj['maxResources'] = Limits.constructFromObject(data['maxResources']);
-            }
             if (data.hasOwnProperty('userState')) {
                 obj['userState'] = LightResourceState.constructFromObject(data['userState']);
             }
@@ -60,10 +56,6 @@ export default class UserProjects {
         return obj;
     }
 
-    /**
-    * @member {module:model/Limits} maxResources
-    */
-    'maxResources' = undefined;
     /**
     * @member {module:model/LightResourceState} userState
     */

@@ -62,14 +62,14 @@ export default class Container {
             if (data.hasOwnProperty('ipv6')) {
                 obj['ipv6'] = ApiClient.convertToType(data['ipv6'], 'String');
             }
+            if (data.hasOwnProperty('stateful')) {
+                obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
+            }
             if (data.hasOwnProperty('createdOn')) {
                 obj['createdOn'] = ApiClient.convertToType(data['createdOn'], 'String');
             }
             if (data.hasOwnProperty('lastStartedOn')) {
                 obj['lastStartedOn'] = ApiClient.convertToType(data['lastStartedOn'], 'String');
-            }
-            if (data.hasOwnProperty('statusCode')) {
-                obj['statusCode'] = ApiClient.convertToType(data['statusCode'], 'Number');
             }
             if (data.hasOwnProperty('snapshots')) {
                 obj['snapshots'] = ApiClient.convertToType(data['snapshots'], [Snapshot]);
@@ -102,6 +102,10 @@ export default class Container {
     */
     'ipv6' = undefined;
     /**
+    * @member {Boolean} stateful
+    */
+    'stateful' = undefined;
+    /**
     * Date and time of the creation of the container
     * @member {String} createdOn
     */
@@ -111,10 +115,6 @@ export default class Container {
     * @member {String} lastStartedOn
     */
     'lastStartedOn' = undefined;
-    /**
-    * @member {Number} statusCode
-    */
-    'statusCode' = undefined;
     /**
     * @member {Array.<module:model/Snapshot>} snapshots
     */

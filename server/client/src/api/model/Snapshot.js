@@ -43,9 +43,6 @@ export default class Snapshot {
             obj = obj || new Snapshot();
                         
             
-            if (data.hasOwnProperty('id')) {
-                obj['id'] = ApiClient.convertToType(data['id'], 'Number');
-            }
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
@@ -59,11 +56,6 @@ export default class Snapshot {
         return obj;
     }
 
-    /**
-    * ID of the snapshot
-    * @member {Number} id
-    */
-    'id' = undefined;
     /**
     * Name of the snapshot
     * @member {String} name

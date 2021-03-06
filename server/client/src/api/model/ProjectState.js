@@ -23,6 +23,7 @@ import LightResourceState from './LightResourceState';
 export default class ProjectState {
     /**
     * Constructs a new <code>ProjectState</code>.
+    * Object that knows state and history of project and all containers in it
     * @alias module:model/ProjectState
     * @class
     */
@@ -54,6 +55,9 @@ export default class ProjectState {
             if (data.hasOwnProperty('projectState')) {
                 obj['projectState'] = LightResourceState.constructFromObject(data['projectState']);
             }
+            if (data.hasOwnProperty('stateHistory')) {
+                obj['stateHistory'] = ApiClient.convertToType(data['stateHistory'], [LightResourceState]);
+            }
         }
         return obj;
     }
@@ -71,6 +75,11 @@ export default class ProjectState {
     * @member {module:model/LightResourceState} projectState
     */
     'projectState' = undefined;
+    /**
+    * history of states - 0 index = 10 min ago
+    * @member {Array.<module:model/LightResourceState>} stateHistory
+    */
+    'stateHistory' = undefined;
 
 
 

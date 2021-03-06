@@ -4,8 +4,49 @@ import { Chart } from "react-google-charts";
 import { Card, Container, Row, Col } from "react-bootstrap";
 import BeatLoader from "react-spinners/BeatLoader";
 import { Link } from "react-router-dom";
+import {
+   CircularStateChartCard,
+   CPUCircularStateChartCard,
+} from "../components/chartCards/CircularStateChartCard.js";
+import { connect } from "react-redux";
 
-function Dashboard() {
+import {
+   bytesToAdequateMessage,
+   bytesPerSecondToAdequateMessage,
+   secondsToAdequateMessage,
+} from "../service/UnitsConvertor.js";
+
+function Dashboard({ hostInformation, user, projects, state }) {
+   const { RAM, CPU, disk, network, limits, numberOfProcesses } = state;
+   let ownProjects = 0;
+   let foreignProjects = 0;
+
+   let runningContainers = 0;
+   // let stoppedContainers = 0;
+   // let frozenContainers = 0;
+   let ownContainers = 0;
+   let foreignContainers = 0;
+   for (const project of projects) {
+      // if(project.owner.id === user.id){
+      if (project.owner === undefined) {
+         //testing purposes
+         ownProjects++;
+         ownContainers += project.containers.length;
+      } else {
+         foreignProjects++;
+         foreignContainers += project.containers.length;
+      }
+      for (const container of project.containers) {
+         if (container.state.status === "Running") {
+            runningContainers++;
+         }
+         //  else if (container.state.status === "Stopped") {
+         //    stoppedContainers++;
+         // } else if (container.state.status === "Frozen") {
+         //    frozenContainers++;
+         // }
+      }
+   }
    return (
       <>
          <Container fluid>
@@ -25,7 +66,7 @@ function Dashboard() {
                                     <Card className="mb-0">
                                        <Card.Body className="p-1">
                                           <div className="card-state-container">
-                                             <h2 className="">3</h2>
+                                             <h2 className="">{ownProjects}</h2>
                                              <div className="success-text">you own</div>
                                           </div>
                                        </Card.Body>
@@ -35,7 +76,7 @@ function Dashboard() {
                                     <Card className="mb-0">
                                        <Card.Body className="p-1">
                                           <div className="card-state-container">
-                                             <h2>1</h2>
+                                             <h2>{foreignProjects}</h2>
                                              <div className="success-text">
                                                 you participate in
                                              </div>
@@ -71,8 +112,8 @@ function Dashboard() {
                                     <Card className="mb-0">
                                        <Card.Body className="p-1">
                                           <div className="card-state-container">
-                                             <h2 className="running">3000</h2>
-                                             <div className="success-text">Running</div>
+                                             <h2>{ownContainers}</h2>
+                                             <div className="success-text">you own</div>
                                           </div>
                                        </Card.Body>
                                     </Card>
@@ -81,7 +122,36 @@ function Dashboard() {
                                     <Card className="mb-0">
                                        <Card.Body className="p-1">
                                           <div className="card-state-container">
-                                             <h2 className="stopped">20</h2>
+                                             <h2>{foreignContainers}</h2>
+                                             <div
+                                                className="success-text"
+                                                style={{ textAlign: "center" }}
+                                             >
+                                                you have access to
+                                             </div>
+                                          </div>
+                                       </Card.Body>
+                                    </Card>
+                                 </Col>
+                                 <Col sm="12" md="4" lg="12" xl="4">
+                                    <Card className="mb-0">
+                                       <Card.Body className="p-1">
+                                          <div className="card-state-container">
+                                             <h2 className="running">
+                                                {runningContainers}
+                                             </h2>
+                                             <div className="success-text">Running</div>
+                                          </div>
+                                       </Card.Body>
+                                    </Card>
+                                 </Col>
+                                 {/* <Col sm="12" md="4" lg="12" xl="4">
+                                    <Card className="mb-0">
+                                       <Card.Body className="p-1">
+                                          <div className="card-state-container">
+                                             <h2 className="stopped">
+                                                {stoppedContainers}
+                                             </h2>
                                              <div className="success-text">Stopped</div>
                                           </div>
                                        </Card.Body>
@@ -91,12 +161,14 @@ function Dashboard() {
                                     <Card className="mb-0">
                                        <Card.Body className="p-1">
                                           <div className="card-state-container">
-                                             <h2 className="freezed">1</h2>
-                                             <div className="success-text">Freezed</div>
+                                             <h2 className="frozen">
+                                                {frozenContainers}
+                                             </h2>
+                                             <div className="success-text">Frozen</div>
                                           </div>
                                        </Card.Body>
                                     </Card>
-                                 </Col>
+                                 </Col> */}
                               </Row>
                            </Card.Body>
                         </Container>
@@ -105,331 +177,74 @@ function Dashboard() {
                </Col>
             </Row>
             <Row>
-               <Col sm="6" md="6" lg="4">
-                  <Link to="/user" className="card-link">
-                     <Card className="card-dashboard">
-                        <Card.Header>
-                           <Card.Title as="h4">
-                              <span style={{ marginRight: "14px" }}>
-                                 <i class="fas fa-hdd"></i>
-                              </span>
-                              <span className="to-underline">Disk</span>
-                              <div className="float-right">
-                                 <div className="numbers">
-                                    <Card.Title className="float-right" as="h4">
-                                       8GB
-                                    </Card.Title>
-                                    <br />
-                                    {/* <p className="card-category float-right">MAX</p> */}
-                                 </div>
-                              </div>
-                           </Card.Title>
-                        </Card.Header>
-                        <Card.Body className="p-0">
-                           <Chart
-                              chartType="PieChart"
-                              loader={
-                                 <BeatLoader color={"#212529"} loading={true} size={50} />
-                              }
-                              data={[
-                                 ["Task", "Hours per Day"],
-                                 ["used", 180],
-                                 ["allocated", 32],
-                                 ["free", 44],
-                              ]}
-                              options={{
-                                 legend: "bottom",
-                                 height: 300,
-                                 chartArea: {
-                                    width: "100%",
-                                 },
-                                 slices: {
-                                    0: { color: "#FB404B" },
-                                    1: { color: "#FFA534" },
-                                    2: { color: "#1DC7EA" },
-                                 },
-                              }}
-                              rootProps={{ "data-testid": "1" }}
-                           />
-                        </Card.Body>
-                     </Card>
-                  </Link>
+               <Col sm="6" md="6" lg="4" xl="3">
+                  <CircularStateChartCard
+                     usedAmount={disk.usage}
+                     allocatedAmount={disk.allocated}
+                     maxAmount={limits.disk}
+                     percentConsumed={disk.percentConsumed}
+                     percentAllocated={disk.percentAllocated}
+                     stateName={"Disk"}
+                     convertorCallback={bytesToAdequateMessage}
+                     baseUnit={"B"}
+                  />
                </Col>
-               <Col sm="6" md="6" lg="4">
-                  <Link to="/user" className="card-link">
-                     <Card className="card-dashboard">
-                        <Card.Header>
-                           <Card.Title as="h4">
-                              <span style={{ marginRight: "12px" }}>
-                                 <i className="fas fa-microchip" />
-                              </span>
-                              <span className="to-underline">CPU</span>
-                              <div className="float-right">
-                                 <div className="numbers">
-                                    <Card.Title className="float-right" as="h4">
-                                       14% {/*  from */}
-                                    </Card.Title>
-                                    <br />
-                                    {/* <p className="card-category float-right">1,2 GHz</p> */}
-                                 </div>
-                              </div>
-                           </Card.Title>
-                        </Card.Header>
-                        <Card.Body className="p-0">
-                           <Chart
-                              chartType="PieChart"
-                              loader={
-                                 <BeatLoader color={"#212529"} loading={true} size={50} />
-                              }
-                              data={[
-                                 ["Task", "Hours per Day"],
-                                 ["used", 180],
-                                 ["allocated", 32],
-                                 ["free", 44],
-                              ]}
-                              options={{
-                                 legend: "bottom",
-                                 height: 300,
-                                 chartArea: {
-                                    width: "100%",
-                                 },
-                                 slices: {
-                                    0: { color: "#FB404B" },
-                                    1: { color: "#FFA534" },
-                                    2: { color: "#1DC7EA" },
-                                 },
-                              }}
-                              rootProps={{ "data-testid": "1" }}
-                           />
-                        </Card.Body>
-                     </Card>
-                  </Link>
+               <Col sm="6" md="6" lg="4" xl="3">
+                  <CPUCircularStateChartCard
+                     usedTime={CPU.consumedTime}
+                     percentConsumed={CPU.percentConsumed}
+                     percentAllocated={CPU.percentAllocated}
+                     cpuInfo={hostInformation.CPU}
+                  />
                </Col>
-               <Col sm="6" md="6" lg="4">
-                  <Link to="/user" className="card-link">
-                     <Card className="card-dashboard">
-                        <Card.Header>
-                           <Card.Title as="h4">
-                              <span style={{ marginRight: "14px" }}>
-                                 <i className="fas fa-memory" />
-                              </span>
-                              <span className="to-underline">RAM</span>
-                              <div className="float-right">
-                                 <div className="numbers">
-                                    <Card.Title className="float-right" as="h4">
-                                       256MB
-                                    </Card.Title>
-                                    <br />
-                                    {/* <p className="card-category float-right">MAX</p> */}
-                                 </div>
-                              </div>
-                           </Card.Title>
-                        </Card.Header>
-                        <Card.Body className="p-0">
-                           <Chart
-                              chartType="PieChart"
-                              loader={
-                                 <BeatLoader color={"#212529"} loading={true} size={50} />
-                              }
-                              data={[
-                                 [
-                                    "state",
-                                    "MB",
-                                    {
-                                       role: "tooltip",
-                                       type: "string",
-                                       p: { html: true },
-                                    },
-                                 ],
-                                 [
-                                    "used",
-                                    180,
-                                    '<div class="ggl-tooltip"><b>used</b><div></div>180MB<br/>70.3%</div>',
-                                 ],
-                                 [
-                                    "allocated",
-                                    32,
-                                    '<div class="ggl-tooltip"><b>allocated</b><div></div>32MB<br/>12.5%</div>',
-                                 ],
-                                 [
-                                    "free",
-                                    44,
-                                    '<div class="ggl-tooltip"><b>free</b><div></div>44MB<br/>17.2%</div>',
-                                 ],
-                              ]}
-                              options={{
-                                 legend: "bottom",
-                                 height: 300,
-                                 chartArea: {
-                                    width: "100%",
-                                 },
-                                 slices: {
-                                    0: { color: "#FB404B" },
-                                    1: { color: "#FFA534" },
-                                    2: { color: "#1DC7EA" },
-                                 },
-                                 tooltip: { isHtml: true, trigger: "visible" },
-                              }}
-                              rootProps={{ "data-testid": "1" }}
-                           />
-                        </Card.Body>
-                     </Card>
-                  </Link>
+               <Col sm="6" md="6" lg="4" xl="3">
+                  <CircularStateChartCard
+                     usedAmount={RAM.usage}
+                     allocatedAmount={RAM.allocated}
+                     maxAmount={limits.RAM}
+                     percentConsumed={RAM.percentConsumed}
+                     percentAllocated={RAM.percentAllocated}
+                     stateName={"RAM"}
+                     convertorCallback={bytesToAdequateMessage}
+                     baseUnit={"B"}
+                  />
                </Col>
-               <Col sm="6" md="6" lg="4">
-                  <Link to="/user" className="card-link">
-                     <Card className="card-dashboard">
-                        <Card.Header>
-                           <Card.Title as="h4">
-                              <span style={{ marginRight: "14px" }}>
-                                 <i class="fas fa-upload"></i>
-                              </span>
-                              <span className="to-underline">Upload</span>
-                              <div className="float-right">
-                                 <div className="numbers">
-                                    <Card.Title className="float-right" as="h4">
-                                       10MB/s
-                                    </Card.Title>
-                                    <br />
-                                    {/* <p className="card-category float-right">MAX</p> */}
-                                 </div>
-                              </div>
-                           </Card.Title>
-                        </Card.Header>
-                        <Card.Body className="p-0">
-                           <Chart
-                              chartType="PieChart"
-                              loader={
-                                 <BeatLoader color={"#212529"} loading={true} size={50} />
-                              }
-                              data={[
-                                 [
-                                    "state",
-                                    "MB",
-                                    {
-                                       role: "tooltip",
-                                       type: "string",
-                                       p: { html: true },
-                                    },
-                                 ],
-                                 [
-                                    "used",
-                                    180,
-                                    '<div class="ggl-tooltip"><b>used</b><div></div>180MB<br/>70.3%</div>',
-                                 ],
-                                 [
-                                    "allocated",
-                                    32,
-                                    '<div class="ggl-tooltip"><b>used</b><div></div>32MB<br/>12.5%</div>',
-                                 ],
-                                 [
-                                    "free",
-                                    44,
-                                    '<div class="ggl-tooltip"><b>used</b><div></div>44MB<br/>17.2%</div>',
-                                 ],
-                              ]}
-                              options={{
-                                 legend: "bottom",
-                                 height: 300,
-                                 chartArea: {
-                                    width: "100%",
-                                 },
-                                 slices: {
-                                    0: { color: "#FB404B" },
-                                    1: { color: "#FFA534" },
-                                    2: { color: "#1DC7EA" },
-                                 },
-                                 tooltip: { isHtml: true, trigger: "visible" },
-                              }}
-                              rootProps={{ "data-testid": "1" }}
-                           />
-                        </Card.Body>
-                     </Card>
-                  </Link>
+               <Col sm="6" md="6" lg="4" xl="3">
+                  <CircularStateChartCard
+                     usedAmount={network.download.downloadSpeed}
+                     allocatedAmount={network.download.allocatedDownloadSpeed}
+                     maxAmount={limits.network.download}
+                     percentConsumed={network.download.downloadBandwidthUsage}
+                     percentAllocated={network.download.allocatedBandwidthUsage}
+                     stateName={"Download"}
+                     convertorCallback={bytesPerSecondToAdequateMessage}
+                     baseUnit={"B/s"}
+                  />
                </Col>
-               <Col sm="6" md="6" lg="4">
-                  <Link to="/user" className="card-link">
-                     <Card className="card-dashboard">
-                        <Card.Header>
-                           <Card.Title as="h4">
-                              <span style={{ marginRight: "14px" }}>
-                                 <i class="fas fa-download"></i>
-                              </span>
-                              <span className="to-underline">Download</span>
-                              <div className="float-right">
-                                 <div className="numbers">
-                                    <Card.Title className="float-right" as="h4">
-                                       50MB/s
-                                    </Card.Title>
-                                    <br />
-                                    {/* <p className="card-category float-right">MAX</p> */}
-                                 </div>
-                              </div>
-                           </Card.Title>
-                        </Card.Header>
-                        <Card.Body className="p-0">
-                           <Chart
-                              chartType="PieChart"
-                              loader={
-                                 <BeatLoader color={"#212529"} loading={true} size={50} />
-                              }
-                              data={[
-                                 [
-                                    "state",
-                                    "MB",
-                                    {
-                                       role: "tooltip",
-                                       type: "string",
-                                       p: { html: true },
-                                    },
-                                 ],
-                                 [
-                                    "used",
-                                    180,
-                                    '<div class="ggl-tooltip"><b>used</b><div></div>180MB<br/>70.3%</div>',
-                                 ],
-                                 [
-                                    "allocated",
-                                    32,
-                                    '<div class="ggl-tooltip"><b>used</b><div></div>32MB<br/>12.5%</div>',
-                                 ],
-                                 [
-                                    "free",
-                                    44,
-                                    '<div class="ggl-tooltip"><b>used</b><div></div>44MB<br/>17.2%</div>',
-                                 ],
-                              ]}
-                              options={{
-                                 legend: "bottom",
-                                 height: 300,
-                                 chartArea: {
-                                    width: "100%",
-                                 },
-                                 slices: {
-                                    0: { color: "#FB404B" },
-                                    1: { color: "#FFA534" },
-                                    2: { color: "#1DC7EA" },
-                                 },
-                                 tooltip: { isHtml: true, trigger: "visible" },
-                              }}
-                              rootProps={{ "data-testid": "1" }}
-                           />
-                        </Card.Body>
-                     </Card>
-                  </Link>
+               <Col sm="6" md="6" lg="4" xl="3">
+                  <CircularStateChartCard
+                     usedAmount={network.upload.uploadSpeed}
+                     allocatedAmount={network.upload.allocatedUploadSpeed}
+                     maxAmount={limits.network.upload}
+                     percentConsumed={network.upload.uploadBandwidthUsage}
+                     percentAllocated={network.upload.allocatedBandwidthUsage}
+                     stateName={"Upload"}
+                     convertorCallback={bytesPerSecondToAdequateMessage}
+                     baseUnit={"B/s"}
+                  />
                </Col>
-               <Col sm="6" md="6" lg="4">
+               <Col sm="6" md="6" lg="4" xl="3">
                   <Card className="card-dashboard">
                      <Card.Header>
                         <Card.Title as="h4">
                            <span style={{ marginRight: "14px" }}>
-                              <i class="fas fa-wallet" />
+                              <i className="fas fa-wallet" />
                            </span>
                            <span>Wallet</span>
                            <div className="float-right">
                               <div className="numbers">
                                  <Card.Title className="float-right" as="h4">
-                                    256
+                                    {user.coins}
                                     <i className="fas fa-money-bill-alt ml-1 mr-1" />
                                  </Card.Title>
                                  <br />
@@ -451,6 +266,14 @@ function Dashboard() {
                         </Container>
                      </Card.Body>
                   </Card>
+                  <Card className="mb-0">
+                     <Card.Body className="p-1">
+                        <div className="card-state-container">
+                           <h3 className="mt-2">{numberOfProcesses}</h3>
+                           <div className="success-text">Running processes</div>
+                        </div>
+                     </Card.Body>
+                  </Card>
                </Col>
             </Row>
          </Container>
@@ -458,4 +281,13 @@ function Dashboard() {
    );
 }
 
-export default Dashboard;
+const mapStateToProps = (state) => {
+   return {
+      hostInformation: state.combinedUserData.hostInformation,
+      user: state.combinedUserData.user,
+      projects: state.combinedUserData.userProjects.projects,
+      state: state.combinedUserData.userProjects.userState,
+   };
+};
+
+export default connect(mapStateToProps)(Dashboard);

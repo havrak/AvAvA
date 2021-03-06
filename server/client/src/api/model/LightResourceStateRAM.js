@@ -49,20 +49,36 @@ export default class LightResourceStateRAM {
             if (data.hasOwnProperty('percentConsumed')) {
                 obj['percentConsumed'] = ApiClient.convertToType(data['percentConsumed'], 'Number');
             }
+            if (data.hasOwnProperty('allocated')) {
+                obj['allocated'] = ApiClient.convertToType(data['allocated'], 'Number');
+            }
+            if (data.hasOwnProperty('percentAllocated')) {
+                obj['percentAllocated'] = ApiClient.convertToType(data['percentAllocated'], 'Number');
+            }
         }
         return obj;
     }
 
     /**
-    * last measured RAM usage in Bytes
+    * last measured RAM usage in Bytes (sum of usages of containers)
     * @member {Number} usage
     */
     'usage' = undefined;
     /**
-    * Percentage of RAM allocated from the overall RAM available
+    * Percentage of RAM used from the overall RAM available
     * @member {Number} percentConsumed
     */
     'percentConsumed' = undefined;
+    /**
+    * last measured allocated RAM in Bytes (sum of limits of containers)
+    * @member {Number} allocated
+    */
+    'allocated' = undefined;
+    /**
+    * Percentage of RAM allocated from the overall RAM available
+    * @member {Number} percentAllocated
+    */
+    'percentAllocated' = undefined;
 
 
 

@@ -15,11 +15,14 @@ import ApiClient from './ApiClient';
 import ApplicationToInstall from './model/ApplicationToInstall';
 import Body from './model/Body';
 import Body1 from './model/Body1';
-import Body2 from './model/Body2';
 import Container from './model/Container';
-import ContainerInfo from './model/ContainerInfo';
 import ContainerResourceState from './model/ContainerResourceState';
-import ContainerResourceStateInner from './model/ContainerResourceStateInner';
+import ContainerResourceStateAdresses from './model/ContainerResourceStateAdresses';
+import ContainerResourceStateCPU from './model/ContainerResourceStateCPU';
+import ContainerResourceStateCounters from './model/ContainerResourceStateCounters';
+import ContainerResourceStateDisk from './model/ContainerResourceStateDisk';
+import ContainerResourceStateNetworks from './model/ContainerResourceStateNetworks';
+import ContainerResourceStateRAM from './model/ContainerResourceStateRAM';
 import ContainerState from './model/ContainerState';
 import CreateContainerData from './model/CreateContainerData';
 import HostInformation from './model/HostInformation';
@@ -30,19 +33,19 @@ import LightResourceState from './model/LightResourceState';
 import LightResourceStateCPU from './model/LightResourceStateCPU';
 import LightResourceStateDisk from './model/LightResourceStateDisk';
 import LightResourceStateNetwork from './model/LightResourceStateNetwork';
+import LightResourceStateNetworkDownload from './model/LightResourceStateNetworkDownload';
+import LightResourceStateNetworkUpload from './model/LightResourceStateNetworkUpload';
 import LightResourceStateRAM from './model/LightResourceStateRAM';
 import Limits from './model/Limits';
 import LimitsNetwork from './model/LimitsNetwork';
 import OperationState from './model/OperationState';
 import Project from './model/Project';
-import ProjectInfo from './model/ProjectInfo';
 import ProjectState from './model/ProjectState';
 import Snapshot from './model/Snapshot';
 import Template from './model/Template';
 import User from './model/User';
 import UserData from './model/UserData';
 import UserProjects from './model/UserProjects';
-import UserProjectsInfo from './model/UserProjectsInfo';
 import UserProjectsState from './model/UserProjectsState';
 import DefaultApi from './api/DefaultApi';
 
@@ -103,22 +106,10 @@ export {
     Body1,
 
     /**
-     * The Body2 model constructor.
-     * @property {module:model/Body2}
-     */
-    Body2,
-
-    /**
      * The Container model constructor.
      * @property {module:model/Container}
      */
     Container,
-
-    /**
-     * The ContainerInfo model constructor.
-     * @property {module:model/ContainerInfo}
-     */
-    ContainerInfo,
 
     /**
      * The ContainerResourceState model constructor.
@@ -127,10 +118,40 @@ export {
     ContainerResourceState,
 
     /**
-     * The ContainerResourceStateInner model constructor.
-     * @property {module:model/ContainerResourceStateInner}
+     * The ContainerResourceStateAdresses model constructor.
+     * @property {module:model/ContainerResourceStateAdresses}
      */
-    ContainerResourceStateInner,
+    ContainerResourceStateAdresses,
+
+    /**
+     * The ContainerResourceStateCPU model constructor.
+     * @property {module:model/ContainerResourceStateCPU}
+     */
+    ContainerResourceStateCPU,
+
+    /**
+     * The ContainerResourceStateCounters model constructor.
+     * @property {module:model/ContainerResourceStateCounters}
+     */
+    ContainerResourceStateCounters,
+
+    /**
+     * The ContainerResourceStateDisk model constructor.
+     * @property {module:model/ContainerResourceStateDisk}
+     */
+    ContainerResourceStateDisk,
+
+    /**
+     * The ContainerResourceStateNetworks model constructor.
+     * @property {module:model/ContainerResourceStateNetworks}
+     */
+    ContainerResourceStateNetworks,
+
+    /**
+     * The ContainerResourceStateRAM model constructor.
+     * @property {module:model/ContainerResourceStateRAM}
+     */
+    ContainerResourceStateRAM,
 
     /**
      * The ContainerState model constructor.
@@ -193,6 +214,18 @@ export {
     LightResourceStateNetwork,
 
     /**
+     * The LightResourceStateNetworkDownload model constructor.
+     * @property {module:model/LightResourceStateNetworkDownload}
+     */
+    LightResourceStateNetworkDownload,
+
+    /**
+     * The LightResourceStateNetworkUpload model constructor.
+     * @property {module:model/LightResourceStateNetworkUpload}
+     */
+    LightResourceStateNetworkUpload,
+
+    /**
      * The LightResourceStateRAM model constructor.
      * @property {module:model/LightResourceStateRAM}
      */
@@ -221,12 +254,6 @@ export {
      * @property {module:model/Project}
      */
     Project,
-
-    /**
-     * The ProjectInfo model constructor.
-     * @property {module:model/ProjectInfo}
-     */
-    ProjectInfo,
 
     /**
      * The ProjectState model constructor.
@@ -263,12 +290,6 @@ export {
      * @property {module:model/UserProjects}
      */
     UserProjects,
-
-    /**
-     * The UserProjectsInfo model constructor.
-     * @property {module:model/UserProjectsInfo}
-     */
-    UserProjectsInfo,
 
     /**
      * The UserProjectsState model constructor.

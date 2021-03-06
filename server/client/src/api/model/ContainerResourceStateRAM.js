@@ -14,14 +14,14 @@
 import ApiClient from '../ApiClient';
 
 /**
-* The LightResourceStateDisk model module.
-* @module model/LightResourceStateDisk
+* The ContainerResourceStateRAM model module.
+* @module model/ContainerResourceStateRAM
 * @version 1.0
 */
-export default class LightResourceStateDisk {
+export default class ContainerResourceStateRAM {
     /**
-    * Constructs a new <code>LightResourceStateDisk</code>.
-    * @alias module:model/LightResourceStateDisk
+    * Constructs a new <code>ContainerResourceStateRAM</code>.
+    * @alias module:model/ContainerResourceStateRAM
     * @class
     */
 
@@ -32,53 +32,45 @@ export default class LightResourceStateDisk {
     }
 
     /**
-    * Constructs a <code>LightResourceStateDisk</code> from a plain JavaScript object, optionally creating a new instance.
+    * Constructs a <code>ContainerResourceStateRAM</code> from a plain JavaScript object, optionally creating a new instance.
     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
     * @param {Object} data The plain JavaScript object bearing properties of interest.
-    * @param {module:model/LightResourceStateDisk} obj Optional instance to populate.
-    * @return {module:model/LightResourceStateDisk} The populated <code>LightResourceStateDisk</code> instance.
+    * @param {module:model/ContainerResourceStateRAM} obj Optional instance to populate.
+    * @return {module:model/ContainerResourceStateRAM} The populated <code>ContainerResourceStateRAM</code> instance.
     */
     static constructFromObject(data, obj) {
         if (data) {
-            obj = obj || new LightResourceStateDisk();
+            obj = obj || new ContainerResourceStateRAM();
                         
             
             if (data.hasOwnProperty('usage')) {
                 obj['usage'] = ApiClient.convertToType(data['usage'], 'Number');
             }
+            if (data.hasOwnProperty('usagePeak')) {
+                obj['usagePeak'] = ApiClient.convertToType(data['usagePeak'], 'Number');
+            }
             if (data.hasOwnProperty('percentConsumed')) {
                 obj['percentConsumed'] = ApiClient.convertToType(data['percentConsumed'], 'Number');
-            }
-            if (data.hasOwnProperty('allocated')) {
-                obj['allocated'] = ApiClient.convertToType(data['allocated'], 'Number');
-            }
-            if (data.hasOwnProperty('percentAllocated')) {
-                obj['percentAllocated'] = ApiClient.convertToType(data['percentAllocated'], 'Number');
             }
         }
         return obj;
     }
 
     /**
-    * current disk usage in bytes
+    * last measured RAM usage in Bytes
     * @member {Number} usage
     */
     'usage' = undefined;
     /**
-    * Percentage of the used disk memory from the overall memory available
+    * maximum measured RAM usage in Bytes
+    * @member {Number} usagePeak
+    */
+    'usagePeak' = undefined;
+    /**
+    * Percentage of RAM allocated from the overall RAM available
     * @member {Number} percentConsumed
     */
     'percentConsumed' = undefined;
-    /**
-    * current disk allocated in bytes
-    * @member {Number} allocated
-    */
-    'allocated' = undefined;
-    /**
-    * Percentage of RAM allocated from the overall RAM available
-    * @member {Number} percentAllocated
-    */
-    'percentAllocated' = undefined;
 
 
 
