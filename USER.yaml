@@ -465,7 +465,7 @@ components:
           type: string
     Limits:
       type: object
-      description: Resources quotas assigned to container/project/user. 
+      description: Resources allocated to container/project/user. 
       properties:
         RAM:
           type: integer
@@ -487,6 +487,7 @@ components:
               description: in bytes/s
     ContainerResourceState:
       type: object
+      description: Object representing current state of the container (not history). Each object also contains limit information that were in effect in the time of measuring the state.
       properties:
         status:
           type: string
@@ -505,7 +506,7 @@ components:
               description: Time used by the CPU in nanoseconds
             percentConsumed:
               type: integer
-              description: Percentage of CPU allocated from the overall CPU available
+              description: Percentage of CPU consumed from the overall CPU available to the container
         RAM:
           type: object
           properties:
@@ -517,7 +518,7 @@ components:
               description: maximum measured RAM usage in Bytes
             percentConsumed:
               type: integer
-              description: Percentage of RAM allocated from the overall RAM available
+              description: Percentage of RAM consumed from the overall RAM available to the container
         disk:
           type: array
           items:
@@ -531,7 +532,7 @@ components:
                 description: current disk usage in bytes
               percentConsumed:
                 type: integer
-                description: Percentage of the allocated disk memory from the overall memory available
+                description: Percentage of the consumed disk memory from the overall memory available to the container
         networks:
           type: array
           items:
@@ -582,7 +583,7 @@ components:
           description: Process count
     LightResourceState:
       type: object
-      description: This object is used to represent the project and user state, their history and history of normal containers. 
+      description: This object is used to represent the project and user state, their history and history of normal containers. Each object also contains limit information that were in effect in the time of measuring the state.
       properties:
         limits:
           $ref: '#/components/schemas/Limits'
@@ -600,7 +601,7 @@ components:
               description: Percentage of CPU used from the overall CPU available
             percentAllocated:
               type: integer
-              description: Percentage of CPU allocated from the overall CPU available 
+              description: Percentage of CPU allocated but not used from the overall CPU available (percentage of sum of limits - percentConsumed)
         RAM:
           type: object
           properties:
@@ -612,7 +613,7 @@ components:
               description: Percentage of RAM used from the overall RAM available
             allocated:
               type: integer
-              description: last measured allocated RAM in Bytes (sum of limits of containers)
+              description: last measured allocated RAM in Bytes (sum of limits of containers - usage)
             percentAllocated:
               type: integer
               description: Percentage of RAM allocated from the overall RAM available
@@ -627,7 +628,7 @@ components:
               description: Percentage of the used disk memory from the overall memory available
             allocated:
               type: integer
-              description: current disk allocated in bytes
+              description: current disk allocated in bytes (sum of limits - usage)
             percentAllocated:
               type: integer
               description: Percentage of RAM allocated from the overall RAM available
@@ -645,7 +646,7 @@ components:
                   description: usage of upload bandwidth in percent in connection to the internet
                 allocatedUploadSpeed:
                   type: integer
-                  description: last recorded allocated upload speed in bytes/s in connection to the internet (sum of container limits)
+                  description: last recorded allocated upload speed in bytes/s in connection to the internet (sum of container limits - upload speed)
                 allocatedBandwidthUsage:
                   type: integer
                   description: usage of upload bandwidth in percent in connection to the internet
@@ -660,7 +661,7 @@ components:
                   description: usage of download bandwidth in percent in connection to the internet
                 allocatedDownloadSpeed:
                   type: integer
-                  description: last recorded allocated download speed in bytes/s in connection to the internet (sum of container limits)
+                  description: last recorded allocated download speed in bytes/s in connection to the internet (sum of container limits - downloadSpeed)
                 allocatedBandwidthUsage:
                   type: integer
                   description: allocation of download bandwidth in percent in connection to the internet
@@ -701,6 +702,7 @@ components:
             uploadBandwidthUsage: 0
             allocatedSpeed: 55_000
             allocatedBandwidthUsage: 27.5
+        numberOfProcesses: 5042
     Snapshot:
       type: object
       properties:
@@ -844,8 +846,6 @@ components:
       type: object
       description: object containing all the data about projects that this user participates in. This includes all of his projects and all project where user is only a participant. 
       properties:
-        maxResources:
-          $ref: '#/components/schemas/Limits'
         userState:
           $ref: '#/components/schemas/LightResourceState'
         projects:
