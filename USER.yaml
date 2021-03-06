@@ -29,6 +29,9 @@ paths:
               properties:
                 name:
                   type: string
+                projectId:
+                  type: integer
+                  description: Id of project where container should be created
                 autostart:
                   type: boolean
                 templateId:
@@ -55,6 +58,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Container'
+        '500':
+          description: Internal server error - e.g. not enough resources
   /instances/createConfigData:
     get:
       responses:
@@ -544,6 +549,9 @@ components:
           type: string
         statusCode:
           type: integer
+        timestamp:
+          type: string
+          description: Date and time when this state was measured
         limits:
           $ref: '#/components/schemas/Limits'
         CPU:
@@ -634,6 +642,9 @@ components:
       properties:
         limits:
           $ref: '#/components/schemas/Limits'
+        timestamp:
+          type: string
+          description: Date and time when this state was measured
         CPU:
           type: object
           properties:
