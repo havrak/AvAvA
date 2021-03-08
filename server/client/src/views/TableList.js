@@ -13,6 +13,8 @@ import {
    Col,
 } from "react-bootstrap";
 
+import MaterialTable from '../components/Tables/Table.js';
+
 function TableList() {
    return (
       <>
@@ -147,6 +149,9 @@ function TableList() {
                         </Table>
                      </Card.Body>
                   </Card>
+               </Col>
+               <Col md="12">
+                  <MaterialTable/>
                </Col>
             </Row>
          </Container>

@@ -67,7 +67,7 @@ export default class ContainerResourceStateDisk {
     */
     'currentlyConsumedMemory' = undefined;
     /**
-    * Percentage of the allocated disk memory from the overall memory available
+    * Percentage of the consumed disk memory from the overall memory available to the container
     * @member {Number} percentConsumed
     */
     'percentConsumed' = undefined;

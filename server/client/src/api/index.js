@@ -24,11 +24,11 @@ import ContainerResourceStateDisk from './model/ContainerResourceStateDisk';
 import ContainerResourceStateNetworks from './model/ContainerResourceStateNetworks';
 import ContainerResourceStateRAM from './model/ContainerResourceStateRAM';
 import ContainerState from './model/ContainerState';
-import CreateContainerData from './model/CreateContainerData';
 import HostInformation from './model/HostInformation';
 import HostInformationCPU from './model/HostInformationCPU';
 import Image from './model/Image';
 import InlineResponse200 from './model/InlineResponse200';
+import InlineResponse2001 from './model/InlineResponse2001';
 import LightResourceState from './model/LightResourceState';
 import LightResourceStateCPU from './model/LightResourceStateCPU';
 import LightResourceStateDisk from './model/LightResourceStateDisk';
@@ -160,12 +160,6 @@ export {
     ContainerState,
 
     /**
-     * The CreateContainerData model constructor.
-     * @property {module:model/CreateContainerData}
-     */
-    CreateContainerData,
-
-    /**
      * The HostInformation model constructor.
      * @property {module:model/HostInformation}
      */
@@ -188,6 +182,12 @@ export {
      * @property {module:model/InlineResponse200}
      */
     InlineResponse200,
+
+    /**
+     * The InlineResponse2001 model constructor.
+     * @property {module:model/InlineResponse2001}
+     */
+    InlineResponse2001,
 
     /**
      * The LightResourceState model constructor.

@@ -67,7 +67,7 @@ export default class ContainerResourceStateRAM {
     */
     'usagePeak' = undefined;
     /**
-    * Percentage of RAM allocated from the overall RAM available
+    * Percentage of RAM consumed from the overall RAM available to the container
     * @member {Number} percentConsumed
     */
     'percentConsumed' = undefined;

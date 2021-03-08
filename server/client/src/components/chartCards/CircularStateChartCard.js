@@ -3,11 +3,26 @@ import { Chart } from "react-google-charts";
 // react-bootstrap components
 import { Card } from "react-bootstrap";
 import BeatLoader from "react-spinners/BeatLoader";
-import {secondsToAdequateMessage} from '../../service/UnitsConvertor.js';
 
-export function CircularStateChartCard({usedAmount, allocatedAmount, maxAmount, percentConsumed, percentAllocated, stateName, convertorCallback, baseUnit}) {
+import {
+   bytesToAdequateMessage,
+   bytesPerSecondToAdequateMessage,
+   secondsToAdequateMessage,
+} from "../../service/UnitsConvertor.js";
+
+export function CircularStateChartCard({
+   usedAmount,
+   allocatedAmount,
+   maxAmount,
+   percentConsumed,
+   percentAllocated,
+   stateName,
+   convertorCallback,
+   baseUnit,
+}) {
    let freeAmount = maxAmount - (allocatedAmount + usedAmount);
-   let percentFree = Math.round((100 - (percentAllocated + percentConsumed)) * 100.0) / 100.0;
+   let percentFree =
+      Math.round((100 - (percentAllocated + percentConsumed)) * 100.0) / 100.0;
    let usedAmountMessage = convertorCallback(usedAmount);
    let allocatedAmountMessage = convertorCallback(allocatedAmount);
    let freeAmountMessage = convertorCallback(freeAmount);
@@ -30,17 +45,23 @@ export function CircularStateChartCard({usedAmount, allocatedAmount, maxAmount, 
                   [
                      "used",
                      usedAmount,
-                     `<div class="ggl-tooltip"><b>used</b><br/>${usedAmountMessage}<br/>${usedAmount + baseUnit}<br/>${percentConsumed}%</div>`,
+                     `<div class="ggl-tooltip"><b>used</b><br/>${usedAmountMessage}<br/>${
+                        usedAmount + baseUnit
+                     }<br/>${percentConsumed}%</div>`,
                   ],
                   [
                      "allocated",
                      allocatedAmount,
-                     `<div class="ggl-tooltip"><b>allocated</b><br/>${allocatedAmountMessage}<br/>${allocatedAmount + baseUnit}<br/>${percentAllocated}%</div>`,
+                     `<div class="ggl-tooltip"><b>allocated</b><br/>${allocatedAmountMessage}<br/>${
+                        allocatedAmount + baseUnit
+                     }<br/>${percentAllocated}%</div>`,
                   ],
                   [
                      "free",
                      freeAmount,
-                     `<div class="ggl-tooltip"><b>free</b><br/>${freeAmountMessage}<br/>${freeAmount + baseUnit}<br/>${percentFree}%</div>`,
+                     `<div class="ggl-tooltip"><b>free</b><br/>${freeAmountMessage}<br/>${
+                        freeAmount + baseUnit
+                     }<br/>${percentFree}%</div>`,
                   ],
                ]}
                options={{
@@ -70,8 +91,35 @@ export function CircularStateChartCard({usedAmount, allocatedAmount, maxAmount, 
    );
 }
 
-export function CPUCircularStateChartCard({usedTime, percentConsumed, percentAllocated, cpuInfo}) {
-   let percentFree = Math.round((100 - (percentAllocated + percentConsumed)) * 100.0) / 100.0;
+export function DiskCircularStateChartCard({
+   usedAmount,
+   allocatedAmount,
+   maxAmount,
+   percentConsumed,
+   percentAllocated,
+}) {
+   return (
+      <CircularStateChartCard
+         usedAmount={usedAmount}
+         allocatedAmount={allocatedAmount}
+         maxAmount={maxAmount}
+         percentConsumed={percentConsumed}
+         percentAllocated={percentAllocated}
+         stateName={"Disk"}
+         convertorCallback={bytesToAdequateMessage}
+         baseUnit={"B"}
+      />
+   );
+}
+
+export function CPUCircularStateChartCard({
+   usedTime,
+   percentConsumed,
+   percentAllocated,
+   cpuInfo,
+}) {
+   let percentFree =
+      Math.round((100 - (percentAllocated + percentConsumed)) * 100.0) / 100.0;
    return (
       <Card className="card-dashboard">
          <Card.Body className="p-0">
@@ -91,7 +139,9 @@ export function CPUCircularStateChartCard({usedTime, percentConsumed, percentAll
                   [
                      "used",
                      percentConsumed,
-                     `<div class="ggl-tooltip"><b>used</b><br/>${secondsToAdequateMessage(usedTime)}<br/>${usedTime}ns<br/>${percentConsumed}%</div>`,
+                     `<div class="ggl-tooltip"><b>used</b><br/>${secondsToAdequateMessage(
+                        usedTime
+                     )}<br/>${usedTime}ns<br/>${percentConsumed}%</div>`,
                   ],
                   [
                      "allocated",
@@ -128,5 +178,68 @@ export function CPUCircularStateChartCard({usedTime, percentConsumed, percentAll
             </div>
          </Card.Body>
       </Card>
+   );
+}
+
+export function RAMCircularStateChartCard({
+   usedAmount,
+   allocatedAmount,
+   maxAmount,
+   percentConsumed,
+   percentAllocated,
+}) {
+   return (
+      <CircularStateChartCard
+         usedAmount={usedAmount}
+         allocatedAmount={allocatedAmount}
+         maxAmount={maxAmount}
+         percentConsumed={percentConsumed}
+         percentAllocated={percentAllocated}
+         stateName={"RAM"}
+         convertorCallback={bytesToAdequateMessage}
+         baseUnit={"B"}
+      />
+   );
+}
+
+export function DownloadCircularStateChartCard({
+   usedAmount,
+   allocatedAmount,
+   maxAmount,
+   percentConsumed,
+   percentAllocated,
+}) {
+   return (
+      <CircularStateChartCard
+         usedAmount={usedAmount}
+         allocatedAmount={allocatedAmount}
+         maxAmount={maxAmount}
+         percentConsumed={percentConsumed}
+         percentAllocated={percentAllocated}
+         stateName={"Download"}
+         convertorCallback={bytesPerSecondToAdequateMessage}
+         baseUnit={"B/s"}
+      />
+   );
+}
+
+export function UploadCircularStateChartCard({
+   usedAmount,
+   allocatedAmount,
+   maxAmount,
+   percentConsumed,
+   percentAllocated,
+}) {
+   return (
+      <CircularStateChartCard
+         usedAmount={usedAmount}
+         allocatedAmount={allocatedAmount}
+         maxAmount={maxAmount}
+         percentConsumed={percentConsumed}
+         percentAllocated={percentAllocated}
+         stateName={"Upload"}
+         convertorCallback={bytesPerSecondToAdequateMessage}
+         baseUnit={"B/s"}
+      />
    );
 }

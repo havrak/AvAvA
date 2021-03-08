@@ -12,7 +12,9 @@
  */
 
 import ApiClient from '../ApiClient';
+import ApplicationToInstall from './ApplicationToInstall';
 import Limits from './Limits';
+import Template from './Template';
 
 /**
 * The InlineResponse200 model module.
@@ -44,24 +46,31 @@ export default class InlineResponse200 {
             obj = obj || new InlineResponse200();
                         
             
-            if (data.hasOwnProperty('upperLimitBoundaries')) {
-                obj['upperLimitBoundaries'] = Limits.constructFromObject(data['upperLimitBoundaries']);
+            if (data.hasOwnProperty('templateTypes')) {
+                obj['templateTypes'] = ApiClient.convertToType(data['templateTypes'], [Template]);
             }
-            if (data.hasOwnProperty('defaultLimits')) {
-                obj['defaultLimits'] = Limits.constructFromObject(data['defaultLimits']);
+            if (data.hasOwnProperty('applicationsToInstall')) {
+                obj['applicationsToInstall'] = ApiClient.convertToType(data['applicationsToInstall'], [ApplicationToInstall]);
+            }
+            if (data.hasOwnProperty('maxLimits')) {
+                obj['maxLimits'] = Limits.constructFromObject(data['maxLimits']);
             }
         }
         return obj;
     }
 
     /**
-    * @member {module:model/Limits} upperLimitBoundaries
+    * @member {Array.<module:model/Template>} templateTypes
     */
-    'upperLimitBoundaries' = undefined;
+    'templateTypes' = undefined;
     /**
-    * @member {module:model/Limits} defaultLimits
+    * @member {Array.<module:model/ApplicationToInstall>} applicationsToInstall
     */
-    'defaultLimits' = undefined;
+    'applicationsToInstall' = undefined;
+    /**
+    * @member {module:model/Limits} maxLimits
+    */
+    'maxLimits' = undefined;
 
 
 

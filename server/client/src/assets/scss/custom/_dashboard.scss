@@ -37,3 +37,10 @@
 .card-link:hover .to-underline {
    text-decoration: underline;
 }
+
+@media (min-width: 1600px) {
+   .col-xxl-5-group {
+      flex: 0 0 20%;
+      max-width: 20%;
+   }
+}

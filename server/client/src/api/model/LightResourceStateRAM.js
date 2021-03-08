@@ -70,7 +70,7 @@ export default class LightResourceStateRAM {
     */
     'percentConsumed' = undefined;
     /**
-    * last measured allocated RAM in Bytes (sum of limits of containers)
+    * last measured allocated RAM in Bytes (sum of limits of containers - usage)
     * @member {Number} allocated
     */
     'allocated' = undefined;

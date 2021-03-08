@@ -16,8 +16,8 @@ import Body from '../model/Body';
 import Body1 from '../model/Body1';
 import Container from '../model/Container';
 import ContainerState from '../model/ContainerState';
-import CreateContainerData from '../model/CreateContainerData';
 import InlineResponse200 from '../model/InlineResponse200';
+import InlineResponse2001 from '../model/InlineResponse2001';
 import OperationState from '../model/OperationState';
 import Project from '../model/Project';
 import ProjectState from '../model/ProjectState';
@@ -113,41 +113,6 @@ export default class DefaultApi {
 
       return this.apiClient.callApi(
         '/instances/{containerId}/snapshots/{snapshotId}', 'DELETE',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
-     * Callback function to receive the result of the instancesCreateConfigDataGet operation.
-     * @callback module:api/DefaultApi~instancesCreateConfigDataGetCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/CreateContainerData} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * @param {module:api/DefaultApi~instancesCreateConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/CreateContainerData}
-     */
-    instancesCreateConfigDataGet(callback) {
-      let postBody = null;
-
-      let pathParams = {
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = [];
-      let accepts = ['application/json'];
-      let returnType = CreateContainerData;
-
-      return this.apiClient.callApi(
-        '/instances/createConfigData', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -661,16 +626,52 @@ export default class DefaultApi {
       );
     }
     /**
-     * Callback function to receive the result of the projectCreateConfigDataGet operation.
-     * @callback module:api/DefaultApi~projectCreateConfigDataGetCallback
+     * Callback function to receive the result of the instancesProjectIdCreateConfigDataGet operation.
+     * @callback module:api/DefaultApi~instancesProjectIdCreateConfigDataGetCallback
      * @param {String} error Error message, if any.
      * @param {module:model/InlineResponse200} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
-     * @param {module:api/DefaultApi~projectCreateConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * @param {module:api/DefaultApi~instancesProjectIdCreateConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/InlineResponse200}
+     */
+    instancesProjectIdCreateConfigDataGet(projectId, callback) {
+      let postBody = null;
+
+      let pathParams = {
+        'projectId': projectId
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = [];
+      let accepts = ['application/json'];
+      let returnType = InlineResponse200;
+
+      return this.apiClient.callApi(
+        '/instances/{projectId}/createConfigData', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
+     * Callback function to receive the result of the projectCreateConfigDataGet operation.
+     * @callback module:api/DefaultApi~projectCreateConfigDataGetCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/InlineResponse2001} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {module:api/DefaultApi~projectCreateConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/InlineResponse2001}
      */
     projectCreateConfigDataGet(callback) {
       let postBody = null;
@@ -687,7 +688,7 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = InlineResponse200;
+      let returnType = InlineResponse2001;
 
       return this.apiClient.callApi(
         '/project/createConfigData', 'GET',

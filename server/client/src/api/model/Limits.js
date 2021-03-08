@@ -22,7 +22,7 @@ import LimitsNetwork from './LimitsNetwork';
 export default class Limits {
     /**
     * Constructs a new <code>Limits</code>.
-    * Resources quotas assigned to container/project/user.
+    * Resources allocated to container/project/user.
     * @alias module:model/Limits
     * @class
     */

@@ -60,6 +60,9 @@ export default class Template {
             if (data.hasOwnProperty('description')) {
                 obj['description'] = ApiClient.convertToType(data['description'], 'String');
             }
+            if (data.hasOwnProperty('minDiskUsage')) {
+                obj['minDiskUsage'] = ApiClient.convertToType(data['minDiskUsage'], 'Number');
+            }
         }
         return obj;
     }
@@ -85,6 +88,11 @@ export default class Template {
     * @member {String} description
     */
     'description' = undefined;
+    /**
+    * minimum disk space needed for the container to work.
+    * @member {Number} minDiskUsage
+    */
+    'minDiskUsage' = undefined;
 
 
 

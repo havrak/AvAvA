@@ -59,7 +59,7 @@ export default class ContainerResourceStateCPU {
     */
     'consumedTime' = undefined;
     /**
-    * Percentage of CPU allocated from the overall CPU available
+    * Percentage of CPU consumed from the overall CPU available to the container
     * @member {Number} percentConsumed
     */
     'percentConsumed' = undefined;

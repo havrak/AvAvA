@@ -70,7 +70,7 @@ export default class LightResourceStateDisk {
     */
     'percentConsumed' = undefined;
     /**
-    * current disk allocated in bytes
+    * current disk allocated in bytes (sum of limits - usage)
     * @member {Number} allocated
     */
     'allocated' = undefined;

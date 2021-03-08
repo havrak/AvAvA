@@ -67,7 +67,7 @@ export default class LightResourceStateCPU {
     */
     'percentConsumed' = undefined;
     /**
-    * Percentage of CPU allocated from the overall CPU available
+    * Percentage of CPU allocated but not used from the overall CPU available (percentage of sum of limits - percentConsumed)
     * @member {Number} percentAllocated
     */
     'percentAllocated' = undefined;
