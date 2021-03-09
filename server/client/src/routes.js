@@ -17,7 +17,7 @@
 */
 import Dashboard from "views/Dashboard.js";
 import UserProfile from "views/UserProfile.js";
-import TableList from "views/TableList.js";
+import Projects from "views/Projects.js";
 import Typography from "views/Typography.js";
 import Icons from "views/Icons.js";
 import Notifications from "views/Notifications.js";
@@ -32,17 +32,17 @@ const dashboardRoutes = [
     layout: "/user",
   },
   {
+    path: "/projects",
+    name: "Projects",
+    icon: "nc-icon nc-notes",
+    component: Projects,
+    layout: "/user",
+  },
+  {
     path: "/user",
     name: "User Profile",
     icon: "nc-icon nc-circle-09",
     component: UserProfile,
-    layout: "/user",
-  },
-  {
-    path: "/table",
-    name: "Table List",
-    icon: "nc-icon nc-notes",
-    component: TableList,
     layout: "/user",
   },
   {
