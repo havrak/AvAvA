@@ -55,6 +55,9 @@ export default class Project {
             if (data.hasOwnProperty('owner')) {
                 obj['owner'] = User.constructFromObject(data['owner']);
             }
+            if (data.hasOwnProperty('createdOn')) {
+                obj['createdOn'] = ApiClient.convertToType(data['createdOn'], 'String');
+            }
             if (data.hasOwnProperty('coworkers')) {
                 obj['coworkers'] = ApiClient.convertToType(data['coworkers'], [User]);
             }
@@ -82,6 +85,11 @@ export default class Project {
     * @member {module:model/User} owner
     */
     'owner' = undefined;
+    /**
+    * Date and time when the project has been created in Javascript Date format
+    * @member {String} createdOn
+    */
+    'createdOn' = undefined;
     /**
     * @member {Array.<module:model/User>} coworkers
     */

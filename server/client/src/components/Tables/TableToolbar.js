@@ -1,6 +1,6 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 //https://github.com/tannerlinsley/react-table/tree/master/examples/material-UI-kitchen-sink
-import AddUserDialog from "./AddUserDialog";
+import CreateProjectDialog from "./Dialogs/CreateProjectDialog";
 import clsx from "clsx";
 import DeleteIcon from "@material-ui/icons/Delete";
 import GlobalFilter from "./GlobalFilter";
@@ -43,7 +43,7 @@ const TableToolbar = (props) => {
    const classes = useToolbarStyles();
    const {
       numSelected,
-      addUserHandler,
+      createHandler,
       deleteUserHandler,
       preGlobalFilteredRows,
       setGlobalFilter,
@@ -51,6 +51,7 @@ const TableToolbar = (props) => {
       view,
       views,
       setView,
+      createRecordHeadding
    } = props;
    return (
       <Toolbar
@@ -58,7 +59,7 @@ const TableToolbar = (props) => {
             [classes.highlight]: numSelected > 0,
          })}
       >
-         <AddUserDialog addUserHandler={addUserHandler} />
+         <CreateProjectDialog createHandler={createHandler} />
          <FormControl className={classes.formControl}>
             <InputLabel id="demo-simple-select-label">View</InputLabel>
             <Select
@@ -77,7 +78,11 @@ const TableToolbar = (props) => {
             </Select>
          </FormControl>
          {numSelected > 0 ? (
-            <Typography className={classes.title} color="inherit" variant="subtitle1">
+            <Typography
+               className={classes.title}
+               color="inherit"
+               style={{ fontSize: "16px" }}
+            >
                {numSelected} selected
             </Typography>
          ) : (
@@ -107,7 +112,7 @@ const TableToolbar = (props) => {
 
 TableToolbar.propTypes = {
    numSelected: PropTypes.number.isRequired,
-   addUserHandler: PropTypes.func.isRequired,
+   createHandler: PropTypes.func.isRequired,
    deleteUserHandler: PropTypes.func.isRequired,
    setGlobalFilter: PropTypes.func.isRequired,
    preGlobalFilteredRows: PropTypes.array.isRequired,

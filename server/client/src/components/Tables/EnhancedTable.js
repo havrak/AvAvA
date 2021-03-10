@@ -21,6 +21,7 @@ import {
    useTable,
 } from "react-table";
 import { makeStyles } from "@material-ui/core/styles";
+// import { waitForDebugger } from "inspector";
 
 const useStyles = makeStyles(() => ({
    table: {
@@ -74,6 +75,7 @@ const EnhancedTable = ({
    views,
    view,
    setView,
+   createRecordHeadding
 }) => {
    const {
       getTableProps,
@@ -145,28 +147,34 @@ const EnhancedTable = ({
       setPageSize(Number(event.target.value));
    };
 
-   const removeByIndexs = (array, indexs) => array.filter((_, i) => !indexs.includes(i));
+   const getByIndexs = (array, indexs) =>
+      array.filter((_, i) => {
+         return indexs.includes(i);
+      });
    const removeByIndex = (array, index) => array.filter((_, i) => index !== i);
-   const getByIndexs = (array, indexs) => array.filter((_, i) => indexs.includes(i));
+   // const getByIndexs = (array, indexs) => array.filter((_, i) => indexs.includes(i));
 
    const deleteUserHandler = (event) => {
-      // const newData = removeByIndexs(
-      //    data,
-      //    Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
-      // );
+      const newData = getByIndexs(
+         data,
+         Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
+      );
+      console.log(newData);
       // const selectedData = getByIndexs(data,
       // Object.keys(selectedRowIds).map((x) => parseInt(x, 10)));
       // console.log(selectedRowIds)
-      for (const index of Object.keys(selectedRowIds)) {
-         setTimeout((e) => {
-            setData(removeByIndex(data, parseInt(index, 10)));
-         }, 2000);
-      }
-      // setData(newData);
+      // for (const index of Object.keys(selectedRowIds)) {
+      //    console.log(selectedRowIds);
+      //    setTimeout((e) => {
+      //       const newData = removeByIndex(data, parseInt(index, 10));
+      //       setData(newData);
+      //    }, 1);
+      // }
+      setData(newData);
    };
 
-   const addUserHandler = (user) => {
-      const newData = data.concat([user]);
+   const createHandler = (item) => {
+      const newData = data.concat([item]);
       setData(newData);
    };
    const styles = useStyles();
@@ -176,13 +184,14 @@ const EnhancedTable = ({
          <TableToolbar
             numSelected={Object.keys(selectedRowIds).length}
             deleteUserHandler={deleteUserHandler}
-            addUserHandler={addUserHandler}
+            createHandler={createHandler}
             preGlobalFilteredRows={preGlobalFilteredRows}
             setGlobalFilter={setGlobalFilter}
             globalFilter={globalFilter}
             views={views}
             view={view}
             setView={setView}
+            createRecordHeadding={createRecordHeadding}
          />
          <MaUTable {...getTableProps()} size={"small"}>
             <TableHead>
@@ -191,14 +200,14 @@ const EnhancedTable = ({
                      {headerGroup.headers.map((column) => {
                         return (
                            <TableCell
-                              {...(column.id === "selection"
+                              {...(column.columns !== undefined
                                  ? column.getHeaderProps()
                                  : column.getHeaderProps(column.getSortByToggleProps()))}
                               className={styles.table}
                               style={{ display: column.display }}
                            >
                               {column.render("Header")}
-                              {column.id !== "selection" ? (
+                              {column.columns === undefined ? (
                                  <TableSortLabel
                                     active={column.isSorted}
                                     // react-table has a unsorted state which is not treated here

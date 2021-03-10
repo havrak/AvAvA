@@ -16,7 +16,7 @@ import { connect } from "react-redux";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "../components/Tables/EnhancedTable.js";
-import makeData from "../service/makeData.js";
+// import makeData from "../service/makeData.js";
 
 import MaterialTable from "../components/Tables/Table.js";
 import { userProjectsGet } from "../actions/myaction";
@@ -26,30 +26,48 @@ function Projects({ projects, userProjectsGet }) {
       userProjectsGet();
    }, []);
 
+   const views = ["Basic info", "Containers", "Limits", "Resources"];
    const columns = React.useMemo(
       () => [
          {
             Header: "Name",
             accessor: "name",
-            view: "all"
+            view: "all",
          },
-         // {
-         //    Header: "Owner",
-         //    columns: [
-         //       {
-         //          Header: "First name",
-         //          accessor: "firstName"
-         //       },
-         //       {
-         //          Header: "Last name",
-         //          accessor: "lastName"
-         //       }
-         //    ]
-         // },
+         {
+            Header: "Owner",
+            accessor: "owner",
+            view: views[0],
+            columns: [
+               {
+                  Header: "First name",
+                  accessor: "firstName",
+                  view: views[0],
+               },
+               {
+                  Header: "Last name",
+                  accessor: "lastName",
+                  view: views[0],
+               },
+            ],
+         },
+         {
+            Header: "Participants",
+            accessor: "participants",
+            view: views[0],
+         },
+         {
+            Header: "Created at",
+            accessor: "createdAt",
+            view: views[0],
+            Cell: ({ value }) => {
+               return new Date(value).toLocaleString();
+            },
+         },
          {
             Header: "Containers",
             accessor: "containers",
-            view: "Containers",
+            view: views[1],
             columns: [
                // {
                //    Header: "Yours",
@@ -58,35 +76,124 @@ function Projects({ projects, userProjectsGet }) {
                {
                   Header: "Running",
                   accessor: "running",
-                  view: "Containers"
+                  view: views[1],
                },
                {
                   Header: "Stopped",
                   accessor: "stopped",
-                  view: "Containers"
+                  view: views[1],
                },
                {
                   Header: "Frozen",
                   accessor: "frozen",
-                  view: "Containers"
+                  view: views[1],
                },
             ],
          },
-         // {
-         //    Header: "Status",
-         //    accessor: "status",
-         // },
-         // {
-         //    Header: "Profile Progress",
-         //    accessor: "progress",
-         // },
+         {
+            Header: "RAM",
+            accessor: "ramLimit",
+            view: views[2],
+         },
+         {
+            Header: "CPU",
+            accessor: "cpuLimit",
+            view: views[2],
+         },
+         {
+            Header: "Disk",
+            accessor: "diskLimit",
+            view: views[2],
+         },
+         {
+            Header: "Download",
+            accessor: "downloadLimit",
+            view: views[2],
+         },
+         {
+            Header: "Upload",
+            accessor: "uploadLimit",
+            view: views[2],
+         },
+         {
+            Header: "RAM",
+            accessor: "ramResources",
+            view: views[3],
+            columns: [
+               { Header: "F/A/U", accessor: "ramResourcesFAU", view: views[3] },
+               { Header: "Free %", accessor: "ramFreePercent", view: views[3] },
+            ],
+         },
+         {
+            Header: "CPU",
+            accessor: "cpuResources",
+            view: views[3],
+            columns: [
+               { Header: "F/A/U", accessor: "cpuResourcesFAU", view: views[3] },
+               // { Header: "Free %", accessor: "cpuFreePercent", view: views[3] },
+            ],
+         },
+         {
+            Header: "Disk",
+            accessor: "diskResources",
+            view: views[3],
+            columns: [
+               { Header: "F/A/U", accessor: "diskResourcesFAU", view: views[3] },
+               { Header: "Free %", accessor: "diskFreePercent", view: views[3] },
+            ],
+         },
+         {
+            Header: "Download",
+            accessor: "downloadResources",
+            view: views[3],
+            columns: [
+               { Header: "F/A/U", accessor: "downloadResourcesFAU", view: views[3] },
+               { Header: "Free %", accessor: "downloadFreePercent", view: views[3] },
+            ],
+         },
+         {
+            Header: "Upload",
+            accessor: "uploadResources",
+            view: views[3],
+            columns: [
+               { Header: "F/A/U", accessor: "uploadResourcesFAU", view: views[3] },
+               { Header: "Free %", accessor: "uploadFreePercent", view: views[3] },
+            ],
+         },
       ],
       []
    );
-   const views=['Basic info', 'Containers', 'Limits', 'Allocated resources', 'Used resources'];
-   const [view, setView] = useState(views[0]);
 
-   const [data, setData] = useState(useMemo(() => makeData(20), []));
+   const makeData = () => {
+      let dataArray = [];
+      for (const project of projects) {
+         let projectData = {};
+         projectData.id = Math.round(Math.random() * 10_000);
+         // projectData.id = project.id;
+         projectData.name = project.name;
+         projectData.firstName = project.owner.givenName;
+         projectData.lastName = project.owner.familyName;
+         projectData.participants = project.coworkers.length;
+         projectData.createdAt = project.createdOn;
+         projectData.running = 0;
+         projectData.stopped = 0;
+         projectData.frozen = 0;
+         for (const container of project.containers) {
+            if (container.state.status === "Running") {
+               projectData.runningContainers++;
+            } else if (container.state.status === "Stopped") {
+               projectData.stoppedContainers++;
+            } else if (container.state.status === "Frozen") {
+               projectData.frozenContainers++;
+            }
+         }
+         dataArray.push(projectData);
+      }
+      return dataArray;
+   };
+
+   const [view, setView] = useState(views[1]);
+   const [data, setData] = useState(useMemo(() => makeData(), []));
    const [skipPageReset, setSkipPageReset] = useState(false);
 
    // We need to keep the table from resetting the pageIndex when we
@@ -113,16 +220,6 @@ function Projects({ projects, userProjectsGet }) {
    return (
       <>
          <Container fluid>
-            {/* <Row>
-               <Col md="12">
-                  <MaterialTable
-                     headding={"Project list"}
-                     headCells={headCells}
-                     rows={rows}
-                     rightUpperList={undefined}
-                  />
-               </Col>
-            </Row> */}
             <Row>
                <Col md="12">
                   <Card>
@@ -136,6 +233,8 @@ function Projects({ projects, userProjectsGet }) {
                         views={views}
                         view={view}
                         setView={setView}
+                        createRecordHeadding={"Create new project"}
+                        // createRecordProperties={createRecordProperties}
                      />
                   </Card>
                </Col>
@@ -155,6 +254,9 @@ const mapDispatchToProps = (dispatch) => {
    return {
       userProjectsGet: () => {
          dispatch(userProjectsGet());
+      },
+      projectIdDelete: () => {
+         dispatch(projectIdDelete());
       },
    };
 };

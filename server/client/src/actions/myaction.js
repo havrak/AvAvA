@@ -4,10 +4,25 @@ import * as UserApi from "../api/index";
 
 const api = new UserApi.DefaultApi();
 
+export const combinedDataGet = () => {
+   return (dispatch) => {
+      const callback = function (error, data, response) {
+         console.log(data + 'combined data get');
+         if (error) {
+            console.error(error);
+         } else {
+            dispatch({ type: "COMBINED_DATA_GET", payload: data });
+            console.log(data);
+         }
+      };
+      api.combinedDataGet(callback);
+   };
+};
+
 export const userProjectsGet = () => {
    return (dispatch) => {
       const callback = function (error, data, response) {
-         console.log(data);
+         console.log(data + 'user projects get');
          if (error) {
             console.error(error);
          } else {
@@ -19,18 +34,18 @@ export const userProjectsGet = () => {
    };
 };
 
-export const combinedDataGet = () => {
+export const projectIdDelete = (id) => {
    return (dispatch) => {
       const callback = function (error, data, response) {
-         console.log(data);
+         console.log(data + 'project id delete');
          if (error) {
             console.error(error);
          } else {
-            dispatch({ type: "COMBINED_DATA_GET", payload: data });
+            dispatch({ type: "PROJECT_ID_DELETE", payload: data });
             console.log(data);
          }
       };
-      api.combinedDataGet(callback);
+      api.projectIdDelete(id, callback);
    };
 };
 
