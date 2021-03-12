@@ -9,7 +9,7 @@ function UserSetup({ combinedDataGet, userData }) {
    useEffect(() => {
       combinedDataGet();
    }, []);
-   if (userData.user) {
+   if (userData) {
       return <Redirect to="/user/dashboard" />;
    } else {
       return (

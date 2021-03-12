@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import { combinedDataGet } from "../actions/myaction";
 // react-bootstrap components
 import { Card, Container, Row, Col } from "react-bootstrap";
-import BeatLoader from "react-spinners/BeatLoader";
+import ClipLoader from "react-spinners/ClipLoader";
 import { Link } from "react-router-dom";
 import {
    DiskCircularStateChartCard,
@@ -20,7 +20,7 @@ function Dashboard({ hostInformation, user, projects, state, combinedDataGet }) 
    if (!user) {
       return (
          <div id="pageLoader">
-            <BeatLoader color={"#212529"} loading={true} size={50} />
+            <ClipLoader color={"#212529"} loading={true} size={50} />
          </div>
       );
    } else {
@@ -35,12 +35,12 @@ function Dashboard({ hostInformation, user, projects, state, combinedDataGet }) 
       // let foreignContainers = 0;
       for (const project of projects) {
          // if(project.owner.id === user.id){
-         if (project.owner === undefined) {
+         if (project.owner.id === user.id) {
             //testing purposes
             ownProjects++;
             // ownContainers += project.containers.length;
          } else {
-            // foreignProjects++;
+            foreignProjects++;
             // foreignContainers += project.containers.length;
          }
          for (const container of project.containers) {

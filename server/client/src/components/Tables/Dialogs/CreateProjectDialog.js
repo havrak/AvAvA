@@ -11,13 +11,23 @@ import IconButton from "@material-ui/core/IconButton";
 import PropTypes from "prop-types";
 import TextField from "@material-ui/core/TextField";
 import Tooltip from "@material-ui/core/Tooltip";
-import Slider from '../../Limits/Slider';
+import Slider from "../../Limits/Slider";
 
-const CreateProjectDialog = (props) => {
-   const [project, setProject] = useState({name: ""});
-   const { createProjectHandler } = props;
+const CreateProjectDialog = ({ createHandler, userLimits }) => {
    const [open, setOpen] = React.useState(false);
-
+   const project = {
+      name: "",
+      owner: {},
+      limits: {
+         RAM: 0,
+         CPU: 0,
+         disk: 0,
+         network: {
+            upload: 0,
+            download: 0,
+         },
+      },
+   };
    const handleClickOpen = () => {
       setOpen(true);
    };
@@ -27,13 +37,7 @@ const CreateProjectDialog = (props) => {
    };
 
    const handleAdd = (event) => {
-      createProjectHandler(project);
-   };
-
-   const handleChange = (name) => {
-      return ({ target: { value } }) => {
-         setUser({ ...project, [name]: value });
-      };
+      createHandler(project);
    };
 
    return (
@@ -49,18 +53,48 @@ const CreateProjectDialog = (props) => {
                <TextField
                   autoFocus
                   margin="dense"
-                  label="First Name"
+                  label="Project Name"
                   type="text"
                   fullWidth
-                  value={project.firstName}
-                  onChange={handleChange("firstName")}
-                  style={{marginBottom: "20px"}}
+                  onChange={(e) => project.name = e.target.value}
+                  style={{ marginBottom: "20px" }}
                />
-               <Slider headding={"RAM"} min={0} max={280}/>
-               <Slider headding={"CPU"} min={0} max={280}/>
-               <Slider headding={"Disk"} min={0} max={280}/>
-               <Slider headding={"Upload"} min={0} max={280}/>
-               <Slider headding={"Download"} min={0} max={280}/>
+               <Slider
+                  headding={"RAM"}
+                  setValueToParentElement={value=>{project.limits.RAM = value}}
+                  min={0}
+                  max={userLimits.RAM}
+                  unit={"MB"}
+                  step={1}
+               />
+               <Slider
+                  min={0}
+                  setValueToParentElement={value=>{project.limits.CPU = value}}
+                  max={userLimits.CPU}
+                  unit={"%"}
+                  step={1}
+               />
+               <Slider
+                  min={0}
+                  setValueToParentElement={value=>{project.limits.disk = value}}
+                  max={userLimits.disk}
+                  unit={"GB"}
+                  step={0.01}
+               />
+               <Slider
+                  min={0}
+                  setValueToParentElement={value=>{project.limits.network.download = value}}
+                  max={userLimits.network.download}
+                  unit={"Mb/s"}
+                  step={0.01}
+               />
+               <Slider
+                  min={0}
+                  setValueToParentElement={value=>{project.limits.network.upload = value}}
+                  max={userLimits.network.upload}
+                  unit={"Mb/s"}
+                  step={0.01}
+               />
             </DialogContent>
             <DialogActions>
                <Button onClick={handleClose} color="primary">
@@ -76,7 +110,7 @@ const CreateProjectDialog = (props) => {
 };
 
 CreateProjectDialog.propTypes = {
-   addUserHandler: PropTypes.func.isRequired,
+   createHandler: PropTypes.func.isRequired,
 };
 
 export default CreateProjectDialog;

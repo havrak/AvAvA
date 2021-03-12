@@ -13,6 +13,7 @@ import TablePaginationActions from "./TablePaginationActions";
 import TableRow from "@material-ui/core/TableRow";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
 import TableToolbar from "./TableToolbar";
+import ClipLoader from "react-spinners/ClipLoader";
 import {
    useGlobalFilter,
    usePagination,
@@ -75,7 +76,8 @@ const EnhancedTable = ({
    views,
    view,
    setView,
-   createRecordHeadding
+   userLimits,
+   createHandler,
 }) => {
    const {
       getTableProps,
@@ -128,7 +130,17 @@ const EnhancedTable = ({
                // to the render a checkbox
                Cell: ({ row }) => (
                   <div>
-                     <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+                     {/* <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} /> */}
+                     <div
+                        style={{
+                           marginLeft: "5px",
+                           display: "flex",
+                           alignItems: "center",
+                        }}
+                     >
+                        <ClipLoader color={"#212529"} loading={true} size={30} />
+                        <span style={{ marginLeft: "5px" }}>Deleting</span>
+                     </div>
                   </div>
                ),
             },
@@ -143,6 +155,10 @@ const EnhancedTable = ({
    useEffect(() => {
       setHiddenColumns(createHiddenColumnsArray(columns, view));
    }, [view]);
+   // const [, updateState] = React.useState();
+   // useEffect(()=> {
+   //    updateState();
+   // }, [data])
    const handleChangeRowsPerPage = (event) => {
       setPageSize(Number(event.target.value));
    };
@@ -159,12 +175,9 @@ const EnhancedTable = ({
          data,
          Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
       );
-      console.log(newData);
       // const selectedData = getByIndexs(data,
       // Object.keys(selectedRowIds).map((x) => parseInt(x, 10)));
-      // console.log(selectedRowIds)
       // for (const index of Object.keys(selectedRowIds)) {
-      //    console.log(selectedRowIds);
       //    setTimeout((e) => {
       //       const newData = removeByIndex(data, parseInt(index, 10));
       //       setData(newData);
@@ -173,10 +186,6 @@ const EnhancedTable = ({
       setData(newData);
    };
 
-   const createHandler = (item) => {
-      const newData = data.concat([item]);
-      setData(newData);
-   };
    const styles = useStyles();
    // Render the UI for your table
    return (
@@ -191,7 +200,7 @@ const EnhancedTable = ({
             views={views}
             view={view}
             setView={setView}
-            createRecordHeadding={createRecordHeadding}
+            userLimits={userLimits}
          />
          <MaUTable {...getTableProps()} size={"small"}>
             <TableHead>
@@ -207,7 +216,8 @@ const EnhancedTable = ({
                               style={{ display: column.display }}
                            >
                               {column.render("Header")}
-                              {column.columns === undefined ? (
+                              {column.columns === undefined &&
+                              column.accessor !== undefined ? (
                                  <TableSortLabel
                                     active={column.isSorted}
                                     // react-table has a unsorted state which is not treated here

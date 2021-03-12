@@ -18,10 +18,15 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "../components/Tables/EnhancedTable.js";
 // import makeData from "../service/makeData.js";
 
-import MaterialTable from "../components/Tables/Table.js";
-import { userProjectsGet } from "../actions/myaction";
+import {
+   userProjectsGet,
+   projectIdDelete,
+   startSpinnerProjectPost,
+   projectPost,
+} from "../actions/myaction";
+import { limitsFromParentState } from "../service/LimitsHelper";
 
-function Projects({ projects, userProjectsGet }) {
+function Projects({ projects, userState, userProjectsGet, dispatch, projectIdDelete, projectPost }) {
    useEffect(() => {
       userProjectsGet();
    }, []);
@@ -168,23 +173,27 @@ function Projects({ projects, userProjectsGet }) {
       let dataArray = [];
       for (const project of projects) {
          let projectData = {};
-         projectData.id = Math.round(Math.random() * 10_000);
-         // projectData.id = project.id;
          projectData.name = project.name;
-         projectData.firstName = project.owner.givenName;
-         projectData.lastName = project.owner.familyName;
-         projectData.participants = project.coworkers.length;
-         projectData.createdAt = project.createdOn;
-         projectData.running = 0;
-         projectData.stopped = 0;
-         projectData.frozen = 0;
-         for (const container of project.containers) {
-            if (container.state.status === "Running") {
-               projectData.runningContainers++;
-            } else if (container.state.status === "Stopped") {
-               projectData.stoppedContainers++;
-            } else if (container.state.status === "Frozen") {
-               projectData.frozenContainers++;
+         if (project.pendingState) {
+            projectData.pendingState = project.pendingState;
+         } else {
+            projectData.id = Math.round(Math.random() * 10_000);
+            // projectData.id = project.id;
+            projectData.firstName = project.owner.givenName;
+            projectData.lastName = project.owner.familyName;
+            projectData.participants = project.coworkers.length;
+            projectData.createdAt = project.createdOn;
+            projectData.running = 0;
+            projectData.stopped = 0;
+            projectData.frozen = 0;
+            for (const container of project.containers) {
+               if (container.state.status === "Running") {
+                  projectData.runningContainers++;
+               } else if (container.state.status === "Stopped") {
+                  projectData.stoppedContainers++;
+               } else if (container.state.status === "Frozen") {
+                  projectData.frozenContainers++;
+               }
             }
          }
          dataArray.push(projectData);
@@ -195,7 +204,11 @@ function Projects({ projects, userProjectsGet }) {
    const [view, setView] = useState(views[1]);
    const [data, setData] = useState(useMemo(() => makeData(), []));
    const [skipPageReset, setSkipPageReset] = useState(false);
-
+   console.log('rerendering' + projects)
+   useEffect(()=> {
+      console.log('adding')
+      setData(makeData());
+   }, [projects])
    // We need to keep the table from resetting the pageIndex when we
    // Update data. So we can keep track of that flag with a ref.
    // When our cell renderer calls updateMyData, we'll use
@@ -217,6 +230,13 @@ function Projects({ projects, userProjectsGet }) {
       );
    };
 
+   const createProjectHandler = (project) => {
+      dispatch(startSpinnerProjectPost(project));
+      setData(makeData());
+      console.log(project);
+      projectPost(project);
+   };
+
    return (
       <>
          <Container fluid>
@@ -234,7 +254,8 @@ function Projects({ projects, userProjectsGet }) {
                         view={view}
                         setView={setView}
                         createRecordHeadding={"Create new project"}
-                        // createRecordProperties={createRecordProperties}
+                        userLimits={limitsFromParentState(userState.limits, userState)}
+                        createHandler={createProjectHandler}
                      />
                   </Card>
                </Col>
@@ -247,6 +268,7 @@ function Projects({ projects, userProjectsGet }) {
 const mapStateToProps = (state) => {
    return {
       projects: state.combinedUserData.userProjects.projects,
+      userState: state.combinedUserData.userProjects.userState,
    };
 };
 
@@ -258,6 +280,10 @@ const mapDispatchToProps = (dispatch) => {
       projectIdDelete: () => {
          dispatch(projectIdDelete());
       },
+      projectPost: (project) => {
+         dispatch(projectPost(project));
+      },
+      dispatch,
    };
 };
 

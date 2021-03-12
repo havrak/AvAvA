@@ -10,20 +10,26 @@ const useStyles = makeStyles({
       width: 400,
    },
    input: {
-      width: 42,
+      width: 60,
    },
 });
 
-export default function InputSlider({headding, min, max}) {
+export default function InputSlider({headding, setValueToParentElement, min, max, unit, step}) {
    const classes = useStyles();
-   const [value, setValue] = React.useState(30);
+   const [value, setValue] = React.useState(min);
 
    const handleSliderChange = (event, newValue) => {
       setValue(newValue);
+      setValueToParentElement(newValue);
    };
 
    const handleInputChange = (event) => {
-      setValue(event.target.value === "" ? "" : Number(event.target.value));
+      if(event.target.value === ""){
+         setValue("");
+      } else {
+         setValue(Number(event.target.value));
+         setValueToParentElement(Number(event.target.value));
+      }
    };
 
    const handleBlur = () => {
@@ -36,7 +42,7 @@ export default function InputSlider({headding, min, max}) {
 
    return (
       <div className={classes.root}>
-      {headding}
+      {headding} ({unit})
          <Grid container spacing={2} alignItems="center">
             <Grid item xs>
                <Slider
@@ -45,6 +51,7 @@ export default function InputSlider({headding, min, max}) {
                   aria-labelledby="input-slider"
                   max={max}
                   min={min}
+                  step={step}
                />
             </Grid>
             <Grid item>
@@ -55,7 +62,7 @@ export default function InputSlider({headding, min, max}) {
                   onChange={handleInputChange}
                   onBlur={handleBlur}
                   inputProps={{
-                     step: 100,
+                     step: step,
                      min: min,
                      max: max,
                      type: "number",

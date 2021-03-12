@@ -7,7 +7,6 @@ const api = new UserApi.DefaultApi();
 export const combinedDataGet = () => {
    return (dispatch) => {
       const callback = function (error, data, response) {
-         console.log(data + 'combined data get');
          if (error) {
             console.error(error);
          } else {
@@ -22,7 +21,6 @@ export const combinedDataGet = () => {
 export const userProjectsGet = () => {
    return (dispatch) => {
       const callback = function (error, data, response) {
-         console.log(data + 'user projects get');
          if (error) {
             console.error(error);
          } else {
@@ -33,6 +31,28 @@ export const userProjectsGet = () => {
       api.userProjectsGet(callback);
    };
 };
+
+export const startSpinnerProjectPost = (body) => {
+   return {
+      type: "START_SPINNER_PROJECT_POST",
+      payload: body
+   }
+}
+
+export const projectPost = (body) => {
+   return (dispatch) => {
+      const callback = function (error, data, response) {
+         if (error) {
+            dispatch({ type: "PROJECT_POST_FAIL", payload: data });
+            console.error(error);
+         } else {
+            dispatch({ type: "PROJECT_POST_SUCCESS", payload: data });
+            console.log(data);
+         }
+      };
+      api.projectPost(body, callback);
+   };
+}
 
 export const projectIdDelete = (id) => {
    return (dispatch) => {

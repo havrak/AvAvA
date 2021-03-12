@@ -72,11 +72,11 @@ const AddUserDialog = (props) => {
                   onChange={handleChange("firstName")}
                   style={{marginBottom: "20px"}}
                />
-               <Slider headding={"RAM"} min={0} max={280}/>
-               <Slider headding={"CPU"} min={0} max={280}/>
-               <Slider headding={"Disk"} min={0} max={280}/>
-               <Slider headding={"Upload"} min={0} max={280}/>
-               <Slider headding={"Download"} min={0} max={280}/>
+               <Slider headding={"RAM"} min={0} max={280} units={"MB"}/>
+               <Slider headding={"CPU"} min={0} max={280} units={"%"}/>
+               <Slider headding={"Disk"} min={0} max={280} units={"GB"}/>
+               <Slider headding={"Upload"} min={0} max={280} units={"Mb/s"}/>
+               <Slider headding={"Download"} min={0} max={280} units={"Mb/s"}/>
             </DialogContent>
             <DialogActions>
                <Button onClick={handleClose} color="primary">

@@ -51,7 +51,7 @@ const TableToolbar = (props) => {
       view,
       views,
       setView,
-      createRecordHeadding
+      userLimits
    } = props;
    return (
       <Toolbar
@@ -59,7 +59,7 @@ const TableToolbar = (props) => {
             [classes.highlight]: numSelected > 0,
          })}
       >
-         <CreateProjectDialog createHandler={createHandler} />
+         <CreateProjectDialog createHandler={createHandler} userLimits={userLimits} />
          <FormControl className={classes.formControl}>
             <InputLabel id="demo-simple-select-label">View</InputLabel>
             <Select

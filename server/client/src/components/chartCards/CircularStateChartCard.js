@@ -2,7 +2,7 @@ import React from "react";
 import { Chart } from "react-google-charts";
 // react-bootstrap components
 import { Card } from "react-bootstrap";
-import BeatLoader from "react-spinners/BeatLoader";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import {
    bytesToAdequateMessage,
@@ -31,7 +31,7 @@ export function CircularStateChartCard({
          <Card.Body className="p-0">
             <Chart
                chartType="PieChart"
-               loader={<BeatLoader color={"#212529"} loading={true} size={30} />}
+               loader={<ClipLoader color={"#212529"} loading={true} size={30} />}
                data={[
                   [
                      "stateType",
@@ -125,7 +125,7 @@ export function CPUCircularStateChartCard({
          <Card.Body className="p-0">
             <Chart
                chartType="PieChart"
-               loader={<BeatLoader color={"#212529"} loading={true} size={30} />}
+               loader={<ClipLoader color={"#212529"} loading={true} size={30} />}
                data={[
                   [
                      "stateType",
@@ -218,7 +218,7 @@ export function DownloadCircularStateChartCard({
          percentAllocated={percentAllocated}
          stateName={"Download"}
          convertorCallback={bytesPerSecondToAdequateMessage}
-         baseUnit={"B/s"}
+         baseUnit={"b/s"}
       />
    );
 }
@@ -239,7 +239,7 @@ export function UploadCircularStateChartCard({
          percentAllocated={percentAllocated}
          stateName={"Upload"}
          convertorCallback={bytesPerSecondToAdequateMessage}
-         baseUnit={"B/s"}
+         baseUnit={"b/s"}
       />
    );
 }
