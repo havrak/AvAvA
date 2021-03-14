@@ -5,6 +5,7 @@ export default class ProjectState {
     this.containerState = containerState;
   }
   id;
-  maxResources; // -> Limits.js[]
   containerState; // -> ContainerState.js[]
+  projectState; // -> LightResourceState.js
+  stateHistory; // -> LightResourceState.js[]
 }

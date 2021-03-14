@@ -4,7 +4,7 @@ CREATE TABLE `projectsCoworkers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 ALTER TABLE `projectsCoworkers`
-  ADD KEY `project_id` (`project_id`),
+  ADD PRIMARY KEY (`project_id`,`user_email`),
   ADD KEY `user_email` (`user_email`);
 
 ALTER TABLE `projectsCoworkers`

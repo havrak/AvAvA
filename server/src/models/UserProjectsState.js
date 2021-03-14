@@ -1,8 +1,10 @@
 export default class UserProjectState {
-  constructor(maxResources, projectsState) {
-    this.maxResources = maxResources;
+  constructor(projectsState, userState, stateHistory) {
     this.projectsState = projectsState;
+    this.userState = userState;
+    this.stateHistory = stateHistory;
   }
-  maxResources; // -> Limits.js
-  projectsState; // -> ProjectState.js[]
+  projectsState; // -> projectState.js
+  userState; // -> lightResourceState.js
+  stateHistory; // -> lightResourceState.js[]
 }

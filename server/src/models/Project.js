@@ -1,14 +1,15 @@
 export default class Project {
-  constructor(id, owner, coworkers, maxResources, containers) {
+  constructor(id, owner, coworkers, projectState, containers) {
     this.id = id;
     this.owner = owner;
     this.coworkers = coworkers;
-    this.maxResources = maxResources;
+    this.projectState = projectState;
     this.containers = containers;
   }
   id;
   owner; // -> User.js
+  createdOn;
   coworkers; // -> User.js[]
-  maxResources; // -> Limits.js[]
+  projectState; // -> LightResourceState.js
   containers; // -> Container.js[]
 }

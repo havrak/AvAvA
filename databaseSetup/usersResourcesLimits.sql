@@ -8,6 +8,7 @@ CREATE TABLE `usersResourcesLimits` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 ALTER TABLE `usersResourcesLimits`
+  ADD PRIMARY KEY (`user_email`),
   ADD UNIQUE KEY `user_email` (`user_email`) USING BTREE;
 
 ALTER TABLE `usersResourcesLimits`

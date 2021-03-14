@@ -1,10 +1,10 @@
 export default class UserData {
-  constructor(user, userProjects, createContainerData) {
+  constructor(user, userProjects, hostInformation) {
     this.user = user;
     this.userProjects = userProjects;
-    this.createContainerData = createContainerData;
+    this.hostInformation = hostInformation;
   }
   user; // -> User.js;
   userProjects; // -> UserProjects.js
-  createContainerData; // -> CreateContainerData.js
+  hostInformation; // -> hostInformation.js
 }

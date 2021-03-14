@@ -60,11 +60,7 @@ paths:
                 $ref: '#/components/schemas/Container'
         '500':
           description: Internal server error - e.g. not enough resources
-<<<<<<< HEAD
-  /instances/createConfigData:
-=======
   /instances/{projectId}/createConfigData:
->>>>>>> e0da6d7 (Finalized databases)
     get:
       parameters:
         - in: path
@@ -504,10 +500,10 @@ components:
           properties:
             upload:
               type: integer
-              description: in bytes/s
+              description: in bits/s
             download:
               type: integer
-              description: in bytes/s
+              description: in bits/s
     ContainerResourceState:
       type: object
       description: Object representing current state of the container (not history). Each object also contains limit information that were in effect in the time of measuring the state.
@@ -584,13 +580,13 @@ components:
                     description: usage of download bandwidth in percent
                   downloadSpeed:
                     type: integer
-                    description: number of bytes that were downloaded in bytes/s
+                    description: number of bytes that were downloaded in bits/s
                   uploadBandwidthUsage:
                     type: integer
                     description: usage of upload bandwidth in percent
                   uploadSpeed:
                     type: integer
-                    description: number of bytes that were uploaded in bytes/s
+                    description: number of bytes that were uploaded in bits/s
               hwaddr:
                 type: string
               hostName:
@@ -663,13 +659,13 @@ components:
               properties:
                 uploadSpeed:
                   type: integer
-                  description: last recorded upload speed in bytes/s in connection to the internet
+                  description: last recorded upload speed in bits/s in connection to the internet
                 uploadBandwidthUsage:
                   type: integer
                   description: usage of upload bandwidth in percent in connection to the internet
                 allocatedUploadSpeed:
                   type: integer
-                  description: last recorded allocated upload speed in bytes/s in connection to the internet (sum of container limits - upload speed)
+                  description: last recorded allocated upload speed in bits/s in connection to the internet (sum of container limits - upload speed)
                 allocatedBandwidthUsage:
                   type: integer
                   description: usage of upload bandwidth in percent in connection to the internet
@@ -678,13 +674,13 @@ components:
               properties:
                 downloadSpeed:
                   type: integer
-                  description: last recorded download speed in bytes/s in connection to the internet
+                  description: last recorded download speed in bits/s in connection to the internet
                 downloadBandwidthUsage:
                   type: integer
                   description: usage of download bandwidth in percent in connection to the internet
                 allocatedDownloadSpeed:
                   type: integer
-                  description: last recorded allocated download speed in bytes/s in connection to the internet (sum of container limits - downloadSpeed)
+                  description: last recorded allocated download speed in bits/s in connection to the internet (sum of container limits - downloadSpeed)
                 allocatedBandwidthUsage:
                   type: integer
                   description: allocation of download bandwidth in percent in connection to the internet
@@ -718,21 +714,12 @@ components:
           upload:
             uploadSpeed: 2_500
             uploadBandwidthUsage: 6.2
-<<<<<<< HEAD
-            allocatedSpeed: 10_000
-            allocatedBandwidthUsage: 25
-          download:
-            downloadSpeed: 0
-            uploadBandwidthUsage: 0
-            allocatedSpeed: 55_000
-=======
             allocatedUploadSpeed: 10_000
             allocatedBandwidthUsage: 25
           download:
             downloadSpeed: 0
             downloadBandwidthUsage: 0
             allocatedDownloadSpeed: 55_000
->>>>>>> e0da6d7 (Finalized databases)
             allocatedBandwidthUsage: 27.5
         numberOfProcesses: 5042
     Snapshot:
@@ -796,21 +783,6 @@ components:
             $ref: '#/components/schemas/Snapshot'
         state:
           $ref: '#/components/schemas/ContainerResourceState'
-<<<<<<< HEAD
-    CreateContainerData:
-      type: object
-      description: All the data necessary to create a container (except for projects and resources - this has to be achieved via different ways)
-      properties:
-        templateTypes:
-          type: array
-          items:
-            $ref: '#/components/schemas/Template'
-        applicationsToInstall:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicationToInstall'
-=======
->>>>>>> e0da6d7 (Finalized databases)
     ApplicationToInstall:
       type: object
       properties:
@@ -855,9 +827,9 @@ components:
           description: Name of the project
         owner:
           $ref: '#/components/schemas/User'
-        creationTimestamp:
+        createdOn:
           type: string
-          description: Date and time when the project has been created
+          description: Date and time when the project has been created in Javascript Date format
         coworkers:
           type: array
           items:
@@ -868,6 +840,79 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Container'
+      example:
+        id: 14
+        name: Moodle
+        owner:
+          id: 1
+          email: vladimir.vavra@student.gyarab.cz
+          familyName: Vávra
+          givenName: Vladimír
+          role: 0
+          icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+          coins: 154
+        createdOn: Wed Mar 10 2021 20:36:50 GMT+0100 (Central European Standard Time)
+        coworkers:
+        - id: 2
+          email: krystof.havranek@student.gyarab.cz
+          familyName: Kryštof
+          givenName: Havránek
+          role: 0
+          icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+          coins: 12
+        projectState:
+          timestamp: Sat Mar 06 2021 18:32:43 GMT+0100 (Central European Standard Time)
+          limits:
+            RAM: 400_000_000
+            CPU: 14
+            disk: 5_000_000_000
+            network:
+              upload: 4_000
+              download: 20_000
+          CPU:
+            consumedTime: 19_542_212
+            percentConsumed: 60
+            percentAllocated: 5
+          RAM: 
+            usage: 312_000_000
+            percentConsumed: 78
+            allocated: 77_000_000
+            percentAllocated: 19.3
+          disk:
+            usage: 4_118_954_256
+            percentConsumed: 82.4
+            allocated: 168_254_457
+            percentAllocated: 3.4
+          network:
+            upload:
+              uploadSpeed: 250
+              uploadBandwidthUsage: 6.2
+              allocatedUploadSpeed: 1_000
+              allocatedBandwidthUsage: 25
+            download:
+              downloadSpeed: 0
+              downloadBandwidthUsage: 0
+              allocatedDownloadSpeed: 5_500
+              allocatedBandwidthUsage: 27.5
+          numberOfProcesses: 504
+        containers:
+          - id: 155
+            name: Database
+            stateful: true
+            state:
+              status: Running
+              statusCode: 103
+          - id: 159
+            name: Server
+            stateful: true
+            state:
+              status: Running
+              statusCode: 103
+          - id: 166
+            name: Jobe
+            stateful: true
+            state: Frozen
+            statusCode: 110
     UserProjectsState:
       type: object
       description: Object that knows state and history of all projects and all containers in them
@@ -901,7 +946,6 @@ components:
           description: Id of the user generated by database
         email:
           type: string
-          example: vladimir.vavra@student.gyarab.cz
         familyName:
           type: string
           description: inherited family name
@@ -923,11 +967,7 @@ components:
         familyName: Vávra
         givenName: Vladimír
         role: 0
-<<<<<<< HEAD
-        icon: https://lh3.google.com/u/1/ogw/ADGmqu8Sde_1wI1aeqYj-reN2mDVllWamWh2UNT6DDg5=s83-c-mo
-=======
         icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
->>>>>>> e0da6d7 (Finalized databases)
         coins: 154
     UserData:
       type: object
@@ -937,11 +977,6 @@ components:
           $ref: '#/components/schemas/User'
         userProjects:
           $ref: '#/components/schemas/UserProjects'
-<<<<<<< HEAD
-        createContainerData:
-          $ref: '#/components/schemas/CreateContainerData'
-=======
->>>>>>> e0da6d7 (Finalized databases)
         hostInformation:
           $ref: '#/components/schemas/HostInformation'
     HostInformation:

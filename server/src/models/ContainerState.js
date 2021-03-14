@@ -1,10 +1,10 @@
 export default class ContainerState {
-  constructor(id, maxResources, state) {
+  constructor(id, state, stateHistory) {
     this.id;
-    this.maxResources = maxResources;
     this.state = state;
+    this.stateHistory = stateHistory;
   }
   id;
-  maxResources; // -> Limits.js
-  state; // -> ResourceState.js
+  currentState; // -> ResourceState.js
+  stateHistory; // -> LightResourceState.js
 }
