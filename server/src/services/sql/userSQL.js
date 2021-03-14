@@ -56,7 +56,7 @@ export default class userSQL {
 
   /*
    * adds new user do database
-   *
+   * TODO: add record to usersResourcesLimits
    */
   static addNewUserToDatabaseAndReturnIt(user) {
     return new Promise((resolve) => {
@@ -71,7 +71,8 @@ export default class userSQL {
           user.photos[0].value,
         ], // by default user is standart user
         (err, rows) => {
-          if (err.code == "ER_DUP_ENTRY") {
+          console.log(err);
+          if (err && err.code == "ER_DUP_ENTRY") {
             console.log("User is already stored in DB");
           } else if (err) {
             throw err;

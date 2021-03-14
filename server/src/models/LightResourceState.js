@@ -2,28 +2,28 @@ export default class LightResourceState {
 	limits; // -> Limits.js
 	timestamp;
 	CPU = {
-		consumedTime,
-		percentConsumed,
-		percentAllocated
+		consumedTime: undefined,
+		percentConsumed: undefined,
+		percentAllocated: undefined
 	}
 	RAM = {
 		usage,
-		percentConsumed,
-		allocated,
-		percentAllocated
+		percentConsumed: undefined,
+		allocated: undefined,
+		percentAllocated: undefined
 	}
 	disk = {
 		upload = {
-			uploadSpeed,
-			uploadBandwidthSpeed,
-			allocatedUploadSpeed,
-			allocatedBandwidthSpeed
+			uploadSpeed: undefined,
+			uploadBandwidthSpeed: undefined,
+			allocatedUploadSpeed: undefined,
+			allocatedBandwidthSpeed: undefined
 		},
 		download = {
-			downloadSpeed,
-			downloadBandwidthUsage,
-			allocatedDownloadSpeed,
-			allocatedBandwidthUsage
+			downloadSpeed: undefined,
+			downloadBandwidthUsage: undefined,
+			allocatedDownloadSpeed: undefined,
+			allocatedBandwidthUsage: undefined
 		}
 	}
 	numberOfProcesses;

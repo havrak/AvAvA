@@ -7,10 +7,13 @@ import passport from "passport";
 const PORT = process.env.PORT || 5000;
 import "./models/User.js";
 import "./services/passport.js";
-//import * as bodyParser from "body-parser";
-import * as lxd from "./routes/lxdquery.js";
+import "./models/Limits.js";
+import projectSQL from "./services/sql/projectSQL.js";
 
-lxd.test();
+//import * as bodyParser from "body-parser";
+//import * as lxd from "./routes/lxdquery.js";
+
+//lxd.test();
 
 app.use(
   cookieSession({
@@ -55,3 +58,9 @@ const isLoggedIn = (req, res, next) => {
 };
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
+
+app.get("/project/createConfigData", isLoggedIn, (req, res) => {
+  projectSQL.createCreateProjectData(req.user.email).then((result) => {
+    res.send(result);
+  });
+});

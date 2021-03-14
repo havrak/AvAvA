@@ -7,11 +7,12 @@ export default class Limits {
     this.network.upload = upload;
     this.network.download = download;
   }
+
   ram;
   cpu;
   disk;
   network = {
-    upload,
-    download,
+    upload: undefined,
+    download: undefined,
   };
 }

@@ -59,8 +59,8 @@ CREATE TABLE `containersResourcesLimits` (
   `ram` int(4) NOT NULL,
   `cpu` int(4) NOT NULL,
   `disk` int(4) NOT NULL,
-  `up_speed` int(4) NOT NULL,
-  `down_speed` int(4) NOT NULL
+  `upload` int(4) NOT NULL,
+  `download` int(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
@@ -114,8 +114,8 @@ CREATE TABLE `projectsResourcesLimits` (
   `ram` int(4) NOT NULL,
   `cpu` int(4) NOT NULL,
   `disk` int(4) NOT NULL,
-  `up_speed` int(4) NOT NULL,
-  `down_speed` int(4) NOT NULL
+  `upload` int(4) NOT NULL,
+  `download` int(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
@@ -162,8 +162,8 @@ CREATE TABLE `usersResourcesLimits` (
   `ram` int(4) NOT NULL,
   `cpu` int(4) NOT NULL,
   `disk` int(4) NOT NULL,
-  `up_speed` int(4) NOT NULL,
-  `down_speed` int(4) NOT NULL
+  `upload` int(4) NOT NULL,
+  `download` int(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 --
