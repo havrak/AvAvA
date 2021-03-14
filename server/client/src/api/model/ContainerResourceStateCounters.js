@@ -65,7 +65,7 @@ export default class ContainerResourceStateCounters {
     */
     'downloadBandwidthUsage' = undefined;
     /**
-    * number of bytes that were downloaded in bytes/s
+    * number of bytes that were downloaded in bits/s
     * @member {Number} downloadSpeed
     */
     'downloadSpeed' = undefined;
@@ -75,7 +75,7 @@ export default class ContainerResourceStateCounters {
     */
     'uploadBandwidthUsage' = undefined;
     /**
-    * number of bytes that were uploaded in bytes/s
+    * number of bytes that were uploaded in bits/s
     * @member {Number} uploadSpeed
     */
     'uploadSpeed' = undefined;

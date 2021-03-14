@@ -23,6 +23,7 @@ export const userProjectsGet = () => {
       const callback = function (error, data, response) {
          if (error) {
             console.error(error);
+            console.log('userProjectsGet')
          } else {
             dispatch({ type: "USER_PROJECTS_GET", payload: data });
             console.log(data);
@@ -39,30 +40,68 @@ export const startSpinnerProjectPost = (body) => {
    }
 }
 
-export const projectPost = (body) => {
+export const projectPostFail = (name) => {
+   return {
+      type: "PROJECT_POST_FAIL",
+      payload: name
+   }
+}
+
+export const projectPostSuccess = (project) => {
+   return {
+      type: "PROJECT_POST_SUCCESS",
+      payload: project
+   }
+}
+
+export const projectPost = (body, displayFail) => {
    return (dispatch) => {
       const callback = function (error, data, response) {
          if (error) {
-            dispatch({ type: "PROJECT_POST_FAIL", payload: data });
             console.error(error);
+            console.log('projectPost')
+            dispatch(projectPostFail(body.name));
+            displayFail(body.name);
          } else {
-            dispatch({ type: "PROJECT_POST_SUCCESS", payload: data });
-            console.log(data);
+            data.id=15;
+            data.name="asdf" //EDITING PURPOSES
+            dispatch(projectPostSuccess(data));
          }
       };
       api.projectPost(body, callback);
    };
 }
 
-export const projectIdDelete = (id) => {
+export const startSpinnerProjectDelete = (project) => {
+   return {
+      type: "START_SPINNER_PROJECT_DELETE",
+      payload: project.id //MAYBE CHANGE
+   }
+}
+
+export const projectDeleteFail = (id) => {
+   return {
+      type: "PROJECT_DELETE_FAIL",
+      payload: id
+   }
+}
+
+export const projectDeleteSuccess = (id) => {
+   return {
+      type: "PROJECT_DELETE_SUCCESS",
+      payload: id
+   }
+}
+
+export const projectIdDelete = (id, projectDeleteFailNotification) => {
    return (dispatch) => {
       const callback = function (error, data, response) {
          console.log(data + 'project id delete');
          if (error) {
-            console.error(error);
+            dispatch(projectDeleteFail(id));
+            projectDeleteFailNotification();
          } else {
-            dispatch({ type: "PROJECT_ID_DELETE", payload: data });
-            console.log(data);
+            dispatch(projectDeleteSuccess(id));
          }
       };
       api.projectIdDelete(id, callback);

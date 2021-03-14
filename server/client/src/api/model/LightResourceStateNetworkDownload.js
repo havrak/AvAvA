@@ -60,7 +60,7 @@ export default class LightResourceStateNetworkDownload {
     }
 
     /**
-    * last recorded download speed in bytes/s in connection to the internet
+    * last recorded download speed in bits/s in connection to the internet
     * @member {Number} downloadSpeed
     */
     'downloadSpeed' = undefined;
@@ -70,7 +70,7 @@ export default class LightResourceStateNetworkDownload {
     */
     'downloadBandwidthUsage' = undefined;
     /**
-    * last recorded allocated download speed in bytes/s in connection to the internet (sum of container limits - downloadSpeed)
+    * last recorded allocated download speed in bits/s in connection to the internet (sum of container limits - downloadSpeed)
     * @member {Number} allocatedDownloadSpeed
     */
     'allocatedDownloadSpeed' = undefined;

@@ -54,12 +54,12 @@ export default class LimitsNetwork {
     }
 
     /**
-    * in bytes/s
+    * in bits/s
     * @member {Number} upload
     */
     'upload' = undefined;
     /**
-    * in bytes/s
+    * in bits/s
     * @member {Number} download
     */
     'download' = undefined;

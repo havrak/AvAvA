@@ -23,10 +23,20 @@ import {
    projectIdDelete,
    startSpinnerProjectPost,
    projectPost,
+   startSpinnerProjectDelete,
 } from "../actions/myaction";
 import { limitsFromParentState } from "../service/LimitsHelper";
+import NotificationAlert from "react-notification-alert";
 
-function Projects({ projects, userState, userProjectsGet, dispatch, projectIdDelete, projectPost }) {
+function Projects({
+   projects,
+   userState,
+   userProjectsGet,
+   projectIdDelete,
+   projectPost,
+   startSpinnerProjectPost,
+   startSpinnerProjectDelete,
+}) {
    useEffect(() => {
       userProjectsGet();
    }, []);
@@ -177,8 +187,8 @@ function Projects({ projects, userState, userProjectsGet, dispatch, projectIdDel
          if (project.pendingState) {
             projectData.pendingState = project.pendingState;
          } else {
-            projectData.id = Math.round(Math.random() * 10_000);
-            // projectData.id = project.id;
+            // projectData.id = Math.round(Math.random() * 10_000);
+            projectData.id = project.id;
             projectData.firstName = project.owner.givenName;
             projectData.lastName = project.owner.familyName;
             projectData.participants = project.coworkers.length;
@@ -204,11 +214,10 @@ function Projects({ projects, userState, userProjectsGet, dispatch, projectIdDel
    const [view, setView] = useState(views[1]);
    const [data, setData] = useState(useMemo(() => makeData(), []));
    const [skipPageReset, setSkipPageReset] = useState(false);
-   console.log('rerendering' + projects)
-   useEffect(()=> {
-      console.log('adding')
+   useEffect(() => {
       setData(makeData());
-   }, [projects])
+      // console.log(makeData())
+   }, [projects]);
    // We need to keep the table from resetting the pageIndex when we
    // Update data. So we can keep track of that flag with a ref.
    // When our cell renderer calls updateMyData, we'll use
@@ -231,15 +240,42 @@ function Projects({ projects, userState, userProjectsGet, dispatch, projectIdDel
    };
 
    const createProjectHandler = (project) => {
-      dispatch(startSpinnerProjectPost(project));
-      setData(makeData());
-      console.log(project);
-      projectPost(project);
+      startSpinnerProjectPost(project);
+      projectPost(project, projectPostFailNotification);
    };
 
+   const projectPostFailNotification = (name) => {
+      notify(`project "${name}" could not be created`, "danger", 4);
+   };
+
+   const deleteProjectsHandler = (projects) => {
+      for (const project of projects) {
+         console.log(project);
+         startSpinnerProjectDelete(project);
+         projectIdDelete(project.id, projectDeleteFailNotification(project.name));
+      }
+   };
+
+   const projectDeleteFailNotification = (name) => {
+      return () => {
+         notify(`project "${name}" could not be deleted`, "danger", 4);
+      };
+   };
+
+   const notificationAlertRef = React.useRef(null);
+   const notify = (message, type, autoDismiss) => {
+      const options = {
+         place: "tr",
+         message,
+         type,
+         autoDismiss,
+      };
+      notificationAlertRef.current.notificationAlert(options);
+   };
    return (
       <>
          <Container fluid>
+            <NotificationAlert ref={notificationAlertRef} />
             <Row>
                <Col md="12">
                   <Card>
@@ -256,6 +292,7 @@ function Projects({ projects, userState, userProjectsGet, dispatch, projectIdDel
                         createRecordHeadding={"Create new project"}
                         userLimits={limitsFromParentState(userState.limits, userState)}
                         createHandler={createProjectHandler}
+                        deleteHandler={deleteProjectsHandler}
                      />
                   </Card>
                </Col>
@@ -277,13 +314,18 @@ const mapDispatchToProps = (dispatch) => {
       userProjectsGet: () => {
          dispatch(userProjectsGet());
       },
-      projectIdDelete: () => {
-         dispatch(projectIdDelete());
+      projectPost: (project, projectPostFailNotification) => {
+         dispatch(projectPost(project, projectPostFailNotification));
       },
-      projectPost: (project) => {
-         dispatch(projectPost(project));
+      startSpinnerProjectPost: (project) => {
+         dispatch(startSpinnerProjectPost(project));
       },
-      dispatch,
+      startSpinnerProjectDelete: (project) => {
+         dispatch(startSpinnerProjectDelete(project));
+      },
+      projectIdDelete: (id, projectDeleteFailNotification) => {
+         dispatch(projectIdDelete(id, projectDeleteFailNotification));
+      },
    };
 };
 

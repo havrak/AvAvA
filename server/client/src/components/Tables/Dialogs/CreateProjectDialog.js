@@ -12,9 +12,11 @@ import PropTypes from "prop-types";
 import TextField from "@material-ui/core/TextField";
 import Tooltip from "@material-ui/core/Tooltip";
 import Slider from "../../Limits/Slider";
+import { SentimentSatisfiedAlt } from "@material-ui/icons";
 
-const CreateProjectDialog = ({ createHandler, userLimits }) => {
+const CreateProjectDialog = ({ createHandler, userLimits, data }) => {
    const [open, setOpen] = React.useState(false);
+   const [errorMessage, setErrorMessage] = React.useState(null);
    const project = {
       name: "",
       owner: {},
@@ -37,7 +39,22 @@ const CreateProjectDialog = ({ createHandler, userLimits }) => {
    };
 
    const handleAdd = (event) => {
+      if(errorMessage !== null){
+         return;
+      }
       createHandler(project);
+      setOpen(false);
+   };
+
+   const handleNameType = (event) => {
+      project.name = event.target.value;
+      if (data.map((item) => item.name).includes(project.name)) {
+         setErrorMessage("There is already project with this name present.");
+      } else if (project.name === "") {
+         setErrorMessage("Must not be empty");
+      } else if (errorMessage) {
+         setErrorMessage(null);
+      }
    };
 
    return (
@@ -52,45 +69,61 @@ const CreateProjectDialog = ({ createHandler, userLimits }) => {
             <DialogContent>
                <TextField
                   autoFocus
+                  error={errorMessage !== null}
                   margin="dense"
                   label="Project Name"
                   type="text"
                   fullWidth
-                  onChange={(e) => project.name = e.target.value}
+                  onChange={handleNameType}
                   style={{ marginBottom: "20px" }}
+                  helperText={errorMessage}
                />
                <Slider
                   headding={"RAM"}
-                  setValueToParentElement={value=>{project.limits.RAM = value}}
+                  setValueToParentElement={(value) => {
+                     project.limits.RAM = value;
+                  }}
                   min={0}
                   max={userLimits.RAM}
                   unit={"MB"}
                   step={1}
                />
                <Slider
+                  headding={"CPU"}
                   min={0}
-                  setValueToParentElement={value=>{project.limits.CPU = value}}
+                  setValueToParentElement={(value) => {
+                     project.limits.CPU = value;
+                  }}
                   max={userLimits.CPU}
                   unit={"%"}
                   step={1}
                />
                <Slider
+                  headding={"Disk"}
                   min={0}
-                  setValueToParentElement={value=>{project.limits.disk = value}}
+                  setValueToParentElement={(value) => {
+                     project.limits.disk = value;
+                  }}
                   max={userLimits.disk}
                   unit={"GB"}
                   step={0.01}
                />
                <Slider
+                  headding={"Upload"}
                   min={0}
-                  setValueToParentElement={value=>{project.limits.network.download = value}}
+                  setValueToParentElement={(value) => {
+                     project.limits.network.download = value;
+                  }}
                   max={userLimits.network.download}
                   unit={"Mb/s"}
                   step={0.01}
                />
                <Slider
+                  headding={"Download"}
                   min={0}
-                  setValueToParentElement={value=>{project.limits.network.upload = value}}
+                  setValueToParentElement={(value) => {
+                     project.limits.network.upload = value;
+                  }}
                   max={userLimits.network.upload}
                   unit={"Mb/s"}
                   step={0.01}

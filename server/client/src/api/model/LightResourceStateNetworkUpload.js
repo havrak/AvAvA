@@ -60,7 +60,7 @@ export default class LightResourceStateNetworkUpload {
     }
 
     /**
-    * last recorded upload speed in bytes/s in connection to the internet
+    * last recorded upload speed in bits/s in connection to the internet
     * @member {Number} uploadSpeed
     */
     'uploadSpeed' = undefined;
@@ -70,7 +70,7 @@ export default class LightResourceStateNetworkUpload {
     */
     'uploadBandwidthUsage' = undefined;
     /**
-    * last recorded allocated upload speed in bytes/s in connection to the internet (sum of container limits - upload speed)
+    * last recorded allocated upload speed in bits/s in connection to the internet (sum of container limits - upload speed)
     * @member {Number} allocatedUploadSpeed
     */
     'allocatedUploadSpeed' = undefined;

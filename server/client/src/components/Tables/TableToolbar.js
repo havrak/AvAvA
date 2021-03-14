@@ -44,14 +44,15 @@ const TableToolbar = (props) => {
    const {
       numSelected,
       createHandler,
-      deleteUserHandler,
+      deleteHandlerLocal,
       preGlobalFilteredRows,
       setGlobalFilter,
       globalFilter,
       view,
       views,
       setView,
-      userLimits
+      userLimits,
+      data,
    } = props;
    return (
       <Toolbar
@@ -59,7 +60,11 @@ const TableToolbar = (props) => {
             [classes.highlight]: numSelected > 0,
          })}
       >
-         <CreateProjectDialog createHandler={createHandler} userLimits={userLimits} />
+         <CreateProjectDialog
+            createHandler={createHandler}
+            userLimits={userLimits}
+            data={data}
+         />
          <FormControl className={classes.formControl}>
             <InputLabel id="demo-simple-select-label">View</InputLabel>
             <Select
@@ -77,34 +82,35 @@ const TableToolbar = (props) => {
                })}
             </Select>
          </FormControl>
-         {numSelected > 0 ? (
-            <Typography
-               className={classes.title}
-               color="inherit"
-               style={{ fontSize: "16px" }}
-            >
-               {numSelected} selected
-            </Typography>
-         ) : (
-            <Typography
-               className={classes.title}
-               variant="h6"
-               id="tableTitle"
-            ></Typography>
-         )}
 
          {numSelected > 0 ? (
-            <Tooltip title="Delete">
-               <IconButton aria-label="delete" onClick={deleteUserHandler}>
-                  <DeleteIcon />
-               </IconButton>
-            </Tooltip>
+            <>
+               <Typography
+                  className={classes.title}
+                  color="inherit"
+                  style={{ fontSize: "16px", textAlign:"right" }}
+               >
+                  {numSelected} selected
+               </Typography>
+               <Tooltip title="Delete">
+                  <IconButton aria-label="delete" onClick={deleteHandlerLocal}>
+                     <DeleteIcon />
+                  </IconButton>
+               </Tooltip>
+            </>
          ) : (
-            <GlobalFilter
-               preGlobalFilteredRows={preGlobalFilteredRows}
-               globalFilter={globalFilter}
-               setGlobalFilter={setGlobalFilter}
-            />
+            <>
+               <Typography
+                  className={classes.title}
+                  variant="h6"
+                  id="tableTitle"
+               ></Typography>
+               <GlobalFilter
+                  preGlobalFilteredRows={preGlobalFilteredRows}
+                  globalFilter={globalFilter}
+                  setGlobalFilter={setGlobalFilter}
+               />
+            </>
          )}
       </Toolbar>
    );
@@ -113,7 +119,7 @@ const TableToolbar = (props) => {
 TableToolbar.propTypes = {
    numSelected: PropTypes.number.isRequired,
    createHandler: PropTypes.func.isRequired,
-   deleteUserHandler: PropTypes.func.isRequired,
+   deleteHandlerLocal: PropTypes.func.isRequired,
    setGlobalFilter: PropTypes.func.isRequired,
    preGlobalFilteredRows: PropTypes.array.isRequired,
    // globalFilter: PropTypes.string.isRequired,

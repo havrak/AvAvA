@@ -70,7 +70,6 @@ const createHiddenColumnsArray = (columns, selectedView) => {
 const EnhancedTable = ({
    columns,
    data,
-   setData,
    updateMyData,
    skipPageReset,
    views,
@@ -78,6 +77,7 @@ const EnhancedTable = ({
    setView,
    userLimits,
    createHandler,
+   deleteHandler
 }) => {
    const {
       getTableProps,
@@ -130,17 +130,20 @@ const EnhancedTable = ({
                // to the render a checkbox
                Cell: ({ row }) => (
                   <div>
-                     {/* <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} /> */}
-                     <div
-                        style={{
-                           marginLeft: "5px",
-                           display: "flex",
-                           alignItems: "center",
-                        }}
-                     >
-                        <ClipLoader color={"#212529"} loading={true} size={30} />
-                        <span style={{ marginLeft: "5px" }}>Deleting</span>
-                     </div>
+                     {row.original.pendingState ? (
+                        <div
+                           style={{
+                              marginLeft: "5px",
+                              display: "flex",
+                              alignItems: "center",
+                           }}
+                        >
+                           <ClipLoader color={"#212529"} loading={true} size={30} />
+                           <span style={{ marginLeft: "5px" }}>{row.original.pendingState}</span>
+                        </div>
+                     ) : (
+                        <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+                     )}
                   </div>
                ),
             },
@@ -152,13 +155,11 @@ const EnhancedTable = ({
    const handleChangePage = (event, newPage) => {
       gotoPage(newPage);
    };
+
    useEffect(() => {
       setHiddenColumns(createHiddenColumnsArray(columns, view));
    }, [view]);
-   // const [, updateState] = React.useState();
-   // useEffect(()=> {
-   //    updateState();
-   // }, [data])
+
    const handleChangeRowsPerPage = (event) => {
       setPageSize(Number(event.target.value));
    };
@@ -170,20 +171,12 @@ const EnhancedTable = ({
    const removeByIndex = (array, index) => array.filter((_, i) => index !== i);
    // const getByIndexs = (array, indexs) => array.filter((_, i) => indexs.includes(i));
 
-   const deleteUserHandler = (event) => {
-      const newData = getByIndexs(
+   const deleteHandlerLocal = (event) => {
+      const selectedIds = getByIndexs(
          data,
          Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
       );
-      // const selectedData = getByIndexs(data,
-      // Object.keys(selectedRowIds).map((x) => parseInt(x, 10)));
-      // for (const index of Object.keys(selectedRowIds)) {
-      //    setTimeout((e) => {
-      //       const newData = removeByIndex(data, parseInt(index, 10));
-      //       setData(newData);
-      //    }, 1);
-      // }
-      setData(newData);
+      deleteHandler(selectedIds);
    };
 
    const styles = useStyles();
@@ -192,7 +185,7 @@ const EnhancedTable = ({
       <TableContainer>
          <TableToolbar
             numSelected={Object.keys(selectedRowIds).length}
-            deleteUserHandler={deleteUserHandler}
+            deleteHandlerLocal={deleteHandlerLocal}
             createHandler={createHandler}
             preGlobalFilteredRows={preGlobalFilteredRows}
             setGlobalFilter={setGlobalFilter}
@@ -201,6 +194,7 @@ const EnhancedTable = ({
             view={view}
             setView={setView}
             userLimits={userLimits}
+            data={data}
          />
          <MaUTable {...getTableProps()} size={"small"}>
             <TableHead>
