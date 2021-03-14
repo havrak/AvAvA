@@ -1,7 +1,8 @@
 CREATE TABLE `projects` (
   `id` int(11) NOT NULL,
   `name` varchar(64) COLLATE utf8_czech_ci NOT NULL,
-  `owner_email` varchar(64) COLLATE utf8_czech_ci NOT NULL
+  `owner_email` varchar(64) COLLATE utf8_czech_ci NOT NULL,
+  `timestamp` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 ALTER TABLE `projects`

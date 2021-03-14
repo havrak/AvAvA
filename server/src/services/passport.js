@@ -1,7 +1,7 @@
 import passport from "passport";
 import { keys } from "../../config/keys.js";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { SQLInterface } from "./databaseInterface.js";
+import userSQL from "./sql/userSQL.js";
 
 //možná bude nutné u serializeUser, deserializeUser a třetí metodě (accessToken, refreshToken, profile, done) přidat do hlavičky async a pracovat s await, jelikož v nich pracujete s databází, což je asynchronní operace. Potom byste to museli přidávat i do všech routů, ze kterých to voláte. Udělejte to pouze, když to bez nich nebude fungovat //asynchronní
 
@@ -17,7 +17,7 @@ passport.deserializeUser((id, done) => {
   //V proměnné id je uložené id uživatele, které je vráceno metodou serializeUser a uloženo v session souboru. Na základě něj přistup do databáze a zavolej done(null, userFromDatabaseWithAllTheData)
   console.log("deserialize");
   console.log(id);
-  SQLInterface.getUserByID(id).then((result) => done(null, result));
+  userSQL.getUserByID(id).then((result) => done(null, result));
 });
 
 passport.use(
@@ -31,7 +31,8 @@ passport.use(
     (accessToken, refreshToken, profile, done) => {
       console.log("New user");
       console.log(profile);
-      SQLInterface.addNewUserToDatabaseAndReturnIt(profile).then((result) => {
+
+      userSQL.addNewUserToDatabaseAndReturnIt(profile).then((result) => {
         done(null, result);
       });
       //done(null, user);
