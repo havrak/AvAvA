@@ -11,6 +11,7 @@ import {
    Container,
    Row,
    Col,
+   ProgressBar
 } from "react-bootstrap";
 import { connect } from "react-redux";
 
@@ -41,7 +42,16 @@ function Projects({
       userProjectsGet();
    }, []);
 
-   const views = ["Basic info", "Containers", "Limits", "Resources"];
+   const views = [
+      "Basic info",
+      "Containers",
+      "Limits",
+      "RAM",
+      "CPU",
+      "Disk",
+      "Upload",
+      "Download",
+   ];
    const columns = React.useMemo(
       () => [
          {
@@ -79,6 +89,7 @@ function Projects({
                return new Date(value).toLocaleString();
             },
          },
+         //CONTAINERS
          {
             Header: "Containers",
             accessor: "containers",
@@ -105,13 +116,14 @@ function Projects({
                },
             ],
          },
+         //LIMITS
          {
-            Header: "RAM",
+            Header: "RAM (MB)",
             accessor: "ramLimit",
             view: views[2],
          },
          {
-            Header: "CPU",
+            Header: "CPU (%)",
             accessor: "cpuLimit",
             view: views[2],
          },
@@ -130,49 +142,287 @@ function Projects({
             accessor: "uploadLimit",
             view: views[2],
          },
+         //RAM
          {
-            Header: "RAM",
-            accessor: "ramResources",
+            Header: "used/allocated/free",
+            accessor: "ramProgressBar",
+            view: views[3],
+            Cell: ({ value }) => {
+               return (
+                  <ProgressBar>
+                     <ProgressBar variant="used" now={35} key={1} label={`${35}%`} />
+                     <ProgressBar variant="allocated" now={20} key={2} label={`${20}%`} />
+                     <ProgressBar variant="free" now={45} key={3} label={`${45}%`} />
+                  </ProgressBar>
+               );
+            },
+         },
+         {
+            Header: "max (MB)",
+            accessor: "ramUsedSpecific",
+            view: views[3],
+         },
+         {
+            Header: "used",
+            accessor: "ramUsed",
             view: views[3],
             columns: [
-               { Header: "F/A/U", accessor: "ramResourcesFAU", view: views[3] },
-               { Header: "Free %", accessor: "ramFreePercent", view: views[3] },
+               {
+                  Header: "MB",
+                  accessor: "ramUsedMB",
+                  view: views[3],
+               },
+               {
+                  Header: "%",
+                  accessor: "ramUsed%",
+                  view: views[3],
+               },
             ],
          },
          {
-            Header: "CPU",
-            accessor: "cpuResources",
+            Header: "allocated",
+            accessor: "ramLimitSpecific",
             view: views[3],
             columns: [
-               { Header: "F/A/U", accessor: "cpuResourcesFAU", view: views[3] },
-               // { Header: "Free %", accessor: "cpuFreePercent", view: views[3] },
+               {
+                  Header: "MB",
+                  accessor: "ramAllocatedMB",
+                  view: views[3],
+               },
+               {
+                  Header: "%",
+                  accessor: "ramAllocated%",
+                  view: views[3],
+               },
             ],
          },
          {
-            Header: "Disk",
-            accessor: "diskResources",
+            Header: "free",
+            accessor: "ramFreeSpecific",
             view: views[3],
             columns: [
-               { Header: "F/A/U", accessor: "diskResourcesFAU", view: views[3] },
-               { Header: "Free %", accessor: "diskFreePercent", view: views[3] },
+               {
+                  Header: "MB",
+                  accessor: "ramFreeMB",
+                  view: views[3],
+               },
+               {
+                  Header: "%",
+                  accessor: "ramFree%",
+                  view: views[3],
+               },
+            ],
+         },
+         //CPU
+         {
+            Header: "used/allocated/free",
+            accessor: "cpuProgressBar",
+            view: views[4],
+         },
+         {
+            Header: "max (% from 0 GHz)",
+            accessor: "cpuUsedSpecific",
+            view: views[4],
+         },
+         {
+            Header: "used %",
+            accessor: "cpuUsed",
+            view: views[4],
+         },
+         {
+            Header: "allocated %",
+            accessor: "cpuLimitSpecific",
+            view: views[4],
+         },
+         {
+            Header: "free %",
+            accessor: "cpuFreeSpecific",
+            view: views[4],
+         },
+         //DISK
+         {
+            Header: "used/allocated/free",
+            accessor: "diskProgressBar",
+            view: views[5],
+         },
+         {
+            Header: "max (GB)",
+            accessor: "diskUsedSpecific",
+            view: views[5],
+         },
+         {
+            Header: "used",
+            accessor: "diskUsed",
+            view: views[5],
+            columns: [
+               {
+                  Header: "GB",
+                  accessor: "diskUsedGB",
+                  view: views[5],
+               },
+               {
+                  Header: "%",
+                  accessor: "diskUsed%",
+                  view: views[5],
+               },
             ],
          },
          {
-            Header: "Download",
-            accessor: "downloadResources",
-            view: views[3],
+            Header: "allocated",
+            accessor: "diskLimitSpecific",
+            view: views[5],
             columns: [
-               { Header: "F/A/U", accessor: "downloadResourcesFAU", view: views[3] },
-               { Header: "Free %", accessor: "downloadFreePercent", view: views[3] },
+               {
+                  Header: "GB",
+                  accessor: "diskAllocatedGB",
+                  view: views[5],
+               },
+               {
+                  Header: "%",
+                  accessor: "diskAllocated%",
+                  view: views[5],
+               },
             ],
          },
          {
-            Header: "Upload",
-            accessor: "uploadResources",
-            view: views[3],
+            Header: "free",
+            accessor: "diskFreeSpecific",
+            view: views[5],
             columns: [
-               { Header: "F/A/U", accessor: "uploadResourcesFAU", view: views[3] },
-               { Header: "Free %", accessor: "uploadFreePercent", view: views[3] },
+               {
+                  Header: "GB",
+                  accessor: "diskFreeGB",
+                  view: views[5],
+               },
+               {
+                  Header: "%",
+                  accessor: "diskFree%",
+                  view: views[5],
+               },
+            ],
+         },
+         //DOWNLOAD
+         {
+            Header: "used/allocated/free",
+            accessor: "downloadProgressBar",
+            view: views[6],
+         },
+         {
+            Header: "max (Mb/s)",
+            accessor: "downloadUsedSpecific",
+            view: views[6],
+         },
+         {
+            Header: "used",
+            accessor: "downloadUsed",
+            view: views[6],
+            columns: [
+               {
+                  Header: "Mb/s",
+                  accessor: "downloadUsedMb/s",
+                  view: views[6],
+               },
+               {
+                  Header: "%",
+                  accessor: "downloadUsed%",
+                  view: views[6],
+               },
+            ],
+         },
+         {
+            Header: "allocated",
+            accessor: "downloadLimitSpecific",
+            view: views[6],
+            columns: [
+               {
+                  Header: "Mb/s",
+                  accessor: "downloadAllocatedMb/s",
+                  view: views[6],
+               },
+               {
+                  Header: "%",
+                  accessor: "downloadAllocated%",
+                  view: views[6],
+               },
+            ],
+         },
+         {
+            Header: "free",
+            accessor: "downloadFreeSpecific",
+            view: views[6],
+            columns: [
+               {
+                  Header: "Mb/s",
+                  accessor: "downloadFreeMb/s",
+                  view: views[6],
+               },
+               {
+                  Header: "%",
+                  accessor: "downloadFree%",
+                  view: views[6],
+               },
+            ],
+         },
+         //UPLOAD
+         {
+            Header: "used/allocated/free",
+            accessor: "uploadProgressBar",
+            view: views[7],
+         },
+         {
+            Header: "max (Mb/s)",
+            accessor: "uploadUsedSpecific",
+            view: views[7],
+         },
+         {
+            Header: "used",
+            accessor: "uploadUsed",
+            view: views[7],
+            columns: [
+               {
+                  Header: "Mb/s",
+                  accessor: "uploadUsedMb/s",
+                  view: views[7],
+               },
+               {
+                  Header: "%",
+                  accessor: "uploadUsed%",
+                  view: views[7],
+               },
+            ],
+         },
+         {
+            Header: "allocated",
+            accessor: "uploadLimitSpecific",
+            view: views[7],
+            columns: [
+               {
+                  Header: "Mb/s",
+                  accessor: "uploadAllocatedMb/s",
+                  view: views[7],
+               },
+               {
+                  Header: "%",
+                  accessor: "uploadAllocated%",
+                  view: views[7],
+               },
+            ],
+         },
+         {
+            Header: "free",
+            accessor: "uploadFreeSpecific",
+            view: views[7],
+            columns: [
+               {
+                  Header: "Mb/s",
+                  accessor: "uploadFreeMb/s",
+                  view: views[7],
+               },
+               {
+                  Header: "%",
+                  accessor: "uploadFree%",
+                  view: views[7],
+               },
             ],
          },
       ],

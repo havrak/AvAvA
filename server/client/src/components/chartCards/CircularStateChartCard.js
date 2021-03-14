@@ -75,7 +75,7 @@ export function CircularStateChartCard({
                   slices: {
                      0: { color: "#FB404B" },
                      1: { color: "#FFA534" },
-                     2: { color: "#1DC7EA" },
+                     2: { color: "#E9ECEF" },
                   },
                   tooltip: { isHtml: true, trigger: "visible" },
                }}
@@ -165,7 +165,7 @@ export function CPUCircularStateChartCard({
                   slices: {
                      0: { color: "#FB404B" },
                      1: { color: "#FFA534" },
-                     2: { color: "#1DC7EA" },
+                     2: { color: "#E9ECEF" },
                   },
                   tooltip: { isHtml: true, trigger: "visible" },
                }}

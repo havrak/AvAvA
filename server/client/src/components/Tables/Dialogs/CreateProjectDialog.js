@@ -13,8 +13,9 @@ import TextField from "@material-ui/core/TextField";
 import Tooltip from "@material-ui/core/Tooltip";
 import Slider from "../../Limits/Slider";
 import { SentimentSatisfiedAlt } from "@material-ui/icons";
+import { connect } from "react-redux";
 
-const CreateProjectDialog = ({ createHandler, userLimits, data }) => {
+const CreateProjectDialog = ({ createHandler, userLimits, data, CPUInfo }) => {
    const [open, setOpen] = React.useState(false);
    const [errorMessage, setErrorMessage] = React.useState(null);
    const project = {
@@ -95,7 +96,7 @@ const CreateProjectDialog = ({ createHandler, userLimits, data }) => {
                      project.limits.CPU = value;
                   }}
                   max={userLimits.CPU}
-                  unit={"%"}
+                  unit={`% from ${CPUInfo.frequency} GHz`}
                   step={1}
                />
                <Slider
@@ -146,4 +147,10 @@ CreateProjectDialog.propTypes = {
    createHandler: PropTypes.func.isRequired,
 };
 
-export default CreateProjectDialog;
+const mapStateToProps = (state) => {
+   return {
+      CPUInfo: state.combinedUserData.hostInformation.CPU
+   };
+};
+
+export default connect(mapStateToProps)(CreateProjectDialog);
