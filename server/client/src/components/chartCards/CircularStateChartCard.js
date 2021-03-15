@@ -8,7 +8,9 @@ import {
    bytesToAdequateMessage,
    bytesPerSecondToAdequateMessage,
    secondsToAdequateMessage,
+   HzToAdequateMessage,
 } from "../../service/UnitsConvertor.js";
+import { calculateFreeAmount, calculateFreePercent } from "../../service/LimitsHelper.js";
 
 export function CircularStateChartCard({
    usedAmount,
@@ -20,9 +22,9 @@ export function CircularStateChartCard({
    convertorCallback,
    baseUnit,
 }) {
-   let freeAmount = maxAmount - (allocatedAmount + usedAmount);
-   let percentFree =
-      Math.round((100 - (percentAllocated + percentConsumed)) * 100.0) / 100.0;
+   let freeAmount = calculateFreeAmount(maxAmount, usedAmount, allocatedAmount);
+   let percentFree = calculateFreePercent(percentAllocated, percentConsumed);
+
    let usedAmountMessage = convertorCallback(usedAmount);
    let allocatedAmountMessage = convertorCallback(allocatedAmount);
    let freeAmountMessage = convertorCallback(freeAmount);
@@ -115,11 +117,14 @@ export function DiskCircularStateChartCard({
 export function CPUCircularStateChartCard({
    usedTime,
    percentConsumed,
+   maxHz,
+   consumedHz,
    percentAllocated,
+   allocatedHz,
    cpuInfo,
 }) {
-   let percentFree =
-      Math.round((100 - (percentAllocated + percentConsumed)) * 100.0) / 100.0;
+   let percentFree = calculateFreePercent(percentAllocated, percentConsumed);
+   let freeHz = calculateFreeAmount(maxHz, consumedHz, allocatedHz);
    return (
       <Card className="card-dashboard">
          <Card.Body className="p-0">
@@ -141,17 +146,23 @@ export function CPUCircularStateChartCard({
                      percentConsumed,
                      `<div class="ggl-tooltip"><b>used</b><br/>${secondsToAdequateMessage(
                         usedTime
-                     )}<br/>${usedTime}ns<br/>${percentConsumed}%</div>`,
+                     )}<br/>${usedTime}ns<br/>${HzToAdequateMessage(
+                        consumedHz
+                     )}<br/>${percentConsumed}%</div>`,
                   ],
                   [
                      "allocated",
                      percentAllocated,
-                     `<div class="ggl-tooltip"><b>allocated</b><br/>${percentAllocated}%</div>`,
+                     `<div class="ggl-tooltip"><b>allocated</b><br/>${HzToAdequateMessage(
+                        allocatedHz
+                     )}<br/>${percentAllocated}%</div>`,
                   ],
                   [
                      "free",
                      percentFree,
-                     `<div class="ggl-tooltip"><b>free</b><br/>${percentFree}%</div>`,
+                     `<div class="ggl-tooltip"><b>free</b><br/>${HzToAdequateMessage(
+                        freeHz
+                     )}<br/>${percentFree}%</div>`,
                   ],
                ]}
                options={{
@@ -173,8 +184,8 @@ export function CPUCircularStateChartCard({
             />
             <div className="resource-chart-headding">
                <p className="stat-name">{"CPU"}</p>
-               <p className="used-size">{percentFree}%</p>
-               <p className="max-size">{`of ${cpuInfo.frequency} GHz left`}</p>
+               <p className="used-size">{HzToAdequateMessage(freeHz)}</p>
+               <p className="max-size">of {HzToAdequateMessage(maxHz)} left</p>
             </div>
          </Card.Body>
       </Card>

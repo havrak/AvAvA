@@ -207,7 +207,6 @@ const EnhancedTable = ({
                                  ? column.getHeaderProps()
                                  : column.getHeaderProps(column.getSortByToggleProps()))}
                               className={styles.table}
-                              style={{ display: column.display }}
                            >
                               {column.render("Header")}
                               {column.columns === undefined &&

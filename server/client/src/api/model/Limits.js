@@ -67,7 +67,7 @@ export default class Limits {
     */
     'RAM' = undefined;
     /**
-    * in percent
+    * in Hz
     * @member {Number} CPU
     */
     'CPU' = undefined;

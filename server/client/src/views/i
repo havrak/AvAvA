@@ -1,0 +1,14 @@
+projectData.ramLimitSpecific = project.projectState.limits.RAM;
+            projectData.ramUsedValue = project.projectState.RAM.usage;
+            projectData.ramAllocatedValue = project.projectState.RAM.allocated;
+            projectData.ramFreeValue = calculateFreeAmount(
+               project.projectState.limits.RAM,
+               project.projectState.RAM.usage,
+               project.projectState.RAM.allocated
+            );
+            projectData.ramUsedPercent = project.projectState.RAM.percentConsumed;
+            projectData.ramAllocatedPercent = project.projectState.RAM.percentAllocated;
+            projectData.ramFreePercent = calculateFreePercent(
+               project.projectState.RAM.percentConsumed,
+               project.projectState.RAM.percentAllocated
+            );

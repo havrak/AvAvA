@@ -46,8 +46,14 @@ export default class LightResourceStateCPU {
             if (data.hasOwnProperty('consumedTime')) {
                 obj['consumedTime'] = ApiClient.convertToType(data['consumedTime'], 'Number');
             }
+            if (data.hasOwnProperty('consumedHz')) {
+                obj['consumedHz'] = ApiClient.convertToType(data['consumedHz'], 'Number');
+            }
             if (data.hasOwnProperty('percentConsumed')) {
                 obj['percentConsumed'] = ApiClient.convertToType(data['percentConsumed'], 'Number');
+            }
+            if (data.hasOwnProperty('allocatedHz')) {
+                obj['allocatedHz'] = ApiClient.convertToType(data['allocatedHz'], 'Number');
             }
             if (data.hasOwnProperty('percentAllocated')) {
                 obj['percentAllocated'] = ApiClient.convertToType(data['percentAllocated'], 'Number');
@@ -62,12 +68,22 @@ export default class LightResourceStateCPU {
     */
     'consumedTime' = undefined;
     /**
-    * Percentage of CPU used from the overall CPU available
+    * Frequency of the processor used in the moment when requested
+    * @member {Number} consumedHz
+    */
+    'consumedHz' = undefined;
+    /**
+    * Percentage of CPU used from the overall CPU available to the object
     * @member {Number} percentConsumed
     */
     'percentConsumed' = undefined;
     /**
-    * Percentage of CPU allocated but not used from the overall CPU available (percentage of sum of limits - percentConsumed)
+    * Frequency of the processor allocated in the moment when requested
+    * @member {Number} allocatedHz
+    */
+    'allocatedHz' = undefined;
+    /**
+    * Percentage of CPU allocated but not used from the overall CPU available to the object (percentage of sum of limits - percentConsumed)
     * @member {Number} percentAllocated
     */
     'percentAllocated' = undefined;

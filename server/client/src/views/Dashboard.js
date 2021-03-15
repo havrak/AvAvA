@@ -200,8 +200,11 @@ function Dashboard({ hostInformation, user, projects, state, combinedDataGet }) 
                   </Col>
                   <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
                      <CPUCircularStateChartCard
+                        maxHz={limits.CPU}
                         usedTime={CPU.consumedTime}
+                        consumedHz={CPU.consumedHz}
                         percentConsumed={CPU.percentConsumed}
+                        allocatedHz={CPU.allocatedHz}
                         percentAllocated={CPU.percentAllocated}
                         cpuInfo={hostInformation.CPU}
                      />

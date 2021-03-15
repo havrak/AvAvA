@@ -11,13 +11,15 @@ import {
    Container,
    Row,
    Col,
-   ProgressBar
+   ProgressBar,
 } from "react-bootstrap";
 import { connect } from "react-redux";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "../components/Tables/EnhancedTable.js";
 // import makeData from "../service/makeData.js";
+import NotificationAlert from "react-notification-alert";
+import TableSortLabel from "@material-ui/core/TableSortLabel";
 
 import {
    userProjectsGet,
@@ -26,8 +28,16 @@ import {
    projectPost,
    startSpinnerProjectDelete,
 } from "../actions/myaction";
-import { limitsFromParentState } from "../service/LimitsHelper";
-import NotificationAlert from "react-notification-alert";
+import {
+   limitsFromParentState,
+   calculateFreeAmount,
+   calculateFreePercent,
+} from "../service/LimitsHelper";
+import {
+   bytesToAdequateMessage,
+   bytesPerSecondToAdequateMessage,
+   secondsToAdequateMessage,
+} from "../service/UnitsConvertor.js";
 
 function Projects({
    projects,
@@ -118,12 +128,12 @@ function Projects({
          },
          //LIMITS
          {
-            Header: "RAM (MB)",
+            Header: "RAM",
             accessor: "ramLimit",
             view: views[2],
          },
          {
-            Header: "CPU (%)",
+            Header: "CPU",
             accessor: "cpuLimit",
             view: views[2],
          },
@@ -142,113 +152,165 @@ function Projects({
             accessor: "uploadLimit",
             view: views[2],
          },
-         //RAM
+         // RAM
          {
-            Header: "used/allocated/free",
+            Header: "Used | Allocated | Free",
             accessor: "ramProgressBar",
             view: views[3],
-            Cell: ({ value }) => {
+            Cell: (props) => {
+               const data = props.row.original;
                return (
                   <ProgressBar>
-                     <ProgressBar variant="used" now={35} key={1} label={`${35}%`} />
-                     <ProgressBar variant="allocated" now={20} key={2} label={`${20}%`} />
-                     <ProgressBar variant="free" now={45} key={3} label={`${45}%`} />
+                     <ProgressBar variant="used" now={data.ramUsedPercent} key={1} />
+                     <ProgressBar
+                        variant="allocated"
+                        now={data.ramAllocatedPercent}
+                        key={2}
+                     />
+                     <ProgressBar variant="free" now={data.ramFreePercent} key={3} />
                   </ProgressBar>
                );
             },
          },
          {
-            Header: "max (MB)",
-            accessor: "ramUsedSpecific",
+            Header: "Max",
+            accessor: "ramLimitSpecific",
             view: views[3],
+            Cell: ({ value }) => {
+               return bytesToAdequateMessage(value);
+            },
          },
          {
-            Header: "used",
+            Header: "Used",
             accessor: "ramUsed",
             view: views[3],
             columns: [
                {
-                  Header: "MB",
-                  accessor: "ramUsedMB",
+                  Header: "Value",
+                  accessor: "ramUsedValue",
                   view: views[3],
+                  Cell: ({ value }) => {
+                     return bytesToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "ramUsed%",
+                  accessor: "ramUsedPercent",
                   view: views[3],
                },
             ],
          },
          {
-            Header: "allocated",
-            accessor: "ramLimitSpecific",
+            Header: "Allocated",
+            accessor: "ramAllocated",
             view: views[3],
             columns: [
                {
-                  Header: "MB",
-                  accessor: "ramAllocatedMB",
+                  Header: "Value",
+                  accessor: "ramAllocatedValue",
                   view: views[3],
+                  Cell: ({ value }) => {
+                     return bytesToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "ramAllocated%",
+                  accessor: "ramAllocatedPercent",
                   view: views[3],
                },
             ],
          },
          {
-            Header: "free",
+            Header: "Free",
             accessor: "ramFreeSpecific",
             view: views[3],
             columns: [
                {
-                  Header: "MB",
-                  accessor: "ramFreeMB",
+                  Header: "Value",
+                  accessor: "ramFreeValue",
                   view: views[3],
+                  Cell: ({ value }) => {
+                     return bytesToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "ramFree%",
+                  accessor: "ramFreePercent",
                   view: views[3],
                },
             ],
          },
          //CPU
          {
-            Header: "used/allocated/free",
+            Header: "Used | Allocated | Free ",
             accessor: "cpuProgressBar",
             view: views[4],
+            Cell: (props) => {
+               const data = props.row.original;
+               return (
+                  <ProgressBar>
+                     <ProgressBar variant="used" now={data.cpuUsedPercent} key={1} />
+                     <ProgressBar
+                        variant="allocated"
+                        now={data.cpuAllocatedPercent}
+                        key={2}
+                     />
+                     <ProgressBar variant="free" now={data.cpuFreePercent} key={3} />
+                  </ProgressBar>
+               );
+            },
          },
          {
-            Header: "max (% from 0 GHz)",
-            accessor: "cpuUsedSpecific",
-            view: views[4],
-         },
-         {
-            Header: "used %",
-            accessor: "cpuUsed",
-            view: views[4],
-         },
-         {
-            Header: "allocated %",
+            Header: "Max (% from 0 GHz)",
             accessor: "cpuLimitSpecific",
             view: views[4],
          },
          {
-            Header: "free %",
-            accessor: "cpuFreeSpecific",
+            Header: "Used",
+            accessor: "cpuUsed",
+            view: views[4],
+            columns: [
+               { Header: "Value", accessor: "cpuUsedValue", view: views[4] },
+               { Header: "%", accessor: "cpuUsedPercent", view: views[4] },
+            ],
+         },
+         {
+            Header: "Allocated %",
+            accessor: "cpuAllocatedPercent",
+            view: views[4],
+         },
+         {
+            Header: "Free %",
+            accessor: "cpuFreePercent",
             view: views[4],
          },
          //DISK
          {
-            Header: "used/allocated/free",
+            Header: "Used | Allocated | Free ",
             accessor: "diskProgressBar",
             view: views[5],
+            Cell: (props) => {
+               const data = props.row.original;
+               return (
+                  <ProgressBar>
+                     <ProgressBar variant="used" now={data.diskUsedPercent} key={1} />
+                     <ProgressBar
+                        variant="allocated"
+                        now={data.diskAllocatedPercent}
+                        key={2}
+                     />
+                     <ProgressBar variant="free" now={data.diskFreePercent} key={3} />
+                  </ProgressBar>
+               );
+            },
          },
          {
-            Header: "max (GB)",
-            accessor: "diskUsedSpecific",
+            Header: "max",
+            accessor: "diskLimitSpecific",
             view: views[5],
+            Cell: ({ value }) => {
+               return bytesToAdequateMessage(value);
+            },
          },
          {
             Header: "used",
@@ -256,30 +318,36 @@ function Projects({
             view: views[5],
             columns: [
                {
-                  Header: "GB",
-                  accessor: "diskUsedGB",
+                  Header: "value",
+                  accessor: "diskUsedValue",
                   view: views[5],
+                  Cell: ({ value }) => {
+                     return bytesToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "diskUsed%",
+                  accessor: "diskUsedPercent",
                   view: views[5],
                },
             ],
          },
          {
             Header: "allocated",
-            accessor: "diskLimitSpecific",
+            accessor: "diskAllocated",
             view: views[5],
             columns: [
                {
-                  Header: "GB",
-                  accessor: "diskAllocatedGB",
+                  Header: "value",
+                  accessor: "diskAllocatedValue",
                   view: views[5],
+                  Cell: ({ value }) => {
+                     return bytesToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "diskAllocated%",
+                  accessor: "diskAllocatedPercent",
                   view: views[5],
                },
             ],
@@ -290,137 +358,192 @@ function Projects({
             view: views[5],
             columns: [
                {
-                  Header: "GB",
-                  accessor: "diskFreeGB",
+                  Header: "value",
+                  accessor: "diskFreeValue",
                   view: views[5],
+                  Cell: ({ value }) => {
+                     return bytesToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "diskFree%",
+                  accessor: "diskFreePercent",
                   view: views[5],
                },
             ],
          },
          //DOWNLOAD
          {
-            Header: "used/allocated/free",
+            Header: "Used | Allocated | Free",
             accessor: "downloadProgressBar",
             view: views[6],
+            Cell: (props) => {
+               const data = props.row.original;
+               return (
+                  <ProgressBar>
+                     <ProgressBar variant="used" now={data.downloadUsedPercent} key={1} />
+                     <ProgressBar
+                        variant="allocated"
+                        now={data.downloadAllocatedPercent}
+                        key={2}
+                     />
+                     <ProgressBar variant="free" now={data.downloadFreePercent} key={3} />
+                  </ProgressBar>
+               );
+            },
          },
          {
-            Header: "max (Mb/s)",
-            accessor: "downloadUsedSpecific",
+            Header: "Max",
+            accessor: "downloadLimitSpecific",
             view: views[6],
+            Cell: ({ value }) => {
+               return bytesPerSecondToAdequateMessage(value);
+            },
          },
          {
-            Header: "used",
+            Header: "Used",
             accessor: "downloadUsed",
             view: views[6],
             columns: [
                {
-                  Header: "Mb/s",
-                  accessor: "downloadUsedMb/s",
+                  Header: "Value",
+                  accessor: "downloadUsedValue",
                   view: views[6],
+                  Cell: ({ value }) => {
+                     return bytesPerSecondToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "downloadUsed%",
+                  accessor: "downloadUsedPercent",
                   view: views[6],
                },
             ],
          },
          {
-            Header: "allocated",
-            accessor: "downloadLimitSpecific",
+            Header: "Allocated",
+            accessor: "downloadAllocated",
             view: views[6],
             columns: [
                {
-                  Header: "Mb/s",
-                  accessor: "downloadAllocatedMb/s",
+                  Header: "Value",
+                  accessor: "downloadAllocatedValue",
                   view: views[6],
+                  Cell: ({ value }) => {
+                     return bytesPerSecondToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "downloadAllocated%",
+                  accessor: "downloadAllocatedPercent",
                   view: views[6],
                },
             ],
          },
          {
-            Header: "free",
+            Header: "Free",
             accessor: "downloadFreeSpecific",
             view: views[6],
             columns: [
                {
-                  Header: "Mb/s",
-                  accessor: "downloadFreeMb/s",
+                  Header: "Value",
+                  accessor: "downloadFreeValue",
                   view: views[6],
+                  Cell: ({ value }) => {
+                     return bytesPerSecondToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "downloadFree%",
+                  accessor: "downloadFreePercent",
                   view: views[6],
                },
             ],
          },
-         //UPLOAD
+         //UPLOAD    
          {
-            Header: "used/allocated/free",
+            Header: "Used | Allocated | Free",
             accessor: "uploadProgressBar",
             view: views[7],
+            Cell: (props) => {
+               const data = props.row.original;
+               return (
+                  <ProgressBar>
+                     <ProgressBar variant="used" now={data.uploadUsedPercent} key={1} />
+                     <ProgressBar
+                        variant="allocated"
+                        now={data.uploadAllocatedPercent}
+                        key={2}
+                     />
+                     <ProgressBar variant="free" now={data.uploadFreePercent} key={3} />
+                  </ProgressBar>
+               );
+            },
          },
          {
-            Header: "max (Mb/s)",
-            accessor: "uploadUsedSpecific",
+            Header: "Max",
+            accessor: "uploadLimitSpecific",
             view: views[7],
+            Cell: ({ value }) => {
+               return bytesPerSecondToAdequateMessage(value);
+            },
          },
          {
-            Header: "used",
+            Header: "Used",
             accessor: "uploadUsed",
             view: views[7],
             columns: [
                {
-                  Header: "Mb/s",
-                  accessor: "uploadUsedMb/s",
+                  Header: "Value",
+                  accessor: "uploadUsedValue",
                   view: views[7],
+                  Cell: ({ value }) => {
+                     return bytesPerSecondToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "uploadUsed%",
+                  accessor: "uploadUsedPercent",
                   view: views[7],
                },
             ],
          },
          {
-            Header: "allocated",
-            accessor: "uploadLimitSpecific",
+            Header: "Allocated",
+            accessor: "uploadAllocated",
             view: views[7],
             columns: [
                {
-                  Header: "Mb/s",
-                  accessor: "uploadAllocatedMb/s",
+                  Header: "Value",
+                  accessor: "uploadAllocatedValue",
                   view: views[7],
+                  Cell: ({ value }) => {
+                     return bytesPerSecondToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "uploadAllocated%",
+                  accessor: "uploadAllocatedPercent",
                   view: views[7],
                },
             ],
          },
          {
-            Header: "free",
+            Header: "Free",
             accessor: "uploadFreeSpecific",
             view: views[7],
             columns: [
                {
-                  Header: "Mb/s",
-                  accessor: "uploadFreeMb/s",
+                  Header: "Value",
+                  accessor: "uploadFreeValue",
                   view: views[7],
+                  Cell: ({ value }) => {
+                     return bytesPerSecondToAdequateMessage(value);
+                  },
                },
                {
                   Header: "%",
-                  accessor: "uploadFree%",
+                  accessor: "uploadFreePercent",
                   view: views[7],
                },
             ],
@@ -455,6 +578,83 @@ function Projects({
                   projectData.frozenContainers++;
                }
             }
+            //LIMITS
+            projectData.ramLimit = bytesToAdequateMessage(project.projectState.limits.RAM);
+            projectData.cpuLimit = project.projectState.limits.CPU;
+            projectData.diskLimit = bytesToAdequateMessage(project.projectState.limits.disk);
+            projectData.downloadLimit = bytesPerSecondToAdequateMessage(project.projectState.limits.network.download);
+            projectData.uploadLimit = bytesPerSecondToAdequateMessage(project.projectState.limits.network.upload);
+            //RAM
+            projectData.ramLimitSpecific = project.projectState.limits.RAM;
+            projectData.ramUsedValue = project.projectState.RAM.usage;
+            projectData.ramAllocatedValue = project.projectState.RAM.allocated;
+            projectData.ramFreeValue = calculateFreeAmount(
+               project.projectState.limits.RAM,
+               project.projectState.RAM.usage,
+               project.projectState.RAM.allocated
+            );
+            projectData.ramUsedPercent = project.projectState.RAM.percentConsumed;
+            projectData.ramAllocatedPercent = project.projectState.RAM.percentAllocated;
+            projectData.ramFreePercent = calculateFreePercent(
+               project.projectState.RAM.percentConsumed,
+               project.projectState.RAM.percentAllocated
+            );
+            //CPU
+            projectData.cpuLimitSpecific = project.projectState.limits.CPU;
+            projectData.cpuUsedValue = project.projectState.CPU.consumedTime;
+            projectData.cpuUsedPercent = project.projectState.CPU.percentConsumed;
+            projectData.cpuAllocatedPercent = project.projectState.CPU.percentAllocated;
+            projectData.cpuFreePercent = calculateFreePercent(
+               project.projectState.limits.CPU,
+               project.projectState.CPU.percentConsumed,
+               project.projectState.CPU.percentAllocated
+            );
+
+            //DISK
+            projectData.diskLimitSpecific = project.projectState.limits.disk;
+            projectData.diskUsedValue = project.projectState.disk.usage;
+            projectData.diskAllocatedValue = project.projectState.disk.allocated;
+            projectData.diskFreeValue = calculateFreeAmount(
+               project.projectState.limits.disk,
+               project.projectState.disk.usage,
+               project.projectState.disk.allocated
+            );
+            projectData.diskUsedPercent = project.projectState.disk.percentConsumed;
+            projectData.diskAllocatedPercent = project.projectState.disk.percentAllocated;
+            projectData.diskFreePercent = calculateFreePercent(
+               project.projectState.disk.percentConsumed,
+               project.projectState.disk.percentAllocated
+            );
+            //DOWNLOAD
+            projectData.downloadLimitSpecific = project.projectState.limits.network.download
+            projectData.downloadUsedValue = project.projectState.network.download.downloadSpeed;
+            projectData.downloadAllocatedValue = project.projectState.network.download.allocatedDownloadSpeed;
+            projectData.downloadFreeValue = calculateFreeAmount(
+               project.projectState.limits.network.download,
+               project.projectState.network.download.downloadSpeed,
+               project.projectState.network.download.allocatedDownloadSpeed
+            );
+            projectData.downloadUsedPercent = project.projectState.network.download.downloadBandwidthUsage;
+            projectData.downloadAllocatedPercent = project.projectState.network.download.allocatedBandwidthUsage;
+            projectData.downloadFreePercent = calculateFreePercent(
+               project.projectState.network.download.allocatedBandwidthUsage,
+               project.projectState.network.download.downloadBandwidthUsage
+            );
+            //UPLOAD
+            projectData.uploadLimitSpecific = project.projectState.limits.network.upload
+            projectData.uploadUsedValue = project.projectState.network.upload.uploadSpeed;
+            projectData.uploadAllocatedValue = project.projectState.network.upload.allocatedDownloadSpeed;
+            projectData.uploadFreeValue = calculateFreeAmount(
+               project.projectState.limits.network.upload,
+               project.projectState.network.upload.uploadSpeed,
+               project.projectState.network.upload.allocatedDownloadSpeed
+            );
+            projectData.uploadUsedPercent = project.projectState.network.upload.uploadBandwidthUsage;
+            projectData.uploadAllocatedPercent = project.projectState.network.upload.allocatedBandwidthUsage;
+            projectData.uploadFreePercent = calculateFreePercent(
+               project.projectState.network.upload.allocatedBandwidthUsage,
+               project.projectState.network.upload.uploadBandwidthUsage
+            );
          }
          dataArray.push(projectData);
       }

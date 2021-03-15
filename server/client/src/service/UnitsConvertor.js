@@ -38,6 +38,18 @@ export function secondsToAdequateMessage(bytes) {
    }
 }
 
+export function HzToAdequateMessage(Hz) {
+   if (Hz > 1_000_000_000) {
+      return Math.round(Hz / 1_000_000) / 1_000.0 + "GHz";
+   } else if (Hz > 1_000_000) {
+      return Math.round(Hz / 1_000) / 1_000.0 + "MHz";
+   } else if (Hz > 1_000) {
+      return Hz / 1_000.0 + "KHz";
+   } else {
+      return Hz + "Hz";
+   }
+}
+
 export function ramToMB(bytes) {
    return Math.round(bytes / 1_000) / 1_000.0;
 }
@@ -52,6 +64,10 @@ export function diskToGB(bytes) {
 
 export function diskFromGBToB(GB){
    return GB * 1_000_000_000;
+}
+
+export function CPUToMhz(Hz){
+   return Math.round(Hz / 1_000) / 1_000.0;
 }
 
 export function networkSpeedToMbits(bytes){

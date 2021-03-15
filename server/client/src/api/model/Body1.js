@@ -25,14 +25,14 @@ export default class Body1 {
     * @alias module:model/Body1
     * @class
     * @param name {String} 
-    * @param limits {module:model/Limits} 
+    * @param customLimits {module:model/Limits} 
     */
 
-    constructor(name, limits) {
+    constructor(name, customLimits) {
         
         
         this['name'] = name;
-        this['limits'] = limits;
+        this['customLimits'] = customLimits;
         
     }
 
@@ -51,8 +51,8 @@ export default class Body1 {
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
-            if (data.hasOwnProperty('limits')) {
-                obj['limits'] = Limits.constructFromObject(data['limits']);
+            if (data.hasOwnProperty('customLimits')) {
+                obj['customLimits'] = Limits.constructFromObject(data['customLimits']);
             }
         }
         return obj;
@@ -63,9 +63,9 @@ export default class Body1 {
     */
     'name' = undefined;
     /**
-    * @member {module:model/Limits} limits
+    * @member {module:model/Limits} customLimits
     */
-    'limits' = undefined;
+    'customLimits' = undefined;
 
 
 

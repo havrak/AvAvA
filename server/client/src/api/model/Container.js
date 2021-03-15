@@ -53,6 +53,9 @@ export default class Container {
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
+            if (data.hasOwnProperty('url')) {
+                obj['url'] = ApiClient.convertToType(data['url'], 'String');
+            }
             if (data.hasOwnProperty('template')) {
                 obj['template'] = Template.constructFromObject(data['template']);
             }
@@ -89,6 +92,10 @@ export default class Container {
     * @member {String} name
     */
     'name' = undefined;
+    /**
+    * @member {String} url
+    */
+    'url' = undefined;
     /**
     * @member {module:model/Template} template
     */
