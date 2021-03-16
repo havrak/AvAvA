@@ -11,5 +11,5 @@ ALTER TABLE `projectsResourcesLimits`
   ADD PRIMARY KEY (`project_id`);
 
 ALTER TABLE `projectsResourcesLimits`
-  ADD CONSTRAINT `projectsResourcesLimits_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`);
+  ADD CONSTRAINT `projectsResourcesLimits_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;

@@ -45,16 +45,12 @@ app.use(express.json());
 // SQLInterface.test();
 
 const isLoggedIn = (req, res, next) => {
-  //na req.user.role se bude dát získat role uživatele a pomocí ní zjistit, zda má uživatel přístup k části API
-  // pro autentizaci předejte jako middleware:
-  //app.get("/api/containers", isLoggedIn, (req, res) =>
-  //res.send(`Welcome mr ${req.user.displayName}!`)
-  //);
-  if (req.user) {
-    next();
-  } else {
-    res.sendStatus(401);
-  }
+  next();
+  //if (req.user) { // due to testing purposes authentifikation is removed.
+  //  next();
+  //} else {
+  //  res.sendStatus(401);
+  //}
 };
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
@@ -63,4 +59,17 @@ app.get("/project/createConfigData", isLoggedIn, (req, res) => {
   projectSQL.createCreateProjectData(req.user.email).then((result) => {
     res.send(result);
   });
+});
+
+app.post("/project", isLoggedIn, (req, res) => {
+  //let email = req.user.email;
+  // email -> havranek.krystof@student.gyarab.cz
+  let email = "havranek.krystof@student.gyarab.cz";
+  projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
+    //
+  });
+  console.log(req);
+  console.log(req.body);
+  console.log(req.body.name);
+  //
 });

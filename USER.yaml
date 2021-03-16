@@ -491,7 +491,7 @@ components:
           description: in bytes
         CPU:
           type: integer
-          description: in percent
+          description: in Hz
         disk:
           type: integer
           description: in bytes
@@ -615,12 +615,18 @@ components:
             consumedTime:
               type: integer
               description: Time used by the CPU in nanoseconds (sum of used time of containers)
+            consumedHz:
+              type: integer
+              description: Frequency of the processor used in the moment when requested
             percentConsumed:
               type: integer
-              description: Percentage of CPU used from the overall CPU available
+              description: Percentage of CPU used from the overall CPU available to the object
+            allocatedHz:
+              type: integer
+              description: Frequency of the processor allocated in the moment when requested
             percentAllocated:
               type: integer
-              description: Percentage of CPU allocated but not used from the overall CPU available (percentage of sum of limits - percentConsumed)
+              description: Percentage of CPU allocated but not used from the overall CPU available to the object (percentage of sum of limits - percentConsumed)
         RAM:
           type: object
           properties:
@@ -762,6 +768,8 @@ components:
         id:
           type: number
         name:
+          type: string
+        url:
           type: string
         template: 
           $ref: '#/components/schemas/Template'

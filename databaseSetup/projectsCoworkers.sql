@@ -5,9 +5,9 @@ CREATE TABLE `projectsCoworkers` (
 
 ALTER TABLE `projectsCoworkers`
   ADD PRIMARY KEY (`project_id`,`user_email`),
-  ADD KEY `user_email` (`user_email`);
+  ADD KEY `projectsCoworkers_ibfk_2` (`user_email`);
 
 ALTER TABLE `projectsCoworkers`
-  ADD CONSTRAINT `projectsCoworkers_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
-  ADD CONSTRAINT `projectsCoworkers_ibfk_2` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`);
+  ADD CONSTRAINT `projectsCoworkers_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `projectsCoworkers_ibfk_2` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;

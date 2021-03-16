@@ -1,15 +1,15 @@
 // generic class with limits
 export default class Limits {
-  constructor(ram, cpu, disk, upload, download) {
-    this.ram = ram;
-    this.cpu = cpu;
+  constructor(RAM, CPU, disk, upload, download) {
+    this.RAM = RAM;
+    this.CPU = CPU;
     this.disk = disk;
     this.network.upload = upload;
     this.network.download = download;
   }
 
-  ram;
-  cpu;
+  RAM;
+  CPU;
   disk;
   network = {
     upload: undefined,

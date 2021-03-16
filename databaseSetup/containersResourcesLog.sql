@@ -12,5 +12,5 @@ ALTER TABLE `containersResourcesLog`
   ADD PRIMARY KEY (`container_id`);
 
 ALTER TABLE `containersResourcesLog`
-  ADD CONSTRAINT `containersResourcesLog_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`);
+  ADD CONSTRAINT `containersResourcesLog_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;

@@ -87,10 +87,10 @@ export default class userSQL {
 
           // due to the link to profile picture not being permanent it is necessary to download it
 
-          const file = fs.createWriteStream("" + rows[0].id + ".jpg");
-          const request = https.get(rows[0].icon, function (response) {
-            response.pipe(file);
-          });
+          //const file = fs.createWriteStream("" + rows[0].id + ".jpg");
+          //const request = https.get(rows[0].icon, function (response) {
+          //  response.pipe(file);
+          //});
           resolve(
             new User(
               rows[0].id,

@@ -181,8 +181,8 @@ ALTER TABLE `appsToInstall`
 --
 ALTER TABLE `containers`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `project_id` (`project_id`),
-  ADD KEY `template_id` (`template_id`);
+  ADD KEY `containers_ibfk_1` (`project_id`),
+  ADD KEY `containers_ibfk_2` (`template_id`);
 
 --
 -- Indexes for table `containersNetworkConfigurations`
@@ -207,14 +207,14 @@ ALTER TABLE `containersResourcesLog`
 --
 ALTER TABLE `projects`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `owner_email` (`owner_email`);
+  ADD KEY `projects_ibfk_1` (`owner_email`);
 
 --
 -- Indexes for table `projectsCoworkers`
 --
 ALTER TABLE `projectsCoworkers`
   ADD PRIMARY KEY (`project_id`,`user_email`),
-  ADD KEY `user_email` (`user_email`);
+  ADD KEY `projectsCoworkers_ibfk_2` (`user_email`);
 
 --
 -- Indexes for table `projectsResourcesLimits`
@@ -286,51 +286,51 @@ ALTER TABLE `users`
 -- Constraints for table `containers`
 --
 ALTER TABLE `containers`
-  ADD CONSTRAINT `containers_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
-  ADD CONSTRAINT `containers_ibfk_2` FOREIGN KEY (`template_id`) REFERENCES `templates` (`id`);
+  ADD CONSTRAINT `containers_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `containers_ibfk_2` FOREIGN KEY (`template_id`) REFERENCES `templates` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `containersNetworkConfigurations`
 --
 ALTER TABLE `containersNetworkConfigurations`
-  ADD CONSTRAINT `containersNetworkConfigurations_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`);
+  ADD CONSTRAINT `containersNetworkConfigurations_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `containersResourcesLimits`
 --
 ALTER TABLE `containersResourcesLimits`
-  ADD CONSTRAINT `containersResourcesLimits_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`);
+  ADD CONSTRAINT `containersResourcesLimits_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `containersResourcesLog`
 --
 ALTER TABLE `containersResourcesLog`
-  ADD CONSTRAINT `containersResourcesLog_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`);
+  ADD CONSTRAINT `containersResourcesLog_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `projects`
 --
 ALTER TABLE `projects`
-  ADD CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`owner_email`) REFERENCES `users` (`email`);
+  ADD CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`owner_email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `projectsCoworkers`
 --
 ALTER TABLE `projectsCoworkers`
-  ADD CONSTRAINT `projectsCoworkers_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
-  ADD CONSTRAINT `projectsCoworkers_ibfk_2` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`);
+  ADD CONSTRAINT `projectsCoworkers_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `projectsCoworkers_ibfk_2` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `projectsResourcesLimits`
 --
 ALTER TABLE `projectsResourcesLimits`
-  ADD CONSTRAINT `projectsResourcesLimits_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`);
+  ADD CONSTRAINT `projectsResourcesLimits_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `usersResourcesLimits`
 --
 ALTER TABLE `usersResourcesLimits`
-  ADD CONSTRAINT `usersResourcesLimits_ibfk_1` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`);
+  ADD CONSTRAINT `usersResourcesLimits_ibfk_1` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -7,11 +7,11 @@ CREATE TABLE `projects` (
 
 ALTER TABLE `projects`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `owner_email` (`owner_email`);
+  ADD KEY `projects_ibfk_1` (`owner_email`);
 
 ALTER TABLE `projects`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `projects`
-  ADD CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`owner_email`) REFERENCES `users` (`email`);
+  ADD CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`owner_email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;

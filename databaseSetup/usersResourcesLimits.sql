@@ -12,5 +12,5 @@ ALTER TABLE `usersResourcesLimits`
   ADD UNIQUE KEY `user_email` (`user_email`) USING BTREE;
 
 ALTER TABLE `usersResourcesLimits`
-  ADD CONSTRAINT `usersResourcesLimits_ibfk_1` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`);
+  ADD CONSTRAINT `usersResourcesLimits_ibfk_1` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;

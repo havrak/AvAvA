@@ -18,5 +18,5 @@ ALTER TABLE `containersNetworkConfigurations`
   ADD PRIMARY KEY (`container_id`,`interface_name`);
 
 ALTER TABLE `containersNetworkConfigurations`
-  ADD CONSTRAINT `containersNetworkConfigurations_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`);
+  ADD CONSTRAINT `containersNetworkConfigurations_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;

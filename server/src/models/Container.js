@@ -4,8 +4,6 @@ export default class Container {
     name,
     url,
     template,
-    ipv4,
-    ipv6,
     createdOn,
     lastStartedOn,
     maxResources,
@@ -16,8 +14,6 @@ export default class Container {
     this.name = name;
     this.url = url;
     this.template = template;
-    this.ipv4 = ipv4;
-    this.ipv6 = ipv6;
     this.createdOn = createdOn;
     this.lastStartedOn = lastStartedOn;
     this.maxResources = maxResources;
@@ -28,8 +24,6 @@ export default class Container {
   name;
   url;
   template; // -> Template.js
-  ipv4;
-  ipv6;
   stateful;
   createdOn;
   lastStartedOn;

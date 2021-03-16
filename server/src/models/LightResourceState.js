@@ -3,7 +3,9 @@ export default class LightResourceState {
 	timestamp;
 	CPU = {
 		consumedTime: undefined,
+		consumedHz: undefined,
 		percentConsumed: undefined,
+		allocatedHz: undefined,
 		percentAllocated: undefined
 	}
 	RAM = {
