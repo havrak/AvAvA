@@ -10,3 +10,16 @@
    background-color: #E9ECEF !important;
    color: #4e4e4e;
 }
+
+.table-link {
+   color: rgba(0, 0, 0, 0.87)
+}
+
+.table-link:hover {
+   text-decoration: underline;
+   color: rgba(0, 0, 0, 0.87)
+}
+
+.table-link:focus {
+   color:rgba(0, 0, 0, 0.87)
+}

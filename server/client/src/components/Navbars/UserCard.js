@@ -6,8 +6,8 @@ import { Link } from "react-router-dom";
 import { logout as logoutFunction } from "../../actions/myaction";
 import { textualRepresentationOfRole } from "../../service/UserService";
 
-function UserCard({ Nav, logout, combinedUserData }) {
-   const user = { combinedUserData };
+function UserCard({ Nav, logout, user }) {
+   console.log(user);
    return (
       <Dropdown as={Nav.Item}>
          <Dropdown.Toggle
@@ -61,7 +61,7 @@ const mapDispatchToProps = (dispatch) => {
 
 const mapStateToProps = (state) => {
    return {
-      user: state.combinedUserData,
+      user: state.combinedUserData.user,
    };
 };
 
