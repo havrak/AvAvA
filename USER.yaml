@@ -508,10 +508,7 @@ components:
       type: object
       description: Object representing current state of the container (not history). Each object also contains limit information that were in effect in the time of measuring the state.
       properties:
-        status:
-          type: string
-        statusCode:
-          type: integer
+      
         timestamp:
           type: string
           description: Date and time when this state was measured
@@ -697,14 +694,16 @@ components:
         timestamp: Sat Mar 06 2021 18:32:43 GMT+0100 (Central European Standard Time)
         limits:
           RAM: 4_000_000_000
-          CPU: 14
+          CPU: 1_400_000_000
           disk: 50_000_000_000
           network:
             upload: 40_000
             download: 200_000
         CPU:
           consumedTime: 195_422_124
+          consumedHz: 840_000_000
           percentConsumed: 60
+          allocatedHz: 70_000_000
           percentAllocated: 5
         RAM: 
           usage: 3_120_000_000
@@ -872,14 +871,16 @@ components:
           timestamp: Sat Mar 06 2021 18:32:43 GMT+0100 (Central European Standard Time)
           limits:
             RAM: 400_000_000
-            CPU: 14
+            CPU: 140_000_000
             disk: 5_000_000_000
             network:
               upload: 4_000
               download: 20_000
           CPU:
             consumedTime: 19_542_212
+            consumedHz: 84_000_000
             percentConsumed: 60
+            allocatedHz: 7_000_000
             percentAllocated: 5
           RAM: 
             usage: 312_000_000
