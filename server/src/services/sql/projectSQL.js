@@ -92,18 +92,10 @@ export default class projectSQL {
       });
     });
   }
-  // !!!!! solve with cascade dependency in myslq ----- manualy test if it works
+  // it is only necessary to remove project, containers will remove automatically thanks to cascade dependency
   static removeProject(id) {
     return new Promise((resove) => {
-      // delete project -> resources, coworkers
-      // delete container -> function in delete containerSQL.js -> logs, resources, container itself]
       const con = mysql.createConnection(config);
-      //this.getIdOfContainersInProject(id).then((result) => {
-      //  result.forEach((e) => {
-      //    // delete containers
-      //  });
-      //  con.query("DELETE FROM projectsResourcesLimits WHERE project_id=>");
-      //});
       con.query(
         "DELETE FROM projects WHERE project.id=?",
         [id],
@@ -113,6 +105,7 @@ export default class projectSQL {
       );
     });
   }
+
   static getIdOfContainersInProject(id) {
     return new Promise((resove) => {
       const con = mysql.createConnection(config);

@@ -73,3 +73,16 @@ app.post("/project", isLoggedIn, (req, res) => {
 	console.log(req.body.name);
 	//
 });
+
+app.get("/project/:projectId", isLoggedIn, (req, res) => {
+  //let email = req.user.email;
+  // email -> havranek.krystof@student.gyarab.cz
+  let email = "havranek.krystof@student.gyarab.cz";
+  projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
+    //
+  });
+  console.log(req);
+  console.log(req.body);
+  console.log(req.body.name);
+  //
+});

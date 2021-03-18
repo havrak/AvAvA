@@ -2,7 +2,7 @@ import mysql from "mysql";
 import Template from "./../models/Template.js";
 import User from "./../models/User.js";
 import config from "./../../config/sqlconfig.js";
-export class SQLInterface {
+export class templateSQL {
   constructor() {}
 
   static getProfilePath(id) {
