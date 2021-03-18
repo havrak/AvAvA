@@ -1,1004 +1,1004 @@
-openapi: '3.0.2'
+openapi: "3.0.2"
 info:
-  title: User API
-  version: '1.0'
+   title: User API
+   version: "1.0"
 servers:
-  - url: https://localhost:3000/api
+   - url: https://localhost:3000/api
 paths:
-  /combinedData:
-    get:
-      description: This request will be fired after authentication in order to get all the data needed in the frontend
-      responses:
-        '200':
-          description: Everything needed for the frontend to work in one request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserData'
-#  /stateDetailed: #nebo /instances#get ??
-  
-  /instances:
-    post:
-      description: Create a new instance
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                projectId:
-                  type: integer
-                  description: Id of project where container should be created
-                autostart:
-                  type: boolean
-                templateId:
-                  type: integer
-                stateful:
-                  type: boolean
-                applicationToInstall: #TODO
-                  type: array
-                  items:
-                    description: Application name
-                    type: string
-                customLimits:
-                  $ref: '#/components/schemas/Limits'
-              required:
-                - name
-                - autostart
-                - persistent
-                - configurationType
-                - applicationToInstall
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Container'
-        '500':
-          description: Internal server error - e.g. not enough resources
-  /instances/{projectId}/createConfigData:
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: projectId
-          schema:
-            type: integer
-          description: ID of the project to be querried
-      responses:
-        '200':
-          description: Returns all data that are necesarry to create a container
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  templateTypes:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Template'
-                  applicationsToInstall:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/ApplicationToInstall'
-                  maxLimits:
-                    $ref: '#/components/schemas/Limits'
-  /instances/{id}:
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container to be querried
-      responses:
-        '200':
-          description: Successful state info return
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Container'
-    delete:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container to be deleted
-      responses:
-        '200':
-          description: deleted the container
-  /instances/{id}/stateWithHistory: #nebo /info
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container which state is requested
-      responses:
-        '200':
-          description: Successful state info return
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ContainerState'
-  /instances/{id}/console: #TODO
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container for which we start the console
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: integer
-                description: TODO
-  #/instances/{id}/files: TODO
-  #  get:
-  #    parameters:
-  #      - in: path
-  #        required: true
-  #        name: id
-  #        schema:
-  #          type: integer
-  #        description: Id kontejneru, ke kterému vztahujeme naši operaci
-  #    responses:
-  #      '200':
-  #        description: OK
-  /instances/{id}/snapshots:
-    get: 
-      description: Retreives the list of all snapshots for given container
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container to be snapshotted
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Snapshot'
-    post:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container to be snapshotted
-        - in: query
-          required: false
-          name: snapshotName
-          schema:
-            type: string
-          description: Name of the snapshot to be created
-        - in: query
-          required: true
-          name: stateful
-          schema:
-            type: boolean
-          description: Name of the snapshot to be created
-      responses:
-         '200':
-            description: OK
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Snapshot'
-  /instances/{containerId}/snapshots/{snapshotId}:
-    delete:
-      parameters:
-        - in: path
-          required: true
-          name: containerId
-          schema:
-            type: integer
-          description: ID of the container where the snapshot is
-        - in: path
-          required: true
-          name: snapshotId
-          schema:
-            type: integer
-          description: ID of the snapshot to be deleted
-      responses:
-        '200':
-          description: OK
-  /instances/{id}/restore/{snapshotId}:
-    patch:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container to be reverted
-        - in: path
-          required: true
-          name: snapshotId
-          schema:
-            type: integer
-          description: ID of the snapshot to be used for updating the container files
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationState'
-  /instances/{id}/export:
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the downloaded container
-      responses:
-        '200':
-          description: Running
-          content:
-            application/json:
-              schema:
-                type: string
-                description: Stream souboru
-  /instances/import:
-    put:
-      parameters:
-        - in: cookie
-          required: true
-          name: containerFile
-          schema:
-             type: string
-             format: binary
-          description: The container file to be uploaded
-      responses:
-         '200':
-            description: File is uploading
+   /combinedData:
+      get:
+         description: This request will be fired after authentication in order to get all the data needed in the frontend
+         responses:
+            "200":
+               description: Everything needed for the frontend to work in one request
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/UserData"
+   #  /stateDetailed: #nebo /instances#get ??
+
+   /instances:
+      post:
+         description: Create a new instance
+         requestBody:
+            required: true
             content:
                application/json:
                   schema:
-                     type: integer
-                     description: ID to the process
-  /instances/{id}/start:
-    patch:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the used container
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
+                     type: object
+                     properties:
+                        name:
+                           type: string
+                        projectId:
+                           type: integer
+                           description: Id of project where container should be created
+                        autostart:
+                           type: boolean
+                        templateId:
+                           type: integer
+                        stateful:
+                           type: boolean
+                        applicationToInstall: #TODO
+                           type: array
+                           items:
+                              description: Application name
+                              type: string
+                        customLimits:
+                           $ref: "#/components/schemas/Limits"
+                     required:
+                        - name
+                        - autostart
+                        - persistent
+                        - configurationType
+                        - applicationToInstall
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/Container"
+            "500":
+               description: Internal server error - e.g. not enough resources
+   /instances/{projectId}/createConfigData:
+      get:
+         parameters:
+            - in: path
+              required: true
+              name: projectId
               schema:
-                $ref: '#/components/schemas/OperationState'
-  /instances/{id}/stop:
-    patch:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container to be stopped
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
+                 type: integer
+              description: ID of the project to be querried
+         responses:
+            "200":
+               description: Returns all data that are necesarry to create a container
+               content:
+                  application/json:
+                     schema:
+                        type: object
+                        properties:
+                           templateTypes:
+                              type: array
+                              items:
+                                 $ref: "#/components/schemas/Template"
+                           applicationsToInstall:
+                              type: array
+                              items:
+                                 $ref: "#/components/schemas/ApplicationToInstall"
+                           maxLimits:
+                              $ref: "#/components/schemas/Limits"
+   /instances/{id}:
+      get:
+         parameters:
+            - in: path
+              required: true
+              name: id
               schema:
-                $ref: '#/components/schemas/OperationState'
-  /instances/{id}/freeze:
-    patch:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container to be frozen
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
+                 type: integer
+              description: ID of the container to be querried
+         responses:
+            "200":
+               description: Successful state info return
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/Container"
+      delete:
+         parameters:
+            - in: path
+              required: true
+              name: id
               schema:
-                $ref: '#/components/schemas/OperationState'
-  /instances/{id}/unfreeze:
-    patch:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the container to be unfrozen
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
+                 type: integer
+              description: ID of the container to be deleted
+         responses:
+            "200":
+               description: deleted the container
+   /instances/{id}/stateWithHistory: #nebo /info
+      get:
+         parameters:
+            - in: path
+              required: true
+              name: id
               schema:
-                $ref: '#/components/schemas/OperationState'
-  /project:
-    post:
-      description: Create a new project
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                customLimits:
-                  $ref: '#/components/schemas/Limits'
-              required:
-                - name
-                - customLimits
-      responses:
-        '200':
-          description: Successfully created
-          content:
-            application/json:
+                 type: integer
+              description: ID of the container which state is requested
+         responses:
+            "200":
+               description: Successful state info return
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/ContainerState"
+   /instances/{id}/console: #TODO
+      get:
+         parameters:
+            - in: path
+              required: true
+              name: id
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Project'
-          
-  /project/createConfigData:
-    get:
-      responses:
-        '200':
-          description: Returns all data that are necesarry to create a project
-          content:
-            application/json:
+                 type: integer
+              description: ID of the container for which we start the console
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        type: integer
+                        description: TODO
+   #/instances/{id}/files: TODO
+   #  get:
+   #    parameters:
+   #      - in: path
+   #        required: true
+   #        name: id
+   #        schema:
+   #          type: integer
+   #        description: Id kontejneru, ke kterému vztahujeme naši operaci
+   #    responses:
+   #      '200':
+   #        description: OK
+   /instances/{id}/snapshots:
+      get:
+         description: Retreives the list of all snapshots for given container
+         parameters:
+            - in: path
+              required: true
+              name: id
               schema:
-                type: object
-                properties:
-                  maxLimits:
-                    $ref: '#/components/schemas/Limits'
-  /project/{id}:
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the project to be querried
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
+                 type: integer
+              description: ID of the container to be snapshotted
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        type: array
+                        items:
+                           $ref: "#/components/schemas/Snapshot"
+      post:
+         parameters:
+            - in: path
+              required: true
+              name: id
               schema:
-                $ref: '#/components/schemas/Project'
-    delete:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the project to be deleted
-      responses:
-        '200':
-          description: deleted the container
-  /project/{id}/stateWithHistory:
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: id
-          schema:
-            type: integer
-          description: ID of the project to be querried
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
+                 type: integer
+              description: ID of the container to be snapshotted
+            - in: query
+              required: false
+              name: snapshotName
               schema:
-                $ref: '#/components/schemas/ProjectState'
-  /user/projects:
-    get:
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
+                 type: string
+              description: Name of the snapshot to be created
+            - in: query
+              required: true
+              name: stateful
               schema:
-                $ref: '#/components/schemas/UserProjects'
-  /user/projects/stateWithHistory:
-    get:
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
+                 type: boolean
+              description: Name of the snapshot to be created
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/Snapshot"
+   /instances/{containerId}/snapshots/{snapshotId}:
+      delete:
+         parameters:
+            - in: path
+              required: true
+              name: containerId
               schema:
-                $ref: '#/components/schemas/UserProjectsState'
-  /user:
-    get:
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
+                 type: integer
+              description: ID of the container where the snapshot is
+            - in: path
+              required: true
+              name: snapshotId
               schema:
-                $ref: '#/components/schemas/User'
+                 type: integer
+              description: ID of the snapshot to be deleted
+         responses:
+            "200":
+               description: OK
+   /instances/{id}/restore/{snapshotId}:
+      patch:
+         parameters:
+            - in: path
+              required: true
+              name: id
+              schema:
+                 type: integer
+              description: ID of the container to be reverted
+            - in: path
+              required: true
+              name: snapshotId
+              schema:
+                 type: integer
+              description: ID of the snapshot to be used for updating the container files
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/OperationState"
+   /instances/{id}/export:
+      get:
+         parameters:
+            - in: path
+              required: true
+              name: id
+              schema:
+                 type: integer
+              description: ID of the downloaded container
+         responses:
+            "200":
+               description: Running
+               content:
+                  application/json:
+                     schema:
+                        type: string
+                        description: Stream souboru
+   /instances/import:
+      put:
+         parameters:
+            - in: cookie
+              required: true
+              name: containerFile
+              schema:
+                 type: string
+                 format: binary
+              description: The container file to be uploaded
+         responses:
+            "200":
+               description: File is uploading
+               content:
+                  application/json:
+                     schema:
+                        type: integer
+                        description: ID to the process
+   /instances/{id}/start:
+      patch:
+         parameters:
+            - in: path
+              required: true
+              name: id
+              schema:
+                 type: integer
+              description: ID of the used container
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/OperationState"
+   /instances/{id}/stop:
+      patch:
+         parameters:
+            - in: path
+              required: true
+              name: id
+              schema:
+                 type: integer
+              description: ID of the container to be stopped
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/OperationState"
+   /instances/{id}/freeze:
+      patch:
+         parameters:
+            - in: path
+              required: true
+              name: id
+              schema:
+                 type: integer
+              description: ID of the container to be frozen
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/OperationState"
+   /instances/{id}/unfreeze:
+      patch:
+         parameters:
+            - in: path
+              required: true
+              name: id
+              schema:
+                 type: integer
+              description: ID of the container to be unfrozen
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/OperationState"
+   /project:
+      post:
+         description: Create a new project
+         requestBody:
+            required: true
+            content:
+               application/json:
+                  schema:
+                     type: object
+                     properties:
+                        name:
+                           type: string
+                        customLimits:
+                           $ref: "#/components/schemas/Limits"
+                     required:
+                        - name
+                        - customLimits
+         responses:
+            "200":
+               description: Successfully created
+               content:
+                  application/json:
+                     schema:
+                        type: array
+                        items:
+                           $ref: "#/components/schemas/Project"
+
+   /project/createConfigData:
+      get:
+         responses:
+            "200":
+               description: Returns all data that are necesarry to create a project
+               content:
+                  application/json:
+                     schema:
+                        type: object
+                        properties:
+                           maxLimits:
+                              $ref: "#/components/schemas/Limits"
+   /project/{id}:
+      get:
+         parameters:
+            - in: path
+              required: true
+              name: id
+              schema:
+                 type: integer
+              description: ID of the project to be querried
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/Project"
+      delete:
+         parameters:
+            - in: path
+              required: true
+              name: id
+              schema:
+                 type: integer
+              description: ID of the project to be deleted
+         responses:
+            "200":
+               description: deleted the container
+   /project/{id}/stateWithHistory:
+      get:
+         parameters:
+            - in: path
+              required: true
+              name: id
+              schema:
+                 type: integer
+              description: ID of the project to be querried
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/ProjectState"
+   /user/projects:
+      get:
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/UserProjects"
+   /user/projects/stateWithHistory:
+      get:
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/UserProjectsState"
+   /user:
+      get:
+         responses:
+            "200":
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: "#/components/schemas/User"
 components:
-  schemas:
-    Image: 
-      type: object
-      properties:
-        os:
-          type: string
-        vesrion: 
-          type: string
-        description:
-          type: string
-    Template:
-      type: object
-      description: Combination of image and configuration. User can then create instances of these templates
-      properties:
-        id:
-          type: integer
-          description: Id of a template generatd by database
-        name:
-          type: string
-        timestamp:
-          type: string
-        image:
-          $ref: '#/components/schemas/Image'
-        description:
-          type: string
-        minDiskUsage:
-          type: integer
-          description: minimum disk space needed for the container to work.
-    Limits:
-      type: object
-      description: Resources allocated to container/project/user. 
-      properties:
-        RAM:
-          type: integer
-          description: in bytes
-        CPU:
-          type: integer
-          description: in Hz
-        disk:
-          type: integer
-          description: in bytes
-        network:
-          type: object
-          properties:
-            upload:
-              type: integer
-              description: in bits/s
-            download:
-              type: integer
-              description: in bits/s
-    ContainerResourceState:
-      type: object
-      description: Object representing current state of the container (not history). Each object also contains limit information that were in effect in the time of measuring the state.
-      properties:
-      
-        timestamp:
-          type: string
-          description: Date and time when this state was measured
-        limits:
-          $ref: '#/components/schemas/Limits'
-        CPU:
-          type: object
-          properties:
-            consumedTime:
-              type: integer
-              description: Time used by the CPU in nanoseconds
-            percentConsumed:
-              type: integer
-              description: Percentage of CPU consumed from the overall CPU available to the container
-        RAM:
-          type: object
-          properties:
-            usage:
-              type: integer
-              description: last measured RAM usage in Bytes
-            usagePeak:
-              type: integer
-              description: maximum measured RAM usage in Bytes
-            percentConsumed:
-              type: integer
-              description: Percentage of RAM consumed from the overall RAM available to the container
-        disk:
-          type: array
-          items:
-            type: object
-            properties:
-              deviceName:
-                type: string
-                description: e.g. root
-              currentlyConsumedMemory:
-                type: integer
-                description: current disk usage in bytes
-              percentConsumed:
-                type: integer
-                description: Percentage of the consumed disk memory from the overall memory available to the container
-        networks:
-          type: array
-          items:
-            type: object
-            properties:
-              networkName:
-                type: string
-              adresses:
-                type: array
-                items:
-                  type: object
-                  properties: 
-                    family:
-                      type: string
-                    adress:
-                      type: string
-                    netmask: 
-                      type: integer
-                    scope:
-                      type: string
-              counters:
-                type: object
-                properties:
-                  downloadBandwidthUsage:
-                    type: integer
-                    description: usage of download bandwidth in percent
-                  downloadSpeed:
-                    type: integer
-                    description: number of bytes that were downloaded in bits/s
-                  uploadBandwidthUsage:
-                    type: integer
-                    description: usage of upload bandwidth in percent
-                  uploadSpeed:
-                    type: integer
-                    description: number of bytes that were uploaded in bits/s
-              hwaddr:
-                type: string
-              hostName:
-                type: string
-              mtu: 
-                type: integer
-              state:
-                type: string
-              type:
-                type: string
-        numberOfProcesses:
-          type: integer
-          description: Process count
-    LightResourceState:
-      type: object
-      description: This object is used to represent the project and user state, their history and history of normal containers. Each object also contains limit information that were in effect in the time of measuring the state.
-      properties:
-        limits:
-          $ref: '#/components/schemas/Limits'
-        timestamp:
-          type: string
-          description: Date and time when this state was measured
-        CPU:
-          type: object
-          properties:
-            consumedTime:
-              type: integer
-              description: Time used by the CPU in nanoseconds (sum of used time of containers)
-            consumedHz:
-              type: integer
-              description: Frequency of the processor used in the moment when requested
-            percentConsumed:
-              type: integer
-              description: Percentage of CPU used from the overall CPU available to the object
-            allocatedHz:
-              type: integer
-              description: Frequency of the processor allocated in the moment when requested
-            percentAllocated:
-              type: integer
-              description: Percentage of CPU allocated but not used from the overall CPU available to the object (percentage of sum of limits - percentConsumed)
-        RAM:
-          type: object
-          properties:
-            usage:
-              type: integer
-              description: last measured RAM usage in Bytes (sum of usages of containers)
-            percentConsumed:
-              type: integer
-              description: Percentage of RAM used from the overall RAM available
-            allocated:
-              type: integer
-              description: last measured allocated RAM in Bytes (sum of limits of containers - usage)
-            percentAllocated:
-              type: integer
-              description: Percentage of RAM allocated from the overall RAM available
-        disk:
-          type: object
-          properties:
-            usage:
-              type: integer
-              description: current disk usage in bytes
-            percentConsumed:
-              type: integer
-              description: Percentage of the used disk memory from the overall memory available
-            allocated:
-              type: integer
-              description: current disk allocated in bytes (sum of limits - usage)
-            percentAllocated:
-              type: integer
-              description: Percentage of RAM allocated from the overall RAM available
-        network:
-          type: object
-          properties:
-            upload:
-              type: object
-              properties:
-                uploadSpeed:
-                  type: integer
-                  description: last recorded upload speed in bits/s in connection to the internet
-                uploadBandwidthUsage:
-                  type: integer
-                  description: usage of upload bandwidth in percent in connection to the internet
-                allocatedUploadSpeed:
-                  type: integer
-                  description: last recorded allocated upload speed in bits/s in connection to the internet (sum of container limits - upload speed)
-                allocatedBandwidthUsage:
-                  type: integer
-                  description: usage of upload bandwidth in percent in connection to the internet
-            download:
-              type: object
-              properties:
-                downloadSpeed:
-                  type: integer
-                  description: last recorded download speed in bits/s in connection to the internet
-                downloadBandwidthUsage:
-                  type: integer
-                  description: usage of download bandwidth in percent in connection to the internet
-                allocatedDownloadSpeed:
-                  type: integer
-                  description: last recorded allocated download speed in bits/s in connection to the internet (sum of container limits - downloadSpeed)
-                allocatedBandwidthUsage:
-                  type: integer
-                  description: allocation of download bandwidth in percent in connection to the internet
-        numberOfProcesses:
-          type: integer
-          description: Process count (without any limit)
-      example:
-        timestamp: Sat Mar 06 2021 18:32:43 GMT+0100 (Central European Standard Time)
-        limits:
-          RAM: 4_000_000_000
-          CPU: 1_400_000_000
-          disk: 50_000_000_000
-          network:
-            upload: 40_000
-            download: 200_000
-        CPU:
-          consumedTime: 195_422_124
-          consumedHz: 840_000_000
-          percentConsumed: 60
-          allocatedHz: 70_000_000
-          percentAllocated: 5
-        RAM: 
-          usage: 3_120_000_000
-          percentConsumed: 78
-          allocated: 774_000_000
-          percentAllocated: 19.3
-        disk:
-          usage: 41_189_542_566
-          percentConsumed: 82.4
-          allocated: 1_682_544_571
-          percentAllocated: 3.4
-        network:
-          upload:
-            uploadSpeed: 2_500
-            uploadBandwidthUsage: 6.2
-            allocatedUploadSpeed: 10_000
-            allocatedBandwidthUsage: 25
-          download:
-            downloadSpeed: 0
-            downloadBandwidthUsage: 0
-            allocatedDownloadSpeed: 55_000
-            allocatedBandwidthUsage: 27.5
-        numberOfProcesses: 5042
-    Snapshot:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Name of the snapshot
-        timestamp:
-          type: integer
-          description: The time of creation
-        stateful:
-          type: boolean
-          description: True if state of the container should be maintained
-    OperationState:
-      type: object
-      properties: 
-        status:
-          type: string
-        statusCode:
-          type: integer
-    ContainerState:
-      type: object
-      description: LXD container state
-      properties:
-        id:
-          type: integer
-          description: id of the container
-        currentState:
-          $ref: '#/components/schemas/ContainerResourceState'
-        stateHistory:
-          type: array
-          description: history of states - 0 index = 10 min ago
-          items:
-            $ref: '#/components/schemas/LightResourceState'
-    Container:
-      type: object
-      description: LXD container with info and state
-      properties:
-        id:
-          type: number
-        name:
-          type: string
-        url:
-          type: string
-        template: 
-          $ref: '#/components/schemas/Template'
-        ipv4:
-          type: string
-        ipv6:
-          type: string
-        stateful:
-          type: boolean
-        createdOn:
-          type: string
-          description: Date and time of the creation of the container
-        lastStartedOn:
-          type: string
-          description: Date and time when container was last started
-        snapshots:
-          type: array
-          items:
-            $ref: '#/components/schemas/Snapshot'
-        state:
-          $ref: '#/components/schemas/ContainerResourceState'
-    ApplicationToInstall:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Id of application
-        name:
-          type: string
-          description: Application name
-        description: 
-          type: string
-          description: Description of the application
-        icon:
-          type: string
-          description: href to icon of the application - optional
-    ProjectState:
-      type: object
-      description: Object that knows state and history of project and all containers in it
-      properties:
-        id:
-          type: integer
-          description: id of the project
-        containersState:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContainerState'
-        projectState:
-          $ref: '#/components/schemas/LightResourceState'
-        stateHistory:
-          type: array
-          description: history of states - 0 index = 10 min ago
-          items:
-            $ref: '#/components/schemas/LightResourceState'
-    Project:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: id of the project generated by the database
-        name:
-          type: string
-          description: Name of the project
-        owner:
-          $ref: '#/components/schemas/User'
-        createdOn:
-          type: string
-          description: Date and time when the project has been created in Javascript Date format
-        coworkers:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-        projectState:
-          $ref: '#/components/schemas/LightResourceState'
-        containers:
-          type: array
-          items:
-            $ref: '#/components/schemas/Container'
-      example:
-        id: 14
-        name: Moodle
-        owner:
-          id: 1
-          email: vladimir.vavra@student.gyarab.cz
-          familyName: Vávra
-          givenName: Vladimír
-          role: 0
-          icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
-          coins: 154
-        createdOn: Wed Mar 10 2021 20:36:50 GMT+0100 (Central European Standard Time)
-        coworkers:
-        - id: 2
-          email: krystof.havranek@student.gyarab.cz
-          familyName: Kryštof
-          givenName: Havránek
-          role: 0
-          icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
-          coins: 12
-        projectState:
-          timestamp: Sat Mar 06 2021 18:32:43 GMT+0100 (Central European Standard Time)
-          limits:
-            RAM: 400_000_000
-            CPU: 140_000_000
-            disk: 5_000_000_000
+   schemas:
+      Image:
+         type: object
+         properties:
+            os:
+               type: string
+            vesrion:
+               type: string
+            description:
+               type: string
+      Template:
+         type: object
+         description: Combination of image and configuration. User can then create instances of these templates
+         properties:
+            id:
+               type: integer
+               description: Id of a template generatd by database
+            name:
+               type: string
+            timestamp:
+               type: string
+            image:
+               $ref: "#/components/schemas/Image"
+            description:
+               type: string
+            minDiskUsage:
+               type: integer
+               description: minimum disk space needed for the container to work.
+      Limits:
+         type: object
+         description: Resources allocated to container/project/user.
+         properties:
+            RAM:
+               type: integer
+               description: in bytes
+            CPU:
+               type: integer
+               description: in Hz
+            disk:
+               type: integer
+               description: in bytes
             network:
-              upload: 4_000
-              download: 20_000
-          CPU:
-            consumedTime: 19_542_212
-            consumedHz: 84_000_000
-            percentConsumed: 60
-            allocatedHz: 7_000_000
-            percentAllocated: 5
-          RAM: 
-            usage: 312_000_000
-            percentConsumed: 78
-            allocated: 77_000_000
-            percentAllocated: 19.3
-          disk:
-            usage: 4_118_954_256
-            percentConsumed: 82.4
-            allocated: 168_254_457
-            percentAllocated: 3.4
-          network:
-            upload:
-              uploadSpeed: 250
-              uploadBandwidthUsage: 6.2
-              allocatedUploadSpeed: 1_000
-              allocatedBandwidthUsage: 25
-            download:
-              downloadSpeed: 0
-              downloadBandwidthUsage: 0
-              allocatedDownloadSpeed: 5_500
-              allocatedBandwidthUsage: 27.5
-          numberOfProcesses: 504
-        containers:
-          - id: 155
-            name: Database
-            stateful: true
+               type: object
+               properties:
+                  upload:
+                     type: integer
+                     description: in bits/s
+                  download:
+                     type: integer
+                     description: in bits/s
+      ContainerResourceState:
+         type: object
+         description: Object representing current state of the container (not history). Each object also contains limit information that were in effect in the time of measuring the state.
+         properties:
+            timestamp:
+               type: string
+               description: Date and time when this state was measured
+            limits:
+               $ref: "#/components/schemas/Limits"
+            CPU:
+               type: object
+               properties:
+                  consumedTime:
+                     type: integer
+                     description: Time used by the CPU in nanoseconds
+                  percentConsumed:
+                     type: integer
+                     description: Percentage of CPU consumed from the overall CPU available to the container
+            RAM:
+               type: object
+               properties:
+                  usage:
+                     type: integer
+                     description: last measured RAM usage in Bytes
+                  usagePeak:
+                     type: integer
+                     description: maximum measured RAM usage in Bytes
+                  percentConsumed:
+                     type: integer
+                     description: Percentage of RAM consumed from the overall RAM available to the container
+            disk:
+               type: array
+               items:
+                  type: object
+                  properties:
+                     deviceName:
+                        type: string
+                        description: e.g. root
+                     currentlyConsumedMemory:
+                        type: integer
+                        description: current disk usage in bytes
+                     percentConsumed:
+                        type: integer
+                        description: Percentage of the consumed disk memory from the overall memory available to the container
+            networks:
+               type: array
+               items:
+                  type: object
+                  properties:
+                     networkName:
+                        type: string
+                     adresses:
+                        type: array
+                        items:
+                           type: object
+                           properties:
+                              family:
+                                 type: string
+                              adress:
+                                 type: string
+                              netmask:
+                                 type: integer
+                              scope:
+                                 type: string
+                     counters:
+                        type: object
+                        properties:
+                           downloadBandwidthUsage:
+                              type: integer
+                              description: usage of download bandwidth in percent
+                           downloadSpeed:
+                              type: integer
+                              description: number of bytes that were downloaded in bits/s
+                           uploadBandwidthUsage:
+                              type: integer
+                              description: usage of upload bandwidth in percent
+                           uploadSpeed:
+                              type: integer
+                              description: number of bytes that were uploaded in bits/s
+                     hwaddr:
+                        type: string
+                     hostName:
+                        type: string
+                     mtu:
+                        type: integer
+                     state:
+                        type: string
+                     type:
+                        type: string
+            numberOfProcesses:
+               type: integer
+               description: Process count
+            OperationState:
+               $ref: "#/components/schemas/OperationState"
+      LightResourceState:
+         type: object
+         description: This object is used to represent the project and user state, their history and history of normal containers. Each object also contains limit information that were in effect in the time of measuring the state.
+         properties:
+            limits:
+               $ref: "#/components/schemas/Limits"
+            timestamp:
+               type: string
+               description: Date and time when this state was measured
+            CPU:
+               type: object
+               properties:
+                  consumedTime:
+                     type: integer
+                     description: Time used by the CPU in nanoseconds (sum of used time of containers)
+                  consumedHz:
+                     type: integer
+                     description: Frequency of the processor used in the moment when requested
+                  percentConsumed:
+                     type: integer
+                     description: Percentage of CPU used from the overall CPU available to the object
+                  allocatedHz:
+                     type: integer
+                     description: Frequency of the processor allocated in the moment when requested
+                  percentAllocated:
+                     type: integer
+                     description: Percentage of CPU allocated but not used from the overall CPU available to the object (percentage of sum of limits - percentConsumed)
+            RAM:
+               type: object
+               properties:
+                  usage:
+                     type: integer
+                     description: last measured RAM usage in Bytes (sum of usages of containers)
+                  percentConsumed:
+                     type: integer
+                     description: Percentage of RAM used from the overall RAM available
+                  allocated:
+                     type: integer
+                     description: last measured allocated RAM in Bytes (sum of limits of containers - usage)
+                  percentAllocated:
+                     type: integer
+                     description: Percentage of RAM allocated from the overall RAM available
+            disk:
+               type: object
+               properties:
+                  usage:
+                     type: integer
+                     description: current disk usage in bytes
+                  percentConsumed:
+                     type: integer
+                     description: Percentage of the used disk memory from the overall memory available
+                  allocated:
+                     type: integer
+                     description: current disk allocated in bytes (sum of limits - usage)
+                  percentAllocated:
+                     type: integer
+                     description: Percentage of RAM allocated from the overall RAM available
+            network:
+               type: object
+               properties:
+                  upload:
+                     type: object
+                     properties:
+                        uploadSpeed:
+                           type: integer
+                           description: last recorded upload speed in bits/s in connection to the internet
+                        uploadBandwidthUsage:
+                           type: integer
+                           description: usage of upload bandwidth in percent in connection to the internet
+                        allocatedUploadSpeed:
+                           type: integer
+                           description: last recorded allocated upload speed in bits/s in connection to the internet (sum of container limits - upload speed)
+                        allocatedBandwidthUsage:
+                           type: integer
+                           description: usage of upload bandwidth in percent in connection to the internet
+                  download:
+                     type: object
+                     properties:
+                        downloadSpeed:
+                           type: integer
+                           description: last recorded download speed in bits/s in connection to the internet
+                        downloadBandwidthUsage:
+                           type: integer
+                           description: usage of download bandwidth in percent in connection to the internet
+                        allocatedDownloadSpeed:
+                           type: integer
+                           description: last recorded allocated download speed in bits/s in connection to the internet (sum of container limits - downloadSpeed)
+                        allocatedBandwidthUsage:
+                           type: integer
+                           description: allocation of download bandwidth in percent in connection to the internet
+            numberOfProcesses:
+               type: integer
+               description: Process count (without any limit)
+         example:
+            timestamp: Sat Mar 06 2021 18:32:43 GMT+0100 (Central European Standard Time)
+            limits:
+               RAM: 4_000_000_000
+               CPU: 1_400_000_000
+               disk: 50_000_000_000
+               network:
+                  upload: 40_000
+                  download: 200_000
+            CPU:
+               consumedTime: 195_422_124
+               consumedHz: 840_000_000
+               percentConsumed: 60
+               allocatedHz: 70_000_000
+               percentAllocated: 5
+            RAM:
+               usage: 3_120_000_000
+               percentConsumed: 78
+               allocated: 774_000_000
+               percentAllocated: 19.3
+            disk:
+               usage: 41_189_542_566
+               percentConsumed: 82.4
+               allocated: 1_682_544_571
+               percentAllocated: 3.4
+            network:
+               upload:
+                  uploadSpeed: 2_500
+                  uploadBandwidthUsage: 6.2
+                  allocatedUploadSpeed: 10_000
+                  allocatedBandwidthUsage: 25
+               download:
+                  downloadSpeed: 0
+                  downloadBandwidthUsage: 0
+                  allocatedDownloadSpeed: 55_000
+                  allocatedBandwidthUsage: 27.5
+            numberOfProcesses: 5042
+      Snapshot:
+         type: object
+         properties:
+            name:
+               type: string
+               description: Name of the snapshot
+            timestamp:
+               type: string
+               description: The time of creation
+            stateful:
+               type: boolean
+               description: True if state of the container should be maintained
+      OperationState:
+         type: object
+         properties:
+            status:
+               type: string
+            statusCode:
+               type: integer
+      ContainerState:
+         type: object
+         description: LXD container state
+         properties:
+            id:
+               type: integer
+               description: id of the container
+            currentState:
+               $ref: "#/components/schemas/ContainerResourceState"
+            stateHistory:
+               type: array
+               description: history of states - 0 index = 10 min ago
+               items:
+                  $ref: "#/components/schemas/LightResourceState"
+      Container:
+         type: object
+         description: LXD container with info and state
+         properties:
+            id:
+               type: number
+            name:
+               type: string
+            url:
+               type: string
+            template:
+               $ref: "#/components/schemas/Template"
+            ipv4:
+               type: string
+            ipv6:
+               type: string
+            stateful:
+               type: boolean
+            createdOn:
+               type: string
+               description: Date and time of the creation of the container
+            lastStartedOn:
+               type: string
+               description: Date and time when container was last started
+            snapshots:
+               type: array
+               items:
+                  $ref: "#/components/schemas/Snapshot"
             state:
-              status: Running
-              statusCode: 103
-          - id: 159
-            name: Server
-            stateful: true
-            state:
-              status: Running
-              statusCode: 103
-          - id: 166
-            name: Jobe
-            stateful: true
-            state: Frozen
-            statusCode: 110
-    UserProjectsState:
-      type: object
-      description: Object that knows state and history of all projects and all containers in them
-      properties:
-        projectsState:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProjectState'
-        userState:
-          $ref: '#/components/schemas/LightResourceState'
-        stateHistory:
-          type: array
-          description: history of states - 0 index = 10 min ago
-          items:
-            $ref: '#/components/schemas/LightResourceState'
-    UserProjects:
-      type: object
-      description: object containing all the data about projects that this user participates in. This includes all of his projects and all project where user is only a participant. 
-      properties:
-        userState:
-          $ref: '#/components/schemas/LightResourceState'
-        projects:
-          type: array
-          items:
-            $ref: '#/components/schemas/Project'
-    User:
-      type: object
-      properties:
-        id: 
-          type: integer
-          description: Id of the user generated by database
-        email:
-          type: string
-        familyName:
-          type: string
-          description: inherited family name
-        givenName:
-          type: string
-          description: first name - given by parents
-        role:
-          type: integer
-          description: 0 = normal user, 1 = admin, 2 = superadmin
-        icon:
-          type: string
-          description: icon of user
-        coins:
-          type: integer
-          description: number of coins that can be used to buy bigger resource quotas
-      example:
-        id: 1
-        email: vladimir.vavra@student.gyarab.cz
-        familyName: Vávra
-        givenName: Vladimír
-        role: 0
-        icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
-        coins: 154
-    UserData:
-      type: object
-      description: Object containing everything that is necessary for the user frontend to work
-      properties:
-        user:
-          $ref: '#/components/schemas/User'
-        userProjects:
-          $ref: '#/components/schemas/UserProjects'
-        hostInformation:
-          $ref: '#/components/schemas/HostInformation'
-    HostInformation:
-      type: object
-      description: Information about the host LXD is running on
-      properties:
-        CPU:
-          type: object
-          properties:
-            model:
-              type: string
-              description: e.g. Intel Core i3 1005G1 Ice Lake
-            frequency:
-              type: integer
-              description: frequency in MHz
-          
+               $ref: "#/components/schemas/ContainerResourceState"
+      ApplicationToInstall:
+         type: object
+         properties:
+            id:
+               type: integer
+               description: Id of application
+            name:
+               type: string
+               description: Application name
+            description:
+               type: string
+               description: Description of the application
+            icon:
+               type: string
+               description: href to icon of the application - optional
+      ProjectState:
+         type: object
+         description: Object that knows state and history of project and all containers in it
+         properties:
+            id:
+               type: integer
+               description: id of the project
+            containersState:
+               type: array
+               items:
+                  $ref: "#/components/schemas/ContainerState"
+            projectState:
+               $ref: "#/components/schemas/LightResourceState"
+            stateHistory:
+               type: array
+               description: history of states - 0 index = 10 min ago
+               items:
+                  $ref: "#/components/schemas/LightResourceState"
+      Project:
+         type: object
+         properties:
+            id:
+               type: integer
+               description: id of the project generated by the database
+            name:
+               type: string
+               description: Name of the project
+            owner:
+               $ref: "#/components/schemas/User"
+            createdOn:
+               type: string
+               description: Date and time when the project has been created in Javascript Date format
+            coworkers:
+               type: array
+               items:
+                  $ref: "#/components/schemas/User"
+            projectState:
+               $ref: "#/components/schemas/LightResourceState"
+            containers:
+               type: array
+               items:
+                  $ref: "#/components/schemas/Container"
+         example:
+            id: 14
+            name: Moodle
+            owner:
+               id: 1
+               email: vladimir.vavra@student.gyarab.cz
+               familyName: Vávra
+               givenName: Vladimír
+               role: 0
+               icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+               coins: 154
+            createdOn: Wed Mar 10 2021 20:36:50 GMT+0100 (Central European Standard Time)
+            coworkers:
+               - id: 2
+                 email: krystof.havranek@student.gyarab.cz
+                 familyName: Kryštof
+                 givenName: Havránek
+                 role: 0
+                 icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+                 coins: 12
+            projectState:
+               timestamp: Sat Mar 06 2021 18:32:43 GMT+0100 (Central European Standard Time)
+               limits:
+                  RAM: 400_000_000
+                  CPU: 140_000_000
+                  disk: 5_000_000_000
+                  network:
+                     upload: 4_000
+                     download: 20_000
+               CPU:
+                  consumedTime: 19_542_212
+                  consumedHz: 84_000_000
+                  percentConsumed: 60
+                  allocatedHz: 7_000_000
+                  percentAllocated: 5
+               RAM:
+                  usage: 312_000_000
+                  percentConsumed: 78
+                  allocated: 77_000_000
+                  percentAllocated: 19.3
+               disk:
+                  usage: 4_118_954_256
+                  percentConsumed: 82.4
+                  allocated: 168_254_457
+                  percentAllocated: 3.4
+               network:
+                  upload:
+                     uploadSpeed: 250
+                     uploadBandwidthUsage: 6.2
+                     allocatedUploadSpeed: 1_000
+                     allocatedBandwidthUsage: 25
+                  download:
+                     downloadSpeed: 0
+                     downloadBandwidthUsage: 0
+                     allocatedDownloadSpeed: 5_500
+                     allocatedBandwidthUsage: 27.5
+               numberOfProcesses: 504
+            containers:
+               - id: 155
+                 name: Database
+                 stateful: true
+                 state:
+                    status: Running
+                    statusCode: 103
+               - id: 159
+                 name: Server
+                 stateful: true
+                 state:
+                    status: Running
+                    statusCode: 103
+               - id: 166
+                 name: Jobe
+                 stateful: true
+                 state: Frozen
+                 statusCode: 110
+      UserProjectsState:
+         type: object
+         description: Object that knows state and history of all projects and all containers in them
+         properties:
+            projectsState:
+               type: array
+               items:
+                  $ref: "#/components/schemas/ProjectState"
+            userState:
+               $ref: "#/components/schemas/LightResourceState"
+            stateHistory:
+               type: array
+               description: history of states - 0 index = 10 min ago
+               items:
+                  $ref: "#/components/schemas/LightResourceState"
+      UserProjects:
+         type: object
+         description: object containing all the data about projects that this user participates in. This includes all of his projects and all project where user is only a participant.
+         properties:
+            userState:
+               $ref: "#/components/schemas/LightResourceState"
+            projects:
+               type: array
+               items:
+                  $ref: "#/components/schemas/Project"
+      User:
+         type: object
+         properties:
+            id:
+               type: integer
+               description: Id of the user generated by database
+            email:
+               type: string
+            familyName:
+               type: string
+               description: inherited family name
+            givenName:
+               type: string
+               description: first name - given by parents
+            role:
+               type: integer
+               description: 0 = normal user, 1 = admin, 2 = superadmin
+            icon:
+               type: string
+               description: icon of user
+            coins:
+               type: integer
+               description: number of coins that can be used to buy bigger resource quotas
+         example:
+            id: 1
+            email: vladimir.vavra@student.gyarab.cz
+            familyName: Vávra
+            givenName: Vladimír
+            role: 0
+            icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+            coins: 154
+      UserData:
+         type: object
+         description: Object containing everything that is necessary for the user frontend to work
+         properties:
+            user:
+               $ref: "#/components/schemas/User"
+            userProjects:
+               $ref: "#/components/schemas/UserProjects"
+            hostInformation:
+               $ref: "#/components/schemas/HostInformation"
+      HostInformation:
+         type: object
+         description: Information about the host LXD is running on
+         properties:
+            CPU:
+               type: object
+               properties:
+                  model:
+                     type: string
+                     description: e.g. Intel Core i3 1005G1 Ice Lake
+                  frequency:
+                     type: integer
+                     description: frequency in MHz

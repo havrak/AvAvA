@@ -11,15 +11,15 @@ import "./models/Limits.js";
 import projectSQL from "./services/sql/projectSQL.js";
 
 //import * as bodyParser from "body-parser";
-//import * as lxd from "./routes/lxdquery.js";
+import * as lxd from "./routes/lxdquery.js";
 
-//lxd.test();
+lxd.test();
 
 app.use(
-  cookieSession({
-    maxAge: 30 * 24 * 60 * 60 * 1000,
-    keys: [keys.cookieKey],
-  })
+	cookieSession({
+		maxAge: 30 * 24 * 60 * 60 * 1000,
+		keys: [keys.cookieKey],
+	})
 );
 
 app.use(passport.initialize());
@@ -45,31 +45,31 @@ app.use(express.json());
 // SQLInterface.test();
 
 const isLoggedIn = (req, res, next) => {
-  next();
-  //if (req.user) { // due to testing purposes authentifikation is removed.
-  //  next();
-  //} else {
-  //  res.sendStatus(401);
-  //}
+	next();
+	//if (req.user) { // due to testing purposes authentifikation is removed.
+	//  next();
+	//} else {
+	//  res.sendStatus(401);
+	//}
 };
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
 
 app.get("/project/createConfigData", isLoggedIn, (req, res) => {
-  projectSQL.createCreateProjectData(req.user.email).then((result) => {
-    res.send(result);
-  });
+	projectSQL.createCreateProjectData(req.user.email).then((result) => {
+		res.send(result);
+	});
 });
 
 app.post("/project", isLoggedIn, (req, res) => {
-  //let email = req.user.email;
-  // email -> havranek.krystof@student.gyarab.cz
-  let email = "havranek.krystof@student.gyarab.cz";
-  projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
-    //
-  });
-  console.log(req);
-  console.log(req.body);
-  console.log(req.body.name);
-  //
+	//let email = req.user.email;
+	// email -> havranek.krystof@student.gyarab.cz
+	let email = "havranek.krystof@student.gyarab.cz";
+	projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
+		//
+	});
+	console.log(req);
+	console.log(req.body);
+	console.log(req.body.name);
+	//
 });
