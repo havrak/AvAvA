@@ -78,13 +78,29 @@ export async function test() {
 			"default"
 		)
 	);*/
-	console.log(await deleteBackup("c1", "b4", "p2"));
+	// console.log(await getInstances("default"));
+	// console.log(await deleteBackup("c1", "b4", "p2"));
 	// console.log(await getInstance("c1", "p2"));
 	// console.log(await getState("c1", "p2"));
-	//await startInstance("testImport");
+	// console.log(await startInstance("createTest", "default"));
 	// console.log(await getInstances("p2"));
 	// console.log(await getSnapshots("c1", "p2"));
 	// console.log(await createSnapshot("c1", "snap2", false, "p2"));
+	/*	createInstance({
+		name: "createTest",
+		architecture: "x86_64",
+		profiles: ["default"],
+		ephemeral: true,
+		config: { "limits.cpu": "2" },
+		type: "container",
+		source: {
+			type: "image",
+			protocol: "simplestreams",
+			server: "https://cloud-images.ubuntu.com/daily",
+			alias: "20.04",
+		},
+		project: "default",
+	}).then((res) => console.log(res));*/
 }
 
 export async function getInstances(project) {
@@ -96,37 +112,45 @@ export async function getInstances(project) {
 	return instances;
 }
 
-export async function createInstance(data) {
-	return getOperation(await mkRequest(`/1.0/instances`, "POST", data));
+export function createInstance(data) {
+	return mkRequest(
+		`/1.0/instances?project=${data.project}`,
+		"POST",
+		data
+	).then((res) => getOperation(res));
 }
 
 // Returns Instance object, filled in Template.image,
 // id, persistent, timestamp, OperationState.
-export async function getInstance(id, project) {
-	let res = await mkRequest(`/1.0/instances/${id}?project=${project}`);
-	let container = new Container(id);
-	container.timestamp = new Date(res.created_at).getTime();
-	container.stateful = res.stateful;
-	container.template = new Template();
-	if (res.config["image.os"] !== undefined) {
-		container.template.image = new Image(
-			res.config["image.os"],
-			res.config["image.version"],
-			res.config["image.description"]
-		);
-	}
-	container.createdOn = res.created_at;
-	container.snapshots = await getSnapshots(id, project);
-	container.state = await getState(id, project);
-	return container;
+export function getInstance(id, project) {
+	return mkRequest(`/1.0/instances/${id}?project=${project}`).then((res) => {
+		let container = new Container(id);
+		container.timestamp = new Date(res.created_at);
+		container.stateful = res.stateful;
+		container.template = new Template();
+		if (res.config["image.os"] !== undefined) {
+			container.template.image = new Image(
+				res.config["image.os"],
+				res.config["image.version"],
+				res.config["image.description"]
+			);
+		}
+		container.createdOn = new Date(res.created_at);
+		return getSnapshots(id, project).then((snap) => {
+			container.snapshots = snap;
+			return getState(id, project).then((state) => {
+				container.state = state;
+				return container;
+			});
+		});
+	});
 }
 
-export async function deleteInstance(id, project) {
-	let res = await mkRequest(
+export function deleteInstance(id, project) {
+	return mkRequest(
 		`/1.0/instances/${id}?project=${project}`,
 		"DELETE"
-	);
-	return getOperation(res);
+	).then((res) => getOperation(res));
 }
 
 async function getStateFromSource(instancedata, id, project) {
@@ -181,8 +205,8 @@ async function getStateFromSource(instancedata, id, project) {
 	return rs;
 }
 
-export async function getState(id, project) {
-	return await mkRequest(`/1.0/instances/${id}?project=${project}`).then((d) =>
+export function getState(id, project) {
+	return mkRequest(`/1.0/instances/${id}?project=${project}`).then((d) =>
 		getStateFromSource(d, id, project)
 	);
 }
@@ -204,33 +228,35 @@ export async function getSnapshots(id, project) {
 	return snapshots;
 }
 
-export async function createSnapshot(id, name, stateful, project) {
-	let res = await mkRequest(
+export function createSnapshot(id, name, stateful, project) {
+	return mkRequest(
 		`/1.0/instances/${id}/snapshots?project=${project}`,
 		"POST",
 		{
 			name: name,
 			stateful: stateful,
 		}
+	).then((operation) =>
+		getOperation(operation).then((res) => {
+			if (res.statusCode == 200) return getSnapshot(id, name, project);
+			else return res;
+		})
 	);
-	res = getOperation(res);
-	if (res.statusCode == 200) return getSnapshot(id, name, project);
-	else return res;
 }
 
-export async function getSnapshot(id, name, project) {
-	let data = await mkRequest(
+export function getSnapshot(id, name, project) {
+	return mkRequest(
 		`/1.0/instances/${id}/snapshots/${name}?project=${project}`
+	).then(
+		(data) => new Snapshot(name, undefined, data.created_at, data.stateful)
 	);
-	return new Snapshot(name, undefined, data.created_at, data.stateful);
 }
 
-export async function deleteSnapshot(id, name, project) {
-	let res = await mkRequest(
+export function deleteSnapshot(id, name, project) {
+	return mkRequest(
 		`/1.0/instances/${id}/snapshots/${name}?project=${project}`,
 		"DELETE"
-	);
-	return getOperation(res);
+	).then((res) => getOperation(res));
 }
 
 // the fileHandler is used to handle the response containing the backup file .tar.gz.
@@ -276,18 +302,17 @@ export async function exportInstance(id, fileHandler, project) {
 	} else return res;
 }
 
-export async function deleteBackup(id, bid, project) {
-	let res = await mkRequest(
+export function deleteBackup(id, bid, project) {
+	return mkRequest(
 		bid === undefined
 			? id
 			: `/1.0/instances/${id}/backups/${bid}?project=${project}`,
 		"DELETE"
-	);
-	return getOperation(res);
+	).then((res) => getOperation(res));
 }
 
 // Returns backup restore operation id
-export async function importInstance(id, stream, project) {
+export function importInstance(id, stream, project) {
 	let opts = mkOpts(`/1.0/instances?project=${project}`, "POST");
 	opts.headers = {
 		"Content-Type": "application/octet-stream",
@@ -308,52 +333,32 @@ export async function importInstance(id, stream, project) {
 	});
 }
 
-export async function startInstance(id, project) {
-	let res = await mkRequest(
-		`/1.0/instances/${id}/state?project=${project}`,
-		"PUT",
-		{
-			action: "start",
-			timeout: 60,
-		}
-	);
-	return getOperation(res);
+export function startInstance(id, project) {
+	return mkRequest(`/1.0/instances/${id}/state?project=${project}`, "PUT", {
+		action: "start",
+		timeout: 60,
+	}).then((res) => getOperation(res));
 }
 
-export async function stopInstance(id, project) {
-	let res = await mkRequest(
-		`/1.0/instances/${id}/state?project=${project}`,
-		"PUT",
-		{
-			action: "stop",
-			timeout: 60,
-		}
-	);
-	return getOperation(res);
+export function stopInstance(id, project) {
+	return mkRequest(`/1.0/instances/${id}/state?project=${project}`, "PUT", {
+		action: "stop",
+		timeout: 60,
+	}).then((res) => getOperation(res));
 }
 
-export async function freezeInstance(id, project) {
-	let res = await mkRequest(
-		`/1.0/instances/${id}/state?project=${project}`,
-		"PUT",
-		{
-			action: "freeze",
-			timeout: 60,
-		}
-	);
-	return getOperation(res);
+export function freezeInstance(id, project) {
+	return mkRequest(`/1.0/instances/${id}/state?project=${project}`, "PUT", {
+		action: "freeze",
+		timeout: 60,
+	}).then((res) => getOperation(res));
 }
 
-export async function unfreezeInstance(id, project) {
-	let res = await mkRequest(
-		`/1.0/instances/${id}/state?project=${project}`,
-		"PUT",
-		{
-			action: "unfreeze",
-			timeout: 60,
-		}
-	);
-	return getOperation(res);
+export function unfreezeInstance(id, project) {
+	return mkRequest(`/1.0/instances/${id}/state?project=${project}`, "PUT", {
+		action: "unfreeze",
+		timeout: 60,
+	}).then((res) => getOperation(res));
 }
 
 export async function getOperation(operation) {
