@@ -42,6 +42,8 @@ paths:
                            type: array
                            items:
                             $ref: "#/components/schemas/ApplicationToInstall"
+                        connectToInternet:
+                          type: boolean
                         customLimits:
                            $ref: "#/components/schemas/Limits"
                      required:
@@ -492,6 +494,15 @@ components:
             disk:
                type: integer
                description: in bytes
+            internet:
+              type: object
+              properties:
+                upload:
+                   type: integer
+                   description: in bits/s
+                download:
+                   type: integer
+                   description: in bits/s
       ContainerResourceState:
          type: object
          description: Object representing current state of the container (not history). Each object also contains limit information that were in effect in the time of measuring the state.
@@ -500,7 +511,17 @@ components:
                type: string
                description: Date and time when this state was measured
             limits:
-               $ref: "#/components/schemas/Limits"
+              type: object
+              properties:
+                RAM:
+                  type: integer
+                  description: in bytes
+                CPU:
+                  type: integer
+                  description: in Hz
+                disk:
+                  type: integer
+                  description: in bytes
             CPU:
                type: object
                properties:
