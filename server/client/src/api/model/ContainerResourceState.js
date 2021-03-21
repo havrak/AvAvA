@@ -17,6 +17,7 @@ import ContainerResourceStateDisk from './ContainerResourceStateDisk';
 import ContainerResourceStateNetworks from './ContainerResourceStateNetworks';
 import ContainerResourceStateRAM from './ContainerResourceStateRAM';
 import Limits from './Limits';
+import OperationState from './OperationState';
 
 /**
 * The ContainerResourceState model module.
@@ -49,11 +50,8 @@ export default class ContainerResourceState {
             obj = obj || new ContainerResourceState();
                         
             
-            if (data.hasOwnProperty('status')) {
-                obj['status'] = ApiClient.convertToType(data['status'], 'String');
-            }
-            if (data.hasOwnProperty('statusCode')) {
-                obj['statusCode'] = ApiClient.convertToType(data['statusCode'], 'Number');
+            if (data.hasOwnProperty('operationState')) {
+                obj['operationState'] = OperationState.constructFromObject(data['operationState']);
             }
             if (data.hasOwnProperty('timestamp')) {
                 obj['timestamp'] = ApiClient.convertToType(data['timestamp'], 'String');
@@ -81,13 +79,9 @@ export default class ContainerResourceState {
     }
 
     /**
-    * @member {String} status
+    * @member {module:model/OperationState} operationState
     */
-    'status' = undefined;
-    /**
-    * @member {Number} statusCode
-    */
-    'statusCode' = undefined;
+    'operationState' = undefined;
     /**
     * Date and time when this state was measured
     * @member {String} timestamp

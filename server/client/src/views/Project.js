@@ -49,7 +49,6 @@ function Project(props) {
       startSpinnerProjectPost,
       startSpinnerProjectDelete,
    } = props;
-   console.log(props.match.params.projectId);
    useEffect(() => {
       userProjectsGet();
    }, []);
@@ -94,8 +93,8 @@ function Project(props) {
             view: views[0],
          },
          {
-            Header: "Created at",
-            accessor: "createdAt",
+            Header: "Created on",
+            accessor: "createdOn",
             view: views[0],
             Cell: ({ value }) => {
                return new Date(value).toLocaleString();
@@ -113,17 +112,17 @@ function Project(props) {
                // },
                {
                   Header: "Running",
-                  accessor: "running",
+                  accessor: "runningContainers",
                   view: views[1],
                },
                {
                   Header: "Stopped",
-                  accessor: "stopped",
+                  accessor: "stoppedContainers",
                   view: views[1],
                },
                {
                   Header: "Frozen",
-                  accessor: "frozen",
+                  accessor: "frozenContainers",
                   view: views[1],
                },
             ],
@@ -567,16 +566,16 @@ function Project(props) {
             projectData.firstName = project.owner.givenName;
             projectData.lastName = project.owner.familyName;
             projectData.participants = project.coworkers.length;
-            projectData.createdAt = project.createdOn;
-            projectData.running = 0;
-            projectData.stopped = 0;
-            projectData.frozen = 0;
+            projectData.createdOn = project.createdOn;
+            projectData.runningContainers = 0;
+            projectData.stoppedContainers = 0;
+            projectData.frozenContainers = 0;
             for (const container of project.containers) {
-               if (container.state.status === "Running") {
+               if (container.state.operationState.status === "Running") {
                   projectData.runningContainers++;
-               } else if (container.state.status === "Stopped") {
+               } else if (container.state.operationState.status === "Stopped") {
                   projectData.stoppedContainers++;
-               } else if (container.state.status === "Frozen") {
+               } else if (container.state.operationState.status === "Frozen") {
                   projectData.frozenContainers++;
                }
             }

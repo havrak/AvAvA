@@ -44,11 +44,12 @@ function Dashboard({ hostInformation, user, projects, state, combinedDataGet }) 
             // foreignContainers += project.containers.length;
          }
          for (const container of project.containers) {
-            if (container.state.status === "Running") {
+            console.log(container);
+            if (container.state.operationState.status === "Running") {
                runningContainers++;
-            } else if (container.state.status === "Stopped") {
+            } else if (container.state.operationState.status === "Stopped") {
                stoppedContainers++;
-            } else if (container.state.status === "Frozen") {
+            } else if (container.state.operationState.status === "Frozen") {
                frozenContainers++;
             }
          }

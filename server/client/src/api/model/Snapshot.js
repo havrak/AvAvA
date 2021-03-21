@@ -47,7 +47,7 @@ export default class Snapshot {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
             if (data.hasOwnProperty('timestamp')) {
-                obj['timestamp'] = ApiClient.convertToType(data['timestamp'], 'Number');
+                obj['timestamp'] = ApiClient.convertToType(data['timestamp'], 'String');
             }
             if (data.hasOwnProperty('stateful')) {
                 obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
@@ -63,7 +63,7 @@ export default class Snapshot {
     'name' = undefined;
     /**
     * The time of creation
-    * @member {Number} timestamp
+    * @member {String} timestamp
     */
     'timestamp' = undefined;
     /**
