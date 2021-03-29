@@ -4,6 +4,7 @@ import path from "path";
 import querystring from "querystring";
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 import * as CS from "../models/ContainerResourceState.js";
+import * as NS from "../models/NetworkState.js";
 import Container from "../models/Container.js";
 import Template from "../models/Template.js";
 import Image from "../models/Image.js";
@@ -78,11 +79,12 @@ export async function test() {
 			"default"
 		)
 	);*/
-	// console.log(await getInstances("default"));
+	// console.log(await execInstance("c1", "p2", "df -H"));
+	// console.log(await startInstance("createTest", "p2"));
+	// console.log(await getInstance("createTest", "p2"));
 	// console.log(await deleteBackup("c1", "b4", "p2"));
 	// console.log(await getInstance("c1", "p2"));
 	// console.log(await getState("c1", "p2"));
-	// console.log(await startInstance("createTest", "default"));
 	// console.log(await getInstances("p2"));
 	// console.log(await getSnapshots("c1", "p2"));
 	// console.log(await createSnapshot("c1", "snap2", false, "p2"));
@@ -124,8 +126,10 @@ export function createInstance(data) {
 // id, persistent, timestamp, OperationState.
 export function getInstance(id, project) {
 	return mkRequest(`/1.0/instances/${id}?project=${project}`).then((res) => {
+		console.log(res);
 		let container = new Container(id);
-		container.timestamp = new Date(res.created_at);
+		container.createdOn = new Date(res.created_at);
+		container.lastStartedOn = new Date(res.last_used_at);
 		container.stateful = res.stateful;
 		container.template = new Template();
 		if (res.config["image.os"] !== undefined) {
@@ -135,7 +139,6 @@ export function getInstance(id, project) {
 				res.config["image.description"]
 			);
 		}
-		container.createdOn = new Date(res.created_at);
 		return getSnapshots(id, project).then((snap) => {
 			container.snapshots = snap;
 			return getState(id, project).then((state) => {
@@ -153,6 +156,44 @@ export function deleteInstance(id, project) {
 	).then((res) => getOperation(res));
 }
 
+// Metoda vrací výstup zadaného příkazu
+export function execInstance(id, project, command) {
+	return mkRequest(`/1.0/instances/${id}/exec?project=${project}`, "POST", {
+		command: command.split(" "),
+		"record-output": true,
+		"wait-for-websocket": false,
+		interactive: false,
+	}).then((res) => {
+		if (res.status_code == 103) {
+			return mkRequest(`/1.0/operations/${res.id}/wait`).then(
+				(res) =>
+					new Promise((resolve) => {
+						// toto vrací http request, ne jeho výsledek, zatím nevím, jak řešit
+						https
+							.request(
+								mkOpts(
+									`${
+										res.metadata.output[
+											res.metadata.return == 0 ? "1" : "2"
+										]
+									}?project=${project}`
+								),
+								(res) => {
+									let body = "";
+									//aktuálně nejsme schopni získat obsah souboru .log, takže výstup nikdy nebude
+									res.setEncoding("utf8");
+									res.on("data", (d) => (body += d));
+									res.on("end", () => resolve(body));
+									//res3.pipe(process.stdout);
+								}
+							)
+							.end();
+					})
+			);
+		} else return getOperation(res);
+	});
+}
+
 async function getStateFromSource(instancedata, id, project) {
 	let limit =
 		instancedata.config.limits === undefined ||
@@ -160,6 +201,7 @@ async function getStateFromSource(instancedata, id, project) {
 			? 0
 			: instancedata.config.limits.cpu;
 	let data = await mkRequest(`/1.0/instances/${id}/state?project=${project}`);
+	// console.log(JSON.stringify(data));
 	let rs;
 	//use the time efficiently and while the measurement waits
 	//for another measure, we put all available data in its place
@@ -178,7 +220,15 @@ async function getStateFromSource(instancedata, id, project) {
 		if (data.network != undefined)
 			Object.keys(data.network).forEach((key) => {
 				let lxdn = data.network[key];
-				let network = new CS.Network();
+				let network = new NS.NetworkState(
+					key,
+					lxdn.addresses,
+					lxdn.hwaddr,
+					lxdn.host_name,
+					lxdn.mtu,
+					lxdn.state,
+					lxdn.type
+				);
 				network.networkName = key;
 				network.addresses = lxdn.addresses;
 				network.counters.bytesRecieved = lxdn.bytes_recieved;
@@ -190,7 +240,15 @@ async function getStateFromSource(instancedata, id, project) {
 				network.mtu = lxdn.mtu;
 				network.state = lxdn.state;
 				network.type = lxdn.type;
-				rs.networks.push(network);
+				switch (key) {
+					case "eth0":
+						// network.limits = rs.internet.limits;
+						rs.internet = network;
+					case "lo":
+						rs.loopback = network;
+					default:
+						rs.networks.push(network);
+				}
 			});
 		rs.numberOfProcesses = data.processes;
 		setTimeout(resolve, 1000);
@@ -362,7 +420,7 @@ export function unfreezeInstance(id, project) {
 }
 
 export async function getOperation(operation) {
-	if (operation.status_code == 103) {
+	if (operation.status_code <= 103) {
 		operation = await mkRequest(`/1.0/operations/${operation.id}/wait`);
 		console.log({
 			desc: operation.description,
@@ -370,8 +428,15 @@ export async function getOperation(operation) {
 			err: operation.error === undefined ? operation.err : operation.error,
 			resources: operation.resources,
 		});
-	} else if (operation.error_code !== undefined)
+	} else if (operation.error_code !== undefined) {
+		console.log({
+			desc: operation.description,
+			code: operation.status_code,
+			err: operation.error === undefined ? operation.err : operation.error,
+			resources: operation.resources,
+		});
 		return new OperationState(operation.error, operation.error_code);
+	}
 	let os = new OperationState(operation.status, operation.status_code);
 	os.id = operation.id;
 	return os;

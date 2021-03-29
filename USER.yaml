@@ -1,0 +1,1796 @@
+openapi: "3.0.2"
+info:
+  title: User API
+  version: "1.0"
+servers:
+  - url: https://localhost:3000/api
+paths:
+  /combinedData:
+    get:
+      description: This request will be fired after authentication in order to get all the data needed in the frontend
+      responses:
+        "200":
+          description: Everything needed for the frontend to work in one request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserData"
+  #  /stateDetailed: #nebo /instances#get ??
+
+  /instances:
+    post:
+      description: Create a new instance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                projectId:
+                  type: integer
+                  description: Id of project where container should be created
+                autostart:
+                  type: boolean
+                templateId:
+                  type: integer
+                stateful:
+                  type: boolean
+                applicationsToInstall: #TODO
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/ApplicationToInstall"
+                connectToInternet:
+                  type: boolean
+                customLimits:
+                  $ref: "#/components/schemas/Limits"
+              required:
+                - name
+                - projectId
+                - autostart
+                - templateId
+                - stateful
+                - applicationsToInstall
+                - connectToInternet
+                - cusotmLimits
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Container"
+        "500":
+          description: Internal server error - e.g. not enough resources
+  /instances/{id}:
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be querried
+      responses:
+        "200":
+          description: Successful state info return
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Container"
+    delete:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be deleted
+      responses:
+        "200":
+          description: deleted the container
+  /instances/{id}/stateWithHistory:
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container which state is requested
+      responses:
+        "200":
+          description: Successful state info return
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContainerStateWithHistory"
+  /instances/{id}/console: #TODO
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container for which we start the console
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: TODO
+  #/instances/{id}/files: TODO
+  #  get:
+  #    parameters:
+  #      - in: path
+  #        required: true
+  #        name: id
+  #        schema:
+  #          type: integer
+  #        description: Id kontejneru, ke kterému vztahujeme naši operaci
+  #    responses:
+  #      '200':
+  #        description: OK
+  /instances/{id}/snapshots:
+    get:
+      description: Retreives the list of all snapshots for given container
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be snapshoted
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Snapshot"
+    post:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: ID of the container to be snapshotted
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                snapshotName:
+                  type: string
+                stateful:
+                  type: boolean
+                  description: true if the snapshot should be created stateful
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Snapshot"
+  /instances/{containerId}/snapshots/{snapshotId}:
+    delete:
+      parameters:
+        - in: path
+          required: true
+          name: containerId
+          schema:
+            type: integer
+          description: ID of the container where the snapshot is
+        - in: path
+          required: true
+          name: snapshotId
+          schema:
+            type: integer
+          description: ID of the snapshot to be deleted
+      responses:
+        "200":
+          description: OK
+  /instances/{id}/restore/{snapshotId}:
+    patch:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be reverted
+        - in: path
+          required: true
+          name: snapshotId
+          schema:
+            type: integer
+          description: ID of the snapshot to be used for updating the container files
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationState"
+  /instances/{id}/export:
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the downloaded container
+      responses:
+        "200":
+          description: Running
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Stream souboru
+  /instances/import:
+    put:
+      parameters:
+        - in: cookie
+          required: true
+          name: containerFile
+          schema:
+            type: string
+            format: binary
+          description: The container file to be uploaded
+      responses:
+        "200":
+          description: File is uploading
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: ID to the process
+  /instances/{id}/start:
+    patch:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the used container
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationState"
+  /instances/{id}/stop:
+    patch:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be stopped
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationState"
+  /instances/{id}/freeze:
+    patch:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be frozen
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationState"
+  /instances/{id}/unfreeze:
+    patch:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be unfrozen
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationState"
+  /projects:
+    get:
+      responses:
+        "200":
+          description: All projects of current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProjects"
+    post:
+      description: Create a new project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                customLimits:
+                  $ref: "#/components/schemas/Limits"
+              required:
+                - name
+                - customLimits
+      responses:
+        "200":
+          description: Successfully created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+  /projects/createConfigData:
+    get:
+      responses:
+        "200":
+          description: Returns all data that are necesarry to create a project
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  maxLimits:
+                    $ref: "#/components/schemas/Limits"
+  /projects/stateWithHistory:
+    get:
+      responses:
+        "200":
+          description: History of states of all projects of this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserStateWithHistory"
+  /projects/{projectId}/createInstanceConfigData:
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: projectId
+          schema:
+            type: integer
+          description: ID of the project to be querried
+      responses:
+        "200":
+          description: Returns all data that are necesarry to create an instance in this project
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templateTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Template"
+                  applicationsToInstall:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ApplicationToInstall"
+                  maxLimits:
+                    $ref: "#/components/schemas/Limits"
+  /projects/{id}:
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the project to be querried
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the project to be deleted
+      responses:
+        "200":
+          description: deleted the container
+  /projects/{id}/stateWithHistory:
+    get:
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the project to be querried
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectStateWithHistory"
+  /user:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+components:
+  schemas:
+    Image:
+      type: object
+      properties:
+        os:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+      example:
+        os: Ubuntu
+        version: 18.44
+        description: Ubuntu OS description
+    Template:
+      type: object
+      description: Combination of image and configuration. User can then create instances of these templates
+      properties:
+        id:
+          type: integer
+          description: Id of a template generatd by database
+        name:
+          type: string
+        createdOn:
+          type: string
+        image:
+          $ref: "#/components/schemas/Image"
+        description:
+          type: string
+        minDiskUsage:
+          type: integer
+          description: minimum disk space needed for the container to work in Bytes.
+      example:
+        id: 44
+        name: Ubuntu
+        createdOn: 2015-06-07T19:07:24.379615253-06:00
+        image:
+          os: Ubuntu
+          version: 18.44
+          description: Ubuntu OS description
+        description: default profile for users with Ubuntu image
+        minDiskUsage: 180_000_000
+    Limits:
+      type: object
+      description: Resources allocated to container/project/user.
+      properties:
+        RAM:
+          type: integer
+          description: in bytes
+        CPU:
+          type: integer
+          description: in Hz
+        disk:
+          type: integer
+          description: in bytes
+        internet:
+          type: object
+          properties:
+            download:
+              type: integer
+              description: in bits/s
+            upload:
+              type: integer
+              description: in bits/s
+    ContainerResourceState:
+      type: object
+      description: Object representing current state of the container (not history). Each object also contains limit information that were in effect in the time of measuring the state.
+      properties:
+        measuredOn:
+          type: string
+          description: Date and time when this state was measured
+        CPU:
+          type: object
+          properties:
+            limit:
+              description: CPU limit in Hz
+              type: integer
+            usedTime:
+              type: integer
+              description: Time used by the CPU in nanoseconds from the container start
+            usage:
+              type: integer
+              description: Used Hz in measured time
+        RAM:
+          type: object
+          properties:
+            limit:
+              type: integer
+              description: RAM limit in bytes
+            usage:
+              type: integer
+              description: last measured RAM usage in Bytes
+            usagePeak:
+              type: integer
+              description: maximum measured RAM usage in Bytes from the start of the container
+        disk:
+          type: object
+          properties:
+            limit:
+              type: integer
+              description: disk limit for all devices of this container in bytes
+            devices:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Name of the device (disk) e.g. root
+                  usage:
+                    type: integer
+                    description: current disk usage in bytes
+        internet:
+          $ref: "#/components/schemas/NetworkState"
+        loopback:
+          $ref: "#/components/schemas/NetworkState"
+        networks:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkState"
+        numberOfProcesses:
+          type: integer
+          description: Process count
+        operationState:
+          $ref: "#/components/schemas/OperationState"
+    NetworkState:
+      type: object
+      properties:
+        name:
+          type: string
+          description: name of the network
+        limits:
+          type: object
+          properties:
+            download:
+              type: integer
+              description: in bits/s
+            upload:
+              type: integer
+              description: in bits/s
+        adresses:
+          type: array
+          items:
+            type: object
+            properties:
+              family:
+                type: string
+              adress:
+                type: string
+              netmask:
+                type: integer
+              scope:
+                type: string
+        counters:
+          type: object
+          properties:
+            download:
+              type: object
+              properties:
+                usedSpeed:
+                  type: integer
+                  description: number of bytes that were downloaded/1s in bits/s
+                bytesFromStart:
+                  type: integer
+                  description: number of bytes received from the beginning of the run of this container
+                packetsFromStart:
+                  type: integer
+                  description: number of packets received from the beginning of the run of this container
+            upload:
+              type: object
+              properties:
+                usedSpeed:
+                  type: integer
+                  description: number of bytes that were uploaded/1s in bits/s
+                bytesFromStart:
+                  type: integer
+                  description: number of bytes sent from the beginning of the run of this container
+                packetsFromStart:
+                  type: integer
+                  description: number of packets sent from the beginning of the run of this container
+        hwaddr:
+          type: string
+        hostName:
+          type: string
+        mtu:
+          type: integer
+          description: maximum transmission unit
+        state:
+          type: string
+        type:
+          type: string
+    Snapshot:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the snapshot
+        createdOn:
+          type: string
+          description: The time of creation
+        stateful:
+          type: boolean
+          description: True if state of the container should be maintained
+    OperationState:
+      type: object
+      properties:
+        status:
+          type: string
+        statusCode:
+          type: integer
+    ContainerStateWithHistory:
+      type: object
+      description: LXD container state containing current state and also the history of states
+      properties:
+        id:
+          type: integer
+          description: id of the container
+        stateHistory:
+          type: array
+          description: history of states - index 0 = current state, index 1 = pre-last state, n-1 = last remembered state.
+          items:
+            $ref: "#/components/schemas/ContainerResourceState"
+    Container:
+      type: object
+      description: LXD container with info and state
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        url:
+          type: string
+        template:
+          $ref: "#/components/schemas/Template"
+        stateful:
+          type: boolean
+        createdOn:
+          type: string
+          description: Date and time of the creation of the container
+        lastStartedOn:
+          type: string
+          description: Date and time when container was last started
+        snapshots:
+          type: array
+          items:
+            $ref: "#/components/schemas/Snapshot"
+        state:
+          $ref: "#/components/schemas/ContainerResourceState"
+      example:
+        id: 51
+        name: Jobe
+        url: jobe.moodle.vavra.avava.gyarab.cz
+        template:
+          id: 44
+          name: Ubuntu
+          createdOn: 2015-06-07T19:07:24.379615253-06:00
+          image:
+            os: Ubuntu
+            version: 18.44
+            description: Ubuntu OS description
+          description: default profile for users with Ubuntu image
+          minDiskUsage: 180_000_000
+        stateful: true
+        createdOn: 2015-06-08T19:07:24.379615253-06:00
+        lastStartedOn: 2015-06-09T19:07:24.379615253-06:00
+        snapshots:
+          - name: snapshot (1)
+            createdOn: 2015-06-08T19:07:24.379615253-06:00
+            stateful: false
+        state:
+          measuredOn: 2015-06-10T19:07:24.379615253-06:00
+          CPU:
+            limit: 100_000_001
+            usedTime: 153_469_541
+            usage: 30_000_501
+          RAM:
+            limit: 4_123_987_456
+            usage: 128_456_000
+            usagePeak: 1_500_000_000
+          disk:
+            limit: 20_000_000_000
+            devices:
+              - name: root
+                usage: 5_300_000_000
+          internet:
+            name: eth0
+            limits:
+              download: 200_000_000
+              upload: 40_000_000
+            adresses:
+              - family: inet
+                adress: 10.237.227.70
+                netmask: 8
+                scope: global
+              - family: inet6
+                adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                netmask: 64
+                scope: link
+            counters:
+              download:
+                usedSpeed: 200_000_000
+                bytesFromStart: 432_000_000_758
+                packetsFromStart: 123_045_146
+              upload:
+                usedSpeed: 0
+                bytesFromStart: 123_455
+                packetsFromStart: 752
+            hwaddr: 00:16:3e:ec:65:a8,
+            hostName: vethBWTSU5,
+            mtu: 1500,
+            state: up,
+            type: broadcast
+          loopback:
+            name: loopback
+            adresses:
+              - family: inet
+                adress: 10.237.227.70
+                netmask: 8
+                scope: global
+              - family: inet6
+                adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                netmask: 64
+                scope: link
+            counters:
+              download:
+                usedSpeed: 200_000_000
+                bytesFromStart: 432_000_000_758
+                packetsFromStart: 123_045_146
+              upload:
+                usedSpeed: 0
+                bytesFromStart: 123_455
+                packetsFromStart: 752
+            hwaddr: 00:16:3e:ec:65:a8,
+            hostName: vethBWTSU5,
+            mtu: 1500,
+            state: up,
+            type: broadcast
+          networks:
+          numberOfProcesses: 138
+          operationState:
+            status: Running
+            statusCode: 103
+    ApplicationToInstall:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Id of application
+        name:
+          type: string
+          description: Application name
+        description:
+          type: string
+          description: Description of the application
+        icon:
+          type: string
+          description: href to icon of the application - optional
+    ProjectStateWithHistory:
+      type: object
+      description: Object that knows state and history of project and all containers in it
+      properties:
+        id:
+          type: integer
+          description: id of the project
+        containerStatesHistory:
+          description: First state is the current state, after that there are logs of containers's state that were part of this project. Even if the container has already been deleted, it is present in this log.
+          type: array
+          items:
+            $ref: "#/components/schemas/ContainerStateWithHistory"
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: id of the project generated by the database
+        name:
+          type: string
+          description: Name of the project
+        owner:
+          $ref: "#/components/schemas/User"
+        limits:
+          description: if its values are null, then there are no limits to the project
+          $ref: "#/components/schemas/Limits"
+        createdOn:
+          type: string
+          description: Date and time when the project has been created in Javascript Date format
+        coworkers:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        containers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Container"
+      example:
+        id: 14
+        name: Digitalizce výuky programování
+        owner:
+          id: 1
+          email: vladimir.vavra@student.gyarab.cz
+          familyName: Vávra
+          givenName: Vladimír
+          role: 0
+          icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+          coins: 154
+        createdOn: 2015-06-06T19:07:24.379615253-06:00
+        coworkers:
+          -   id: 2
+              email: krystof.havranek@student.gyarab.cz
+              familyName: Kryštof
+              givenName: Havránek
+              role: 0
+              icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+              coins: 12
+          -   id: 3
+              email: josef.litos@student.gyarab.cz
+              familyName: Josef
+              givenName: Litoš
+              role: 0
+              icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+              coins: 14
+        containers:
+          - id: 51
+            name: Jobe
+            url: jobe.moodle.vavra.avava.gyarab.cz
+            template:
+              id: 44
+              name: Ubuntu
+              createdOn: 2015-06-07T19:07:24.379615253-06:00
+              image:
+                os: Ubuntu
+                version: 18.44
+                description: Ubuntu OS description
+              description: default profile for users with Ubuntu image
+              minDiskUsage: 180_000_000
+            stateful: true
+            createdOn: 2015-06-08T19:07:24.379615253-06:00
+            lastStartedOn: 2015-06-09T19:07:24.379615253-06:00
+            snapshots:
+              - name: snapshot (1)
+                createdOn: 2015-06-08T19:07:24.379615253-06:00
+                stateful: false
+            state:
+              measuredOn: 2015-06-10T19:07:24.379615253-06:00
+              CPU:
+                limit: 100_000_001
+                usedTime: 153_469_541
+                usage: 30_000_501
+              RAM:
+                limit: 4_123_987_456
+                usage: 128_456_000
+                usagePeak: 1_500_000_000
+              disk:
+                limit: 20_000_000_000
+                devices:
+                  - name: root
+                    usage: 5_300_000_000
+              internet:
+                name: eth0
+                limits:
+                  download: 200_000_000
+                  upload: 40_000_000
+                adresses:
+                  - family: inet
+                    adress: 10.237.227.70
+                    netmask: 8
+                    scope: global
+                  - family: inet6
+                    adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                    netmask: 64
+                    scope: link
+                counters:
+                  download:
+                    usedSpeed: 200_000_000
+                    bytesFromStart: 432_000_000_758
+                    packetsFromStart: 123_045_146
+                  upload:
+                    usedSpeed: 0
+                    bytesFromStart: 123_455
+                    packetsFromStart: 752
+                hwaddr: 00:16:3e:ec:65:a8,
+                hostName: vethBWTSU5,
+                mtu: 1500,
+                state: up,
+                type: broadcast
+              loopback:
+                name: loopback
+                adresses:
+                  - family: inet
+                    adress: 10.237.227.70
+                    netmask: 8
+                    scope: global
+                  - family: inet6
+                    adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                    netmask: 64
+                    scope: link
+                counters:
+                  download:
+                    usedSpeed: 200_000_000
+                    bytesFromStart: 432_000_000_758
+                    packetsFromStart: 123_045_146
+                  upload:
+                    usedSpeed: 0
+                    bytesFromStart: 123_455
+                    packetsFromStart: 752
+                hwaddr: 00:16:3e:ec:65:a8,
+                hostName: vethBWTSU5,
+                mtu: 1500,
+                state: up,
+                type: broadcast
+              networks:
+              numberOfProcesses: 138
+              operationState:
+                status: Running
+                statusCode: 103
+          - id: 52
+            name: Moodle
+            url: moodle.moodle.vavra.avava.gyarab.cz
+            template:
+              id: 44
+              name: Ubuntu
+              createdOn: 2015-06-07T19:07:24.379615253-06:00
+              image:
+                os: Ubuntu
+                version: 18.44
+                description: Ubuntu OS description
+              description: default profile for users with Ubuntu image
+              minDiskUsage: 180_000_000
+            stateful: true
+            createdOn: 2015-06-08T19:07:24.379615253-06:00
+            lastStartedOn: 2015-06-09T19:07:24.379615253-06:00
+            snapshots:
+    
+            state:
+              measuredOn: 2015-06-10T19:07:24.379615253-06:00
+              CPU:
+                limit: 500_000_001
+                usedTime: 553_469_541
+                usage: 50_000_501
+              RAM:
+                limit: 8_123_987_456
+                usage: 828_456_000
+                usagePeak: 7_500_000_000
+              disk:
+                limit: 100_000_000_000
+                devices:
+                  - name: root
+                    usage: 45_300_000_000
+              internet:
+                name: eth0
+                limits:
+                  download: 400_000_000
+                  upload: 80_000_000
+                adresses:
+                  - family: inet
+                    adress: 10.0.3.27
+                    netmask: 8
+                    scope: global
+                  - family: inet6
+                    adress: fe80::216:3eff:feec:65a8
+                    netmask: 64
+                    scope: link
+                counters:
+                  download:
+                    usedSpeed: 300_000_000
+                    bytesFromStart: 732_000_000_758
+                    packetsFromStart: 23_045_146
+                  upload:
+                    usedSpeed: 0
+                    bytesFromStart: 123_455
+                    packetsFromStart: 752
+                hwaddr: 00:16:3e:ec:65:a8,
+                hostName: vethBWTSU5,
+                mtu: 1500,
+                state: up,
+                type: broadcast
+              loopback:
+                name: loopback
+                adresses:
+                  - family: inet
+                    adress: 10.237.227.70
+                    netmask: 8
+                    scope: global
+                  - family: inet6
+                    adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                    netmask: 64
+                    scope: link
+                counters:
+                  download:
+                    usedSpeed: 200_000_000
+                    bytesFromStart: 432_000_000_758
+                    packetsFromStart: 123_045_146
+                  upload:
+                    usedSpeed: 0
+                    bytesFromStart: 123_455
+                    packetsFromStart: 752
+                hwaddr: 00:16:3e:ec:65:a8,
+                hostName: vethBWTSU5,
+                mtu: 1500,
+                state: up,
+                type: broadcast
+              networks:
+              numberOfProcesses: 138
+              operationState:
+                status: Running
+                statusCode: 103
+    UserStateWithHistory:
+      type: object
+      description: Object that knows state and history of all projects and all containers in them
+      properties:
+        projectStatesHistory:
+          type: array
+          description: First state is the current state, after that there are logs of projects's state that were belonged to this user. Even if the container has already been deleted, it is present in this log.
+          items:
+            $ref: "#/components/schemas/ProjectStateWithHistory"
+    UserProjects:
+      type: object
+      description: object containing all the data about projects that this user participates in. This includes all of his projects and all project where user is only a participant.
+      properties:
+        limits:
+          description: limits of the user
+          $ref: "#/components/schemas/Limits"
+        projects:
+          type: array
+          items:
+            $ref: "#/components/schemas/Project"
+      example: 
+        limits: 
+          RAM: 90_000_000_000
+          CPU: 10_000_000_000
+          disk: 1_151_000_000_000
+          internet:
+            download: 1_450_000_000
+            upload: 1_000_000_000
+        projects:
+          - id: 14
+            name: Digitalizce výuky programování
+            owner:
+              id: 1
+              email: vladimir.vavra@student.gyarab.cz
+              familyName: Vávra
+              givenName: Vladimír
+              role: 0
+              icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+              coins: 154
+            createdOn: 2015-06-06T19:07:24.379615253-06:00
+            coworkers:
+              - id: 2
+                email: krystof.havranek@student.gyarab.cz
+                familyName: Kryštof
+                givenName: Havránek
+                role: 0
+                icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+                coins: 12
+              - id: 3
+                email: josef.litos@student.gyarab.cz
+                familyName: Josef
+                givenName: Litoš
+                role: 0
+                icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+                coins: 14
+            containers:
+              - id: 51
+                name: Jobe
+                url: jobe.moodle.vavra.avava.gyarab.cz
+                template:
+                  id: 44
+                  name: Ubuntu
+                  createdOn: 2015-06-07T19:07:24.379615253-06:00
+                  image:
+                    os: Ubuntu
+                    version: 18.44
+                    description: Ubuntu OS description
+                  description: default profile for users with Ubuntu image
+                  minDiskUsage: 180_000_000
+                stateful: true
+                createdOn: 2015-06-08T19:07:24.379615253-06:00
+                lastStartedOn: 2015-06-09T19:07:24.379615253-06:00
+                snapshots:
+                  - name: snapshot (1)
+                    createdOn: 2015-06-08T19:07:24.379615253-06:00
+                    stateful: false
+                state:
+                  measuredOn: 2015-06-10T19:07:24.379615253-06:00
+                  CPU:
+                    limit: 100_000_001
+                    usedTime: 153_469_541
+                    usage: 30_000_501
+                  RAM:
+                    limit: 4_123_987_456
+                    usage: 128_456_000
+                    usagePeak: 1_500_000_000
+                  disk:
+                    limit: 20_000_000_000
+                    devices:
+                      - name: root
+                        usage: 5_300_000_000
+                  internet:
+                    name: eth0
+                    limits:
+                      download: 200_000_000
+                      upload: 40_000_000
+                    adresses:
+                      - family: inet
+                        adress: 10.237.227.70
+                        netmask: 8
+                        scope: global
+                      - family: inet6
+                        adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                        netmask: 64
+                        scope: link
+                    counters:
+                      download:
+                        usedSpeed: 200_000_000
+                        bytesFromStart: 432_000_000_758
+                        packetsFromStart: 123_045_146
+                      upload:
+                        usedSpeed: 0
+                        bytesFromStart: 123_455
+                        packetsFromStart: 752
+                    hwaddr: 00:16:3e:ec:65:a8,
+                    hostName: vethBWTSU5,
+                    mtu: 1500,
+                    state: up,
+                    type: broadcast
+                  loopback:
+                    name: loopback
+                    adresses:
+                      - family: inet
+                        adress: 10.237.227.70
+                        netmask: 8
+                        scope: global
+                      - family: inet6
+                        adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                        netmask: 64
+                        scope: link
+                    counters:
+                      download:
+                        usedSpeed: 200_000_000
+                        bytesFromStart: 432_000_000_758
+                        packetsFromStart: 123_045_146
+                      upload:
+                        usedSpeed: 0
+                        bytesFromStart: 123_455
+                        packetsFromStart: 752
+                    hwaddr: 00:16:3e:ec:65:a8,
+                    hostName: vethBWTSU5,
+                    mtu: 1500,
+                    state: up,
+                    type: broadcast
+                  networks:
+                  numberOfProcesses: 138
+                  operationState:
+                    status: Running
+                    statusCode: 103
+              - id: 52
+                name: Moodle
+                url: moodle.moodle.vavra.avava.gyarab.cz
+                template:
+                  id: 44
+                  name: Ubuntu
+                  createdOn: 2015-06-07T19:07:24.379615253-06:00
+                  image:
+                    os: Ubuntu
+                    version: 18.44
+                    description: Ubuntu OS description
+                  description: default profile for users with Ubuntu image
+                  minDiskUsage: 180_000_000
+                stateful: true
+                createdOn: 2015-06-08T19:07:24.379615253-06:00
+                lastStartedOn: 2015-06-09T19:07:24.379615253-06:00
+                snapshots:
+        
+                state:
+                  measuredOn: 2015-06-10T19:07:24.379615253-06:00
+                  CPU:
+                    limit: 500_000_001
+                    usedTime: 553_469_541
+                    usage: 50_000_501
+                  RAM:
+                    limit: 8_123_987_456
+                    usage: 828_456_000
+                    usagePeak: 7_500_000_000
+                  disk:
+                    limit: 100_000_000_000
+                    devices:
+                      - name: root
+                        usage: 45_300_000_000
+                  internet:
+                    name: eth0
+                    limits:
+                      download: 400_000_000
+                      upload: 80_000_000
+                    adresses:
+                      - family: inet
+                        adress: 10.0.3.27
+                        netmask: 8
+                        scope: global
+                      - family: inet6
+                        adress: fe80::216:3eff:feec:65a8
+                        netmask: 64
+                        scope: link
+                    counters:
+                      download:
+                        usedSpeed: 300_000_000
+                        bytesFromStart: 732_000_000_758
+                        packetsFromStart: 23_045_146
+                      upload:
+                        usedSpeed: 0
+                        bytesFromStart: 123_455
+                        packetsFromStart: 752
+                    hwaddr: 00:16:3e:ec:65:a8,
+                    hostName: vethBWTSU5,
+                    mtu: 1500,
+                    state: up,
+                    type: broadcast
+                  loopback:
+                    name: loopback
+                    adresses:
+                      - family: inet
+                        adress: 10.237.227.70
+                        netmask: 8
+                        scope: global
+                      - family: inet6
+                        adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                        netmask: 64
+                        scope: link
+                    counters:
+                      download:
+                        usedSpeed: 200_000_000
+                        bytesFromStart: 432_000_000_758
+                        packetsFromStart: 123_045_146
+                      upload:
+                        usedSpeed: 0
+                        bytesFromStart: 123_455
+                        packetsFromStart: 752
+                    hwaddr: 00:16:3e:ec:65:a8,
+                    hostName: vethBWTSU5,
+                    mtu: 1500,
+                    state: up,
+                    type: broadcast
+                  networks:
+                  numberOfProcesses: 138
+                  operationState:
+                    status: Running
+                    statusCode: 103
+                    
+          - id: 15
+            name: OtherProject
+            owner:
+              id: 1
+              email: vladimir.vavra@student.gyarab.cz
+              familyName: Vávra
+              givenName: Vladimír
+              role: 0
+              icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+              coins: 154
+            limits: 
+              RAM: 9_000_000_000
+              CPU: 1_000_000_000
+              disk: 151_000_000_000
+              internet:
+                download: 450_000_000
+                upload: 100_000_000
+            createdOn: 2015-06-06T19:07:24.379615253-06:00
+            coworkers:
+            containers:
+             -  id: 53
+                name: OtherContainer
+                url: othercontainer.moodle.vavra.avava.gyarab.cz
+                template:
+                  id: 44
+                  name: Ubuntu
+                  createdOn: 2015-06-07T19:07:24.379615253-06:00
+                  image:
+                    os: Ubuntu
+                    version: 18.44
+                    description: Ubuntu OS description
+                  description: default profile for users with Ubuntu image
+                  minDiskUsage: 180_000_000
+                stateful: true
+                createdOn: 2015-06-08T19:07:24.379615253-06:00
+                lastStartedOn: 2015-06-09T19:07:24.379615253-06:00
+                snapshots:
+          
+                state:
+                  measuredOn: 2015-06-10T19:07:24.379615253-06:00
+                  CPU:
+                    limit: 500_000_001
+                    usedTime: 553_469_541
+                    usage: 50_000_501
+                  RAM:
+                    limit: 8_123_987_456
+                    usage: 828_456_000
+                    usagePeak: 7_500_000_000
+                  disk:
+                    limit: 100_000_000_000
+                    devices:
+                      - name: root
+                        usage: 45_300_000_000
+                  internet:
+                    name: eth0
+                    limits:
+                      download: 400_000_000
+                      upload: 80_000_000
+                    adresses:
+                      - family: inet
+                        adress: 10.0.3.27
+                        netmask: 8
+                        scope: global
+                      - family: inet6
+                        adress: fe80::216:3eff:feec:65a8
+                        netmask: 64
+                        scope: link
+                    counters:
+                      download:
+                        usedSpeed: 300_000_000
+                        bytesFromStart: 732_000_000_758
+                        packetsFromStart: 23_045_146
+                      upload:
+                        usedSpeed: 0
+                        bytesFromStart: 123_455
+                        packetsFromStart: 752
+                    hwaddr: 00:16:3e:ec:65:a8,
+                    hostName: vethBWTSU5,
+                    mtu: 1500,
+                    state: up,
+                    type: broadcast
+                  loopback:
+                    name: loopback
+                    adresses:
+                      - family: inet
+                        adress: 10.237.227.70
+                        netmask: 8
+                        scope: global
+                      - family: inet6
+                        adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                        netmask: 64
+                        scope: link
+                    counters:
+                      download:
+                        usedSpeed: 200_000_000
+                        bytesFromStart: 432_000_000_758
+                        packetsFromStart: 123_045_146
+                      upload:
+                        usedSpeed: 0
+                        bytesFromStart: 123_455
+                        packetsFromStart: 752
+                    hwaddr: 00:16:3e:ec:65:a8,
+                    hostName: vethBWTSU5,
+                    mtu: 1500,
+                    state: up,
+                    type: broadcast
+                  networks:
+                  numberOfProcesses: 138
+                  operationState:
+                    status: Running
+                    statusCode: 103
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Id of the user generated by database
+        email:
+          type: string
+        familyName:
+          type: string
+          description: inherited family name
+        givenName:
+          type: string
+          description: first name - given by parents
+        role:
+          type: integer
+          description: 0 = normal user, 1 = admin, 2 = superadmin
+        icon:
+          type: string
+          description: icon of user
+        coins:
+          type: integer
+          description: number of coins that can be used to buy bigger resource quotas
+      example:
+        id: 1
+        email: vladimir.vavra@student.gyarab.cz
+        familyName: Vávra
+        givenName: Vladimír
+        role: 0
+        icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+        coins: 154
+    UserData:
+      type: object
+      description: Object containing everything that is necessary for the user frontend to work
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        userProjects:
+          $ref: "#/components/schemas/UserProjects"
+      example:
+        user:
+          id: 1
+          email: vladimir.vavra@student.gyarab.cz
+          familyName: Vávra
+          givenName: Vladimír
+          role: 0
+          icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+          coins: 154
+        userProjects:
+          limits: 
+            RAM: 90_000_000_000
+            CPU: 10_000_000_000
+            disk: 1_151_000_000_000
+            internet:
+              download: 1_450_000_000
+              upload: 1_000_000_000
+          projects:
+            - id: 14
+              name: Digitalizce výuky programování
+              owner:
+                id: 1
+                email: vladimir.vavra@student.gyarab.cz
+                familyName: Vávra
+                givenName: Vladimír
+                role: 0
+                icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+                coins: 154
+              createdOn: 2015-06-06T19:07:24.379615253-06:00
+              coworkers:
+                - id: 2
+                  email: krystof.havranek@student.gyarab.cz
+                  familyName: Kryštof
+                  givenName: Havránek
+                  role: 0
+                  icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+                  coins: 12
+                - id: 3
+                  email: josef.litos@student.gyarab.cz
+                  familyName: Josef
+                  givenName: Litoš
+                  role: 0
+                  icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+                  coins: 14
+              containers:
+                - id: 51
+                  name: Jobe
+                  url: jobe.moodle.vavra.avava.gyarab.cz
+                  template:
+                    id: 44
+                    name: Ubuntu
+                    createdOn: 2015-06-07T19:07:24.379615253-06:00
+                    image:
+                      os: Ubuntu
+                      version: 18.44
+                      description: Ubuntu OS description
+                    description: default profile for users with Ubuntu image
+                    minDiskUsage: 180_000_000
+                  stateful: true
+                  createdOn: 2015-06-08T19:07:24.379615253-06:00
+                  lastStartedOn: 2015-06-09T19:07:24.379615253-06:00
+                  snapshots:
+                    - name: snapshot (1)
+                      createdOn: 2015-06-08T19:07:24.379615253-06:00
+                      stateful: false
+                  state:
+                    measuredOn: 2015-06-10T19:07:24.379615253-06:00
+                    CPU:
+                      limit: 100_000_001
+                      usedTime: 153_469_541
+                      usage: 30_000_501
+                    RAM:
+                      limit: 4_123_987_456
+                      usage: 128_456_000
+                      usagePeak: 1_500_000_000
+                    disk:
+                      limit: 20_000_000_000
+                      devices:
+                        - name: root
+                          usage: 5_300_000_000
+                    internet:
+                      name: eth0
+                      limits:
+                        download: 200_000_000
+                        upload: 40_000_000
+                      adresses:
+                        - family: inet
+                          adress: 10.237.227.70
+                          netmask: 8
+                          scope: global
+                        - family: inet6
+                          adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                          netmask: 64
+                          scope: link
+                      counters:
+                        download:
+                          usedSpeed: 200_000_000
+                          bytesFromStart: 432_000_000_758
+                          packetsFromStart: 123_045_146
+                        upload:
+                          usedSpeed: 0
+                          bytesFromStart: 123_455
+                          packetsFromStart: 752
+                      hwaddr: 00:16:3e:ec:65:a8,
+                      hostName: vethBWTSU5,
+                      mtu: 1500,
+                      state: up,
+                      type: broadcast
+                    loopback:
+                      name: loopback
+                      adresses:
+                        - family: inet
+                          adress: 10.237.227.70
+                          netmask: 8
+                          scope: global
+                        - family: inet6
+                          adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                          netmask: 64
+                          scope: link
+                      counters:
+                        download:
+                          usedSpeed: 200_000_000
+                          bytesFromStart: 432_000_000_758
+                          packetsFromStart: 123_045_146
+                        upload:
+                          usedSpeed: 0
+                          bytesFromStart: 123_455
+                          packetsFromStart: 752
+                      hwaddr: 00:16:3e:ec:65:a8,
+                      hostName: vethBWTSU5,
+                      mtu: 1500,
+                      state: up,
+                      type: broadcast
+                    networks:
+                    numberOfProcesses: 138
+                    operationState:
+                      status: Running
+                      statusCode: 103
+                - id: 52
+                  name: Moodle
+                  url: moodle.moodle.vavra.avava.gyarab.cz
+                  template:
+                    id: 44
+                    name: Ubuntu
+                    createdOn: 2015-06-07T19:07:24.379615253-06:00
+                    image:
+                      os: Ubuntu
+                      version: 18.44
+                      description: Ubuntu OS description
+                    description: default profile for users with Ubuntu image
+                    minDiskUsage: 180_000_000
+                  stateful: true
+                  createdOn: 2015-06-08T19:07:24.379615253-06:00
+                  lastStartedOn: 2015-06-09T19:07:24.379615253-06:00
+                  snapshots:
+          
+                  state:
+                    measuredOn: 2015-06-10T19:07:24.379615253-06:00
+                    CPU:
+                      limit: 500_000_001
+                      usedTime: 553_469_541
+                      usage: 50_000_501
+                    RAM:
+                      limit: 8_123_987_456
+                      usage: 828_456_000
+                      usagePeak: 7_500_000_000
+                    disk:
+                      limit: 100_000_000_000
+                      devices:
+                        - name: root
+                          usage: 45_300_000_000
+                    internet:
+                      name: eth0
+                      limits:
+                        download: 400_000_000
+                        upload: 80_000_000
+                      adresses:
+                        - family: inet
+                          adress: 10.0.3.27
+                          netmask: 8
+                          scope: global
+                        - family: inet6
+                          adress: fe80::216:3eff:feec:65a8
+                          netmask: 64
+                          scope: link
+                      counters:
+                        download:
+                          usedSpeed: 300_000_000
+                          bytesFromStart: 732_000_000_758
+                          packetsFromStart: 23_045_146
+                        upload:
+                          usedSpeed: 0
+                          bytesFromStart: 123_455
+                          packetsFromStart: 752
+                      hwaddr: 00:16:3e:ec:65:a8,
+                      hostName: vethBWTSU5,
+                      mtu: 1500,
+                      state: up,
+                      type: broadcast
+                    loopback:
+                      name: loopback
+                      adresses:
+                        - family: inet
+                          adress: 10.237.227.70
+                          netmask: 8
+                          scope: global
+                        - family: inet6
+                          adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                          netmask: 64
+                          scope: link
+                      counters:
+                        download:
+                          usedSpeed: 200_000_000
+                          bytesFromStart: 432_000_000_758
+                          packetsFromStart: 123_045_146
+                        upload:
+                          usedSpeed: 0
+                          bytesFromStart: 123_455
+                          packetsFromStart: 752
+                      hwaddr: 00:16:3e:ec:65:a8,
+                      hostName: vethBWTSU5,
+                      mtu: 1500,
+                      state: up,
+                      type: broadcast
+                    networks:
+                    numberOfProcesses: 138
+                    operationState:
+                      status: Running
+                      statusCode: 103
+                      
+            - id: 15
+              name: OtherProject
+              owner:
+                id: 1
+                email: vladimir.vavra@student.gyarab.cz
+                familyName: Vávra
+                givenName: Vladimír
+                role: 0
+                icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
+                coins: 154
+              limits: 
+                RAM: 9_000_000_000
+                CPU: 1_000_000_000
+                disk: 151_000_000_000
+                internet:
+                  download: 450_000_000
+                  upload: 100_000_000
+              createdOn: 2015-06-06T19:07:24.379615253-06:00
+              coworkers:
+              containers:
+               -  id: 53
+                  name: OtherContainer
+                  url: othercontainer.moodle.vavra.avava.gyarab.cz
+                  template:
+                    id: 44
+                    name: Ubuntu
+                    createdOn: 2015-06-07T19:07:24.379615253-06:00
+                    image:
+                      os: Ubuntu
+                      version: 18.44
+                      description: Ubuntu OS description
+                    description: default profile for users with Ubuntu image
+                    minDiskUsage: 180_000_000
+                  stateful: true
+                  createdOn: 2015-06-08T19:07:24.379615253-06:00
+                  lastStartedOn: 2015-06-09T19:07:24.379615253-06:00
+                  snapshots:
+            
+                  state:
+                    measuredOn: 2015-06-10T19:07:24.379615253-06:00
+                    CPU:
+                      limit: 500_000_001
+                      usedTime: 553_469_541
+                      usage: 50_000_501
+                    RAM:
+                      limit: 8_123_987_456
+                      usage: 828_456_000
+                      usagePeak: 7_500_000_000
+                    disk:
+                      limit: 100_000_000_000
+                      devices:
+                        - name: root
+                          usage: 45_300_000_000
+                    internet:
+                      name: eth0
+                      limits:
+                        download: 400_000_000
+                        upload: 80_000_000
+                      adresses:
+                        - family: inet
+                          adress: 10.0.3.27
+                          netmask: 8
+                          scope: global
+                        - family: inet6
+                          adress: fe80::216:3eff:feec:65a8
+                          netmask: 64
+                          scope: link
+                      counters:
+                        download:
+                          usedSpeed: 300_000_000
+                          bytesFromStart: 732_000_000_758
+                          packetsFromStart: 23_045_146
+                        upload:
+                          usedSpeed: 0
+                          bytesFromStart: 123_455
+                          packetsFromStart: 752
+                      hwaddr: 00:16:3e:ec:65:a8,
+                      hostName: vethBWTSU5,
+                      mtu: 1500,
+                      state: up,
+                      type: broadcast
+                    loopback:
+                      name: loopback
+                      adresses:
+                        - family: inet
+                          adress: 10.237.227.70
+                          netmask: 8
+                          scope: global
+                        - family: inet6
+                          adress: fd42:2d58:d04a:5d07:216:3eff:fece:e2e0
+                          netmask: 64
+                          scope: link
+                      counters:
+                        download:
+                          usedSpeed: 200_000_000
+                          bytesFromStart: 432_000_000_758
+                          packetsFromStart: 123_045_146
+                        upload:
+                          usedSpeed: 0
+                          bytesFromStart: 123_455
+                          packetsFromStart: 752
+                      hwaddr: 00:16:3e:ec:65:a8,
+                      hostName: vethBWTSU5,
+                      mtu: 1500,
+                      state: up,
+                      type: broadcast
+                    networks:
+                    numberOfProcesses: 138
+                    operationState:
+                      status: Running
+                      statusCode: 103
