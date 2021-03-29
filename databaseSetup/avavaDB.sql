@@ -1,7 +1,3 @@
---
--- Table structure for table `appsToInstall`
---
-
 CREATE TABLE `appsToInstall` (
   `id` int(11) NOT NULL,
   `name` varchar(64) COLLATE utf8_czech_ci NOT NULL,
@@ -20,32 +16,11 @@ CREATE TABLE `containers` (
   `id` int(11) NOT NULL,
   `project_id` int(11) NOT NULL,
   `name` varchar(64) COLLATE utf8_czech_ci NOT NULL,
+  `url` varchar(128) COLLATE utf8_czech_ci DEFAULT NULL,
   `template_id` int(11) NOT NULL,
   `state` int(4) NOT NULL,
   `timestamp` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `time_started` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `containersNetworkConfigurations`
---
-
-CREATE TABLE `containersNetworkConfigurations` (
-  `container_id` int(11) NOT NULL,
-  `interface_name` varchar(32) COLLATE utf8_czech_ci NOT NULL,
-  `type` int(4) NOT NULL,
-  `IPv4` varchar(64) COLLATE utf8_czech_ci NOT NULL,
-  `IPv4_netmask` varchar(64) COLLATE utf8_czech_ci NOT NULL,
-  `IPv4_scope` varchar(32) COLLATE utf8_czech_ci NOT NULL,
-  `IPv6` varchar(64) COLLATE utf8_czech_ci NOT NULL,
-  `IPv6_netmask` varchar(32) COLLATE utf8_czech_ci NOT NULL,
-  `IPv6_scope` varchar(32) COLLATE utf8_czech_ci NOT NULL,
-  `hwaddr` varchar(64) COLLATE utf8_czech_ci NOT NULL,
-  `hostName` varchar(32) COLLATE utf8_czech_ci NOT NULL,
-  `mtu` int(4) NOT NULL,
-  `state` varchar(32) COLLATE utf8_czech_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
@@ -111,11 +86,11 @@ CREATE TABLE `projectsCoworkers` (
 
 CREATE TABLE `projectsResourcesLimits` (
   `project_id` int(11) NOT NULL,
-  `ram` int(4) NOT NULL,
-  `cpu` int(4) NOT NULL,
-  `disk` int(4) NOT NULL,
-  `upload` int(4) NOT NULL,
-  `download` int(4) NOT NULL
+  `ram` int(4) DEFAULT NULL,
+  `cpu` int(4) DEFAULT NULL,
+  `disk` int(4) DEFAULT NULL,
+  `upload` int(4) DEFAULT NULL,
+  `download` int(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
@@ -181,14 +156,10 @@ ALTER TABLE `appsToInstall`
 --
 ALTER TABLE `containers`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `url` (`url`),
+  ADD UNIQUE KEY `url_2` (`url`),
   ADD KEY `containers_ibfk_1` (`project_id`),
   ADD KEY `containers_ibfk_2` (`template_id`);
-
---
--- Indexes for table `containersNetworkConfigurations`
---
-ALTER TABLE `containersNetworkConfigurations`
-  ADD PRIMARY KEY (`container_id`,`interface_name`);
 
 --
 -- Indexes for table `containersResourcesLimits`
@@ -288,12 +259,6 @@ ALTER TABLE `users`
 ALTER TABLE `containers`
   ADD CONSTRAINT `containers_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `containers_ibfk_2` FOREIGN KEY (`template_id`) REFERENCES `templates` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
-
---
--- Constraints for table `containersNetworkConfigurations`
---
-ALTER TABLE `containersNetworkConfigurations`
-  ADD CONSTRAINT `containersNetworkConfigurations_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `containersResourcesLimits`

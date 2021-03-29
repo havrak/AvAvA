@@ -2,6 +2,7 @@ CREATE TABLE `containers` (
   `id` int(11) NOT NULL,
   `project_id` int(11) NOT NULL,
   `name` varchar(64) COLLATE utf8_czech_ci NOT NULL,
+  `url` varchar(128) COLLATE utf8_czech_ci DEFAULT NULL,
   `template_id` int(11) NOT NULL,
   `state` int(4) NOT NULL,
   `timestamp` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
@@ -10,6 +11,8 @@ CREATE TABLE `containers` (
 
 ALTER TABLE `containers`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `url` (`url`),
+  ADD UNIQUE KEY `url_2` (`url`),
   ADD KEY `containers_ibfk_1` (`project_id`),
   ADD KEY `containers_ibfk_2` (`template_id`);
 
