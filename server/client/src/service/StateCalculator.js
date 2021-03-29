@@ -25,12 +25,22 @@ const createEmptyState = () => {
             allocated: 0,
          },
       },
+      containers: {
+         running: 0,
+         stopped: 0,
+         frozen: 0
+      }
    };
 };
 
-export const addStateToUserProjects = (userProjects) => {
+export const addStateToUserData = (userData) => {
+   const {user, userProjects} = userData;
    const state = (userProjects.state = createEmptyState());
-   const { RAM, CPU, disk, internet } = state;
+   const { RAM, CPU, disk, internet, containers } = state;
+   const projects = state.projects = {
+      own: 0,
+      foreign: 0
+   }
    for (const project of userProjects.projects) {
       addStateToProject(project);
       RAM.usage += project.state.RAM.usage;
@@ -65,6 +75,16 @@ export const addStateToUserProjects = (userProjects) => {
          internet.upload.allocated += project.limits.internet.upload - project.state.internet.upload.usage;
       } else {
          internet.upload.allocated += project.state.internet.upload.allocated;
+      }
+
+      containers.running += project.state.containers.running;
+      containers.stopped += project.state.containers.stopped;
+      containers.frozen += project.state.containers.frozen;
+
+      if(project.owner.id === user.id){
+         projects.own++;
+      } else {
+         projects.foreign++;
       }
    }
 
@@ -115,7 +135,7 @@ export const addStateToUserProjects = (userProjects) => {
 
 export const addStateToProject = (project) => {
    const state = (project.state = createEmptyState());
-   const { RAM, CPU, disk, internet } = state;
+   const { RAM, CPU, disk, internet, containers } = state;
    for (const container of project.containers) {
       addStateToContainer(container);
       RAM.usage += container.state.RAM.usage;
@@ -131,6 +151,14 @@ export const addStateToProject = (project) => {
       internet.download.allocated += container.state.internet.limits.download;
       internet.upload.usage += container.state.internet.counters.upload.usedSpeed;
       internet.upload.allocated += container.state.internet.limits.upload;
+      
+      if (container.state.operationState.status === "Running") {
+         containers.running++;
+      } else if (container.state.operationState.status === "Stopped") {
+         containers.stopped++;
+      } else if (container.state.operationState.status === "Frozen") {
+         containers.frozen++;
+      }
    }
    RAM.allocated -= RAM.usage;
    if (project.limits?.RAM) {

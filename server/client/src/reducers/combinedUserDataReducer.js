@@ -4,7 +4,7 @@ import * as StateCalculator from '../service/StateCalculator';
 export const combinedUserDataReducer = (state = null, action) => {
    switch (action.type) {
       case "COMBINED_DATA_GET": {
-         console.log(StateCalculator.addStateToUserProjects(action.payload.userProjects))
+         console.log(StateCalculator.addStateToUserData(action.payload))
          return action.payload || null;
       }
       case "USER_PROJECTS_GET": {
