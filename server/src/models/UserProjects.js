@@ -1,8 +1,8 @@
 export default class UserProjects {
-  constructor(userState, projects) {
-    this.userState = userState;
+  constructor(limits, projects) {
+    this.limits = limits;
     this.projects = projects;
   }
-  userState; // -> lightResourceState.js;
+  limits; // -> Limits.js;
   projects; // -> Project.js[]
 }

@@ -28,5 +28,5 @@ export default class Container {
   createdOn;
   lastStartedOn;
   snapshots; // -> Snapshot.js
-  state; // -> ResourceState.js
+  state; // -> ContainerResourceState.js
 }
