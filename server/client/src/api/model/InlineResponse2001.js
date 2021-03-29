@@ -12,7 +12,9 @@
  */
 
 import ApiClient from '../ApiClient';
+import ApplicationToInstall from './ApplicationToInstall';
 import Limits from './Limits';
+import Template from './Template';
 
 /**
 * The InlineResponse2001 model module.
@@ -44,6 +46,12 @@ export default class InlineResponse2001 {
             obj = obj || new InlineResponse2001();
                         
             
+            if (data.hasOwnProperty('templateTypes')) {
+                obj['templateTypes'] = ApiClient.convertToType(data['templateTypes'], [Template]);
+            }
+            if (data.hasOwnProperty('applicationsToInstall')) {
+                obj['applicationsToInstall'] = ApiClient.convertToType(data['applicationsToInstall'], [ApplicationToInstall]);
+            }
             if (data.hasOwnProperty('maxLimits')) {
                 obj['maxLimits'] = Limits.constructFromObject(data['maxLimits']);
             }
@@ -51,6 +59,14 @@ export default class InlineResponse2001 {
         return obj;
     }
 
+    /**
+    * @member {Array.<module:model/Template>} templateTypes
+    */
+    'templateTypes' = undefined;
+    /**
+    * @member {Array.<module:model/ApplicationToInstall>} applicationsToInstall
+    */
+    'applicationsToInstall' = undefined;
     /**
     * @member {module:model/Limits} maxLimits
     */

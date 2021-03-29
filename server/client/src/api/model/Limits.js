@@ -12,7 +12,7 @@
  */
 
 import ApiClient from '../ApiClient';
-import LimitsNetwork from './LimitsNetwork';
+import LimitsInternet from './LimitsInternet';
 
 /**
 * The Limits model module.
@@ -54,8 +54,8 @@ export default class Limits {
             if (data.hasOwnProperty('disk')) {
                 obj['disk'] = ApiClient.convertToType(data['disk'], 'Number');
             }
-            if (data.hasOwnProperty('network')) {
-                obj['network'] = LimitsNetwork.constructFromObject(data['network']);
+            if (data.hasOwnProperty('internet')) {
+                obj['internet'] = LimitsInternet.constructFromObject(data['internet']);
             }
         }
         return obj;
@@ -77,9 +77,9 @@ export default class Limits {
     */
     'disk' = undefined;
     /**
-    * @member {module:model/LimitsNetwork} network
+    * @member {module:model/LimitsInternet} internet
     */
-    'network' = undefined;
+    'internet' = undefined;
 
 
 

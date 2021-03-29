@@ -12,6 +12,7 @@
  */
 
 import ApiClient from '../ApiClient';
+import ContainerResourceStateDiskDevices from './ContainerResourceStateDiskDevices';
 
 /**
 * The ContainerResourceStateDisk model module.
@@ -43,34 +44,25 @@ export default class ContainerResourceStateDisk {
             obj = obj || new ContainerResourceStateDisk();
                         
             
-            if (data.hasOwnProperty('deviceName')) {
-                obj['deviceName'] = ApiClient.convertToType(data['deviceName'], 'String');
+            if (data.hasOwnProperty('limit')) {
+                obj['limit'] = ApiClient.convertToType(data['limit'], 'Number');
             }
-            if (data.hasOwnProperty('currentlyConsumedMemory')) {
-                obj['currentlyConsumedMemory'] = ApiClient.convertToType(data['currentlyConsumedMemory'], 'Number');
-            }
-            if (data.hasOwnProperty('percentConsumed')) {
-                obj['percentConsumed'] = ApiClient.convertToType(data['percentConsumed'], 'Number');
+            if (data.hasOwnProperty('devices')) {
+                obj['devices'] = ApiClient.convertToType(data['devices'], [ContainerResourceStateDiskDevices]);
             }
         }
         return obj;
     }
 
     /**
-    * e.g. root
-    * @member {String} deviceName
+    * disk limit for all devices of this container in bytes
+    * @member {Number} limit
     */
-    'deviceName' = undefined;
+    'limit' = undefined;
     /**
-    * current disk usage in bytes
-    * @member {Number} currentlyConsumedMemory
+    * @member {Array.<module:model/ContainerResourceStateDiskDevices>} devices
     */
-    'currentlyConsumedMemory' = undefined;
-    /**
-    * Percentage of the consumed disk memory from the overall memory available to the container
-    * @member {Number} percentConsumed
-    */
-    'percentConsumed' = undefined;
+    'devices' = undefined;
 
 
 

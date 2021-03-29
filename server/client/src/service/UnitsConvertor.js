@@ -74,6 +74,6 @@ export function networkSpeedToMbits(bytes){
    return Math.round(bytes / 1_000) / 1_000.0;
 }
 
-export function networkSpeedFromMBitsToBitss(MBits){
+export function networkSpeedFromMBitsToBits(MBits){
    return MBits * 1_000_000;
 }

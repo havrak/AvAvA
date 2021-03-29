@@ -71,7 +71,11 @@ function Projects({
             view: "all",
             Cell: (props) => {
                const id = props.row.original.id;
-               return <Link className="table-link" to={`/user/projects/${id}`}>{props.value}</Link>
+               return (
+                  <Link className="table-link" to={`/user/projects/${id}`}>
+                     {props.value}
+                  </Link>
+               );
             },
          },
          {
@@ -465,7 +469,7 @@ function Projects({
                },
             ],
          },
-         //UPLOAD    
+         //UPLOAD
          {
             Header: "Used | Allocated | Free",
             accessor: "uploadProgressBar",
@@ -584,11 +588,19 @@ function Projects({
                }
             }
             //LIMITS
-            projectData.ramLimit = bytesToAdequateMessage(project.projectState.limits.RAM);
+            projectData.ramLimit = bytesToAdequateMessage(
+               project.projectState.limits.RAM
+            );
             projectData.cpuLimit = project.projectState.limits.CPU;
-            projectData.diskLimit = bytesToAdequateMessage(project.projectState.limits.disk);
-            projectData.downloadLimit = bytesPerSecondToAdequateMessage(project.projectState.limits.network.download);
-            projectData.uploadLimit = bytesPerSecondToAdequateMessage(project.projectState.limits.network.upload);
+            projectData.diskLimit = bytesToAdequateMessage(
+               project.projectState.limits.disk
+            );
+            projectData.downloadLimit = bytesPerSecondToAdequateMessage(
+               project.projectState.limits.network.download
+            );
+            projectData.uploadLimit = bytesPerSecondToAdequateMessage(
+               project.projectState.limits.network.upload
+            );
             //RAM
             projectData.ramLimitSpecific = project.projectState.limits.RAM;
             projectData.ramUsedValue = project.projectState.RAM.usage;
@@ -631,31 +643,39 @@ function Projects({
                project.projectState.disk.percentAllocated
             );
             //DOWNLOAD
-            projectData.downloadLimitSpecific = project.projectState.limits.network.download
-            projectData.downloadUsedValue = project.projectState.network.download.downloadSpeed;
-            projectData.downloadAllocatedValue = project.projectState.network.download.allocatedDownloadSpeed;
+            projectData.downloadLimitSpecific =
+               project.projectState.limits.network.download;
+            projectData.downloadUsedValue =
+               project.projectState.network.download.downloadSpeed;
+            projectData.downloadAllocatedValue =
+               project.projectState.network.download.allocatedDownloadSpeed;
             projectData.downloadFreeValue = calculateFreeAmount(
                project.projectState.limits.network.download,
                project.projectState.network.download.downloadSpeed,
                project.projectState.network.download.allocatedDownloadSpeed
             );
-            projectData.downloadUsedPercent = project.projectState.network.download.downloadBandwidthUsage;
-            projectData.downloadAllocatedPercent = project.projectState.network.download.allocatedBandwidthUsage;
+            projectData.downloadUsedPercent =
+               project.projectState.network.download.downloadBandwidthUsage;
+            projectData.downloadAllocatedPercent =
+               project.projectState.network.download.allocatedBandwidthUsage;
             projectData.downloadFreePercent = calculateFreePercent(
                project.projectState.network.download.allocatedBandwidthUsage,
                project.projectState.network.download.downloadBandwidthUsage
             );
             //UPLOAD
-            projectData.uploadLimitSpecific = project.projectState.limits.network.upload
+            projectData.uploadLimitSpecific = project.projectState.limits.network.upload;
             projectData.uploadUsedValue = project.projectState.network.upload.uploadSpeed;
-            projectData.uploadAllocatedValue = project.projectState.network.upload.allocatedDownloadSpeed;
+            projectData.uploadAllocatedValue =
+               project.projectState.network.upload.allocatedDownloadSpeed;
             projectData.uploadFreeValue = calculateFreeAmount(
                project.projectState.limits.network.upload,
                project.projectState.network.upload.uploadSpeed,
                project.projectState.network.upload.allocatedDownloadSpeed
             );
-            projectData.uploadUsedPercent = project.projectState.network.upload.uploadBandwidthUsage;
-            projectData.uploadAllocatedPercent = project.projectState.network.upload.allocatedBandwidthUsage;
+            projectData.uploadUsedPercent =
+               project.projectState.network.upload.uploadBandwidthUsage;
+            projectData.uploadAllocatedPercent =
+               project.projectState.network.upload.allocatedBandwidthUsage;
             projectData.uploadFreePercent = calculateFreePercent(
                project.projectState.network.upload.allocatedBandwidthUsage,
                project.projectState.network.upload.uploadBandwidthUsage

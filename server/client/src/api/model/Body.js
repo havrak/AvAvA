@@ -12,6 +12,7 @@
  */
 
 import ApiClient from '../ApiClient';
+import ApplicationToInstall from './ApplicationToInstall';
 import Limits from './Limits';
 
 /**
@@ -25,16 +26,24 @@ export default class Body {
     * @alias module:model/Body
     * @class
     * @param name {String} 
+    * @param projectId {Number} Id of project where container should be created
     * @param autostart {Boolean} 
-    * @param applicationToInstall {Array.<String>} 
+    * @param templateId {Number} 
+    * @param stateful {Boolean} 
+    * @param applicationsToInstall {Array.<module:model/ApplicationToInstall>} 
+    * @param connectToInternet {Boolean} 
     */
 
-    constructor(name, autostart, applicationToInstall) {
+    constructor(name, projectId, autostart, templateId, stateful, applicationsToInstall, connectToInternet) {
         
         
         this['name'] = name;
+        this['projectId'] = projectId;
         this['autostart'] = autostart;
-        this['applicationToInstall'] = applicationToInstall;
+        this['templateId'] = templateId;
+        this['stateful'] = stateful;
+        this['applicationsToInstall'] = applicationsToInstall;
+        this['connectToInternet'] = connectToInternet;
         
     }
 
@@ -65,8 +74,11 @@ export default class Body {
             if (data.hasOwnProperty('stateful')) {
                 obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
             }
-            if (data.hasOwnProperty('applicationToInstall')) {
-                obj['applicationToInstall'] = ApiClient.convertToType(data['applicationToInstall'], ['String']);
+            if (data.hasOwnProperty('applicationsToInstall')) {
+                obj['applicationsToInstall'] = ApiClient.convertToType(data['applicationsToInstall'], [ApplicationToInstall]);
+            }
+            if (data.hasOwnProperty('connectToInternet')) {
+                obj['connectToInternet'] = ApiClient.convertToType(data['connectToInternet'], 'Boolean');
             }
             if (data.hasOwnProperty('customLimits')) {
                 obj['customLimits'] = Limits.constructFromObject(data['customLimits']);
@@ -97,9 +109,13 @@ export default class Body {
     */
     'stateful' = undefined;
     /**
-    * @member {Array.<String>} applicationToInstall
+    * @member {Array.<module:model/ApplicationToInstall>} applicationsToInstall
     */
-    'applicationToInstall' = undefined;
+    'applicationsToInstall' = undefined;
+    /**
+    * @member {Boolean} connectToInternet
+    */
+    'connectToInternet' = undefined;
     /**
     * @member {module:model/Limits} customLimits
     */

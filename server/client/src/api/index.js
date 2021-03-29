@@ -15,38 +15,33 @@ import ApiClient from './ApiClient';
 import ApplicationToInstall from './model/ApplicationToInstall';
 import Body from './model/Body';
 import Body1 from './model/Body1';
+import Body2 from './model/Body2';
 import Container from './model/Container';
 import ContainerResourceState from './model/ContainerResourceState';
-import ContainerResourceStateAdresses from './model/ContainerResourceStateAdresses';
 import ContainerResourceStateCPU from './model/ContainerResourceStateCPU';
-import ContainerResourceStateCounters from './model/ContainerResourceStateCounters';
 import ContainerResourceStateDisk from './model/ContainerResourceStateDisk';
-import ContainerResourceStateNetworks from './model/ContainerResourceStateNetworks';
+import ContainerResourceStateDiskDevices from './model/ContainerResourceStateDiskDevices';
 import ContainerResourceStateRAM from './model/ContainerResourceStateRAM';
-import ContainerState from './model/ContainerState';
-import HostInformation from './model/HostInformation';
-import HostInformationCPU from './model/HostInformationCPU';
+import ContainerStateWithHistory from './model/ContainerStateWithHistory';
 import Image from './model/Image';
 import InlineResponse200 from './model/InlineResponse200';
 import InlineResponse2001 from './model/InlineResponse2001';
-import LightResourceState from './model/LightResourceState';
-import LightResourceStateCPU from './model/LightResourceStateCPU';
-import LightResourceStateDisk from './model/LightResourceStateDisk';
-import LightResourceStateNetwork from './model/LightResourceStateNetwork';
-import LightResourceStateNetworkDownload from './model/LightResourceStateNetworkDownload';
-import LightResourceStateNetworkUpload from './model/LightResourceStateNetworkUpload';
-import LightResourceStateRAM from './model/LightResourceStateRAM';
 import Limits from './model/Limits';
-import LimitsNetwork from './model/LimitsNetwork';
+import LimitsInternet from './model/LimitsInternet';
+import NetworkState from './model/NetworkState';
+import NetworkStateAdresses from './model/NetworkStateAdresses';
+import NetworkStateCounters from './model/NetworkStateCounters';
+import NetworkStateCountersDownload from './model/NetworkStateCountersDownload';
+import NetworkStateCountersUpload from './model/NetworkStateCountersUpload';
 import OperationState from './model/OperationState';
 import Project from './model/Project';
-import ProjectState from './model/ProjectState';
+import ProjectStateWithHistory from './model/ProjectStateWithHistory';
 import Snapshot from './model/Snapshot';
 import Template from './model/Template';
 import User from './model/User';
 import UserData from './model/UserData';
 import UserProjects from './model/UserProjects';
-import UserProjectsState from './model/UserProjectsState';
+import UserStateWithHistory from './model/UserStateWithHistory';
 import DefaultApi from './api/DefaultApi';
 
 /**
@@ -106,6 +101,12 @@ export {
     Body1,
 
     /**
+     * The Body2 model constructor.
+     * @property {module:model/Body2}
+     */
+    Body2,
+
+    /**
      * The Container model constructor.
      * @property {module:model/Container}
      */
@@ -118,22 +119,10 @@ export {
     ContainerResourceState,
 
     /**
-     * The ContainerResourceStateAdresses model constructor.
-     * @property {module:model/ContainerResourceStateAdresses}
-     */
-    ContainerResourceStateAdresses,
-
-    /**
      * The ContainerResourceStateCPU model constructor.
      * @property {module:model/ContainerResourceStateCPU}
      */
     ContainerResourceStateCPU,
-
-    /**
-     * The ContainerResourceStateCounters model constructor.
-     * @property {module:model/ContainerResourceStateCounters}
-     */
-    ContainerResourceStateCounters,
 
     /**
      * The ContainerResourceStateDisk model constructor.
@@ -142,10 +131,10 @@ export {
     ContainerResourceStateDisk,
 
     /**
-     * The ContainerResourceStateNetworks model constructor.
-     * @property {module:model/ContainerResourceStateNetworks}
+     * The ContainerResourceStateDiskDevices model constructor.
+     * @property {module:model/ContainerResourceStateDiskDevices}
      */
-    ContainerResourceStateNetworks,
+    ContainerResourceStateDiskDevices,
 
     /**
      * The ContainerResourceStateRAM model constructor.
@@ -154,22 +143,10 @@ export {
     ContainerResourceStateRAM,
 
     /**
-     * The ContainerState model constructor.
-     * @property {module:model/ContainerState}
+     * The ContainerStateWithHistory model constructor.
+     * @property {module:model/ContainerStateWithHistory}
      */
-    ContainerState,
-
-    /**
-     * The HostInformation model constructor.
-     * @property {module:model/HostInformation}
-     */
-    HostInformation,
-
-    /**
-     * The HostInformationCPU model constructor.
-     * @property {module:model/HostInformationCPU}
-     */
-    HostInformationCPU,
+    ContainerStateWithHistory,
 
     /**
      * The Image model constructor.
@@ -190,58 +167,46 @@ export {
     InlineResponse2001,
 
     /**
-     * The LightResourceState model constructor.
-     * @property {module:model/LightResourceState}
-     */
-    LightResourceState,
-
-    /**
-     * The LightResourceStateCPU model constructor.
-     * @property {module:model/LightResourceStateCPU}
-     */
-    LightResourceStateCPU,
-
-    /**
-     * The LightResourceStateDisk model constructor.
-     * @property {module:model/LightResourceStateDisk}
-     */
-    LightResourceStateDisk,
-
-    /**
-     * The LightResourceStateNetwork model constructor.
-     * @property {module:model/LightResourceStateNetwork}
-     */
-    LightResourceStateNetwork,
-
-    /**
-     * The LightResourceStateNetworkDownload model constructor.
-     * @property {module:model/LightResourceStateNetworkDownload}
-     */
-    LightResourceStateNetworkDownload,
-
-    /**
-     * The LightResourceStateNetworkUpload model constructor.
-     * @property {module:model/LightResourceStateNetworkUpload}
-     */
-    LightResourceStateNetworkUpload,
-
-    /**
-     * The LightResourceStateRAM model constructor.
-     * @property {module:model/LightResourceStateRAM}
-     */
-    LightResourceStateRAM,
-
-    /**
      * The Limits model constructor.
      * @property {module:model/Limits}
      */
     Limits,
 
     /**
-     * The LimitsNetwork model constructor.
-     * @property {module:model/LimitsNetwork}
+     * The LimitsInternet model constructor.
+     * @property {module:model/LimitsInternet}
      */
-    LimitsNetwork,
+    LimitsInternet,
+
+    /**
+     * The NetworkState model constructor.
+     * @property {module:model/NetworkState}
+     */
+    NetworkState,
+
+    /**
+     * The NetworkStateAdresses model constructor.
+     * @property {module:model/NetworkStateAdresses}
+     */
+    NetworkStateAdresses,
+
+    /**
+     * The NetworkStateCounters model constructor.
+     * @property {module:model/NetworkStateCounters}
+     */
+    NetworkStateCounters,
+
+    /**
+     * The NetworkStateCountersDownload model constructor.
+     * @property {module:model/NetworkStateCountersDownload}
+     */
+    NetworkStateCountersDownload,
+
+    /**
+     * The NetworkStateCountersUpload model constructor.
+     * @property {module:model/NetworkStateCountersUpload}
+     */
+    NetworkStateCountersUpload,
 
     /**
      * The OperationState model constructor.
@@ -256,10 +221,10 @@ export {
     Project,
 
     /**
-     * The ProjectState model constructor.
-     * @property {module:model/ProjectState}
+     * The ProjectStateWithHistory model constructor.
+     * @property {module:model/ProjectStateWithHistory}
      */
-    ProjectState,
+    ProjectStateWithHistory,
 
     /**
      * The Snapshot model constructor.
@@ -292,10 +257,10 @@ export {
     UserProjects,
 
     /**
-     * The UserProjectsState model constructor.
-     * @property {module:model/UserProjectsState}
+     * The UserStateWithHistory model constructor.
+     * @property {module:model/UserStateWithHistory}
      */
-    UserProjectsState,
+    UserStateWithHistory,
 
     /**
     * The DefaultApi service constructor.

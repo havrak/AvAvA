@@ -1,8 +1,10 @@
 import _ from "lodash";
+import * as StateCalculator from '../service/StateCalculator';
 
 export const combinedUserDataReducer = (state = null, action) => {
    switch (action.type) {
       case "COMBINED_DATA_GET": {
+         console.log(StateCalculator.addStateToUserProjects(action.payload.userProjects))
          return action.payload || null;
       }
       case "USER_PROJECTS_GET": {

@@ -43,34 +43,34 @@ export default class ContainerResourceStateRAM {
             obj = obj || new ContainerResourceStateRAM();
                         
             
+            if (data.hasOwnProperty('limit')) {
+                obj['limit'] = ApiClient.convertToType(data['limit'], 'Number');
+            }
             if (data.hasOwnProperty('usage')) {
                 obj['usage'] = ApiClient.convertToType(data['usage'], 'Number');
             }
             if (data.hasOwnProperty('usagePeak')) {
                 obj['usagePeak'] = ApiClient.convertToType(data['usagePeak'], 'Number');
             }
-            if (data.hasOwnProperty('percentConsumed')) {
-                obj['percentConsumed'] = ApiClient.convertToType(data['percentConsumed'], 'Number');
-            }
         }
         return obj;
     }
 
+    /**
+    * RAM limit in bytes
+    * @member {Number} limit
+    */
+    'limit' = undefined;
     /**
     * last measured RAM usage in Bytes
     * @member {Number} usage
     */
     'usage' = undefined;
     /**
-    * maximum measured RAM usage in Bytes
+    * maximum measured RAM usage in Bytes from the start of the container
     * @member {Number} usagePeak
     */
     'usagePeak' = undefined;
-    /**
-    * Percentage of RAM consumed from the overall RAM available to the container
-    * @member {Number} percentConsumed
-    */
-    'percentConsumed' = undefined;
 
 
 

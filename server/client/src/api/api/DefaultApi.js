@@ -14,18 +14,19 @@
 import ApiClient from "../ApiClient";
 import Body from '../model/Body';
 import Body1 from '../model/Body1';
+import Body2 from '../model/Body2';
 import Container from '../model/Container';
-import ContainerState from '../model/ContainerState';
+import ContainerStateWithHistory from '../model/ContainerStateWithHistory';
 import InlineResponse200 from '../model/InlineResponse200';
 import InlineResponse2001 from '../model/InlineResponse2001';
 import OperationState from '../model/OperationState';
 import Project from '../model/Project';
-import ProjectState from '../model/ProjectState';
+import ProjectStateWithHistory from '../model/ProjectStateWithHistory';
 import Snapshot from '../model/Snapshot';
 import User from '../model/User';
 import UserData from '../model/UserData';
 import UserProjects from '../model/UserProjects';
-import UserProjectsState from '../model/UserProjectsState';
+import UserStateWithHistory from '../model/UserStateWithHistory';
 
 /**
 * Default service.
@@ -379,20 +380,16 @@ export default class DefaultApi {
      */
 
     /**
-     * @param {Object} opts Optional parameters
      * @param {module:api/DefaultApi~instancesIdSnapshotsPostCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/Snapshot}
      */
-    instancesIdSnapshotsPost(id, stateful, opts, callback) {
-      opts = opts || {};
-      let postBody = null;
+    instancesIdSnapshotsPost(body, id, callback) {
+      let postBody = body;
 
       let pathParams = {
         'id': id
       };
       let queryParams = {
-        'snapshotName': opts['snapshotName'],
-        'stateful': stateful
       };
       let headerParams = {
       };
@@ -400,7 +397,7 @@ export default class DefaultApi {
       };
 
       let authNames = [];
-      let contentTypes = [];
+      let contentTypes = ['application/json'];
       let accepts = ['application/json'];
       let returnType = Snapshot;
 
@@ -450,13 +447,13 @@ export default class DefaultApi {
      * Callback function to receive the result of the instancesIdStateWithHistoryGet operation.
      * @callback module:api/DefaultApi~instancesIdStateWithHistoryGetCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/ContainerState} data The data returned by the service call.
+     * @param {module:model/ContainerStateWithHistory} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * @param {module:api/DefaultApi~instancesIdStateWithHistoryGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/ContainerState}
+     * data is of type: {@link module:model/ContainerStateWithHistory}
      */
     instancesIdStateWithHistoryGet(id, callback) {
       let postBody = null;
@@ -474,7 +471,7 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = ContainerState;
+      let returnType = ContainerStateWithHistory;
 
       return this.apiClient.callApi(
         '/instances/{id}/stateWithHistory', 'GET',
@@ -626,22 +623,21 @@ export default class DefaultApi {
       );
     }
     /**
-     * Callback function to receive the result of the instancesProjectIdCreateConfigDataGet operation.
-     * @callback module:api/DefaultApi~instancesProjectIdCreateConfigDataGetCallback
+     * Callback function to receive the result of the projectsCreateConfigDataGet operation.
+     * @callback module:api/DefaultApi~projectsCreateConfigDataGetCallback
      * @param {String} error Error message, if any.
      * @param {module:model/InlineResponse200} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
-     * @param {module:api/DefaultApi~instancesProjectIdCreateConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * @param {module:api/DefaultApi~projectsCreateConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/InlineResponse200}
      */
-    instancesProjectIdCreateConfigDataGet(projectId, callback) {
+    projectsCreateConfigDataGet(callback) {
       let postBody = null;
 
       let pathParams = {
-        'projectId': projectId
       };
       let queryParams = {
       };
@@ -656,24 +652,24 @@ export default class DefaultApi {
       let returnType = InlineResponse200;
 
       return this.apiClient.callApi(
-        '/instances/{projectId}/createConfigData', 'GET',
+        '/projects/createConfigData', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
     }
     /**
-     * Callback function to receive the result of the projectCreateConfigDataGet operation.
-     * @callback module:api/DefaultApi~projectCreateConfigDataGetCallback
+     * Callback function to receive the result of the projectsGet operation.
+     * @callback module:api/DefaultApi~projectsGetCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/InlineResponse2001} data The data returned by the service call.
+     * @param {module:model/UserProjects} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
-     * @param {module:api/DefaultApi~projectCreateConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/InlineResponse2001}
+     * @param {module:api/DefaultApi~projectsGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/UserProjects}
      */
-    projectCreateConfigDataGet(callback) {
+    projectsGet(callback) {
       let postBody = null;
 
       let pathParams = {
@@ -688,26 +684,26 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = InlineResponse2001;
+      let returnType = UserProjects;
 
       return this.apiClient.callApi(
-        '/project/createConfigData', 'GET',
+        '/projects', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
     }
     /**
-     * Callback function to receive the result of the projectIdDelete operation.
-     * @callback module:api/DefaultApi~projectIdDeleteCallback
+     * Callback function to receive the result of the projectsIdDelete operation.
+     * @callback module:api/DefaultApi~projectsIdDeleteCallback
      * @param {String} error Error message, if any.
      * @param data This operation does not return a value.
      * @param {String} response The complete HTTP response.
      */
 
     /**
-     * @param {module:api/DefaultApi~projectIdDeleteCallback} callback The callback function, accepting three arguments: error, data, response
+     * @param {module:api/DefaultApi~projectsIdDeleteCallback} callback The callback function, accepting three arguments: error, data, response
      */
-    projectIdDelete(id, callback) {
+    projectsIdDelete(id, callback) {
       let postBody = null;
 
       let pathParams = {
@@ -726,24 +722,24 @@ export default class DefaultApi {
       let returnType = null;
 
       return this.apiClient.callApi(
-        '/project/{id}', 'DELETE',
+        '/projects/{id}', 'DELETE',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
     }
     /**
-     * Callback function to receive the result of the projectIdGet operation.
-     * @callback module:api/DefaultApi~projectIdGetCallback
+     * Callback function to receive the result of the projectsIdGet operation.
+     * @callback module:api/DefaultApi~projectsIdGetCallback
      * @param {String} error Error message, if any.
      * @param {module:model/Project} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
-     * @param {module:api/DefaultApi~projectIdGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * @param {module:api/DefaultApi~projectsIdGetCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/Project}
      */
-    projectIdGet(id, callback) {
+    projectsIdGet(id, callback) {
       let postBody = null;
 
       let pathParams = {
@@ -762,24 +758,24 @@ export default class DefaultApi {
       let returnType = Project;
 
       return this.apiClient.callApi(
-        '/project/{id}', 'GET',
+        '/projects/{id}', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
     }
     /**
-     * Callback function to receive the result of the projectIdStateWithHistoryGet operation.
-     * @callback module:api/DefaultApi~projectIdStateWithHistoryGetCallback
+     * Callback function to receive the result of the projectsIdStateWithHistoryGet operation.
+     * @callback module:api/DefaultApi~projectsIdStateWithHistoryGetCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/ProjectState} data The data returned by the service call.
+     * @param {module:model/ProjectStateWithHistory} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
-     * @param {module:api/DefaultApi~projectIdStateWithHistoryGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/ProjectState}
+     * @param {module:api/DefaultApi~projectsIdStateWithHistoryGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/ProjectStateWithHistory}
      */
-    projectIdStateWithHistoryGet(id, callback) {
+    projectsIdStateWithHistoryGet(id, callback) {
       let postBody = null;
 
       let pathParams = {
@@ -795,17 +791,17 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = ProjectState;
+      let returnType = ProjectStateWithHistory;
 
       return this.apiClient.callApi(
-        '/project/{id}/stateWithHistory', 'GET',
+        '/projects/{id}/stateWithHistory', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
     }
     /**
-     * Callback function to receive the result of the projectPost operation.
-     * @callback module:api/DefaultApi~projectPostCallback
+     * Callback function to receive the result of the projectsPost operation.
+     * @callback module:api/DefaultApi~projectsPostCallback
      * @param {String} error Error message, if any.
      * @param {Array.<module:model/Project>} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
@@ -813,10 +809,10 @@ export default class DefaultApi {
 
     /**
      * Create a new project
-     * @param {module:api/DefaultApi~projectPostCallback} callback The callback function, accepting three arguments: error, data, response
+     * @param {module:api/DefaultApi~projectsPostCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link Array.<module:model/Project>}
      */
-    projectPost(body, callback) {
+    projectsPost(body, callback) {
       let postBody = body;
 
       let pathParams = {
@@ -834,7 +830,78 @@ export default class DefaultApi {
       let returnType = [Project];
 
       return this.apiClient.callApi(
-        '/project', 'POST',
+        '/projects', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
+     * Callback function to receive the result of the projectsProjectIdCreateInstanceConfigDataGet operation.
+     * @callback module:api/DefaultApi~projectsProjectIdCreateInstanceConfigDataGetCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/InlineResponse2001} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {module:api/DefaultApi~projectsProjectIdCreateInstanceConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/InlineResponse2001}
+     */
+    projectsProjectIdCreateInstanceConfigDataGet(projectId, callback) {
+      let postBody = null;
+
+      let pathParams = {
+        'projectId': projectId
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = [];
+      let accepts = ['application/json'];
+      let returnType = InlineResponse2001;
+
+      return this.apiClient.callApi(
+        '/projects/{projectId}/createInstanceConfigData', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
+     * Callback function to receive the result of the projectsStateWithHistoryGet operation.
+     * @callback module:api/DefaultApi~projectsStateWithHistoryGetCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/UserStateWithHistory} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {module:api/DefaultApi~projectsStateWithHistoryGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/UserStateWithHistory}
+     */
+    projectsStateWithHistoryGet(callback) {
+      let postBody = null;
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = [];
+      let accepts = ['application/json'];
+      let returnType = UserStateWithHistory;
+
+      return this.apiClient.callApi(
+        '/projects/stateWithHistory', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -870,76 +937,6 @@ export default class DefaultApi {
 
       return this.apiClient.callApi(
         '/user', 'GET',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
-     * Callback function to receive the result of the userProjectsGet operation.
-     * @callback module:api/DefaultApi~userProjectsGetCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/UserProjects} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * @param {module:api/DefaultApi~userProjectsGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/UserProjects}
-     */
-    userProjectsGet(callback) {
-      let postBody = null;
-
-      let pathParams = {
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = [];
-      let accepts = ['application/json'];
-      let returnType = UserProjects;
-
-      return this.apiClient.callApi(
-        '/user/projects', 'GET',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
-     * Callback function to receive the result of the userProjectsStateWithHistoryGet operation.
-     * @callback module:api/DefaultApi~userProjectsStateWithHistoryGetCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/UserProjectsState} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * @param {module:api/DefaultApi~userProjectsStateWithHistoryGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/UserProjectsState}
-     */
-    userProjectsStateWithHistoryGet(callback) {
-      let postBody = null;
-
-      let pathParams = {
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = [];
-      let accepts = ['application/json'];
-      let returnType = UserProjectsState;
-
-      return this.apiClient.callApi(
-        '/user/projects/stateWithHistory', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );

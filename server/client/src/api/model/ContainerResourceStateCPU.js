@@ -43,26 +43,34 @@ export default class ContainerResourceStateCPU {
             obj = obj || new ContainerResourceStateCPU();
                         
             
-            if (data.hasOwnProperty('consumedTime')) {
-                obj['consumedTime'] = ApiClient.convertToType(data['consumedTime'], 'Number');
+            if (data.hasOwnProperty('limit')) {
+                obj['limit'] = ApiClient.convertToType(data['limit'], 'Number');
             }
-            if (data.hasOwnProperty('percentConsumed')) {
-                obj['percentConsumed'] = ApiClient.convertToType(data['percentConsumed'], 'Number');
+            if (data.hasOwnProperty('usedTime')) {
+                obj['usedTime'] = ApiClient.convertToType(data['usedTime'], 'Number');
+            }
+            if (data.hasOwnProperty('usage')) {
+                obj['usage'] = ApiClient.convertToType(data['usage'], 'Number');
             }
         }
         return obj;
     }
 
     /**
-    * Time used by the CPU in nanoseconds
-    * @member {Number} consumedTime
+    * CPU limit in Hz
+    * @member {Number} limit
     */
-    'consumedTime' = undefined;
+    'limit' = undefined;
     /**
-    * Percentage of CPU consumed from the overall CPU available to the container
-    * @member {Number} percentConsumed
+    * Time used by the CPU in nanoseconds from the container start
+    * @member {Number} usedTime
     */
-    'percentConsumed' = undefined;
+    'usedTime' = undefined;
+    /**
+    * Used Hz in measured time
+    * @member {Number} usage
+    */
+    'usage' = undefined;
 
 
 

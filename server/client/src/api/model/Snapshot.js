@@ -46,8 +46,8 @@ export default class Snapshot {
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
-            if (data.hasOwnProperty('timestamp')) {
-                obj['timestamp'] = ApiClient.convertToType(data['timestamp'], 'String');
+            if (data.hasOwnProperty('createdOn')) {
+                obj['createdOn'] = ApiClient.convertToType(data['createdOn'], 'String');
             }
             if (data.hasOwnProperty('stateful')) {
                 obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
@@ -63,9 +63,9 @@ export default class Snapshot {
     'name' = undefined;
     /**
     * The time of creation
-    * @member {String} timestamp
+    * @member {String} createdOn
     */
-    'timestamp' = undefined;
+    'createdOn' = undefined;
     /**
     * True if state of the container should be maintained
     * @member {Boolean} stateful

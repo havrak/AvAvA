@@ -14,9 +14,8 @@
 import ApiClient from '../ApiClient';
 import ContainerResourceStateCPU from './ContainerResourceStateCPU';
 import ContainerResourceStateDisk from './ContainerResourceStateDisk';
-import ContainerResourceStateNetworks from './ContainerResourceStateNetworks';
 import ContainerResourceStateRAM from './ContainerResourceStateRAM';
-import Limits from './Limits';
+import NetworkState from './NetworkState';
 import OperationState from './OperationState';
 
 /**
@@ -50,14 +49,8 @@ export default class ContainerResourceState {
             obj = obj || new ContainerResourceState();
                         
             
-            if (data.hasOwnProperty('operationState')) {
-                obj['operationState'] = OperationState.constructFromObject(data['operationState']);
-            }
-            if (data.hasOwnProperty('timestamp')) {
-                obj['timestamp'] = ApiClient.convertToType(data['timestamp'], 'String');
-            }
-            if (data.hasOwnProperty('limits')) {
-                obj['limits'] = Limits.constructFromObject(data['limits']);
+            if (data.hasOwnProperty('measuredOn')) {
+                obj['measuredOn'] = ApiClient.convertToType(data['measuredOn'], 'String');
             }
             if (data.hasOwnProperty('CPU')) {
                 obj['CPU'] = ContainerResourceStateCPU.constructFromObject(data['CPU']);
@@ -66,31 +59,32 @@ export default class ContainerResourceState {
                 obj['RAM'] = ContainerResourceStateRAM.constructFromObject(data['RAM']);
             }
             if (data.hasOwnProperty('disk')) {
-                obj['disk'] = ApiClient.convertToType(data['disk'], [ContainerResourceStateDisk]);
+                obj['disk'] = ContainerResourceStateDisk.constructFromObject(data['disk']);
+            }
+            if (data.hasOwnProperty('internet')) {
+                obj['internet'] = NetworkState.constructFromObject(data['internet']);
+            }
+            if (data.hasOwnProperty('loopback')) {
+                obj['loopback'] = NetworkState.constructFromObject(data['loopback']);
             }
             if (data.hasOwnProperty('networks')) {
-                obj['networks'] = ApiClient.convertToType(data['networks'], [ContainerResourceStateNetworks]);
+                obj['networks'] = ApiClient.convertToType(data['networks'], [NetworkState]);
             }
             if (data.hasOwnProperty('numberOfProcesses')) {
                 obj['numberOfProcesses'] = ApiClient.convertToType(data['numberOfProcesses'], 'Number');
+            }
+            if (data.hasOwnProperty('operationState')) {
+                obj['operationState'] = OperationState.constructFromObject(data['operationState']);
             }
         }
         return obj;
     }
 
     /**
-    * @member {module:model/OperationState} operationState
-    */
-    'operationState' = undefined;
-    /**
     * Date and time when this state was measured
-    * @member {String} timestamp
+    * @member {String} measuredOn
     */
-    'timestamp' = undefined;
-    /**
-    * @member {module:model/Limits} limits
-    */
-    'limits' = undefined;
+    'measuredOn' = undefined;
     /**
     * @member {module:model/ContainerResourceStateCPU} CPU
     */
@@ -100,11 +94,19 @@ export default class ContainerResourceState {
     */
     'RAM' = undefined;
     /**
-    * @member {Array.<module:model/ContainerResourceStateDisk>} disk
+    * @member {module:model/ContainerResourceStateDisk} disk
     */
     'disk' = undefined;
     /**
-    * @member {Array.<module:model/ContainerResourceStateNetworks>} networks
+    * @member {module:model/NetworkState} internet
+    */
+    'internet' = undefined;
+    /**
+    * @member {module:model/NetworkState} loopback
+    */
+    'loopback' = undefined;
+    /**
+    * @member {Array.<module:model/NetworkState>} networks
     */
     'networks' = undefined;
     /**
@@ -112,6 +114,10 @@ export default class ContainerResourceState {
     * @member {Number} numberOfProcesses
     */
     'numberOfProcesses' = undefined;
+    /**
+    * @member {module:model/OperationState} operationState
+    */
+    'operationState' = undefined;
 
 
 

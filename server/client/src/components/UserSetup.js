@@ -10,7 +10,9 @@ function UserSetup({ combinedDataGet, userData }) {
       combinedDataGet();
    }, []);
    if (userData) {
-      return <Redirect to="/user/dashboard" />;
+      // return <Redirect to="/user/dashboard" />;
+      // console.log(userData);
+      return null;
    } else {
       return (
          <div id="pageLoader">

@@ -13,7 +13,7 @@
 
 import ApiClient from '../ApiClient';
 import Container from './Container';
-import LightResourceState from './LightResourceState';
+import Limits from './Limits';
 import User from './User';
 
 /**
@@ -55,14 +55,14 @@ export default class Project {
             if (data.hasOwnProperty('owner')) {
                 obj['owner'] = User.constructFromObject(data['owner']);
             }
+            if (data.hasOwnProperty('limits')) {
+                obj['limits'] = Limits.constructFromObject(data['limits']);
+            }
             if (data.hasOwnProperty('createdOn')) {
                 obj['createdOn'] = ApiClient.convertToType(data['createdOn'], 'String');
             }
             if (data.hasOwnProperty('coworkers')) {
                 obj['coworkers'] = ApiClient.convertToType(data['coworkers'], [User]);
-            }
-            if (data.hasOwnProperty('projectState')) {
-                obj['projectState'] = LightResourceState.constructFromObject(data['projectState']);
             }
             if (data.hasOwnProperty('containers')) {
                 obj['containers'] = ApiClient.convertToType(data['containers'], [Container]);
@@ -86,6 +86,10 @@ export default class Project {
     */
     'owner' = undefined;
     /**
+    * @member {module:model/Limits} limits
+    */
+    'limits' = undefined;
+    /**
     * Date and time when the project has been created in Javascript Date format
     * @member {String} createdOn
     */
@@ -94,10 +98,6 @@ export default class Project {
     * @member {Array.<module:model/User>} coworkers
     */
     'coworkers' = undefined;
-    /**
-    * @member {module:model/LightResourceState} projectState
-    */
-    'projectState' = undefined;
     /**
     * @member {Array.<module:model/Container>} containers
     */

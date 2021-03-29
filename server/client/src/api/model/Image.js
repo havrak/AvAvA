@@ -46,8 +46,8 @@ export default class Image {
             if (data.hasOwnProperty('os')) {
                 obj['os'] = ApiClient.convertToType(data['os'], 'String');
             }
-            if (data.hasOwnProperty('vesrion')) {
-                obj['vesrion'] = ApiClient.convertToType(data['vesrion'], 'String');
+            if (data.hasOwnProperty('version')) {
+                obj['version'] = ApiClient.convertToType(data['version'], 'String');
             }
             if (data.hasOwnProperty('description')) {
                 obj['description'] = ApiClient.convertToType(data['description'], 'String');
@@ -61,9 +61,9 @@ export default class Image {
     */
     'os' = undefined;
     /**
-    * @member {String} vesrion
+    * @member {String} version
     */
-    'vesrion' = undefined;
+    'version' = undefined;
     /**
     * @member {String} description
     */

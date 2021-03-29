@@ -59,12 +59,6 @@ export default class Container {
             if (data.hasOwnProperty('template')) {
                 obj['template'] = Template.constructFromObject(data['template']);
             }
-            if (data.hasOwnProperty('ipv4')) {
-                obj['ipv4'] = ApiClient.convertToType(data['ipv4'], 'String');
-            }
-            if (data.hasOwnProperty('ipv6')) {
-                obj['ipv6'] = ApiClient.convertToType(data['ipv6'], 'String');
-            }
             if (data.hasOwnProperty('stateful')) {
                 obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
             }
@@ -100,14 +94,6 @@ export default class Container {
     * @member {module:model/Template} template
     */
     'template' = undefined;
-    /**
-    * @member {String} ipv4
-    */
-    'ipv4' = undefined;
-    /**
-    * @member {String} ipv6
-    */
-    'ipv6' = undefined;
     /**
     * @member {Boolean} stateful
     */

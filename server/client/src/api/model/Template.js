@@ -51,8 +51,8 @@ export default class Template {
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
-            if (data.hasOwnProperty('timestamp')) {
-                obj['timestamp'] = ApiClient.convertToType(data['timestamp'], 'String');
+            if (data.hasOwnProperty('createdOn')) {
+                obj['createdOn'] = ApiClient.convertToType(data['createdOn'], 'String');
             }
             if (data.hasOwnProperty('image')) {
                 obj['image'] = Image.constructFromObject(data['image']);
@@ -77,9 +77,9 @@ export default class Template {
     */
     'name' = undefined;
     /**
-    * @member {String} timestamp
+    * @member {String} createdOn
     */
-    'timestamp' = undefined;
+    'createdOn' = undefined;
     /**
     * @member {module:model/Image} image
     */
@@ -89,7 +89,7 @@ export default class Template {
     */
     'description' = undefined;
     /**
-    * minimum disk space needed for the container to work.
+    * minimum disk space needed for the container to work in Bytes.
     * @member {Number} minDiskUsage
     */
     'minDiskUsage' = undefined;
