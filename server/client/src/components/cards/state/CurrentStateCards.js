@@ -5,10 +5,10 @@ import { Card, Container } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import {
-   bytesToAdequateMessage,
-   bytesPerSecondToAdequateMessage,
-   HzToAdequateMessage,
-} from "../../../service/UnitsConvertor.js";
+   bytesToAdequateValue,
+   bytesPerSecondToAdequateValue,
+   HzToAdequateValue,
+} from "service/UnitsConvertor.js";
 
 export function CircularStateChartCard({
    stateData,
@@ -25,9 +25,9 @@ export function CircularStateChartCard({
       allocatedPercent,
       freePercent,
    } = stateData;
-   let usageMessage = convertorCallback(usage);
-   let allocatedMessage = convertorCallback(allocated);
-   let freeMessage = convertorCallback(free);
+   let usageMessage = convertorCallback(usage).getMessage();
+   let allocatedMessage = convertorCallback(allocated).getMessage();
+   let freeMessage = convertorCallback(free).getMessage();
    return (
       <Card className="card-dashboard">
          <Card.Body className="p-0">
@@ -86,7 +86,7 @@ export function CircularStateChartCard({
             <div className="resource-chart-headding">
                <p className="stat-name">{stateName}</p>
                <p className="used-size">{freeMessage}</p>
-               <p className="max-size">{`of ${convertorCallback(max)} left`}</p>
+               <p className="max-size">{`of ${convertorCallback(max).getMessage()} left`}</p>
             </div>
          </Card.Body>
       </Card>
@@ -99,7 +99,7 @@ export function DiskCircularStateChartCard({ disk, max }) {
          stateData={disk}
          max={max}
          stateName={"Disk"}
-         convertorCallback={bytesToAdequateMessage}
+         convertorCallback={bytesToAdequateValue}
          baseUnit={"B"}
       />
    );
@@ -111,7 +111,7 @@ export function CPUCircularStateChartCard({ CPU, max }) {
          stateData={CPU}
          max={max}
          stateName={"CPU"}
-         convertorCallback={HzToAdequateMessage}
+         convertorCallback={HzToAdequateValue}
          baseUnit={"Hz"}
       />
    );
@@ -123,7 +123,7 @@ export function RAMCircularStateChartCard({ RAM, max }) {
          stateData={RAM}
          max={max}
          stateName={"RAM"}
-         convertorCallback={bytesToAdequateMessage}
+         convertorCallback={bytesToAdequateValue}
          baseUnit={"B"}
       />
    );
@@ -135,7 +135,7 @@ export function DownloadCircularStateChartCard({ download, max }) {
          stateData={download}
          max={max}
          stateName={"Download"}
-         convertorCallback={bytesPerSecondToAdequateMessage}
+         convertorCallback={bytesPerSecondToAdequateValue}
          baseUnit={"b/s"}
       />
    );
@@ -147,7 +147,7 @@ export function UploadCircularStateChartCard({ upload, max }) {
          max={max}
          stateData={upload}
          stateName={"Upload"}
-         convertorCallback={bytesPerSecondToAdequateMessage}
+         convertorCallback={bytesPerSecondToAdequateValue}
          baseUnit={"b/s"}
       />
    );

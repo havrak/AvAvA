@@ -28,63 +28,69 @@ const createEmptyState = () => {
       containers: {
          running: 0,
          stopped: 0,
-         frozen: 0
-      }
+         frozen: 0,
+      },
    };
 };
 
 export const addStateToUserData = (userData) => {
-   const {user, userProjects} = userData;
+   const { user, userProjects } = userData;
    const state = (userProjects.state = createEmptyState());
    const { RAM, CPU, disk, internet, containers } = state;
-   const projects = state.projects = {
+   const projects = (state.projects = {
       own: 0,
-      foreign: 0
-   }
+      foreign: 0,
+   });
+   CPU.usedTime = 0;
    for (const project of userProjects.projects) {
-      addStateToProject(project);
-      RAM.usage += project.state.RAM.usage;
-      if(project?.limits?.RAM){
-         RAM.allocated += project.limits.RAM - project.state.RAM.usage;
-      } else {
-         RAM.allocated += project.state.RAM.allocated;
-      }
+      if (!project.pendingState) {
+         addStateToProject(project);
+         RAM.usage += project.state.RAM.usage;
+         if (project?.limits?.RAM) {
+            RAM.allocated += project.limits.RAM - project.state.RAM.usage;
+         } else {
+            RAM.allocated += project.state.RAM.allocated;
+         }
 
-      CPU.usage += project.state.CPU.usage;
-      if(project?.limits?.CPU){
-         CPU.allocated += project.limits.CPU - project.state.CPU.usage;
-      } else {
-         CPU.allocated += project.state.CPU.allocated;
-      }
+         CPU.usedTime += project.state.CPU.usedTime;
+         CPU.usage += project.state.CPU.usage;
+         if (project?.limits?.CPU) {
+            CPU.allocated += project.limits.CPU - project.state.CPU.usage;
+         } else {
+            CPU.allocated += project.state.CPU.allocated;
+         }
 
-      disk.usage += project.state.disk.usage;
-      if(project?.limits?.disk){
-         disk.allocated += project.limits.disk - project.state.disk.usage;
-      } else {
-         disk.allocated += project.state.disk.allocated;
-      }
+         disk.usage += project.state.disk.usage;
+         if (project?.limits?.disk) {
+            disk.allocated += project.limits.disk - project.state.disk.usage;
+         } else {
+            disk.allocated += project.state.disk.allocated;
+         }
 
-      internet.download.usage += project.state.internet.download.usage;
-      if(project?.limits?.internet?.download){
-         internet.download.allocated += project.limits.internet.download - project.state.internet.download.usage;
-      } else {
-         internet.download.allocated += project.state.internet.download.allocated;
-      }
-      internet.upload.usage += project.state.internet.upload.usage;
-      if(project?.limits?.internet?.upload){
-         internet.upload.allocated += project.limits.internet.upload - project.state.internet.upload.usage;
-      } else {
-         internet.upload.allocated += project.state.internet.upload.allocated;
-      }
+         internet.download.usage += project.state.internet.download.usage;
+         if (project?.limits?.internet?.download) {
+            internet.download.allocated +=
+               project.limits.internet.download - project.state.internet.download.usage;
+         } else {
+            internet.download.allocated += project.state.internet.download.allocated;
+         }
+         internet.upload.usage += project.state.internet.upload.usage;
+         if (project?.limits?.internet?.upload) {
+            internet.upload.allocated +=
+               project.limits.internet.upload - project.state.internet.upload.usage;
+         } else {
+            internet.upload.allocated += project.state.internet.upload.allocated;
+         }
 
-      containers.running += project.state.containers.running;
-      containers.stopped += project.state.containers.stopped;
-      containers.frozen += project.state.containers.frozen;
+         containers.running += project.state.containers.running;
+         containers.stopped += project.state.containers.stopped;
+         containers.frozen += project.state.containers.frozen;
 
-      if(project.owner.id === user.id){
-         projects.own++;
-      } else {
-         projects.foreign++;
+         if (project.owner.id === user.id) {
+            projects.own++;
+         } else {
+            projects.foreign++;
+         }
       }
    }
 
@@ -104,7 +110,9 @@ export const addStateToUserData = (userData) => {
    disk.allocatedPercent = calculatePercent(disk.allocated, userProjects.limits.disk);
 
    internet.download.free =
-      userProjects.limits.internet.download - internet.download.allocated - internet.download.usage;
+      userProjects.limits.internet.download -
+      internet.download.allocated -
+      internet.download.usage;
    internet.download.freePercent = calculatePercent(
       internet.download.free,
       userProjects.limits.internet.download
@@ -117,7 +125,10 @@ export const addStateToUserData = (userData) => {
       internet.download.allocated,
       userProjects.limits.internet.download
    );
-   internet.upload.free = userProjects.limits.internet.upload - internet.upload.allocated - internet.upload.usage;
+   internet.upload.free =
+      userProjects.limits.internet.upload -
+      internet.upload.allocated -
+      internet.upload.usage;
    internet.upload.freePercent = calculatePercent(
       internet.upload.free,
       userProjects.limits.internet.upload
@@ -136,28 +147,32 @@ export const addStateToUserData = (userData) => {
 export const addStateToProject = (project) => {
    const state = (project.state = createEmptyState());
    const { RAM, CPU, disk, internet, containers } = state;
+   CPU.usedTime = 0;
    for (const container of project.containers) {
-      addStateToContainer(container);
-      RAM.usage += container.state.RAM.usage;
-      RAM.allocated += container.state.RAM.limit;
+      if (!container.pendingState) {
+         addStateToContainer(container);
+         RAM.usage += container.state.RAM.usage;
+         RAM.allocated += container.state.RAM.limit;
 
-      CPU.usage += container.state.CPU.usage;
-      CPU.allocated += container.state.CPU.limit;
+         CPU.usage += container.state.CPU.usage;
+         CPU.usedTime += container.state.CPU.usedTime;
+         CPU.allocated += container.state.CPU.limit;
 
-      disk.usage += container.state.disk.usage;
-      disk.allocated += container.state.disk.limit;
+         disk.usage += container.state.disk.usage;
+         disk.allocated += container.state.disk.limit;
 
-      internet.download.usage += container.state.internet.counters.download.usedSpeed;
-      internet.download.allocated += container.state.internet.limits.download;
-      internet.upload.usage += container.state.internet.counters.upload.usedSpeed;
-      internet.upload.allocated += container.state.internet.limits.upload;
-      
-      if (container.state.operationState.status === "Running") {
-         containers.running++;
-      } else if (container.state.operationState.status === "Stopped") {
-         containers.stopped++;
-      } else if (container.state.operationState.status === "Frozen") {
-         containers.frozen++;
+         internet.download.usage += container.state.internet.counters.download.usedSpeed;
+         internet.download.allocated += container.state.internet.limits.download;
+         internet.upload.usage += container.state.internet.counters.upload.usedSpeed;
+         internet.upload.allocated += container.state.internet.limits.upload;
+
+         if (container.state.operationState.status === "Running") {
+            containers.running++;
+         } else if (container.state.operationState.status === "Stopped") {
+            containers.stopped++;
+         } else if (container.state.operationState.status === "Frozen") {
+            containers.frozen++;
+         }
       }
    }
    RAM.allocated -= RAM.usage;
@@ -184,7 +199,9 @@ export const addStateToProject = (project) => {
    internet.download.allocated -= internet.download.usage;
    if (project.limits?.internet?.download) {
       internet.download.free =
-         project.limits.internet.download - internet.download.allocated - internet.download.usage;
+         project.limits.internet.download -
+         internet.download.allocated -
+         internet.download.usage;
       internet.download.freePercent = calculatePercent(
          internet.download.free,
          project.limits.internet.download
@@ -200,7 +217,10 @@ export const addStateToProject = (project) => {
    }
    internet.upload.allocated -= internet.upload.usage;
    if (project.limits?.internet?.download) {
-      internet.upload.free = project.limits.internet.upload - internet.upload.allocated - internet.upload.usage;
+      internet.upload.free =
+         project.limits.internet.upload -
+         internet.upload.allocated -
+         internet.upload.usage;
       internet.upload.freePercent = calculatePercent(
          internet.upload.free,
          project.limits.internet.upload

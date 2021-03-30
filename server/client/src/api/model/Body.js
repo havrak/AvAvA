@@ -80,8 +80,8 @@ export default class Body {
             if (data.hasOwnProperty('connectToInternet')) {
                 obj['connectToInternet'] = ApiClient.convertToType(data['connectToInternet'], 'Boolean');
             }
-            if (data.hasOwnProperty('customLimits')) {
-                obj['customLimits'] = Limits.constructFromObject(data['customLimits']);
+            if (data.hasOwnProperty('limits')) {
+                obj['limits'] = Limits.constructFromObject(data['limits']);
             }
         }
         return obj;
@@ -117,9 +117,9 @@ export default class Body {
     */
     'connectToInternet' = undefined;
     /**
-    * @member {module:model/Limits} customLimits
+    * @member {module:model/Limits} limits
     */
-    'customLimits' = undefined;
+    'limits' = undefined;
 
 
 

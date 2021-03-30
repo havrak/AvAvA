@@ -5,27 +5,35 @@ import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import IconButton from "@material-ui/core/IconButton";
-import PropTypes from "prop-types";
 import TextField from "@material-ui/core/TextField";
 import Tooltip from "@material-ui/core/Tooltip";
-import Slider from "../../Limits/Slider";
+import { connect } from "react-redux";
 
-const CreateProjectDialog = ({ createHandler, userLimits, data}) => {
+import Slider from "components/Limits/Slider.js";
+import { startSpinnerProjectPost, projectPost } from "actions/myaction.js";
+import {
+   ramToMB,
+   diskToGB,
+   CPUToMHz,
+   networkSpeedToMbits,
+} from "service/UnitsConvertor.js";
+
+const CreateProjectDialog = ({ projectPost, startSpinnerProjectPost, userProjects, notify }) => {
+   const {projects, state} = userProjects;
    const [open, setOpen] = React.useState(false);
    const [errorMessage, setErrorMessage] = React.useState(null);
    const project = {
       name: "",
       owner: {},
       limits: {
-         RAM: 0,
-         CPU: 0,
-         disk: 0,
+         RAM: null,
+         CPU: null,
+         disk: null,
          network: {
-            upload: 0,
-            download: 0,
+            upload: null,
+            download: null,
          },
       },
    };
@@ -38,16 +46,21 @@ const CreateProjectDialog = ({ createHandler, userLimits, data}) => {
    };
 
    const handleAdd = (event) => {
-      if(errorMessage !== null){
+      if (errorMessage !== null) {
          return;
       }
-      createHandler(project);
+      startSpinnerProjectPost(project);
+      projectPost(project, projectPostFailNotification);
       setOpen(false);
+   };
+
+   const projectPostFailNotification = (name) => {
+      notify(`project "${name}" could not be created`, "danger", 4);
    };
 
    const handleNameType = (event) => {
       project.name = event.target.value;
-      if (data.map((item) => item.name).includes(project.name)) {
+      if (projects.map((item) => item.name).includes(project.name)) {
          setErrorMessage("There is already project with this name present.");
       } else if (project.name === "") {
          setErrorMessage("Must not be empty");
@@ -55,6 +68,12 @@ const CreateProjectDialog = ({ createHandler, userLimits, data}) => {
          setErrorMessage(null);
       }
    };
+
+   const convertedRAM = ramToMB(state.RAM.free);
+   const convertedCPU = CPUToMHz(state.CPU.free);
+   const convertedDisk = diskToGB(state.disk.free);
+   const convertedUpload = networkSpeedToMbits(state.internet.upload.free);
+   const convertedDownload = networkSpeedToMbits(state.internet.download.free);
 
    return (
       <div>
@@ -77,15 +96,15 @@ const CreateProjectDialog = ({ createHandler, userLimits, data}) => {
                   style={{ marginBottom: "20px" }}
                   helperText={errorMessage}
                />
+               <h3 className={"limits-headding"}>Limits</h3>
                <Slider
                   headding={"RAM"}
                   setValueToParentElement={(value) => {
                      project.limits.RAM = value;
                   }}
                   min={0}
-                  max={userLimits.RAM}
+                  max={convertedRAM}
                   unit={"MB"}
-                  step={1}
                />
                <Slider
                   headding={"CPU"}
@@ -93,9 +112,8 @@ const CreateProjectDialog = ({ createHandler, userLimits, data}) => {
                   setValueToParentElement={(value) => {
                      project.limits.CPU = value;
                   }}
-                  max={userLimits.CPU}
-                  unit={`MHz`}
-                  step={1}
+                  max={convertedCPU}
+                  unit={"Hz"}
                />
                <Slider
                   headding={"Disk"}
@@ -103,9 +121,8 @@ const CreateProjectDialog = ({ createHandler, userLimits, data}) => {
                   setValueToParentElement={(value) => {
                      project.limits.disk = value;
                   }}
-                  max={userLimits.disk}
+                  max={convertedDisk}
                   unit={"GB"}
-                  step={0.01}
                />
                <Slider
                   headding={"Upload"}
@@ -113,9 +130,8 @@ const CreateProjectDialog = ({ createHandler, userLimits, data}) => {
                   setValueToParentElement={(value) => {
                      project.limits.network.download = value;
                   }}
-                  max={userLimits.network.download}
-                  unit={"Mb/s"}
-                  step={0.01}
+                  max={convertedUpload}
+                  unit={"Mbit/s"}
                />
                <Slider
                   headding={"Download"}
@@ -123,9 +139,8 @@ const CreateProjectDialog = ({ createHandler, userLimits, data}) => {
                   setValueToParentElement={(value) => {
                      project.limits.network.upload = value;
                   }}
-                  max={userLimits.network.upload}
-                  unit={"Mb/s"}
-                  step={0.01}
+                  max={convertedDownload}
+                  unit={"Mbit/s"}
                />
             </DialogContent>
             <DialogActions>
@@ -141,8 +156,21 @@ const CreateProjectDialog = ({ createHandler, userLimits, data}) => {
    );
 };
 
-CreateProjectDialog.propTypes = {
-   createHandler: PropTypes.func.isRequired,
+const mapStateToProps = (state) => {
+   return {
+      userProjects: state.combinedUserData.userProjects,
+   };
 };
 
-export default CreateProjectDialog;
+const mapDispatchToProps = (dispatch) => {
+   return {
+      projectPost: (project, projectPostFailNotification) => {
+         dispatch(projectPost(project, projectPostFailNotification));
+      },
+      startSpinnerProjectPost: (project) => {
+         dispatch(startSpinnerProjectPost(project));
+      },
+   };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreateProjectDialog);

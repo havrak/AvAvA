@@ -53,12 +53,12 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
 const createHiddenColumnsArray = (columns, selectedView) => {
    const nameArray = [];
    for (const col of columns) {
-      if (col.view !== "all" && col.view !== selectedView) {
+      if (col.view !== "all" && col.view !== selectedView && (col.view !== 2 && !col.accessor.toLowerCase().includes(`.${selectedView.toLowerCase()}`))) {
          nameArray.push(col.accessor);
       }
       if (col.columns !== undefined) {
          for (const childCol of col.columns) {
-            if (childCol.view !== "all" && col.view !== selectedView) {
+            if (childCol.view !== "all" && col.view !== selectedView && (col.view !== 2)&& !col.accessor.toLowerCase().includes(`.${selectedView.toLowerCase()}`)) {
                nameArray.push(childCol.accessor);
             }
          }
@@ -75,9 +75,8 @@ const EnhancedTable = ({
    views,
    view,
    setView,
-   userLimits,
-   createHandler,
-   deleteHandler
+   createDialog,
+   deleteHandler,
 }) => {
    const {
       getTableProps,
@@ -139,7 +138,9 @@ const EnhancedTable = ({
                            }}
                         >
                            <ClipLoader color={"#212529"} loading={true} size={30} />
-                           <span style={{ marginLeft: "5px" }}>{row.original.pendingState}</span>
+                           <span style={{ marginLeft: "5px" }}>
+                              {row.original.pendingState}
+                           </span>
                         </div>
                      ) : (
                         <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
@@ -159,6 +160,10 @@ const EnhancedTable = ({
    useEffect(() => {
       setHiddenColumns(createHiddenColumnsArray(columns, view));
    }, [view]);
+
+   // useEffect(() => {
+   //    setHiddenColumns(createHiddenColumnsArray(columns, view));
+   // }, []);
 
    const handleChangeRowsPerPage = (event) => {
       setPageSize(Number(event.target.value));
@@ -186,14 +191,13 @@ const EnhancedTable = ({
          <TableToolbar
             numSelected={Object.keys(selectedRowIds).length}
             deleteHandlerLocal={deleteHandlerLocal}
-            createHandler={createHandler}
+            createDialog={createDialog}
             preGlobalFilteredRows={preGlobalFilteredRows}
             setGlobalFilter={setGlobalFilter}
             globalFilter={globalFilter}
             views={views}
             view={view}
             setView={setView}
-            userLimits={userLimits}
             data={data}
          />
          <MaUTable {...getTableProps()} size={"small"}>
@@ -208,6 +212,7 @@ const EnhancedTable = ({
                                  : column.getHeaderProps(column.getSortByToggleProps()))}
                               className={styles.table}
                            >
+                              <div style={{display: "flex", flexDirection: "row"}}>
                               {column.render("Header")}
                               {column.columns === undefined &&
                               column.accessor !== undefined ? (
@@ -217,6 +222,7 @@ const EnhancedTable = ({
                                     direction={column.isSortedDesc ? "desc" : "asc"}
                                  />
                               ) : null}
+                              </div>
                            </TableCell>
                         );
                      })}
@@ -268,7 +274,6 @@ EnhancedTable.propTypes = {
    columns: PropTypes.array.isRequired,
    data: PropTypes.array.isRequired,
    updateMyData: PropTypes.func.isRequired,
-   setData: PropTypes.func.isRequired,
    skipPageReset: PropTypes.bool.isRequired,
 };
 

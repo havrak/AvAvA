@@ -7,7 +7,6 @@ import { logout as logoutFunction } from "../../actions/myaction";
 import { textualRepresentationOfRole } from "../../service/UserService";
 
 function UserCard({ Nav, logout, user }) {
-   console.log(user);
    return (
       <Dropdown as={Nav.Item}>
          <Dropdown.Toggle

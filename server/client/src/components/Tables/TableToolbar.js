@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 //https://github.com/tannerlinsley/react-table/tree/master/examples/material-UI-kitchen-sink
-import CreateProjectDialog from "./Dialogs/CreateProjectDialog";
 import clsx from "clsx";
 import DeleteIcon from "@material-ui/icons/Delete";
 import GlobalFilter from "./GlobalFilter";
@@ -43,7 +42,6 @@ const TableToolbar = (props) => {
    const classes = useToolbarStyles();
    const {
       numSelected,
-      createHandler,
       deleteHandlerLocal,
       preGlobalFilteredRows,
       setGlobalFilter,
@@ -51,8 +49,7 @@ const TableToolbar = (props) => {
       view,
       views,
       setView,
-      userLimits,
-      data,
+      createDialog
    } = props;
    return (
       <Toolbar
@@ -60,11 +57,7 @@ const TableToolbar = (props) => {
             [classes.highlight]: numSelected > 0,
          })}
       >
-         <CreateProjectDialog
-            createHandler={createHandler}
-            userLimits={userLimits}
-            data={data}
-         />
+         {createDialog}
          <FormControl className={classes.formControl}>
             <InputLabel id="demo-simple-select-label">View</InputLabel>
             <Select
@@ -118,7 +111,6 @@ const TableToolbar = (props) => {
 
 TableToolbar.propTypes = {
    numSelected: PropTypes.number.isRequired,
-   createHandler: PropTypes.func.isRequired,
    deleteHandlerLocal: PropTypes.func.isRequired,
    setGlobalFilter: PropTypes.func.isRequired,
    preGlobalFilteredRows: PropTypes.array.isRequired,

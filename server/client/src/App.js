@@ -29,19 +29,18 @@ import UserSetup from "./components/UserSetup.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 
 function App(props) {
-   // useEffect(() => {
-   //    props.fetch_user();
-   // }, []);
    return (
-      <BrowserRouter>
-         <Switch>
-            <Route path="/user" component={UserLayout} />
-            {/* <Redirect from="/" to="/user/dashboard" /> */}
-            <Route path="/userSetup">
-               <UserSetup />
-            </Route>
-         </Switch>
-      </BrowserRouter>
+      <>
+         <BrowserRouter>
+            <Switch>
+               <Route path="/user" component={UserLayout} />
+               {/* <Redirect from="/" to="/user/dashboard" /> */}
+               <Route path="/userSetup">
+                  <UserSetup />
+               </Route>
+            </Switch>
+         </BrowserRouter>
+      </>
    );
 }
 

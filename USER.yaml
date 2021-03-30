@@ -44,7 +44,8 @@ paths:
                     $ref: "#/components/schemas/ApplicationToInstall"
                 connectToInternet:
                   type: boolean
-                customLimits:
+                limits:
+                  description: limits have to be specified when creating container for all resources
                   $ref: "#/components/schemas/Limits"
               required:
                 - name
@@ -341,20 +342,18 @@ paths:
               properties:
                 name:
                   type: string
-                customLimits:
+                limits:
+                  description: limits don't have to be specified when creating project, so it can be undefined. Undefined can also be some properties of limits when they are not set
                   $ref: "#/components/schemas/Limits"
               required:
                 - name
-                - customLimits
       responses:
         "200":
           description: Successfully created
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Project"
+                $ref: "#/components/schemas/Project"
   /projects/createConfigData:
     get:
       responses:

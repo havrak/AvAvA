@@ -803,14 +803,14 @@ export default class DefaultApi {
      * Callback function to receive the result of the projectsPost operation.
      * @callback module:api/DefaultApi~projectsPostCallback
      * @param {String} error Error message, if any.
-     * @param {Array.<module:model/Project>} data The data returned by the service call.
+     * @param {module:model/Project} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * Create a new project
      * @param {module:api/DefaultApi~projectsPostCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link Array.<module:model/Project>}
+     * data is of type: {@link module:model/Project}
      */
     projectsPost(body, callback) {
       let postBody = body;
@@ -827,7 +827,7 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = [Project];
+      let returnType = Project;
 
       return this.apiClient.callApi(
         '/projects', 'POST',

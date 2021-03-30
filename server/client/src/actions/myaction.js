@@ -8,10 +8,8 @@ export const combinedDataGet = () => {
    return (dispatch) => {
       const callback = function (error, data, response) {
          if (error) {
-            console.error(error);
          } else {
             dispatch({ type: "COMBINED_DATA_GET", payload: data });
-            console.log(data);
          }
       };
       api.combinedDataGet(callback);
@@ -22,14 +20,11 @@ export const userProjectsGet = () => {
    return (dispatch) => {
       const callback = function (error, data, response) {
          if (error) {
-            console.error(error);
-            console.log('userProjectsGet')
          } else {
             dispatch({ type: "USER_PROJECTS_GET", payload: data });
-            console.log(data);
          }
       };
-      api.userProjectsGet(callback);
+      api.projectsGet(callback);
    };
 };
 
@@ -58,17 +53,17 @@ export const projectPost = (body, displayFail) => {
    return (dispatch) => {
       const callback = function (error, data, response) {
          if (error) {
-            console.error(error);
-            console.log('projectPost')
+            console.error(error + 'projectPostError');
             dispatch(projectPostFail(body.name));
             displayFail(body.name);
          } else {
-            data.id=15;
-            data.name="asdf" //EDITING PURPOSES
+            // data.name = 'asdf';
+            // data.id ='123'; //TESTING PURPOSES
             dispatch(projectPostSuccess(data));
          }
       };
-      api.projectPost(body, callback);
+      console.log(body);
+      api.projectsPost(body, callback);
    };
 }
 
@@ -104,7 +99,7 @@ export const projectIdDelete = (id, projectDeleteFailNotification) => {
             dispatch(projectDeleteSuccess(id));
          }
       };
-      api.projectIdDelete(id, callback);
+      api.projectsIdDelete(id, callback);
    };
 };
 

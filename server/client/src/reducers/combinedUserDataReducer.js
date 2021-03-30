@@ -4,11 +4,14 @@ import * as StateCalculator from '../service/StateCalculator';
 export const combinedUserDataReducer = (state = null, action) => {
    switch (action.type) {
       case "COMBINED_DATA_GET": {
-         console.log(StateCalculator.addStateToUserData(action.payload))
+         StateCalculator.addStateToUserData(action.payload);
          return action.payload || null;
       }
       case "USER_PROJECTS_GET": {
-         return { ...state, userProjects: action.payload };
+         const newState = _.cloneDeep(state);
+         newState.userProjects = action.payload;
+         StateCalculator.addStateToUserData(newState);
+         return newState;
       }
       case "START_SPINNER_PROJECT_POST": {
          const newState = _.cloneDeep(state);
@@ -17,7 +20,6 @@ export const combinedUserDataReducer = (state = null, action) => {
          newState.userProjects.projects = [project].concat(
             newState.userProjects.projects
          );
-         // newState.userProjects.projects.push(project);
          return newState;
       }
       case "PROJECT_POST_SUCCESS": {
@@ -28,6 +30,10 @@ export const combinedUserDataReducer = (state = null, action) => {
                break;
             }
          }
+         console.log(newState);
+         console.log('fsdafdasfjasdfkjdasfdlashfke')
+         console.log(action.payload);
+         StateCalculator.addStateToUserData(newState);
          return newState;
       }
       case "PROJECT_POST_FAIL": {
@@ -58,6 +64,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                break;
             }
          }
+         StateCalculator.addStateToUserData(newState);
          return newState;
       }
       case "PROJECT_DELETE_FAIL": {

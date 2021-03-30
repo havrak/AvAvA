@@ -1,52 +1,72 @@
-export function bytesToAdequateMessage(bytes) {
-   if (bytes > 1_000_000_000_000) {
-      return Math.round(bytes / 10_000_000_000) / 100.0 + "TB";
-   } else if (bytes > 1_000_000_000) {
-      return Math.round(bytes / 10_000_000) / 100.0 + "GB";
-   } else if (bytes > 1_000_000) {
-      return Math.round(bytes / 10_000) / 100.0 + "MB";
-   } else if (bytes > 1_000) {
-      return Math.round(bytes / 10.0) / 100.0 + "KB";
-   } else {
-      return bytes + "B";
+class Container {
+   constructor(value, unit) {
+      this.value = value;
+      this.unit = unit;
+   }
+   getMessage(){
+      return this.value + this.unit;
    }
 }
 
-export function bytesPerSecondToAdequateMessage(bytes) {
+const prefixes = {
+   T: 1_000_000_000_000,
+   G: 1_000_000_000,
+   M: 1_000_000,
+   K: 1_000,
+   m: 0.001,
+   µ: 0.000_001,
+   n: 0.000_000_001
+}
+
+export function bytesToAdequateValue(bytes) {
    if (bytes > 1_000_000_000_000) {
-      return Math.round(bytes / 10_000_000_000) / 100.0 + "Tb/s";
+      return new Container(Math.round(bytes / 10_000_000_000) / 100.0, "TB");
    } else if (bytes > 1_000_000_000) {
-      return Math.round(bytes / 10_000_000) / 100.0 + "Gb/s";
+      return new Container(Math.round(bytes / 10_000_000) / 100.0, "GB");
    } else if (bytes > 1_000_000) {
-      return Math.round(bytes / 10_000) / 100.0 + "Mb/s";
+      return new Container(Math.round(bytes / 10_000) / 100.0, "MB");
    } else if (bytes > 1_000) {
-      return Math.round(bytes / 10.0) / 100.0 + "Kb/s";
+      return new Container(Math.round(bytes / 10.0) / 100.0, "KB");
    } else {
-      return bytes + "b/s";
+      return new Container(bytes, "B");
    }
 }
 
-export function secondsToAdequateMessage(bytes) {
+export function bytesPerSecondToAdequateValue(bytes) {
+   if (bytes > 1_000_000_000_000) {
+      return new Container(Math.round(bytes / 10_000_000_000) / 100.0, "Tbit/s");
+   } else if (bytes > 1_000_000_000) {
+      return new Container(Math.round(bytes / 10_000_000) / 100.0, "Gbit/s");
+   } else if (bytes > 1_000_000) {
+      return new Container(Math.round(bytes / 10_000) / 100.0, "Mbit/s");
+   } else if (bytes > 1_000) {
+      return new Container(Math.round(bytes / 10.0) / 100.0, "Kbit/s");
+   } else {
+      return new Container(bytes, "bit/s");
+   }
+}
+
+export function secondsToAdequateValue(bytes) {
    if (bytes > 1_000_000_000) {
-      return Math.round(bytes / 1_000_000) / 1_000.0 + "s";
+      return new Container(Math.round(bytes / 10_000_000.0) / 100.0, "s");
    } else if (bytes > 1_000_000) {
-      return Math.round(bytes / 1_000) / 1_000.0 + "ms";
+      return new Container(Math.round(bytes / 10_000.0) / 100.0, "ms");
    } else if (bytes > 1_000) {
-      return bytes / 1_000.0 + "µs";
+      return new Container(Math.round(bytes / 10.0) / 100.0, "µs");
    } else {
-      return bytes + "ns";
+      return new Container(bytes, "ns");
    }
 }
 
-export function HzToAdequateMessage(Hz) {
+export function HzToAdequateValue(Hz) {
    if (Hz > 1_000_000_000) {
-      return Math.round(Hz / 10_000_000) / 100.0 + "GHz";
+      return new Container(Math.round(Hz / 10_000_000) / 100.0, "GHz");
    } else if (Hz > 1_000_000) {
-      return Math.round(Hz / 10_000) / 100.0 + "MHz";
+      return new Container(Math.round(Hz / 10_000) / 100.0, "MHz");
    } else if (Hz > 1_000) {
-      return Math.round(Hz /10.0) / 100.0 + "KHz";
+      return new Container(Math.round(Hz /10.0) / 100.0, "KHz");
    } else {
-      return Hz + "Hz";
+      return new Container(Hz, "Hz");
    }
 }
 
@@ -66,7 +86,7 @@ export function diskFromGBToB(GB) {
    return GB * 1_000_000_000;
 }
 
-export function CPUToMhz(Hz) {
+export function CPUToMHz(Hz) {
    return Math.round(Hz / 1_000) / 1_000.0;
 }
 

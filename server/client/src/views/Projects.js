@@ -1,54 +1,36 @@
 import React, { useEffect, useState, useMemo } from "react";
 
 // react-bootstrap components
-import {
-   Badge,
-   Button,
-   Card,
-   Navbar,
-   Nav,
-   Table,
-   Container,
-   Row,
-   Col,
-   ProgressBar,
-} from "react-bootstrap";
+import { Card, Container, Row, Col } from "react-bootstrap";
 import { connect } from "react-redux";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "../components/Tables/EnhancedTable.js";
-// import makeData from "../service/makeData.js";
 import NotificationAlert from "react-notification-alert";
-import TableSortLabel from "@material-ui/core/TableSortLabel";
+import { ProjectProgressBar } from "components/Tables/ProgressBars.js";
 
 import {
    userProjectsGet,
    projectIdDelete,
-   startSpinnerProjectPost,
-   projectPost,
    startSpinnerProjectDelete,
-} from "../actions/myaction";
+} from "actions/myaction";
 import {
-   limitsFromParentState,
-   calculateFreeAmount,
-   calculateFreePercent,
-} from "../service/LimitsHelper";
-import {
-   bytesToAdequateMessage,
-   bytesPerSecondToAdequateMessage,
-   secondsToAdequateMessage,
-} from "../service/UnitsConvertor.js";
-import { Link } from "react-router-dom";
+   bytesToAdequateValue,
+   bytesPerSecondToAdequateValue,
+   secondsToAdequateValue,
+   HzToAdequateValue,
+} from "service/UnitsConvertor.js";
+import CreateProjectDialog from "components/Tables/Dialogs/CreateProjectDialog.js";
 
-function Projects({
-   projects,
-   userState,
-   userProjectsGet,
-   projectIdDelete,
-   projectPost,
-   startSpinnerProjectPost,
-   startSpinnerProjectDelete,
-}) {
+function Project(props) {
+   const {
+      projects,
+      userState,
+      userProjectsGet,
+      projectIdDelete,
+      startSpinnerProjectDelete,
+   } = props;
+
    useEffect(() => {
       userProjectsGet();
    }, []);
@@ -63,20 +45,16 @@ function Projects({
       "Upload",
       "Download",
    ];
+   const [view, setView] = useState(views[1]);
    const columns = React.useMemo(
       () => [
          {
             Header: "Name",
             accessor: "name",
             view: "all",
-            Cell: (props) => {
-               const id = props.row.original.id;
-               return (
-                  <Link className="table-link" to={`/user/projects/${id}`}>
-                     {props.value}
-                  </Link>
-               );
-            },
+            // Cell: (props) => {
+            //    return <Link to="/user/projects/"
+            // }
          },
          {
             Header: "Owner",
@@ -85,24 +63,27 @@ function Projects({
             columns: [
                {
                   Header: "First name",
-                  accessor: "firstName",
+                  accessor: "owner.givenName",
                   view: views[0],
                },
                {
                   Header: "Last name",
-                  accessor: "lastName",
+                  accessor: "owner.familyName",
                   view: views[0],
                },
             ],
          },
          {
             Header: "Participants",
-            accessor: "participants",
+            accessor: "coworkers",
             view: views[0],
+            Cell: ({ value }) => {
+               return value ? value.length : 0;
+            },
          },
          {
-            Header: "Created at",
-            accessor: "createdAt",
+            Header: "Created on",
+            accessor: "createdOn",
             view: views[0],
             Cell: ({ value }) => {
                return new Date(value).toLocaleString();
@@ -120,46 +101,61 @@ function Projects({
                // },
                {
                   Header: "Running",
-                  accessor: "runningContainers",
+                  accessor: "state.containers.running",
                   view: views[1],
                },
                {
                   Header: "Stopped",
-                  accessor: "stoppedContainers",
+                  accessor: "state.containers.stopped",
                   view: views[1],
                },
                {
                   Header: "Frozen",
-                  accessor: "frozenContainers",
+                  accessor: "state.containers.frozen",
                   view: views[1],
                },
             ],
          },
          //LIMITS
          {
-            Header: "RAM",
-            accessor: "ramLimit",
+            Header: view === 2 ? "RAM" : "Max",
+            accessor: "limits.RAM",
             view: views[2],
+            Cell: ({ value }) => {
+               return value ? bytesToAdequateValue(value).getMessage() : "-";
+            },
          },
          {
-            Header: "CPU",
-            accessor: "cpuLimit",
+            Header: view === 2 ? "CPU" : "Max",
+            accessor: "limits.CPU",
             view: views[2],
+            Cell: ({ value }) => {
+               return value ? HzToAdequateValue(value).getMessage() : "-";
+            },
          },
          {
-            Header: "Disk",
-            accessor: "diskLimit",
+            Header: view === 2 ? "Disk" : "Max",
+            accessor: "limits.disk",
             view: views[2],
+            Cell: ({ value }) => {
+               return value ? bytesToAdequateValue(value).getMessage() : "-";
+            },
          },
          {
-            Header: "Download",
-            accessor: "downloadLimit",
+            Header: view === 2 ? "Download" : "Max",
+            accessor: "limits.internet.download",
             view: views[2],
+            Cell: ({ value }) => {
+               return value ? bytesPerSecondToAdequateValue(value).getMessage() : "-";
+            },
          },
          {
-            Header: "Upload",
-            accessor: "uploadLimit",
+            Header: view === 2 ? "Upload" : "Max",
+            accessor: "limits.internet.upload",
             view: views[2],
+            Cell: ({ value }) => {
+               return value ? bytesPerSecondToAdequateValue(value).getMessage() : "-";
+            },
          },
          // RAM
          {
@@ -169,24 +165,12 @@ function Projects({
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <ProgressBar>
-                     <ProgressBar variant="used" now={data.ramUsedPercent} key={1} />
-                     <ProgressBar
-                        variant="allocated"
-                        now={data.ramAllocatedPercent}
-                        key={2}
-                     />
-                     <ProgressBar variant="free" now={data.ramFreePercent} key={3} />
-                  </ProgressBar>
+                  <ProjectProgressBar
+                     usedPercent={data.state.RAM.usedPercent}
+                     allocatedPercent={data.state.RAM.allocatedPercent}
+                     freePercent={data.state.RAM.freePercent}
+                  />
                );
-            },
-         },
-         {
-            Header: "Max",
-            accessor: "ramLimitSpecific",
-            view: views[3],
-            Cell: ({ value }) => {
-               return bytesToAdequateMessage(value);
             },
          },
          {
@@ -196,15 +180,15 @@ function Projects({
             columns: [
                {
                   Header: "Value",
-                  accessor: "ramUsedValue",
+                  accessor: "state.RAM.usage",
                   view: views[3],
                   Cell: ({ value }) => {
-                     return bytesToAdequateMessage(value);
+                     return bytesToAdequateValue(value).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "ramUsedPercent",
+                  accessor: "state.RAM.usedPercent",
                   view: views[3],
                },
             ],
@@ -216,15 +200,15 @@ function Projects({
             columns: [
                {
                   Header: "Value",
-                  accessor: "ramAllocatedValue",
+                  accessor: "state.RAM.allocated",
                   view: views[3],
                   Cell: ({ value }) => {
-                     return bytesToAdequateMessage(value);
+                     return bytesToAdequateValue(value).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "ramAllocatedPercent",
+                  accessor: "state.RAM.allocatedPercent",
                   view: views[3],
                },
             ],
@@ -236,15 +220,18 @@ function Projects({
             columns: [
                {
                   Header: "Value",
-                  accessor: "ramFreeValue",
+                  accessor: "state.RAM.free",
                   view: views[3],
-                  Cell: ({ value }) => {
-                     return bytesToAdequateMessage(value);
+                  Cell: (props) => {
+                     const data = props.row.original;
+                     return data.limits?.RAM
+                        ? bytesToAdequateValue(props.value).getMessage()
+                        : bytesToAdequateValue(userState.RAM.free).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "ramFreePercent",
+                  accessor: "state.RAM.freePercent",
                   view: views[3],
                },
             ],
@@ -257,41 +244,72 @@ function Projects({
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <ProgressBar>
-                     <ProgressBar variant="used" now={data.cpuUsedPercent} key={1} />
-                     <ProgressBar
-                        variant="allocated"
-                        now={data.cpuAllocatedPercent}
-                        key={2}
-                     />
-                     <ProgressBar variant="free" now={data.cpuFreePercent} key={3} />
-                  </ProgressBar>
+                  <ProjectProgressBar
+                     usedPercent={data.state.CPU.usedPercent}
+                     allocatedPercent={data.state.CPU.allocatedPercent}
+                     freePercent={data.state.CPU.freePercent}
+                  />
                );
             },
-         },
-         {
-            Header: "Max (% from 0 GHz)",
-            accessor: "cpuLimitSpecific",
-            view: views[4],
          },
          {
             Header: "Used",
             accessor: "cpuUsed",
             view: views[4],
             columns: [
-               { Header: "Value", accessor: "cpuUsedValue", view: views[4] },
-               { Header: "%", accessor: "cpuUsedPercent", view: views[4] },
+               {
+                  Header: "Time from beginning",
+                  accessor: "state.CPU.usedTime",
+                  view: views[4],
+                  Cell: ({ value }) => {
+                     return secondsToAdequateValue(value).getMessage();
+                  },
+               },
+               {
+                  Header: "Value",
+                  accessor: "state.CPU.usage",
+                  view: views[4],
+                  Cell: ({ value }) => {
+                     return HzToAdequateValue(value).getMessage();
+                  },
+               },
+               { Header: "%", accessor: "state.CPU.usedPercent", view: views[4] },
             ],
          },
          {
-            Header: "Allocated %",
-            accessor: "cpuAllocatedPercent",
+            Header: "Allocated",
+            accessor: "cpuAllocated",
             view: views[4],
+            columns: [
+               {
+                  Header: "Value",
+                  accessor: "state.CPU.allocated",
+                  view: views[4],
+                  Cell: ({ value }) => {
+                     return HzToAdequateValue(value).getMessage();
+                  },
+               },
+               { Header: "%", accessor: "state.CPU.allocatedPercent", view: views[4] },
+            ],
          },
          {
-            Header: "Free %",
-            accessor: "cpuFreePercent",
+            Header: "Free",
+            accessor: "cpuFree",
             view: views[4],
+            columns: [
+               {
+                  Header: "Value",
+                  accessor: "state.CPU.free",
+                  view: views[4],
+                  Cell: (props) => {
+                     const data = props.row.original;
+                     return data.limits?.CPU
+                        ? HzToAdequateValue(props.value).getMessage()
+                        : HzToAdequateValue(userState.CPU.free).getMessage();
+                  },
+               },
+               { Header: "%", accessor: "state.CPU.freePercent", view: views[4] },
+            ],
          },
          //DISK
          {
@@ -301,82 +319,73 @@ function Projects({
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <ProgressBar>
-                     <ProgressBar variant="used" now={data.diskUsedPercent} key={1} />
-                     <ProgressBar
-                        variant="allocated"
-                        now={data.diskAllocatedPercent}
-                        key={2}
-                     />
-                     <ProgressBar variant="free" now={data.diskFreePercent} key={3} />
-                  </ProgressBar>
+                  <ProjectProgressBar
+                     usedPercent={data.state.disk.usedPercent}
+                     allocatedPercent={data.state.disk.allocatedPercent}
+                     freePercent={data.state.disk.freePercent}
+                  />
                );
             },
          },
          {
-            Header: "max",
-            accessor: "diskLimitSpecific",
-            view: views[5],
-            Cell: ({ value }) => {
-               return bytesToAdequateMessage(value);
-            },
-         },
-         {
-            Header: "used",
+            Header: "Used",
             accessor: "diskUsed",
             view: views[5],
             columns: [
                {
                   Header: "value",
-                  accessor: "diskUsedValue",
+                  accessor: "state.disk.usage",
                   view: views[5],
                   Cell: ({ value }) => {
-                     return bytesToAdequateMessage(value);
+                     return bytesToAdequateValue(value).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "diskUsedPercent",
+                  accessor: "state.disk.usedPercent",
                   view: views[5],
                },
             ],
          },
          {
-            Header: "allocated",
+            Header: "Allocated",
             accessor: "diskAllocated",
             view: views[5],
             columns: [
                {
                   Header: "value",
-                  accessor: "diskAllocatedValue",
+                  accessor: "state.disk.allocated",
                   view: views[5],
                   Cell: ({ value }) => {
-                     return bytesToAdequateMessage(value);
+                     return bytesToAdequateValue(value).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "diskAllocatedPercent",
+                  accessor: "state.disk.allocatedPercent",
                   view: views[5],
                },
             ],
          },
          {
-            Header: "free",
+            Header: "Free",
             accessor: "diskFreeSpecific",
             view: views[5],
             columns: [
                {
                   Header: "value",
-                  accessor: "diskFreeValue",
+                  accessor: "state.disk.free",
                   view: views[5],
-                  Cell: ({ value }) => {
-                     return bytesToAdequateMessage(value);
+                  Cell: (props) => {
+                     const data = props.row.original;
+                     return data.limits?.disk
+                        ? bytesToAdequateValue(props.value).getMessage()
+                        : bytesToAdequateValue(userState.disk.free).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "diskFreePercent",
+                  accessor: "state.disk.freePercent",
                   view: views[5],
                },
             ],
@@ -389,24 +398,12 @@ function Projects({
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <ProgressBar>
-                     <ProgressBar variant="used" now={data.downloadUsedPercent} key={1} />
-                     <ProgressBar
-                        variant="allocated"
-                        now={data.downloadAllocatedPercent}
-                        key={2}
-                     />
-                     <ProgressBar variant="free" now={data.downloadFreePercent} key={3} />
-                  </ProgressBar>
+                  <ProjectProgressBar
+                     usedPercent={data.state.internet.download.usedPercent}
+                     allocatedPercent={data.state.internet.download.allocatedPercent}
+                     freePercent={data.state.internet.download.freePercent}
+                  />
                );
-            },
-         },
-         {
-            Header: "Max",
-            accessor: "downloadLimitSpecific",
-            view: views[6],
-            Cell: ({ value }) => {
-               return bytesPerSecondToAdequateMessage(value);
             },
          },
          {
@@ -416,15 +413,15 @@ function Projects({
             columns: [
                {
                   Header: "Value",
-                  accessor: "downloadUsedValue",
+                  accessor: "state.internet.download.usage",
                   view: views[6],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateMessage(value);
+                     return bytesPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "downloadUsedPercent",
+                  accessor: "state.internet.download.usedPercent",
                   view: views[6],
                },
             ],
@@ -436,15 +433,15 @@ function Projects({
             columns: [
                {
                   Header: "Value",
-                  accessor: "downloadAllocatedValue",
+                  accessor: "state.internet.download.allocated",
                   view: views[6],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateMessage(value);
+                     return bytesPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "downloadAllocatedPercent",
+                  accessor: "state.internet.download.allocatedPercent",
                   view: views[6],
                },
             ],
@@ -456,15 +453,20 @@ function Projects({
             columns: [
                {
                   Header: "Value",
-                  accessor: "downloadFreeValue",
+                  accessor: "state.internet.download.free",
                   view: views[6],
-                  Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateMessage(value);
+                  Cell: (props) => {
+                     const data = props.row.original;
+                     return data.limits?.internet?.download
+                        ? bytesPerSecondToAdequateValue(props.value).getMessage()
+                        : bytesPerSecondToAdequateValue(
+                             userState.internet.download.free
+                          ).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "downloadFreePercent",
+                  accessor: "state.internet.download.freePercent",
                   view: views[6],
                },
             ],
@@ -477,24 +479,12 @@ function Projects({
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <ProgressBar>
-                     <ProgressBar variant="used" now={data.uploadUsedPercent} key={1} />
-                     <ProgressBar
-                        variant="allocated"
-                        now={data.uploadAllocatedPercent}
-                        key={2}
-                     />
-                     <ProgressBar variant="free" now={data.uploadFreePercent} key={3} />
-                  </ProgressBar>
+                  <ProjectProgressBar
+                     usedPercent={data.state.internet.upload.usedPercent}
+                     allocatedPercent={data.state.internet.upload.allocatedPercent}
+                     freePercent={data.state.internet.upload.freePercent}
+                  />
                );
-            },
-         },
-         {
-            Header: "Max",
-            accessor: "uploadLimitSpecific",
-            view: views[7],
-            Cell: ({ value }) => {
-               return bytesPerSecondToAdequateMessage(value);
             },
          },
          {
@@ -504,15 +494,15 @@ function Projects({
             columns: [
                {
                   Header: "Value",
-                  accessor: "uploadUsedValue",
+                  accessor: "state.internet.upload.usage",
                   view: views[7],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateMessage(value);
+                     return bytesPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "uploadUsedPercent",
+                  accessor: "state.internet.upload.usedPercent",
                   view: views[7],
                },
             ],
@@ -524,15 +514,15 @@ function Projects({
             columns: [
                {
                   Header: "Value",
-                  accessor: "uploadAllocatedValue",
+                  accessor: "state.internet.upload.allocated",
                   view: views[7],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateMessage(value);
+                     return bytesPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "uploadAllocatedPercent",
+                  accessor: "state.internet.upload.allocatedPercent",
                   view: views[7],
                },
             ],
@@ -544,15 +534,18 @@ function Projects({
             columns: [
                {
                   Header: "Value",
-                  accessor: "uploadFreeValue",
+                  accessor: "state.internet.upload.free",
                   view: views[7],
-                  Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateMessage(value);
+                  Cell: (props) => {
+                     const data = props.row.original;
+                     return data.limits?.internet?.upload
+                        ? bytesPerSecondToAdequateValue(props.value).getMessage()
+                        : bytesPerSecondToAdequateValue(userState.internet.upload.free).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "uploadFreePercent",
+                  accessor: "state.internet.upload.freePercent",
                   view: views[7],
                },
             ],
@@ -561,138 +554,13 @@ function Projects({
       []
    );
 
-   const makeData = () => {
-      let dataArray = [];
-      for (const project of projects) {
-         let projectData = {};
-         projectData.name = project.name;
-         if (project.pendingState) {
-            projectData.pendingState = project.pendingState;
-         } else {
-            // projectData.id = Math.round(Math.random() * 10_000);
-            projectData.id = project.id;
-            projectData.firstName = project.owner.givenName;
-            projectData.lastName = project.owner.familyName;
-            projectData.participants = project.coworkers.length;
-            projectData.createdAt = project.createdOn;
-            projectData.runningContainers = 0;
-            projectData.stoppedContainers = 0;
-            projectData.frozenContainers = 0;
-            for (const container of project.containers) {
-               if (container.state.operationState.status === "Running") {
-                  projectData.runningContainers++;
-               } else if (container.state.operationState.status === "Stopped") {
-                  projectData.stoppedContainers++;
-               } else if (container.state.operationState.status === "Frozen") {
-                  projectData.frozenContainers++;
-               }
-            }
-            //LIMITS
-            projectData.ramLimit = bytesToAdequateMessage(
-               project.projectState.limits.RAM
-            );
-            projectData.cpuLimit = project.projectState.limits.CPU;
-            projectData.diskLimit = bytesToAdequateMessage(
-               project.projectState.limits.disk
-            );
-            projectData.downloadLimit = bytesPerSecondToAdequateMessage(
-               project.projectState.limits.network.download
-            );
-            projectData.uploadLimit = bytesPerSecondToAdequateMessage(
-               project.projectState.limits.network.upload
-            );
-            //RAM
-            projectData.ramLimitSpecific = project.projectState.limits.RAM;
-            projectData.ramUsedValue = project.projectState.RAM.usage;
-            projectData.ramAllocatedValue = project.projectState.RAM.allocated;
-            projectData.ramFreeValue = calculateFreeAmount(
-               project.projectState.limits.RAM,
-               project.projectState.RAM.usage,
-               project.projectState.RAM.allocated
-            );
-            projectData.ramUsedPercent = project.projectState.RAM.percentConsumed;
-            projectData.ramAllocatedPercent = project.projectState.RAM.percentAllocated;
-            projectData.ramFreePercent = calculateFreePercent(
-               project.projectState.RAM.percentConsumed,
-               project.projectState.RAM.percentAllocated
-            );
-            //CPU
-            projectData.cpuLimitSpecific = project.projectState.limits.CPU;
-            projectData.cpuUsedValue = project.projectState.CPU.consumedTime;
-            projectData.cpuUsedPercent = project.projectState.CPU.percentConsumed;
-            projectData.cpuAllocatedPercent = project.projectState.CPU.percentAllocated;
-            projectData.cpuFreePercent = calculateFreePercent(
-               project.projectState.limits.CPU,
-               project.projectState.CPU.percentConsumed,
-               project.projectState.CPU.percentAllocated
-            );
-
-            //DISK
-            projectData.diskLimitSpecific = project.projectState.limits.disk;
-            projectData.diskUsedValue = project.projectState.disk.usage;
-            projectData.diskAllocatedValue = project.projectState.disk.allocated;
-            projectData.diskFreeValue = calculateFreeAmount(
-               project.projectState.limits.disk,
-               project.projectState.disk.usage,
-               project.projectState.disk.allocated
-            );
-            projectData.diskUsedPercent = project.projectState.disk.percentConsumed;
-            projectData.diskAllocatedPercent = project.projectState.disk.percentAllocated;
-            projectData.diskFreePercent = calculateFreePercent(
-               project.projectState.disk.percentConsumed,
-               project.projectState.disk.percentAllocated
-            );
-            //DOWNLOAD
-            projectData.downloadLimitSpecific =
-               project.projectState.limits.network.download;
-            projectData.downloadUsedValue =
-               project.projectState.network.download.downloadSpeed;
-            projectData.downloadAllocatedValue =
-               project.projectState.network.download.allocatedDownloadSpeed;
-            projectData.downloadFreeValue = calculateFreeAmount(
-               project.projectState.limits.network.download,
-               project.projectState.network.download.downloadSpeed,
-               project.projectState.network.download.allocatedDownloadSpeed
-            );
-            projectData.downloadUsedPercent =
-               project.projectState.network.download.downloadBandwidthUsage;
-            projectData.downloadAllocatedPercent =
-               project.projectState.network.download.allocatedBandwidthUsage;
-            projectData.downloadFreePercent = calculateFreePercent(
-               project.projectState.network.download.allocatedBandwidthUsage,
-               project.projectState.network.download.downloadBandwidthUsage
-            );
-            //UPLOAD
-            projectData.uploadLimitSpecific = project.projectState.limits.network.upload;
-            projectData.uploadUsedValue = project.projectState.network.upload.uploadSpeed;
-            projectData.uploadAllocatedValue =
-               project.projectState.network.upload.allocatedDownloadSpeed;
-            projectData.uploadFreeValue = calculateFreeAmount(
-               project.projectState.limits.network.upload,
-               project.projectState.network.upload.uploadSpeed,
-               project.projectState.network.upload.allocatedDownloadSpeed
-            );
-            projectData.uploadUsedPercent =
-               project.projectState.network.upload.uploadBandwidthUsage;
-            projectData.uploadAllocatedPercent =
-               project.projectState.network.upload.allocatedBandwidthUsage;
-            projectData.uploadFreePercent = calculateFreePercent(
-               project.projectState.network.upload.allocatedBandwidthUsage,
-               project.projectState.network.upload.uploadBandwidthUsage
-            );
-         }
-         dataArray.push(projectData);
-      }
-      return dataArray;
-   };
-
-   const [view, setView] = useState(views[1]);
-   const [data, setData] = useState(useMemo(() => makeData(), []));
+   // const [data, setData] = useState(useMemo(() => makeData(), []));
    const [skipPageReset, setSkipPageReset] = useState(false);
-   useEffect(() => {
-      setData(makeData());
-      // console.log(makeData())
-   }, [projects]);
+   // useEffect(() => {
+   //    setData(makeData());
+   //    // console.log(makeData())
+   // }, [projects]);
+
    // We need to keep the table from resetting the pageIndex when we
    // Update data. So we can keep track of that flag with a ref.
    // When our cell renderer calls updateMyData, we'll use
@@ -712,15 +580,6 @@ function Projects({
             return row;
          })
       );
-   };
-
-   const createProjectHandler = (project) => {
-      startSpinnerProjectPost(project);
-      projectPost(project, projectPostFailNotification);
-   };
-
-   const projectPostFailNotification = (name) => {
-      notify(`project "${name}" could not be created`, "danger", 4);
    };
 
    const deleteProjectsHandler = (projects) => {
@@ -756,17 +615,24 @@ function Projects({
                      <CssBaseline />
                      <EnhancedTable
                         columns={columns}
-                        data={data}
-                        setData={setData}
+                        data={projects}
                         updateMyData={updateMyData}
                         skipPageReset={skipPageReset}
                         views={views}
                         view={view}
                         setView={setView}
                         createRecordHeadding={"Create new project"}
-                        userLimits={limitsFromParentState(userState.limits, userState)}
-                        createHandler={createProjectHandler}
+                        creationLimits={{
+                           RAM: userState.RAM.free,
+                           CPU: userState.CPU.free,
+                           disk: userState.disk.free,
+                           internet: {
+                              upload: userState.internet.upload.free,
+                              download: userState.internet.download.free,
+                           },
+                        }}
                         deleteHandler={deleteProjectsHandler}
+                        createDialog={<CreateProjectDialog notify={notify}/>}
                      />
                   </Card>
                </Col>
@@ -779,7 +645,8 @@ function Projects({
 const mapStateToProps = (state) => {
    return {
       projects: state.combinedUserData.userProjects.projects,
-      userState: state.combinedUserData.userProjects.userState,
+      userState: state.combinedUserData.userProjects.state,
+      userLimits: state.combinedUserData.userProjects.limits,
    };
 };
 
@@ -787,12 +654,6 @@ const mapDispatchToProps = (dispatch) => {
    return {
       userProjectsGet: () => {
          dispatch(userProjectsGet());
-      },
-      projectPost: (project, projectPostFailNotification) => {
-         dispatch(projectPost(project, projectPostFailNotification));
-      },
-      startSpinnerProjectPost: (project) => {
-         dispatch(startSpinnerProjectPost(project));
       },
       startSpinnerProjectDelete: (project) => {
          dispatch(startSpinnerProjectDelete(project));
@@ -803,4 +664,4 @@ const mapDispatchToProps = (dispatch) => {
    };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Projects);
+export default connect(mapStateToProps, mapDispatchToProps)(Project);

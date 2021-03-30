@@ -21,7 +21,6 @@ import Projects from "views/Projects.js";
 import Typography from "views/Typography.js";
 import Icons from "views/Icons.js";
 import Notifications from "views/Notifications.js";
-import Project from "views/Project.js"
 // import Upgrade from "views/Upgrade.js";
 
 const dashboardRoutes = [
@@ -41,14 +40,14 @@ const dashboardRoutes = [
     component: Projects,
     layout: "/user",
   },
-  {
-    path: "/projects/:projectId",
-    name: "Project",
-    sublinks: ["Containers", "Info", "Settings"],
-    icon: "nc-icon nc-notes",
-    component: Project,
-    layout: "/user",
-  },
+  // {
+  //   path: "/projects/:projectId",
+  //   name: "Project",
+  //   sublinks: ["Containers", "Info", "Settings"],
+  //   icon: "nc-icon nc-notes",
+  //   component: Project,
+  //   layout: "/user",
+  // },
   {
     path: "/user",
     name: "User",
