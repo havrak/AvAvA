@@ -30,15 +30,15 @@ import ProjectSettings from "views/Projects/Settings.js";
 const projectsNavLinks = [
    {
       name: "Containers",
-      link: "/containers",
+      link: "containers",
    },
    {
       name: "Info",
-      link: "/info",
+      link: "info",
    },
    {
       name: "Settings",
-      link: "/settings",
+      link: "settings",
    },
 ];
 
@@ -68,29 +68,28 @@ const routes = [
    },
    {
       path: "/projects/:projectId/info",
-      name: "Project",
-      sublinks: projectsNavLinks,
+      name: "-Info",
+      navLinks: projectsNavLinks,
       view: ProjectInfo,
       layout: "/user",
    },
    {
       path: "/projects/:projectId/containers",
-      name: "Project",
-      sublinks: projectsNavLinks,
+      name: "-Containers",
+      navLinks: projectsNavLinks,
       view: ProjectContainers,
       layout: "/user",
    },
    {
       path: "/projects/:projectId/settings",
-      name: "Project",
-      sublinks: projectsNavLinks,
+      name: "-Settings",
+      navLinks: projectsNavLinks,
       view: ProjectSettings,
       layout: "/user",
    },
    {
       path: "/user",
       name: "User",
-      sublinks: ["User Profile"],
       icon: "nc-icon nc-circle-09",
       view: UserProfile,
       addToNavigation: true,

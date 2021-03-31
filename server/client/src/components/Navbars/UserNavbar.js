@@ -10,11 +10,11 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 import React, { Component } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
 import UserCard from "./UserCard";
-
-import routes from "routes.js";
+import { relativeLocation, getValidRoute } from "service/RoutesHelper.js";
+import _ from 'lodash';
 
 function Header({ logout, user }) {
    const location = useLocation();
@@ -29,14 +29,19 @@ function Header({ logout, user }) {
       };
       document.body.appendChild(node);
    };
+   let validRoute = _.cloneDeep(getValidRoute());
    let name;
-   // let sublinks;
-   // for (let i = 0; i < routes.length; i++) {
-   //    if (location.pathname.indexOf(routes[i].layout + routes[i].path) !== -1) {
-   //       name = routes[i].name;
-   //       sublinks = routes[i].sublinks;
-   //    }
-   // }
+   let navLinks;
+   if (validRoute !== -1) {
+      name = validRoute.name;
+      navLinks = validRoute.navLinks;
+      if (navLinks) {
+         for (const navLink of navLinks) {
+            navLink.link = relativeLocation(navLink.link);
+         }
+      }
+   }
+   console.log(navLinks)
 
    return (
       <Navbar bg="light" expand="lg">
@@ -53,9 +58,9 @@ function Header({ logout, user }) {
                <Navbar.Brand
                   href="#home"
                   onClick={(e) => e.preventDefault()}
-                  className="mr-3"
+                  className="navbar-brand"
                >
-                  {name}
+                  Moodle{name}
                </Navbar.Brand>
             </div>
             <Navbar.Toggle aria-controls="basic-navbar-nav" className="mr-2">
@@ -64,21 +69,24 @@ function Header({ logout, user }) {
                <span className="navbar-toggler-bar burger-lines"></span>
             </Navbar.Toggle>
             <Navbar.Collapse id="basic-navbar-nav">
-               <Nav className="ml-auto" navbar>
-                  {/* {sublinks.map((item) => {
-                     return (
-                        <Nav.Item
-                        style={{display: "flex", alignItems: "center"}}>
-                           <Nav.Link
-                              className="m-0 p-0 pl-3"
-                              href="#"
-                              onClick={(e) => e.preventDefault()}
-                           >
-                              <span className="no-icon">{item}</span>
-                           </Nav.Link>
-                        </Nav.Item>
-                     );
-                  })} */}
+               <Nav navbar>
+                  <div className="navbar-container">
+                     {navLinks
+                        ? navLinks.map((item) => {
+                             return (
+                                <Nav.Item className={"navbar-link"}>
+                                   <Link
+                                      className="m-0 p-0 pl-3"
+                                      to={item.link}
+                                   >
+                                      <span className="no-icon">{item.name}</span>
+                                   </Link>
+                                </Nav.Item>
+                             );
+                          })
+                        : ""}
+                  </div>
+                  <div className="navbar-separator"></div>
                   <UserCard Nav={Nav}></UserCard>
                </Nav>
             </Navbar.Collapse>
@@ -86,5 +94,9 @@ function Header({ logout, user }) {
       </Navbar>
    );
 }
+
+// const mapStateToProps = (state) => {
+//    brandCustomization: state.brandCustomization;
+// }
 
 export default Header;

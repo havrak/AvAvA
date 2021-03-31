@@ -1,14 +1,9 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
+import {toChildLocation} from "service/RoutesHelper";
 
 function Project(props){
-   let path = location.pathname;
-   if(path.endsWith('/')){
-      path += "containers";
-   } else {
-      path += "/containers";
-   }
-   return <Redirect to={path} />
+   return <Redirect to={toChildLocation("containers")} />
 }
 
 export default Project;
