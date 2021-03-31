@@ -3,7 +3,7 @@ import { Redirect, Route } from "react-router-dom";
 import { connect } from "react-redux";
 
 const ProtectedRoute = ({ component: Comp, userData, path, ...rest }) => {
-   if (userData.user) {
+   if (userData?.user) {
       // return <Route path="/user" component={Comp} />;
       return <Route path={path} component={Comp} {...rest}/>;
    } else {

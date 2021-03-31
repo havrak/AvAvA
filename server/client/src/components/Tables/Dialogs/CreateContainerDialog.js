@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 import Switch from "@material-ui/core/Switch";
 import TextField from "@material-ui/core/TextField";
 import Tooltip from "@material-ui/core/Tooltip";
-import Slider from '../../Limits/Slider';
+import Slider from 'components/Limits/Slider';
 
 const AddUserDialog = (props) => {
    const [user, setUser] = useState(initialUser);

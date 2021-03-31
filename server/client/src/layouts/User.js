@@ -21,6 +21,7 @@ import { useLocation, Route, Switch } from "react-router-dom";
 import UserNavbar from "components/Navbars/UserNavbar";
 import Footer from "components/Footer/Footer";
 import Sidebar from "components/Sidebar/Sidebar";
+import ProtectedRoute from "components/ProtectedRoute.js";
 
 import routes from "routes.js";
 
@@ -31,12 +32,19 @@ function User() {
    const getRoutes = (routes) => {
       return routes.map((prop, key) => {
          if (prop.layout === "/user") {
-            return (
+            return prop.unprotected ? (
                <Route
                   path={prop.layout + prop.path}
-                  render={(props) => <prop.component {...props} />}
+                  render={(props) => <prop.view {...props} />}
                   key={key}
-                  
+                  exact={prop.exact === undefined}
+               />
+            ) : (
+               <ProtectedRoute
+                  path={prop.layout + prop.path}
+                  component={prop.view}
+                  key={key}
+                  exact={prop.exact === undefined}
                />
             );
          } else {

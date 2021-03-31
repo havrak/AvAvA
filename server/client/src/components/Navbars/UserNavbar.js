@@ -30,13 +30,13 @@ function Header({ logout, user }) {
       document.body.appendChild(node);
    };
    let name;
-   let sublinks;
-   for (let i = 0; i < routes.length; i++) {
-      if (location.pathname.indexOf(routes[i].layout + routes[i].path) !== -1) {
-         name = routes[i].name;
-         sublinks = routes[i].sublinks;
-      }
-   }
+   // let sublinks;
+   // for (let i = 0; i < routes.length; i++) {
+   //    if (location.pathname.indexOf(routes[i].layout + routes[i].path) !== -1) {
+   //       name = routes[i].name;
+   //       sublinks = routes[i].sublinks;
+   //    }
+   // }
 
    return (
       <Navbar bg="light" expand="lg">
@@ -65,7 +65,7 @@ function Header({ logout, user }) {
             </Navbar.Toggle>
             <Navbar.Collapse id="basic-navbar-nav">
                <Nav className="ml-auto" navbar>
-                  {sublinks.map((item) => {
+                  {/* {sublinks.map((item) => {
                      return (
                         <Nav.Item
                         style={{display: "flex", alignItems: "center"}}>
@@ -78,7 +78,7 @@ function Header({ logout, user }) {
                            </Nav.Link>
                         </Nav.Item>
                      );
-                  })}
+                  })} */}
                   <UserCard Nav={Nav}></UserCard>
                </Nav>
             </Navbar.Collapse>

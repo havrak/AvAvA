@@ -1,5 +1,5 @@
 import _ from "lodash";
-import * as StateCalculator from '../service/StateCalculator';
+import * as StateCalculator from 'service/StateCalculator';
 
 export const combinedUserDataReducer = (state = null, action) => {
    switch (action.type) {

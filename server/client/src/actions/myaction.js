@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import * as UserApi from "../api/index";
+import * as UserApi from "api/index";
 
 const api = new UserApi.DefaultApi();
 

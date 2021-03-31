@@ -3,8 +3,8 @@ import { Dropdown, DropdownButton } from "react-bootstrap";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
-import { logout as logoutFunction } from "../../actions/myaction";
-import { textualRepresentationOfRole } from "../../service/UserService";
+import { logout as logoutFunction } from "actions/myaction";
+import { textualRepresentationOfRole } from "service/UserService";
 
 function UserCard({ Nav, logout, user }) {
    return (

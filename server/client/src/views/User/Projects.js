@@ -5,7 +5,7 @@ import { Card, Container, Row, Col } from "react-bootstrap";
 import { connect } from "react-redux";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
-import EnhancedTable from "../components/Tables/EnhancedTable.js";
+import EnhancedTable from "components/Tables/EnhancedTable.js";
 import NotificationAlert from "react-notification-alert";
 import { ProjectProgressBar } from "components/Tables/ProgressBars.js";
 

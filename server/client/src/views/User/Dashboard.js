@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { combinedDataGet } from "../actions/myaction";
+import { combinedDataGet } from "actions/myaction";
 // react-bootstrap components
 import { Card, Container, Row, Col } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -10,8 +10,8 @@ import {
    DiskCircularStateChartCard,
    UploadCircularStateChartCard,
    DownloadCircularStateChartCard,
-} from "../components/cards/state/CurrentStateCards.js";
-import { ContainerCounter, ProjectCounter} from "../components/cards/Counters.js";
+} from "components/Cards/state/CurrentStateCards.js";
+import { ContainerCounter, ProjectCounter} from "components/Cards/Counters.js";
 import { connect } from "react-redux";
 
 function Dashboard({ user, state, limits, combinedDataGet }) {

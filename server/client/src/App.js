@@ -35,7 +35,7 @@ function App(props) {
             <Switch>
                <Route path="/user" component={UserLayout} />
                {/* <Redirect from="/" to="/user/dashboard" /> */}
-               <Route path="/userSetup">
+               <Route path="/userSetup" exact={true}>
                   <UserSetup />
                </Route>
             </Switch>

@@ -17,9 +17,7 @@
 */
 import React, { Component } from "react";
 import { useLocation, NavLink } from "react-router-dom";
-
 import { Nav } from "react-bootstrap";
-
 import logo from "assets/img/LXD-icon.png";
 
 function Sidebar({ color, routes }) {
@@ -29,15 +27,10 @@ function Sidebar({ color, routes }) {
    };
    return (
       <div className="sidebar" data-color={color}>
-         <div
-            className="sidebar-background"
-         />
+         <div className="sidebar-background" />
          <div className="sidebar-wrapper">
             <div className="logo d-flex align-items-center justify-content-start">
-               <a
-                  href="/"
-                  className="simple-text logo-mini mx-1"
-               >
+               <a href="/" className="simple-text logo-mini mx-1">
                   <div className="logo-img pr-2">
                      <img src={logo} alt="..." />
                   </div>
@@ -48,16 +41,9 @@ function Sidebar({ color, routes }) {
             </div>
             <Nav>
                {routes.map((prop, key) => {
-                  if (!prop.redirect)
+                  if (prop.addToNavigation)
                      return (
-                        <li
-                           className={
-                              prop.upgrade
-                                 ? "active active-pro"
-                                 : activeRoute(prop.layout + prop.path)
-                           }
-                           key={key}
-                        >
+                        <li className={activeRoute(prop.layout + prop.path)} key={key}>
                            <NavLink
                               to={prop.layout + prop.path}
                               className="nav-link"
