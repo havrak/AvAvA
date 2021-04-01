@@ -12,10 +12,12 @@ export class ContainerResourceState {
 	};
 	disk = {
 		limit: undefined,
-		devices: {
-			name: undefined,
-			usage: undefined,
-		},
+		devices: [
+			{
+				name: undefined,
+				usage: undefined,
+			},
+		],
 	};
 	internet; // -> NetworkState.js
 	loopback; // -> NetworkState.js
@@ -23,15 +25,4 @@ export class ContainerResourceState {
 
 	numberOfProcesses;
 	OperationState;
-}
-
-export class Disk {
-	constructor(deviceName, currentlyConsumedMemory, percentConsumed) {
-		this.deviceName = deviceName;
-		this.currentlyConsumedMemory = currentlyConsumedMemory;
-		this.percentConsumed = percentConsumed;
-	}
-	deviceName;
-	currentlyConsumedMemory;
-	percentConsumed;
 }

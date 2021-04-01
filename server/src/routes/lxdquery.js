@@ -83,14 +83,14 @@ export async function test() {
 		await execInstance("c1", "p2", [
 			"bash",
 			"-c",
-			"df -h | awk '/\\/$/{print $5;exit}'",
+			"df -B 1 | awk '/\\/$/{print $4;exit}'",
 		])
 	);*/
 	// console.log(await startInstance("createTest", "p2"));
 	// console.log(await getInstance("createTest", "p2"));
 	// console.log(await deleteBackup("c1", "b4", "p2"));
 	// console.log(await getInstance("c1", "p2"));
-	// console.log(await getState("c1", "p2"));
+	// console.log((await getState("c1", "p2")));
 	// console.log(await getInstances("p2"));
 	// console.log(await getSnapshots("c1", "p2"));
 	// console.log(await createSnapshot("c1", "snap2", false, "p2"));
@@ -111,9 +111,9 @@ export async function test() {
 	}).then((res) => console.log(res));*/
 }
 
-export async function getInstances(project) {
+export async function getInstances(instances, project) {
 	let routes = await mkRequest(`/1.0/instances?project=${project}`);
-	let instances = new Array();
+	// let instances = new Array();
 	for (let i = 0; i < routes.length; i++) {
 		instances.push(await getInstance(routes[i].substring("15"), project));
 	}
@@ -218,11 +218,16 @@ async function getStateFromSource(instancedata, id, project) {
 		rs.CPU.consumedTime = data.cpu.usage;
 		rs.RAM.usage = data.memory.usage + data.memory.swap_usage;
 		rs.RAM.usagePeak = data.memory.usage_peak + data.memory.swap_usage_peak;
+		rs.disk.devices[0].name = "root";
 		if (data.disk.root !== undefined) {
-			let used = new CS.UserDiskSpace();
-			//used.usage = data.disk.root.usage; //must be divided by users
+			rs.disk.devices[0].usage = data.disk.root.usage; //must be divided by users
 			//https://discuss.linuxcontainers.org/t/how-to-check-lxd-container-size-and-how-much-space-they-are-tacking/4770/3
-			rs.disk.currentlyCosumedMemory.push(used);
+		} else {
+			execInstance(id, project, [
+				"bash",
+				"-c",
+				"df -B 1 | awk '/\\/$/{print $4;exit}'",
+			]).then((res) => (rs.disk.devices[0].usage = parseInt(res)));
 		}
 		if (data.network != undefined)
 			Object.keys(data.network).forEach((key) => {
