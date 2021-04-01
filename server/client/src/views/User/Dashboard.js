@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { combinedDataGet } from "actions/myaction";
+import {setCustomizableBrandText} from "actions/FrontendActions";
 // react-bootstrap components
 import { Card, Container, Row, Col } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -14,7 +15,13 @@ import {
 import { ContainerCounter, ProjectCounter} from "components/Cards/Counters.js";
 import { connect } from "react-redux";
 
-function Dashboard({ user, state, limits, combinedDataGet }) {
+function Dashboard({ user, state, limits, combinedDataGet, setCustomizableBrandText }) {
+   const brand = [
+      {
+         text: "Dashboard"
+      }
+   ]
+   setCustomizableBrandText(brand);
    useEffect(() => {
       combinedDataGet();
    }, []);
@@ -135,6 +142,9 @@ const mapStateToProps = (state) => {
 
 const mapDispathToProps = (dispatch) => {
    return {
+      setCustomizableBrandText: (text)=> {
+         dispatch(setCustomizableBrandText(text));
+      },
       combinedDataGet: () => {
          dispatch(combinedDataGet());
       },

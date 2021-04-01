@@ -14,6 +14,7 @@ import {
    projectIdDelete,
    startSpinnerProjectDelete,
 } from "actions/myaction";
+import { setCustomizableBrandText } from "actions/FrontendActions";
 import {
    bytesToAdequateValue,
    bytesPerSecondToAdequateValue,
@@ -29,7 +30,14 @@ function Project(props) {
       userProjectsGet,
       projectIdDelete,
       startSpinnerProjectDelete,
+      setCustomizableBrandText,
    } = props;
+   const brand = [
+      {
+         text: "Projects",
+      },
+   ];
+   setCustomizableBrandText(brand);
 
    useEffect(() => {
       userProjectsGet();
@@ -540,7 +548,9 @@ function Project(props) {
                      const data = props.row.original;
                      return data.limits?.internet?.upload
                         ? bytesPerSecondToAdequateValue(props.value).getMessage()
-                        : bytesPerSecondToAdequateValue(userState.internet.upload.free).getMessage();
+                        : bytesPerSecondToAdequateValue(
+                             userState.internet.upload.free
+                          ).getMessage();
                   },
                },
                {
@@ -632,7 +642,7 @@ function Project(props) {
                            },
                         }}
                         deleteHandler={deleteProjectsHandler}
-                        createDialog={<CreateProjectDialog notify={notify}/>}
+                        createDialog={<CreateProjectDialog notify={notify} />}
                      />
                   </Card>
                </Col>
@@ -652,6 +662,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
    return {
+      setCustomizableBrandText: (text) => {
+         dispatch(setCustomizableBrandText(text));
+      },
       userProjectsGet: () => {
          dispatch(userProjectsGet());
       },

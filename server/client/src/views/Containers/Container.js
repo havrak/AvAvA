@@ -1,7 +1,9 @@
 import React from "react";
+import { Redirect } from "react-router-dom";
+import {toChildLocation} from "service/RoutesHelper";
 
-function Container(props){
-
+function Project(props){
+   return <Redirect to={toChildLocation("info")} />
 }
 
-export default Container;
+export default Project;

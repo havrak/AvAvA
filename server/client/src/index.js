@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import { createStore, combineReducers, compose, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
 import { combinedUserDataReducer } from "reducers/combinedUserDataReducer";
+import FrontendReducer from "reducers/FrontendReducer";
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -32,6 +33,7 @@ function loadFromLocalStorage() {
 
 const rootReducer = combineReducers({
    combinedUserData: combinedUserDataReducer,
+   frontend: FrontendReducer
 });
 
 const persistedState = loadFromLocalStorage();

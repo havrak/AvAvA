@@ -33,11 +33,16 @@
    color: #1DC7EA;
 }
 
-.navbar-brand {
-   // position: absolute;
-   // left: 0px;
-   width: 100%;
-   color: #5e5e5e !important;
+.navbar-link:focus span {
+   color: #1DC7EA;
+}
+
+.change-color-on-hover:hover{
+   color: #1DC7EA !important;
+}
+
+.connect-char {
+   white-space: pre;
 }
 
 .navbar-separator {

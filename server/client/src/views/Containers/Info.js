@@ -1,19 +1,25 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { removePathParts } from "service/RoutesHelper";
 import { setCustomizableBrandText } from "actions/FrontendActions";
 
-function Containers({ setCustomizableBrandText }) {
+function Info({ setCustomizableBrandText }) {
+   console.log(removePathParts(3));
    const brand = [
       {
-         text: "Project",
-         link: removePathParts(1),
+         text: "DVP",
+         link: removePathParts(3),
+         connectChar: "/",
+      },
+      {
+         text: "Moodle",
          connectChar: " - ",
       },
       {
-         text: "Containers",
+         text: "Info",
       },
    ];
+   console.log("f");
    useEffect(() => {
       setCustomizableBrandText(brand);
    });
@@ -32,4 +38,4 @@ const mapDispathToProps = (dispatch) => {
    };
 };
 
-export default connect(mapStateToProps, mapDispathToProps)(Containers);
+export default connect(mapStateToProps, mapDispathToProps)(Info);

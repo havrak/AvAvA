@@ -7,6 +7,7 @@ const ProtectedRoute = ({ component: Comp, userData, path, ...rest }) => {
       // return <Route path="/user" component={Comp} />;
       return <Route path={path} component={Comp} {...rest}/>;
    } else {
+      // return <Route path={path} component={Comp} {...rest}/>;
       window.location.href = "/auth/google";
       return null;
    }

@@ -14,9 +14,10 @@ import { useLocation, Link } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
 import UserCard from "./UserCard";
 import { relativeLocation, getValidRoute } from "service/RoutesHelper.js";
-import _ from 'lodash';
+import { connect } from "react-redux";
+import _ from "lodash";
 
-function Header({ logout, user }) {
+function Header({ logout, user, brand }) {
    const location = useLocation();
    const mobileSidebarToggle = (e) => {
       e.preventDefault();
@@ -30,10 +31,8 @@ function Header({ logout, user }) {
       document.body.appendChild(node);
    };
    let validRoute = _.cloneDeep(getValidRoute());
-   let name;
    let navLinks;
    if (validRoute !== -1) {
-      name = validRoute.name;
       navLinks = validRoute.navLinks;
       if (navLinks) {
          for (const navLink of navLinks) {
@@ -41,7 +40,8 @@ function Header({ logout, user }) {
          }
       }
    }
-   console.log(navLinks)
+
+   console.log(brand);
 
    return (
       <Navbar bg="light" expand="lg">
@@ -54,14 +54,35 @@ function Header({ logout, user }) {
                >
                   <i className="fas fa-ellipsis-v"></i>
                </Button>
-
-               <Navbar.Brand
-                  href="#home"
-                  onClick={(e) => e.preventDefault()}
-                  className="navbar-brand"
-               >
-                  Moodle{name}
-               </Navbar.Brand>
+               {brand.map((item) => {
+                  if (item.link) {
+                     return (
+                        <>
+                           <Link to={item.link}>
+                              <span className="navbar-brand change-color-on-hover">
+                                 {item.text}
+                              </span>
+                           </Link>
+                           {item.connectChar ? (
+                              <span className="navbar-brand connect-char">{item.connectChar}</span>
+                           ) : (
+                              ""
+                           )}
+                        </>
+                     );
+                  } else {
+                     return (
+                        <>
+                           <span className="navbar-brand">{item.text}</span>
+                           {item.connectChar ? (
+                              <span className="navbar-brand connect-char">{item.connectChar}</span>
+                           ) : (
+                              ""
+                           )}
+                        </>
+                     );
+                  }
+               })}
             </div>
             <Navbar.Toggle aria-controls="basic-navbar-nav" className="mr-2">
                <span className="navbar-toggler-bar burger-lines"></span>
@@ -75,10 +96,7 @@ function Header({ logout, user }) {
                         ? navLinks.map((item) => {
                              return (
                                 <Nav.Item className={"navbar-link"}>
-                                   <Link
-                                      className="m-0 p-0 pl-3"
-                                      to={item.link}
-                                   >
+                                   <Link className="m-0 p-0 pl-3" to={item.link}>
                                       <span className="no-icon">{item.name}</span>
                                    </Link>
                                 </Nav.Item>
@@ -86,7 +104,7 @@ function Header({ logout, user }) {
                           })
                         : ""}
                   </div>
-                  <div className="navbar-separator"></div>
+                  {navLinks ? <div className="navbar-separator"></div> : ""}
                   <UserCard Nav={Nav}></UserCard>
                </Nav>
             </Navbar.Collapse>
@@ -95,8 +113,8 @@ function Header({ logout, user }) {
    );
 }
 
-// const mapStateToProps = (state) => {
-//    brandCustomization: state.brandCustomization;
-// }
+const mapStateToProps = (state) => {
+   return { brand: state.frontend.brand };
+};
 
-export default Header;
+export default connect(mapStateToProps, null)(Header);

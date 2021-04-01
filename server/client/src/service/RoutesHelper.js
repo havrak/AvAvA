@@ -1,32 +1,34 @@
 import routes from "routes.js";
 import _ from "lodash";
 
-export function relativeLocation(toRelativeLocation) {
+function removeEndSlashPathEndAndSplit(){
    let path = _.cloneDeep(location.pathname);
    if (path.endsWith("/")) {
       path = path.slice(0, -1);
    }
-   let splitted = path.split("/");
-   splitted[splitted.length - 1] = toRelativeLocation
+   return path.split("/");
+}
+
+export function relativeLocation(toRelativeLocation) {
+   const splitted = removeEndSlashPathEndAndSplit();
+   splitted[splitted.length - 1] = toRelativeLocation;
    return splitted.join("/");
 }
 
 export function toChildLocation(toChildLocation) {
-   let path = _.cloneDeep(location.pathname);
-   if (path.endsWith("/")) {
-      path = path.slice(0, -1);
-   }
-   let splitted = path.split("/");
+   let splitted = removeEndSlashPathEndAndSplit();
    splitted.push(toChildLocation);
    return splitted.join("/");
 }
 
+export function removePathParts(pathPartsToRemove){
+   let splitted = removeEndSlashPathEndAndSplit();
+   splitted = splitted.slice(0, -pathPartsToRemove);
+   return splitted.join("/")
+}
+
 export function getValidRoute() {
-   let path = _.cloneDeep(location.pathname);
-   if (path.endsWith("/")) {
-      path = path.slice(0, -1);
-   }
-   let splittedPath = path.split("/");
+   let splittedPath = removeEndSlashPathEndAndSplit()
    let splittedRoutes = [];
    for (const route of routes) {
       splittedRoutes.push(route.path.split("/"));

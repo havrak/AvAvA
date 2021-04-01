@@ -25,22 +25,51 @@ import Project from "views/Projects/Project.js";
 import ProjectContainers from "views/Projects/Containers.js";
 import ProjectInfo from "views/Projects/Info.js";
 import ProjectSettings from "views/Projects/Settings.js";
+import Container from "views/Containers/Container.js";
+import ContainerInfo from "views/Containers/Info.js";
+import ContainerConsole from "views/Containers/Console.js";
+import ContainerSnapshots from "views/Containers/Snapshots.js";
+import ContainerBackup from "views/Containers/Backup.js";
+import ContainerSettings from "views/Containers/Settings.js";
 // import Upgrade from "views/Upgrade.js";
 
 const projectsNavLinks = [
    {
-      name: "Containers",
-      link: "containers",
-   },
-   {
       name: "Info",
       link: "info",
+   },
+   {
+      name: "Containers",
+      link: "containers",
    },
    {
       name: "Settings",
       link: "settings",
    },
 ];
+
+const containerNavLinks = [
+   {
+      name: "Info",
+      link: "info"
+   },
+   {
+      name: "Console",
+      link: "console",
+   },
+   {
+      name: "Snapshots",
+      link: "snapshots",
+   },
+   {
+      name: "Backup",
+      link: "backup",
+   },
+   {
+      name: "Settings",
+      link: "settings",
+   },
+]
 
 const routes = [
    {
@@ -68,23 +97,65 @@ const routes = [
    },
    {
       path: "/projects/:projectId/info",
-      name: "-Info",
+      name: "Info",
       navLinks: projectsNavLinks,
       view: ProjectInfo,
       layout: "/user",
    },
    {
       path: "/projects/:projectId/containers",
-      name: "-Containers",
+      name: "Containers",
       navLinks: projectsNavLinks,
       view: ProjectContainers,
       layout: "/user",
    },
    {
       path: "/projects/:projectId/settings",
-      name: "-Settings",
+      name: "Settings",
       navLinks: projectsNavLinks,
       view: ProjectSettings,
+      layout: "/user",
+   },
+   {
+      path: "/projects/:projectId/containers/1",
+      name: "Project",
+      layout: "/user",
+      view: Container,
+      layout: "/user",
+   },
+   {
+      path: "/projects/:projectId/containers/1/info",
+      name: "Info",
+      navLinks: containerNavLinks,
+      view: ContainerInfo,
+      layout: "/user",
+   },
+   {
+      path: "/projects/:projectId/containers/1/console",
+      name: "Console",
+      navLinks: containerNavLinks,
+      view: ContainerConsole,
+      layout: "/user",
+   },
+   {
+      path: "/projects/:projectId/containers/1/snapshots",
+      name: "Snapshots",
+      navLinks: containerNavLinks,
+      view: ContainerSnapshots,
+      layout: "/user",
+   },
+   {
+      path: "/projects/:projectId/containers/1/backup",
+      name: "Backup",
+      navLinks: containerNavLinks,
+      view: ContainerBackup,
+      layout: "/user",
+   },
+   {
+      path: "/projects/:projectId/containers/1/settings",
+      name: "Settings",
+      navLinks: containerNavLinks,
+      view: ContainerSettings,
       layout: "/user",
    },
    {
