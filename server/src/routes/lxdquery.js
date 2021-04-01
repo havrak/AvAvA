@@ -79,7 +79,13 @@ export async function test() {
 			"default"
 		)
 	);*/
-	// console.log(await execInstance("c1", "p2", "df -H"));
+	/*console.log(
+		await execInstance("c1", "p2", [
+			"bash",
+			"-c",
+			"df -h | awk '/\\/$/{print $5;exit}'",
+		])
+	);*/
 	// console.log(await startInstance("createTest", "p2"));
 	// console.log(await getInstance("createTest", "p2"));
 	// console.log(await deleteBackup("c1", "b4", "p2"));
@@ -159,7 +165,7 @@ export function deleteInstance(id, project) {
 // Metoda vrací výstup zadaného příkazu
 export function execInstance(id, project, command) {
 	return mkRequest(`/1.0/instances/${id}/exec?project=${project}`, "POST", {
-		command: command.split(" "),
+		command: Array.isArray(command) ? command : command.split(" "),
 		"record-output": true,
 		"wait-for-websocket": false,
 		interactive: false,
@@ -168,6 +174,7 @@ export function execInstance(id, project, command) {
 			return mkRequest(`/1.0/operations/${res.id}/wait`).then(
 				(res) =>
 					new Promise((resolve) => {
+						console.log(res.metadata.return);
 						// toto vrací http request, ne jeho výsledek, zatím nevím, jak řešit
 						https
 							.request(
