@@ -3,10 +3,9 @@ import fs from "fs";
 import path from "path";
 import querystring from "querystring";
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
-import * as CS from "../models/ContainerResourceState.js";
+import ContainerResourceState from "../models/ContainerResourceState.js";
 import * as NS from "../models/NetworkState.js";
 import Container from "../models/Container.js";
-import Template from "../models/Template.js";
 import Image from "../models/Image.js";
 import OperationState from "../models/OperationState.js";
 import Snapshot from "../models/Snapshot.js";
@@ -17,6 +16,8 @@ const key = fs.readFileSync(
 const crt = fs.readFileSync(
 	path.resolve(__dirname, "../../config/lxcclient.crt")
 );
+
+const debug = true;
 
 function mkOpts(path, method) {
 	return {
@@ -34,7 +35,7 @@ function mkOpts(path, method) {
 
 function mkRequest(path, method, data) {
 	let opts = mkOpts(path, method);
-	console.log({ path: path, method: method, data: data });
+	if (debug) console.log({ path: path, method: method, data: data });
 	if (data !== undefined) {
 		if (method == "GET") {
 			opts.path += "?" + querystring.stringify(data);
@@ -63,6 +64,31 @@ function mkRequest(path, method, data) {
 	});
 }
 
+export async function getOperation(operation) {
+	if (operation.status_code <= 103) {
+		operation = await mkRequest(`/1.0/operations/${operation.id}/wait`);
+		if (debug)
+			console.log({
+				desc: operation.description,
+				code: operation.status_code,
+				err:
+					operation.error === undefined ? operation.err : operation.error,
+				resources: operation.resources,
+			});
+	} else if (operation.error_code !== undefined) {
+		if (debug)
+			console.log({
+				desc: operation.description,
+				code: operation.status_code,
+				err:
+					operation.error === undefined ? operation.err : operation.error,
+				resources: operation.resources,
+			});
+		return new OperationState(operation.error, operation.error_code);
+	}
+	return new OperationState(operation.status, operation.status_code);
+}
+
 export async function test() {
 	/*(await mkRequest(`/1.0/instances/test/backups`)).forEach((b) =>
 		deleteBackup(b)
@@ -79,80 +105,107 @@ export async function test() {
 			"default"
 		)
 	);*/
-	/*console.log(
-		await execInstance("c1", "p2", [
-			"bash",
-			"-c",
-			"df -B 1 | awk '/\\/$/{print $4;exit}'",
-		])
-	);*/
 	// console.log(await startInstance("createTest", "p2"));
-	// console.log(await getInstance("createTest", "p2"));
 	// console.log(await deleteBackup("c1", "b4", "p2"));
 	// console.log(await getInstance("c1", "p2"));
 	// console.log((await getState("c1", "p2")));
-	// console.log(await getInstances("p2"));
+	// console.log(await execInstance("c2", "p2", "apt-get -yqq install neovim"));
+	// let routes = await mkRequest(`/1.0/instances?project=p2`);
+	// let instances = new Array();
+	// routes.forEach((path) => {
+	//	let i = new Container(path.substring(15));
+	//	i.template = new Template();
+	//	i.state = new ContainerResourceState();
+	//	instances.push(i);
+	// });
+	// console.log(await getInstances(instances, "p2"));
 	// console.log(await getSnapshots("c1", "p2"));
 	// console.log(await createSnapshot("c1", "snap2", false, "p2"));
-	/*	createInstance({
-		name: "createTest",
-		architecture: "x86_64",
-		profiles: ["default"],
-		ephemeral: true,
-		config: { "limits.cpu": "2" },
-		type: "container",
-		source: {
-			type: "image",
-			protocol: "simplestreams",
-			server: "https://cloud-images.ubuntu.com/daily",
-			alias: "20.04",
+	/*console.log(await stopInstance("c2", "p2"));
+	console.log(await deleteInstance("c2", "p2"));
+	createInstance(
+		{
+			name: "c2",
+			architecture: "x86_64",
+			profiles: ["default"],
+			ephemeral: false,
+			config: { "limits.cpu": "2" },
+			type: "container",
+			source: {
+				type: "image",
+				protocol: "simplestreams",
+				server: "https://cloud-images.ubuntu.com/daily",
+				alias: "20.04",
+			},
+			project: "p2",
 		},
-		project: "default",
-	}).then((res) => console.log(res));*/
+		[
+			["bash", "-c", "sleep 4 ; apt-get update"], //minimum time to get internet
+			"apt-get -yqq install neovim", //pkg installation test
+			["bash", "-c", "df -B 1 | awk '/\\/$/{print $4;exit}' > test"],//bash execution test
+		]
+	).then((res) => console.log(res));*/
 }
 
-export async function getInstances(instances, project) {
-	let routes = await mkRequest(`/1.0/instances?project=${project}`);
-	// let instances = new Array();
-	for (let i = 0; i < routes.length; i++) {
-		instances.push(await getInstance(routes[i].substring("15"), project));
-	}
-	return instances;
-}
-
-export function createInstance(data) {
-	return mkRequest(
-		`/1.0/instances?project=${data.project}`,
-		"POST",
-		data
-	).then((res) => getOperation(res));
-}
-
-// Returns Instance object, filled in Template.image,
-// id, persistent, timestamp, OperationState.
-export function getInstance(id, project) {
-	return mkRequest(`/1.0/instances/${id}?project=${project}`).then((res) => {
-		console.log(res);
-		let container = new Container(id);
-		container.createdOn = new Date(res.created_at);
-		container.lastStartedOn = new Date(res.last_used_at);
-		container.stateful = res.stateful;
-		container.template = new Template();
-		if (res.config["image.os"] !== undefined) {
-			container.template.image = new Image(
-				res.config["image.os"],
-				res.config["image.version"],
-				res.config["image.description"]
-			);
-		}
-		return getSnapshots(id, project).then((snap) => {
-			container.snapshots = snap;
-			return getState(id, project).then((state) => {
-				container.state = state;
-				return container;
-			});
-		});
+export function getInstances(instances, project) {
+	return new Promise((resolve) => {
+		let done = 0;
+		instances.forEach((i) =>
+			getInstance(i, project).then((instance) => {
+				done++;
+				if (done == instances.length) resolve(instances);
+			})
+		);
 	});
+}
+
+// The data for creation, including the parental project,
+// optional commands to execute after start
+export async function createInstance(data, commands) {
+	let res = await getOperation(
+		await mkRequest(`/1.0/instances?project=${data.project}`, "POST", data)
+	);
+	if (res.statusCode == 200) {
+		await startInstance(data.name, data.project);
+		for (let i = 0; i < commands.length; i++) {
+			let stat = await execInstance(
+				data.name,
+				data.project,
+				commands[i],
+				false
+			);
+			if (stat.statusCode != 200) {
+				res = stat;
+			}
+			if (debug) console.log(`createCmd: ${stat}`);
+		}
+	}
+	return res;
+}
+
+// Fills in the given instance: Template.image,
+// id, persistent, timestamp, OperationState.
+export function getInstance(instance, project) {
+	return mkRequest(`/1.0/instances/${instance.id}?project=${project}`).then(
+		(res) => {
+			instance.createdOn = new Date(res.created_at);
+			instance.lastStartedOn = new Date(res.last_used_at);
+			instance.stateful = res.stateful;
+			if (res.config["image.os"] !== undefined) {
+				instance.template.image = new Image(
+					res.config["image.os"],
+					res.config["image.version"],
+					res.config["image.description"]
+				);
+			}
+			return getSnapshots(instance.id, project).then((snap) => {
+				instance.snapshots = snap;
+				return getStateFromSource(instance.state, res, project).then(
+					(state) => instance
+				);
+			});
+		}
+	);
 }
 
 export function deleteInstance(id, project) {
@@ -163,57 +216,63 @@ export function deleteInstance(id, project) {
 }
 
 // Metoda vrací výstup zadaného příkazu
-export function execInstance(id, project, command) {
+export function execInstance(id, project, command, getOutput) {
 	return mkRequest(`/1.0/instances/${id}/exec?project=${project}`, "POST", {
 		command: Array.isArray(command) ? command : command.split(" "),
-		"record-output": true,
+		"record-output": getOutput !== false,
 		"wait-for-websocket": false,
 		interactive: false,
 	}).then((res) => {
 		if (res.status_code == 103) {
-			return mkRequest(`/1.0/operations/${res.id}/wait`).then(
-				(res) =>
-					new Promise((resolve) => {
-						console.log(res.metadata.return);
-						// toto vrací http request, ne jeho výsledek, zatím nevím, jak řešit
-						https
-							.request(
-								mkOpts(
-									`${
-										res.metadata.output[
-											res.metadata.return == 0 ? "1" : "2"
-										]
-									}?project=${project}`
-								),
-								(res) => {
-									let body = "";
-									//aktuálně nejsme schopni získat obsah souboru .log, takže výstup nikdy nebude
-									res.setEncoding("utf8");
-									res.on("data", (d) => (body += d));
-									res.on("end", () => resolve(body));
-									//res3.pipe(process.stdout);
-								}
-							)
-							.end();
-					})
+			return mkRequest(`/1.0/operations/${res.id}/wait`).then((res) =>
+				getOutput !== false
+					? new Promise((resolve) =>
+							https
+								.request(
+									mkOpts(
+										`${
+											res.metadata.output[
+												res.metadata.return == 0 ? "1" : "2"
+											]
+										}?project=${project}`
+									),
+									(req) => {
+										let body = "";
+										req.setEncoding("utf8");
+										req.on("data", (d) => (body += d));
+										req.on("end", () =>
+											resolve(
+												new OperationState(
+													body.trim(),
+													res.metadata.return
+												)
+											)
+										);
+									}
+								)
+								.end()
+					  )
+					: new OperationState(
+							res.status,
+							res.metadata.return == 0 ? 200 : 400
+					  )
 			);
 		} else return getOperation(res);
 	});
 }
 
-async function getStateFromSource(instancedata, id, project) {
+async function getStateFromSource(rs, instancedata, project) {
 	let limit =
 		instancedata.config.limits === undefined ||
 		instancedata.contif.limits.cpu === undefined
 			? 0
 			: instancedata.config.limits.cpu;
-	let data = await mkRequest(`/1.0/instances/${id}/state?project=${project}`);
-	// console.log(JSON.stringify(data));
-	let rs;
+	let data = await mkRequest(
+		`/1.0/instances/${instancedata.name}/state?project=${project}`
+	);
 	//use the time efficiently and while the measurement waits
 	//for another measure, we put all available data in its place
 	await new Promise((resolve) => {
-		rs = new CS.ContainerResourceState();
 		rs.OperationState = new OperationState(data.status, data.status_code);
 		rs.CPU.consumedTime = data.cpu.usage;
 		rs.RAM.usage = data.memory.usage + data.memory.swap_usage;
@@ -223,7 +282,7 @@ async function getStateFromSource(instancedata, id, project) {
 			rs.disk.devices[0].usage = data.disk.root.usage; //must be divided by users
 			//https://discuss.linuxcontainers.org/t/how-to-check-lxd-container-size-and-how-much-space-they-are-tacking/4770/3
 		} else {
-			execInstance(id, project, [
+			execInstance(instancedata.name, project, [
 				"bash",
 				"-c",
 				"df -B 1 | awk '/\\/$/{print $4;exit}'",
@@ -266,7 +325,7 @@ async function getStateFromSource(instancedata, id, project) {
 		setTimeout(resolve, 1000);
 	}, 1000);
 	let dataNew = await mkRequest(
-		`/1.0/instances/${id}/state?project=${project}`
+		`/1.0/instances/${instancedata.name}/state?project=${project}`
 	);
 	rs.CPU.percentConsumed =
 		(dataNew.cpu.usage - data.cpu.usage) /
@@ -275,27 +334,33 @@ async function getStateFromSource(instancedata, id, project) {
 	return rs;
 }
 
-export function getState(id, project) {
-	return mkRequest(`/1.0/instances/${id}?project=${project}`).then((d) =>
-		getStateFromSource(d, id, project)
-	);
+export function getState(state, id, project) {
+	return mkRequest(
+		`/1.0/instances/${id}?project=${project}`
+	).then((instance) => getStateFromSource(state, instance, project));
 }
 
 // Returns array of snapshot objects for the given container.
-export async function getSnapshots(id, project) {
-	let snaps = await mkRequest(
-		`/1.0/instances/${id}/snapshots?project=${project}`
+export function getSnapshots(id, project) {
+	return new Promise((resolve) =>
+		mkRequest(`/1.0/instances/${id}/snapshots?project=${project}`).then(
+			(snaps) => {
+				let prefix = `/1.0/instances/${id}/snapshots/`.length;
+				let suffix = `?project=${project}`.length;
+				let snapshots = new Array();
+				snaps.forEach((name) =>
+					getSnapshot(
+						id,
+						name.substring(prefix, name.length - suffix),
+						project
+					).then((snap) => {
+						snapshots.push(snap);
+						if (snapshots.length == snaps.length) resolve(snapshots);
+					})
+				);
+			}
+		)
 	);
-	let prefix = `/1.0/instances/${id}/snapshots/`.length;
-	let suffix = `?project=${project}`.length;
-	let snapshots = new Array();
-	for (let i = 0; i < snaps.length; i++) {
-		let name = snaps[i].substring(prefix);
-		snapshots.push(
-			await getSnapshot(id, name.substring(0, name.length - suffix), project)
-		);
-	}
-	return snapshots;
 }
 
 export function createSnapshot(id, name, stateful, project) {
@@ -314,12 +379,10 @@ export function createSnapshot(id, name, stateful, project) {
 	);
 }
 
-export function getSnapshot(id, name, project) {
+function getSnapshot(id, name, project) {
 	return mkRequest(
 		`/1.0/instances/${id}/snapshots/${name}?project=${project}`
-	).then(
-		(data) => new Snapshot(name, undefined, data.created_at, data.stateful)
-	);
+	).then((data) => new Snapshot(name, data.created_at, data.stateful));
 }
 
 export function deleteSnapshot(id, name, project) {
@@ -355,14 +418,12 @@ export async function exportInstance(id, fileHandler, project) {
 		}
 	);
 	res = await getOperation(res);
-	console.log(res);
 	if (res.statusCode == 200) {
 		let req = https.request(
 			mkOpts(
 				`/1.0/instances/${id}/backups/${name}/export?project=${project}`
 			),
 			(res) => {
-				console.log(res);
 				fileHandler(res);
 				res.on("close", () => deleteBackup(id, name, project));
 			}
@@ -431,25 +492,8 @@ export function unfreezeInstance(id, project) {
 	}).then((res) => getOperation(res));
 }
 
-export async function getOperation(operation) {
-	if (operation.status_code <= 103) {
-		operation = await mkRequest(`/1.0/operations/${operation.id}/wait`);
-		console.log({
-			desc: operation.description,
-			code: operation.status_code,
-			err: operation.error === undefined ? operation.err : operation.error,
-			resources: operation.resources,
-		});
-	} else if (operation.error_code !== undefined) {
-		console.log({
-			desc: operation.description,
-			code: operation.status_code,
-			err: operation.error === undefined ? operation.err : operation.error,
-			resources: operation.resources,
-		});
-		return new OperationState(operation.error, operation.error_code);
-	}
-	let os = new OperationState(operation.status, operation.status_code);
-	os.id = operation.id;
-	return os;
+export function createProject(data) {
+	return mkRequest("/1.0/projects", "POST", data).then((res) =>
+		getOperation(res)
+	);
 }

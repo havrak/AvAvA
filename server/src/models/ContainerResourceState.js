@@ -1,4 +1,4 @@
-export class ContainerResourceState {
+export default class ContainerResourceState {
 	measureOn;
 	CPU = {
 		limit: undefined,
