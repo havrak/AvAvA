@@ -12,7 +12,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 import { connect } from "react-redux";
 
 import Slider from "components/Limits/Slider.js";
-import { startSpinnerProjectPost, projectPost } from "actions/myaction.js";
+import { startSpinnerProjectPost, projectPost } from "actions/ProjectActions.js";
 import {
    ramToMB,
    diskToGB,
@@ -20,8 +20,13 @@ import {
    networkSpeedToMbits,
 } from "service/UnitsConvertor.js";
 
-const CreateProjectDialog = ({ projectPost, startSpinnerProjectPost, userProjects, notify }) => {
-   const {projects, state} = userProjects;
+const CreateProjectDialog = ({
+   projectPost,
+   startSpinnerProjectPost,
+   userProjects,
+   notify,
+}) => {
+   const { projects, state } = userProjects;
    const [open, setOpen] = React.useState(false);
    const [errorMessage, setErrorMessage] = React.useState(null);
    const project = {
@@ -64,6 +69,8 @@ const CreateProjectDialog = ({ projectPost, startSpinnerProjectPost, userProject
          setErrorMessage("There is already project with this name present.");
       } else if (project.name === "") {
          setErrorMessage("Must not be empty");
+      } else if (project.name.length >= 30) {
+         setErrorMessage("Name must be shorter than 30 characters");
       } else if (errorMessage) {
          setErrorMessage(null);
       }

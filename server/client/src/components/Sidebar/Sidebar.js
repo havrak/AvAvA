@@ -16,15 +16,15 @@
 
 */
 import React, { Component } from "react";
-import { useLocation, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Nav } from "react-bootstrap";
 import logo from "assets/img/LXD-icon.png";
+import { isActive } from "service/RoutesHelper";
+import { SidebarLink, SidebarLinkWithDropdown } from "./SidebarLink";
+import { connect } from "react-redux";
 
-function Sidebar({ color, routes }) {
-   const location = useLocation();
-   const activeRoute = (routeName) => {
-      return location.pathname.indexOf(routeName) > -1 ? "active" : "";
-   };
+function Sidebar({ color, routes, projects }) {
+   // const location = useLocation();
    return (
       <div className="sidebar" data-color={color}>
          <div className="sidebar-background" />
@@ -40,26 +40,60 @@ function Sidebar({ color, routes }) {
                </a>
             </div>
             <Nav>
-               {routes.map((prop, key) => {
-                  if (prop.addToNavigation)
-                     return (
-                        <li className={activeRoute(prop.layout + prop.path)} key={key}>
-                           <NavLink
-                              to={prop.layout + prop.path}
-                              className="nav-link"
-                              activeClassName="active"
-                           >
-                              <i className={prop.icon} />
-                              <p>{prop.name}</p>
-                           </NavLink>
-                        </li>
-                     );
-                  return null;
-               })}
+               <SidebarLink
+                  route={routes[0].layout + routes[0].path}
+                  icon={routes[0].icon}
+						name={routes[0].name}
+						key="Dashboard"
+               />
+               <SidebarLinkWithDropdown
+                  route={routes[1].layout + routes[1].path}
+                  icon={routes[1].icon}
+                  name={routes[1].name}
+						level={1}
+						key="Projects"
+                  toCollapse={
+                     projects
+                        ? projects.map((project, key) => {
+                             return (
+                                <SidebarLinkWithDropdown
+                                   route={`/user/projects/${project.id}`}
+                                   name={project.name}
+                                   level={2}
+											  key={`p${project.id}`}
+                                   toCollapse={project.containers.map(
+                                      (container, key2) => {
+                                         return (
+                                            <SidebarLink
+                                               route={`/user/projects/${project.id}/containers/${container.id}`}
+                                               name={container.name}
+                                               key={`p${project.id}c${container.id}`}
+                                            />
+                                         );
+                                      }
+                                   )}
+                                />
+                             );
+                          })
+                        : ""
+                  }
+               />
+               <SidebarLink
+                  route={routes[routes.length - 1].layout + routes[routes.length - 1].path}
+                  icon={routes[routes.length - 1].icon}
+						name={routes[routes.length - 1].name}
+						key="Dashboard"
+               />
             </Nav>
          </div>
       </div>
    );
 }
 
-export default Sidebar;
+const mapStateToProps = (state) => {
+   return {
+      projects: state?.combinedUserData?.userProjects?.projects,
+   };
+};
+
+export default connect(mapStateToProps)(Sidebar);

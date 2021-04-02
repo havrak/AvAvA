@@ -22,7 +22,7 @@ function Info({ setCustomizableBrandText }) {
    console.log("f");
    useEffect(() => {
       setCustomizableBrandText(brand);
-   });
+   }, []);
    return null;
 }
 

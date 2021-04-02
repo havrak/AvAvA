@@ -13,7 +13,7 @@ import React, { Component } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
 import UserCard from "./UserCard";
-import { relativeLocation, getValidRoute } from "service/RoutesHelper.js";
+import { relativeLocation, getValidRoute, isActive } from "service/RoutesHelper.js";
 import { connect } from "react-redux";
 import _ from "lodash";
 
@@ -31,6 +31,7 @@ function Header({ logout, user, brand }) {
       document.body.appendChild(node);
    };
    let validRoute = _.cloneDeep(getValidRoute());
+   // console.log(validRoute);
    let navLinks;
    if (validRoute !== -1) {
       navLinks = validRoute.navLinks;
@@ -40,8 +41,6 @@ function Header({ logout, user, brand }) {
          }
       }
    }
-
-   console.log(brand);
 
    return (
       <Navbar bg="light" expand="lg">
@@ -58,13 +57,15 @@ function Header({ logout, user, brand }) {
                   if (item.link) {
                      return (
                         <>
-                           <Link to={item.link}>
+                           <Link key={item.name} to={item.link}>
                               <span className="navbar-brand change-color-on-hover">
                                  {item.text}
                               </span>
                            </Link>
                            {item.connectChar ? (
-                              <span className="navbar-brand connect-char">{item.connectChar}</span>
+                              <span className="navbar-brand connect-char">
+                                 {item.connectChar}
+                              </span>
                            ) : (
                               ""
                            )}
@@ -75,7 +76,9 @@ function Header({ logout, user, brand }) {
                         <>
                            <span className="navbar-brand">{item.text}</span>
                            {item.connectChar ? (
-                              <span className="navbar-brand connect-char">{item.connectChar}</span>
+                              <span className="navbar-brand connect-char">
+                                 {item.connectChar}
+                              </span>
                            ) : (
                               ""
                            )}
@@ -95,11 +98,13 @@ function Header({ logout, user, brand }) {
                      {navLinks
                         ? navLinks.map((item) => {
                              return (
-                                <Nav.Item className={"navbar-link"}>
-                                   <Link className="m-0 p-0 pl-3" to={item.link}>
-                                      <span className="no-icon">{item.name}</span>
-                                   </Link>
-                                </Nav.Item>
+                                <li className={isActive(item.link) ? "nav-active" : ""}>
+                                   <Nav.Item className={"navbar-link"}>
+                                      <Link className="" to={item.link}>
+                                         <span className="no-icon">{item.name}</span>
+                                      </Link>
+                                   </Nav.Item>
+                                </li>
                              );
                           })
                         : ""}

@@ -1,5 +1,3 @@
-import axios from "axios";
-
 import * as UserApi from "api/index";
 
 const api = new UserApi.DefaultApi();
@@ -100,13 +98,5 @@ export const projectIdDelete = (id, projectDeleteFailNotification) => {
          }
       };
       api.projectsIdDelete(id, callback);
-   };
-};
-
-export const logout = () => {
-   return (dispatch) => {
-      apilogout.then((res) => {
-         dispatch({ type: "LOGOUT", payload: res.data });
-      });
    };
 };

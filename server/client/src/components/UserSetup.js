@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { combinedDataGet } from "actions/myaction";
+import { combinedDataGet } from "actions/UserActions";
 import { Redirect } from "react-router-dom";
 import BeatLoader from "react-spinners/BeatLoader";
 

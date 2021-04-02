@@ -53,12 +53,22 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
 const createHiddenColumnsArray = (columns, selectedView) => {
    const nameArray = [];
    for (const col of columns) {
-      if (col.view !== "all" && col.view !== selectedView && (col.view !== 2 && !col.accessor.toLowerCase().includes(`.${selectedView.toLowerCase()}`))) {
+      if (
+         col.view !== "all" &&
+         col.view !== selectedView &&
+         col.view !== 2 &&
+         !col.accessor.toLowerCase().includes(`.${selectedView.toLowerCase()}`)
+      ) {
          nameArray.push(col.accessor);
       }
       if (col.columns !== undefined) {
          for (const childCol of col.columns) {
-            if (childCol.view !== "all" && col.view !== selectedView && (col.view !== 2)&& !col.accessor.toLowerCase().includes(`.${selectedView.toLowerCase()}`)) {
+            if (
+               childCol.view !== "all" &&
+               col.view !== selectedView &&
+               col.view !== 2 &&
+               !col.accessor.toLowerCase().includes(`.${selectedView.toLowerCase()}`)
+            ) {
                nameArray.push(childCol.accessor);
             }
          }
@@ -173,8 +183,6 @@ const EnhancedTable = ({
       array.filter((_, i) => {
          return indexs.includes(i);
       });
-   const removeByIndex = (array, index) => array.filter((_, i) => index !== i);
-   // const getByIndexs = (array, indexs) => array.filter((_, i) => indexs.includes(i));
 
    const deleteHandlerLocal = (event) => {
       const selectedIds = getByIndexs(
@@ -212,16 +220,16 @@ const EnhancedTable = ({
                                  : column.getHeaderProps(column.getSortByToggleProps()))}
                               className={styles.table}
                            >
-                              <div style={{display: "flex", flexDirection: "row"}}>
-                              {column.render("Header")}
-                              {column.columns === undefined &&
-                              column.accessor !== undefined ? (
-                                 <TableSortLabel
-                                    active={column.isSorted}
-                                    // react-table has a unsorted state which is not treated here
-                                    direction={column.isSortedDesc ? "desc" : "asc"}
-                                 />
-                              ) : null}
+                              <div style={{ display: "flex", flexDirection: "row" }}>
+                                 {column.render("Header")}
+                                 {column.columns === undefined &&
+                                 column.accessor !== undefined ? (
+                                    <TableSortLabel
+                                       active={column.isSorted}
+                                       // react-table has a unsorted state which is not treated here
+                                       direction={column.isSortedDesc ? "desc" : "asc"}
+                                    />
+                                 ) : null}
                               </div>
                            </TableCell>
                         );

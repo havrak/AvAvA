@@ -1,0 +1,24 @@
+.nav-link {
+   display: flex;
+   flex-direction: row;
+   flex-wrap: nowrap;
+   align-items: center;
+   justify-content: flex-start;
+}
+
+.nav-link .dropdown-toggler {
+   padding: 0px;
+   margin-left: auto;
+}
+
+.sidebar-collapsed-block {
+   // margin-right: 15px;
+   margin-left: 15px;
+   // margin-top: 5px;
+   // margin-bottom: 5px;
+
+   // padding-right: 15px;
+   // padding-top: 10px;
+   // padding-bottom: 10px;
+   // padding-left: 15px;
+}

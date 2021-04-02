@@ -8,12 +8,15 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "components/Tables/EnhancedTable.js";
 import NotificationAlert from "react-notification-alert";
 import { ProjectProgressBar } from "components/Tables/ProgressBars.js";
+import {Link} from "react-router-dom";
 
 import {
    userProjectsGet,
+} from "actions/UserActions";
+import {
    projectIdDelete,
    startSpinnerProjectDelete,
-} from "actions/myaction";
+} from "actions/ProjectActions";
 import { setCustomizableBrandText } from "actions/FrontendActions";
 import {
    bytesToAdequateValue,
@@ -21,7 +24,7 @@ import {
    secondsToAdequateValue,
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
-import CreateProjectDialog from "components/Tables/Dialogs/CreateProjectDialog.js";
+import CreateProjectDialog from "components/Dialogs/CreateProjectDialog.js";
 
 function Project(props) {
    const {
@@ -37,8 +40,9 @@ function Project(props) {
          text: "Projects",
       },
    ];
-   setCustomizableBrandText(brand);
-
+   useEffect(() => {
+      setCustomizableBrandText(brand);
+   });
    useEffect(() => {
       userProjectsGet();
    }, []);
@@ -60,9 +64,10 @@ function Project(props) {
             Header: "Name",
             accessor: "name",
             view: "all",
-            // Cell: (props) => {
-            //    return <Link to="/user/projects/"
-            // }
+            Cell: (props) => {
+               const data = props.row.original;
+               return <Link className="table-link" to={`/user/projects/${data.id}`} >{data.name}</Link>
+            }
          },
          {
             Header: "Owner",

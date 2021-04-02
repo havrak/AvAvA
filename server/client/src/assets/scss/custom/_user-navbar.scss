@@ -25,7 +25,12 @@
    width: 100%;
 }
 
+.navbar-link {
+   padding: 5px;
+}
+
 .navbar-link span {
+   transition: 0.3s;
    color: #888888;
 }
 
@@ -52,6 +57,10 @@
    margin-left: 8px;
    margin-top: auto;
    margin-bottom: auto;
+}
+
+.nav-active  span{
+   color: #4b4b4b
 }
 
 @media(max-width: 991px){

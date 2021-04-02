@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { combinedDataGet } from "actions/myaction";
-import {setCustomizableBrandText} from "actions/FrontendActions";
+import { combinedDataGet } from "actions/UserActions";
+import { setCustomizableBrandText } from "actions/FrontendActions";
 // react-bootstrap components
 import { Card, Container, Row, Col } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -12,16 +12,18 @@ import {
    UploadCircularStateChartCard,
    DownloadCircularStateChartCard,
 } from "components/Cards/state/CurrentStateCards.js";
-import { ContainerCounter, ProjectCounter} from "components/Cards/Counters.js";
+import { ContainerCounter, ProjectCounter } from "components/Cards/Counters.js";
 import { connect } from "react-redux";
 
 function Dashboard({ user, state, limits, combinedDataGet, setCustomizableBrandText }) {
    const brand = [
       {
-         text: "Dashboard"
-      }
-   ]
-   setCustomizableBrandText(brand);
+         text: "Dashboard",
+      },
+   ];
+   useEffect(() => {
+      setCustomizableBrandText(brand);
+   });
    useEffect(() => {
       combinedDataGet();
    }, []);
@@ -38,14 +40,14 @@ function Dashboard({ user, state, limits, combinedDataGet, setCustomizableBrandT
             <Container fluid>
                <Row>
                   <Col lg="6" sm="12">
-                     <Link to="/user" className="card-link">
+                     <Link to="/user/projects" className="card-link">
                         <ProjectCounter projects={projects} />
                      </Link>
                   </Col>
                   <Col lg="6" sm="12">
-                     <Link to="/user" className="card-link">
-                        <ContainerCounter containers={containers}/>
-                     </Link>
+                     {/* <Link to="/user" className="card-link"> */}
+                     <ContainerCounter containers={containers} />
+                     {/* </Link> */}
                   </Col>
                </Row>
                <Row>
@@ -142,7 +144,7 @@ const mapStateToProps = (state) => {
 
 const mapDispathToProps = (dispatch) => {
    return {
-      setCustomizableBrandText: (text)=> {
+      setCustomizableBrandText: (text) => {
          dispatch(setCustomizableBrandText(text));
       },
       combinedDataGet: () => {
