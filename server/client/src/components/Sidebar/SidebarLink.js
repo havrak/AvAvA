@@ -9,6 +9,7 @@ import { isActive } from "service/RoutesHelper";
 import { Collapse } from "react-bootstrap";
 
 export function SidebarLink({ route, icon, name }) {
+   console.log(route, icon, name)
    return (
       <li className={isActive(route) ? "active" : ""}>
          <NavLink to={route} className="nav-link" activeClassName="active">

@@ -163,6 +163,8 @@ const routes = [
       view: UserProfile,
       layout: "/user",
    },
+];
+
    // {
    //   path: "/typography",
    //   name: "Typegraphy",
@@ -187,6 +189,4 @@ const routes = [
    //   component: Notifications,
    //   layout: "/user",
    // },
-];
-
 export default routes;

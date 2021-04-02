@@ -1,8 +1,8 @@
 import routes from "routes.js";
 import _ from "lodash";
 
-function removeEndSlashPathEndAndSplit() {
-   let path = _.cloneDeep(location.pathname);
+function removeEndSlashPathEndAndSplit(requestedPath = location.pathname) {
+   let path = _.cloneDeep(requestedPath);
    if (path.endsWith("/")) {
       path = path.slice(0, -1);
    }
@@ -27,8 +27,8 @@ export function removePathParts(pathPartsToRemove) {
    return splitted.join("/");
 }
 
-export function getValidRoute() {
-   let splittedPath = removeEndSlashPathEndAndSplit();
+export function getValidRoute(path = location.pathname) {
+   let splittedPath = removeEndSlashPathEndAndSplit(path);
    let splittedRoutes = [];
    for (const route of routes) {
       splittedRoutes.push(route.path.split("/"));
@@ -63,14 +63,14 @@ export function getValidRoute() {
 function currentProjectId() {
    const splitted = removeEndSlashPathEndAndSplit();
    return {
-      projectId: parseInt(splitted[3])
-   }
+      projectId: parseInt(splitted[3]),
+   };
 }
 
-export function getCurrentProject(projects){
-   const {projectId} = currentProjectId();
-   for(const project of projects){
-      if(project.id === projectId){
+export function getCurrentProject(projects) {
+   const { projectId } = currentProjectId();
+   for (const project of projects) {
+      if (project.id === projectId) {
          return project;
       }
    }
@@ -80,24 +80,42 @@ function currentProjectAndContainerId() {
    const splitted = removeEndSlashPathEndAndSplit();
    return {
       projectId: parseInt(splitted[3]),
-      containerId: parseInt(splitted[5])
-   }
+      containerId: parseInt(splitted[5]),
+   };
 }
 
-export function getCurrentProjectAndContainer(projects){
-   const {containerId, projectId} = currentProjectAndContainerId();
-   for(const project of projects){
-      if(project.id === currentProjectId){
-         for(const container of project.containers){
+export function getCurrentProjectAndContainer(projects) {
+   const { containerId, projectId } = currentProjectAndContainerId();
+   for (const project of projects) {
+      if (project.id === currentProjectId) {
+         for (const container of project.containers) {
             return {
                currentProject: project,
-               currentContainer: container
-            }
+               currentContainer: container,
+            };
          }
       }
    }
 }
 
-export function isActive(routeName) {
-   return location.pathname.indexOf(routeName) > -1;
+export function isActive(path) {
+   // console.log('givenPath:', path, 'location.pathname', location.pathname)
+   let splittedCurrentPath = removeEndSlashPathEndAndSplit();
+   let splittedGivenPath = removeEndSlashPathEndAndSplit(path);
+   if (splittedCurrentPath[splittedCurrentPath.length - 3] === "containers") {
+      splittedCurrentPath = splittedCurrentPath.slice(0, -1);
+   } else if (splittedCurrentPath[splittedCurrentPath.length - 3] === "projects") {
+      splittedCurrentPath = splittedCurrentPath.slice(0, -1);
+   }
+   if (splittedCurrentPath.length === splittedGivenPath.length) {
+      for (let i = 0; i < splittedCurrentPath.length; i++) {
+         if (splittedCurrentPath[i] !== splittedGivenPath[i]) {
+            return false;
+         }
+      }
+      return true;
+   } else {
+      // console.log(splittedCurrentPath, splittedGivenPath)
+      return false;
+   }
 }

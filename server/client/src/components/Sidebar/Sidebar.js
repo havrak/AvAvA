@@ -16,7 +16,7 @@
 
 */
 import React, { Component } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { Nav } from "react-bootstrap";
 import logo from "assets/img/LXD-icon.png";
 import { isActive } from "service/RoutesHelper";
@@ -24,7 +24,7 @@ import { SidebarLink, SidebarLinkWithDropdown } from "./SidebarLink";
 import { connect } from "react-redux";
 
 function Sidebar({ color, routes, projects }) {
-   // const location = useLocation();
+	const location = useLocation();
    return (
       <div className="sidebar" data-color={color}>
          <div className="sidebar-background" />
@@ -50,7 +50,6 @@ function Sidebar({ color, routes, projects }) {
                   route={routes[1].layout + routes[1].path}
                   icon={routes[1].icon}
                   name={routes[1].name}
-						level={1}
 						key="Projects"
                   toCollapse={
                      projects
@@ -82,7 +81,7 @@ function Sidebar({ color, routes, projects }) {
                   route={routes[routes.length - 1].layout + routes[routes.length - 1].path}
                   icon={routes[routes.length - 1].icon}
 						name={routes[routes.length - 1].name}
-						key="Dashboard"
+						key="Userrasrsdrs"
                />
             </Nav>
          </div>

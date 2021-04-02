@@ -4,7 +4,6 @@ import { removePathParts } from "service/RoutesHelper";
 import { setCustomizableBrandText } from "actions/FrontendActions";
 
 function Info({ setCustomizableBrandText }) {
-   console.log(removePathParts(3));
    const brand = [
       {
          text: "DVP",
@@ -19,7 +18,6 @@ function Info({ setCustomizableBrandText }) {
          text: "Info",
       },
    ];
-   console.log("f");
    useEffect(() => {
       setCustomizableBrandText(brand);
    }, []);

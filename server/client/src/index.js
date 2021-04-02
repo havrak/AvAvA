@@ -45,7 +45,6 @@ const store = createStore(
 );
 
 store.subscribe(() => {
-   console.log("saving to localstorage");
    return saveToLocalStorage(store.getState());
 });
 
