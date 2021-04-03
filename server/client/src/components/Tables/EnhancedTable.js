@@ -50,13 +50,13 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
    );
 });
 
-const createHiddenColumnsArray = (columns, selectedView) => {
+const createHiddenColumnsArray = (columns, selectedView, views) => {
    const nameArray = [];
    for (const col of columns) {
       if (
          col.view !== "all" &&
          col.view !== selectedView &&
-         col.view !== 2 &&
+         col.view !== views[2] &&
          !col.accessor.toLowerCase().includes(`.${selectedView.toLowerCase()}`)
       ) {
          nameArray.push(col.accessor);
@@ -66,7 +66,7 @@ const createHiddenColumnsArray = (columns, selectedView) => {
             if (
                childCol.view !== "all" &&
                col.view !== selectedView &&
-               col.view !== 2 &&
+               col.view !== views[2] &&
                !col.accessor.toLowerCase().includes(`.${selectedView.toLowerCase()}`)
             ) {
                nameArray.push(childCol.accessor);
@@ -111,7 +111,7 @@ const EnhancedTable = ({
          // cell renderer!
          updateMyData,
          initialState: {
-            hiddenColumns: createHiddenColumnsArray(columns, views[0]),
+            hiddenColumns: createHiddenColumnsArray(columns, view, views),
             // hiddenColumns: "containers running stopped frozen"
          },
       },
@@ -168,7 +168,7 @@ const EnhancedTable = ({
    };
 
    useEffect(() => {
-      setHiddenColumns(createHiddenColumnsArray(columns, view));
+      setHiddenColumns(createHiddenColumnsArray(columns, view, views));
    }, [view]);
 
    // useEffect(() => {

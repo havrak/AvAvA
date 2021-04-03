@@ -49,7 +49,7 @@ const TableToolbar = (props) => {
       view,
       views,
       setView,
-      createDialog
+      createDialog,
    } = props;
    return (
       <Toolbar
@@ -66,7 +66,7 @@ const TableToolbar = (props) => {
                value={view}
                onChange={(e) => setView(e.target.value)}
             >
-               {views.map((view) => {
+               {Object.keys(views).map((view) => {
                   return (
                      <MenuItem key={view} value={view}>
                         {view}
@@ -81,7 +81,7 @@ const TableToolbar = (props) => {
                <Typography
                   className={classes.title}
                   color="inherit"
-                  style={{ fontSize: "16px", textAlign:"right" }}
+                  style={{ fontSize: "16px", textAlign: "right" }}
                >
                   {numSelected} selected
                </Typography>

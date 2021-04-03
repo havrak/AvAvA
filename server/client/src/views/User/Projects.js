@@ -8,15 +8,10 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "components/Tables/EnhancedTable.js";
 import NotificationAlert from "react-notification-alert";
 import { ProjectProgressBar } from "components/Tables/ProgressBars.js";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
-import {
-   userProjectsGet,
-} from "actions/UserActions";
-import {
-   projectIdDelete,
-   startSpinnerProjectDelete,
-} from "actions/ProjectActions";
+import { userProjectsGet } from "actions/UserActions";
+import { projectIdDelete, startSpinnerProjectDelete } from "actions/ProjectActions";
 import { setCustomizableBrandText } from "actions/FrontendActions";
 import {
    bytesToAdequateValue,
@@ -47,17 +42,17 @@ function Project(props) {
       userProjectsGet();
    }, []);
 
-   const views = [
-      "Basic info",
-      "Containers",
-      "Limits",
-      "RAM",
-      "CPU",
-      "Disk",
-      "Upload",
-      "Download",
-   ];
-   const [view, setView] = useState(views[1]);
+   const views = {
+      "Basic info": "Basic info",
+      Containers: "Containers",
+      Limits: "Limits",
+      RAM: "RAM",
+      CPU: "CPU",
+      Disk: "Disk",
+      Upload: "Upload",
+      Download: "Download",
+   };
+   const [view, setView] = useState(views["Basic info"]);
    const columns = React.useMemo(
       () => [
          {
@@ -66,30 +61,34 @@ function Project(props) {
             view: "all",
             Cell: (props) => {
                const data = props.row.original;
-               return <Link className="table-link" to={`/user/projects/${data.id}`} >{data.name}</Link>
-            }
+               return (
+                  <Link className="table-link" to={`/user/projects/${data.id}`}>
+                     {data.name}
+                  </Link>
+               );
+            },
          },
          {
             Header: "Owner",
             accessor: "owner",
-            view: views[0],
+            view: views["Basic info"],
             columns: [
                {
                   Header: "First name",
                   accessor: "owner.givenName",
-                  view: views[0],
+                  view: views["Basic info"],
                },
                {
                   Header: "Last name",
                   accessor: "owner.familyName",
-                  view: views[0],
+                  view: views["Basic info"],
                },
             ],
          },
          {
-            Header: "Participants",
+            Header: "Coworkers",
             accessor: "coworkers",
-            view: views[0],
+            view: views["Basic info"],
             Cell: ({ value }) => {
                return value ? value.length : 0;
             },
@@ -97,7 +96,7 @@ function Project(props) {
          {
             Header: "Created on",
             accessor: "createdOn",
-            view: views[0],
+            view: views["Basic info"],
             Cell: ({ value }) => {
                return new Date(value).toLocaleString();
             },
@@ -106,7 +105,7 @@ function Project(props) {
          {
             Header: "Containers",
             accessor: "containers",
-            view: views[1],
+            view: views["Containers"],
             columns: [
                // {
                //    Header: "Yours",
@@ -115,57 +114,57 @@ function Project(props) {
                {
                   Header: "Running",
                   accessor: "state.containers.running",
-                  view: views[1],
+                  view: views["Containers"],
                },
                {
                   Header: "Stopped",
                   accessor: "state.containers.stopped",
-                  view: views[1],
+                  view: views["Containers"],
                },
                {
                   Header: "Frozen",
                   accessor: "state.containers.frozen",
-                  view: views[1],
+                  view: views["Containers"],
                },
             ],
          },
          //LIMITS
          {
-            Header: view === 2 ? "RAM" : "Max",
+            Header: view === views["Limits"] ? "RAM" : "Max",
             accessor: "limits.RAM",
-            view: views[2],
+            view: views["Limits"],
             Cell: ({ value }) => {
                return value ? bytesToAdequateValue(value).getMessage() : "-";
             },
          },
          {
-            Header: view === 2 ? "CPU" : "Max",
+            Header: view === views["Limits"] ? "CPU" : "Max",
             accessor: "limits.CPU",
-            view: views[2],
+            view: views["Limits"],
             Cell: ({ value }) => {
                return value ? HzToAdequateValue(value).getMessage() : "-";
             },
          },
          {
-            Header: view === 2 ? "Disk" : "Max",
+            Header: view === views["Limits"] ? "Disk" : "Max",
             accessor: "limits.disk",
-            view: views[2],
+            view: views["Limits"],
             Cell: ({ value }) => {
                return value ? bytesToAdequateValue(value).getMessage() : "-";
             },
          },
          {
-            Header: view === 2 ? "Download" : "Max",
+            Header: view === views["Limits"] ? "Download" : "Max",
             accessor: "limits.internet.download",
-            view: views[2],
+            view: views["Limits"],
             Cell: ({ value }) => {
                return value ? bytesPerSecondToAdequateValue(value).getMessage() : "-";
             },
          },
          {
-            Header: view === 2 ? "Upload" : "Max",
+            Header: view === views["Limits"] ? "Upload" : "Max",
             accessor: "limits.internet.upload",
-            view: views[2],
+            view: views["Limits"],
             Cell: ({ value }) => {
                return value ? bytesPerSecondToAdequateValue(value).getMessage() : "-";
             },
@@ -174,7 +173,7 @@ function Project(props) {
          {
             Header: "Used | Allocated | Free",
             accessor: "ramProgressBar",
-            view: views[3],
+            view: views["RAM"],
             Cell: (props) => {
                const data = props.row.original;
                return (
@@ -189,12 +188,12 @@ function Project(props) {
          {
             Header: "Used",
             accessor: "ramUsed",
-            view: views[3],
+            view: views["RAM"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.RAM.usage",
-                  view: views[3],
+                  view: views["RAM"],
                   Cell: ({ value }) => {
                      return bytesToAdequateValue(value).getMessage();
                   },
@@ -202,19 +201,19 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.RAM.usedPercent",
-                  view: views[3],
+                  view: views["RAM"],
                },
             ],
          },
          {
             Header: "Allocated",
             accessor: "ramAllocated",
-            view: views[3],
+            view: views["RAM"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.RAM.allocated",
-                  view: views[3],
+                  view: views["RAM"],
                   Cell: ({ value }) => {
                      return bytesToAdequateValue(value).getMessage();
                   },
@@ -222,19 +221,19 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.RAM.allocatedPercent",
-                  view: views[3],
+                  view: views["RAM"],
                },
             ],
          },
          {
             Header: "Free",
             accessor: "ramFreeSpecific",
-            view: views[3],
+            view: views["RAM"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.RAM.free",
-                  view: views[3],
+                  view: views["RAM"],
                   Cell: (props) => {
                      const data = props.row.original;
                      return data.limits?.RAM
@@ -245,7 +244,7 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.RAM.freePercent",
-                  view: views[3],
+                  view: views["RAM"],
                },
             ],
          },
@@ -253,7 +252,7 @@ function Project(props) {
          {
             Header: "Used | Allocated | Free ",
             accessor: "cpuProgressBar",
-            view: views[4],
+            view: views["CPU"],
             Cell: (props) => {
                const data = props.row.original;
                return (
@@ -268,12 +267,12 @@ function Project(props) {
          {
             Header: "Used",
             accessor: "cpuUsed",
-            view: views[4],
+            view: views["CPU"],
             columns: [
                {
                   Header: "Time from beginning",
                   accessor: "state.CPU.usedTime",
-                  view: views[4],
+                  view: views["CPU"],
                   Cell: ({ value }) => {
                      return secondsToAdequateValue(value).getMessage();
                   },
@@ -281,39 +280,39 @@ function Project(props) {
                {
                   Header: "Value",
                   accessor: "state.CPU.usage",
-                  view: views[4],
+                  view: views["CPU"],
                   Cell: ({ value }) => {
                      return HzToAdequateValue(value).getMessage();
                   },
                },
-               { Header: "%", accessor: "state.CPU.usedPercent", view: views[4] },
+               { Header: "%", accessor: "state.CPU.usedPercent", view: views["CPU"] },
             ],
          },
          {
             Header: "Allocated",
             accessor: "cpuAllocated",
-            view: views[4],
+            view: views["CPU"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.CPU.allocated",
-                  view: views[4],
+                  view: views["CPU"],
                   Cell: ({ value }) => {
                      return HzToAdequateValue(value).getMessage();
                   },
                },
-               { Header: "%", accessor: "state.CPU.allocatedPercent", view: views[4] },
+               { Header: "%", accessor: "state.CPU.allocatedPercent", view: views["CPU"] },
             ],
          },
          {
             Header: "Free",
             accessor: "cpuFree",
-            view: views[4],
+            view: views["CPU"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.CPU.free",
-                  view: views[4],
+                  view: views["CPU"],
                   Cell: (props) => {
                      const data = props.row.original;
                      return data.limits?.CPU
@@ -321,14 +320,14 @@ function Project(props) {
                         : HzToAdequateValue(userState.CPU.free).getMessage();
                   },
                },
-               { Header: "%", accessor: "state.CPU.freePercent", view: views[4] },
+               { Header: "%", accessor: "state.CPU.freePercent", view: views["CPU"] },
             ],
          },
          //DISK
          {
             Header: "Used | Allocated | Free ",
             accessor: "diskProgressBar",
-            view: views[5],
+            view: views["Disk"],
             Cell: (props) => {
                const data = props.row.original;
                return (
@@ -343,12 +342,12 @@ function Project(props) {
          {
             Header: "Used",
             accessor: "diskUsed",
-            view: views[5],
+            view: views["Disk"],
             columns: [
                {
                   Header: "value",
                   accessor: "state.disk.usage",
-                  view: views[5],
+                  view: views["Disk"],
                   Cell: ({ value }) => {
                      return bytesToAdequateValue(value).getMessage();
                   },
@@ -356,19 +355,19 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.disk.usedPercent",
-                  view: views[5],
+                  view: views["Disk"],
                },
             ],
          },
          {
             Header: "Allocated",
             accessor: "diskAllocated",
-            view: views[5],
+            view: views["Disk"],
             columns: [
                {
                   Header: "value",
                   accessor: "state.disk.allocated",
-                  view: views[5],
+                  view: views["Disk"],
                   Cell: ({ value }) => {
                      return bytesToAdequateValue(value).getMessage();
                   },
@@ -376,19 +375,19 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.disk.allocatedPercent",
-                  view: views[5],
+                  view: views["Disk"],
                },
             ],
          },
          {
             Header: "Free",
             accessor: "diskFreeSpecific",
-            view: views[5],
+            view: views["Disk"],
             columns: [
                {
                   Header: "value",
                   accessor: "state.disk.free",
-                  view: views[5],
+                  view: views["Disk"],
                   Cell: (props) => {
                      const data = props.row.original;
                      return data.limits?.disk
@@ -399,7 +398,7 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.disk.freePercent",
-                  view: views[5],
+                  view: views["Disk"],
                },
             ],
          },
@@ -407,7 +406,7 @@ function Project(props) {
          {
             Header: "Used | Allocated | Free",
             accessor: "downloadProgressBar",
-            view: views[6],
+            view: views["Download"],
             Cell: (props) => {
                const data = props.row.original;
                return (
@@ -422,12 +421,12 @@ function Project(props) {
          {
             Header: "Used",
             accessor: "downloadUsed",
-            view: views[6],
+            view: views["Download"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.internet.download.usage",
-                  view: views[6],
+                  view: views["Download"],
                   Cell: ({ value }) => {
                      return bytesPerSecondToAdequateValue(value).getMessage();
                   },
@@ -435,19 +434,19 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.internet.download.usedPercent",
-                  view: views[6],
+                  view: views["Download"],
                },
             ],
          },
          {
             Header: "Allocated",
             accessor: "downloadAllocated",
-            view: views[6],
+            view: views["Download"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.internet.download.allocated",
-                  view: views[6],
+                  view: views["Download"],
                   Cell: ({ value }) => {
                      return bytesPerSecondToAdequateValue(value).getMessage();
                   },
@@ -455,19 +454,19 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.internet.download.allocatedPercent",
-                  view: views[6],
+                  view: views["Download"],
                },
             ],
          },
          {
             Header: "Free",
             accessor: "downloadFreeSpecific",
-            view: views[6],
+            view: views["Download"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.internet.download.free",
-                  view: views[6],
+                  view: views["Download"],
                   Cell: (props) => {
                      const data = props.row.original;
                      return data.limits?.internet?.download
@@ -480,7 +479,7 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.internet.download.freePercent",
-                  view: views[6],
+                  view: views["Download"],
                },
             ],
          },
@@ -488,7 +487,7 @@ function Project(props) {
          {
             Header: "Used | Allocated | Free",
             accessor: "uploadProgressBar",
-            view: views[7],
+            view: views["Upload"],
             Cell: (props) => {
                const data = props.row.original;
                return (
@@ -503,12 +502,12 @@ function Project(props) {
          {
             Header: "Used",
             accessor: "uploadUsed",
-            view: views[7],
+            view: views["Upload"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.internet.upload.usage",
-                  view: views[7],
+                  view: views["Upload"],
                   Cell: ({ value }) => {
                      return bytesPerSecondToAdequateValue(value).getMessage();
                   },
@@ -516,19 +515,19 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.internet.upload.usedPercent",
-                  view: views[7],
+                  view: views["Upload"],
                },
             ],
          },
          {
             Header: "Allocated",
             accessor: "uploadAllocated",
-            view: views[7],
+            view: views["Upload"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.internet.upload.allocated",
-                  view: views[7],
+                  view: views["Upload"],
                   Cell: ({ value }) => {
                      return bytesPerSecondToAdequateValue(value).getMessage();
                   },
@@ -536,19 +535,19 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.internet.upload.allocatedPercent",
-                  view: views[7],
+                  view: views["Upload"],
                },
             ],
          },
          {
             Header: "Free",
             accessor: "uploadFreeSpecific",
-            view: views[7],
+            view: views["Upload"],
             columns: [
                {
                   Header: "Value",
                   accessor: "state.internet.upload.free",
-                  view: views[7],
+                  view: views["Upload"],
                   Cell: (props) => {
                      const data = props.row.original;
                      return data.limits?.internet?.upload
@@ -561,7 +560,7 @@ function Project(props) {
                {
                   Header: "%",
                   accessor: "state.internet.upload.freePercent",
-                  view: views[7],
+                  view: views["Upload"],
                },
             ],
          },
@@ -569,12 +568,7 @@ function Project(props) {
       []
    );
 
-   // const [data, setData] = useState(useMemo(() => makeData(), []));
    const [skipPageReset, setSkipPageReset] = useState(false);
-   // useEffect(() => {
-   //    setData(makeData());
-   //    // console.log(makeData())
-   // }, [projects]);
 
    // We need to keep the table from resetting the pageIndex when we
    // Update data. So we can keep track of that flag with a ref.
@@ -636,7 +630,6 @@ function Project(props) {
                         views={views}
                         view={view}
                         setView={setView}
-                        createRecordHeadding={"Create new project"}
                         creationLimits={{
                            RAM: userState.RAM.free,
                            CPU: userState.CPU.free,

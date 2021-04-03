@@ -115,7 +115,10 @@ export function isActive(path) {
       }
       return true;
    } else {
-      // console.log(splittedCurrentPath, splittedGivenPath)
       return false;
    }
+}
+
+export function shouldOpenBasedOnLocation(path){
+   return location.pathname.startsWith(path) && !isActive(path);
 }

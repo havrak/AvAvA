@@ -59,7 +59,7 @@ function Sidebar({ color, routes, projects }) {
                                    route={`/user/projects/${project.id}`}
                                    name={project.name}
                                    level={2}
-											  key={`p${project.id}`}
+                                   key={`p${project.id}`}
                                    toCollapse={project.containers.map(
                                       (container, key2) => {
                                          return (
