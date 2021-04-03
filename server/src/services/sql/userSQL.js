@@ -1,6 +1,6 @@
 import mysql from "mysql";
 import User from "./../../models/User.js";
-import config from "./../../../config/sqlconfig.js";
+import sqlconfig from "./../../../config/sqlconfig.js";
 import https from "https";
 import fs from "fs";
 
@@ -8,7 +8,7 @@ export default class userSQL {
   static getUserByEmail(email) {
     console.log(email);
     return new Promise((resolve) => {
-      const con = mysql.createConnection(config);
+      const con = mysql.createConnection(sqlconfig);
       con.query(
         "SELECT * FROM users WHERE email LIKE ?",
         [email], // by default user is standart user
@@ -32,7 +32,7 @@ export default class userSQL {
 
   static getUserByID(id) {
     return new Promise((resolve) => {
-      const con = mysql.createConnection(config);
+      const con = mysql.createConnection(sqlconfig);
       con.query(
         "SELECT * FROM users WHERE id LIKE ?",
         [id], // by default user is standart user
@@ -60,7 +60,7 @@ export default class userSQL {
    */
   static addNewUserToDatabaseAndReturnIt(user) {
     return new Promise((resolve) => {
-      const con = mysql.createConnection(config);
+      const con = mysql.createConnection(sqlconfig);
       console.log("Added new user");
       con.query(
         "INSERT INTO users (id, email, given_name, family_name, icon, role, coins) VALUES (NULL,?,?,?,?,0,0);",
@@ -76,7 +76,21 @@ export default class userSQL {
             console.log("User is already stored in DB");
           } else if (err) {
             throw err;
-          }
+          } else
+            con.query(
+              "INSERT INTO usersResourcesLimits (user_email, ram, cpu, disk, upload, download)",
+              [
+                user.emails[0].value,
+                2147483648,
+                10,
+                10737418240,
+                100000000,
+                100000000,
+              ],
+              (err, rows) => {
+                if (err) throw err;
+              }
+            );
         }
       );
       con.query(

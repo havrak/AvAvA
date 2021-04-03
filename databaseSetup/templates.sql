@@ -6,7 +6,8 @@ CREATE TABLE `templates` (
   `version` float NOT NULL,
   `profile_description` varchar(200) CHARACTER SET utf8 NOT NULL,
   `image_description` varchar(200) CHARACTER SET armscii8 NOT NULL,
-  `profile_path` varchar(64) CHARACTER SET armscii8 COLLATE armscii8_bin NOT NULL
+  `profile_path` varchar(64) CHARACTER SET armscii8 COLLATE armscii8_bin NOT NULL,
+  `min_disk_size` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 ALTER TABLE `templates`

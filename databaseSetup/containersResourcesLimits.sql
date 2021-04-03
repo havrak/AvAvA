@@ -1,10 +1,10 @@
 CREATE TABLE `containersResourcesLimits` (
   `container_id` int(11) NOT NULL,
-  `ram` int(4) NOT NULL,
-  `cpu` int(4) NOT NULL,
-  `disk` int(4) NOT NULL,
-  `upload` int(4) NOT NULL,
-  `download` int(4) NOT NULL
+  `ram` double NOT NULL,
+  `cpu` double NOT NULL,
+  `disk` double NOT NULL,
+  `upload` double NOT NULL,
+  `download` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 ALTER TABLE `containersResourcesLimits`

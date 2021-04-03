@@ -1,7 +1,7 @@
 CREATE TABLE `appsToInstall` (
   `id` int(11) NOT NULL,
   `name` varchar(64) COLLATE utf8_czech_ci NOT NULL,
-  `descripton` text COLLATE utf8_czech_ci NOT NULL,
+  `description` text COLLATE utf8_czech_ci NOT NULL,
   `icon_path` varchar(128) COLLATE utf8_czech_ci NOT NULL,
   `package_name` varchar(32) COLLATE utf8_czech_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
@@ -31,11 +31,11 @@ CREATE TABLE `containers` (
 
 CREATE TABLE `containersResourcesLimits` (
   `container_id` int(11) NOT NULL,
-  `ram` int(4) NOT NULL,
-  `cpu` int(4) NOT NULL,
-  `disk` int(4) NOT NULL,
-  `upload` int(4) NOT NULL,
-  `download` int(4) NOT NULL
+  `ram` double NOT NULL,
+  `cpu` double NOT NULL,
+  `disk` double NOT NULL,
+  `upload` double NOT NULL,
+  `download` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
@@ -49,8 +49,8 @@ CREATE TABLE `containersResourcesLog` (
   `ram` text COLLATE utf8_czech_ci NOT NULL,
   `cpu` text COLLATE utf8_czech_ci NOT NULL,
   `number_of_processes` text COLLATE utf8_czech_ci NOT NULL,
-  `up_speed` text COLLATE utf8_czech_ci NOT NULL,
-  `down_speed` text COLLATE utf8_czech_ci NOT NULL,
+  `upload` text COLLATE utf8_czech_ci NOT NULL,
+  `download` text COLLATE utf8_czech_ci NOT NULL,
   `timestamp` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
@@ -86,11 +86,11 @@ CREATE TABLE `projectsCoworkers` (
 
 CREATE TABLE `projectsResourcesLimits` (
   `project_id` int(11) NOT NULL,
-  `ram` int(4) DEFAULT NULL,
-  `cpu` int(4) DEFAULT NULL,
-  `disk` int(4) DEFAULT NULL,
-  `upload` int(4) DEFAULT NULL,
-  `download` int(4) DEFAULT NULL
+  `ram` double DEFAULT NULL,
+  `cpu` double DEFAULT NULL,
+  `disk` double DEFAULT NULL,
+  `upload` double DEFAULT NULL,
+  `download` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
@@ -107,7 +107,8 @@ CREATE TABLE `templates` (
   `version` float NOT NULL,
   `profile_description` varchar(200) CHARACTER SET utf8 NOT NULL,
   `image_description` varchar(200) CHARACTER SET armscii8 NOT NULL,
-  `profile_path` varchar(64) CHARACTER SET armscii8 COLLATE armscii8_bin NOT NULL
+  `profile_path` varchar(64) CHARACTER SET armscii8 COLLATE armscii8_bin NOT NULL,
+  `min_disk_size` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
@@ -123,7 +124,7 @@ CREATE TABLE `users` (
   `family_name` varchar(16) COLLATE utf8_czech_ci NOT NULL,
   `icon` text COLLATE utf8_czech_ci,
   `role` int(11) NOT NULL,
-  `coins` int(4) NOT NULL
+  `coins` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
@@ -134,11 +135,11 @@ CREATE TABLE `users` (
 
 CREATE TABLE `usersResourcesLimits` (
   `user_email` varchar(64) COLLATE utf8_czech_ci NOT NULL,
-  `ram` int(4) NOT NULL,
-  `cpu` int(4) NOT NULL,
-  `disk` int(4) NOT NULL,
-  `upload` int(4) NOT NULL,
-  `download` int(4) NOT NULL
+  `ram` double NOT NULL,
+  `cpu` double NOT NULL,
+  `disk` double NOT NULL,
+  `upload` double NOT NULL,
+  `download` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 --

@@ -3,8 +3,8 @@ CREATE TABLE `containersResourcesLog` (
   `ram` text COLLATE utf8_czech_ci NOT NULL,
   `cpu` text COLLATE utf8_czech_ci NOT NULL,
   `number_of_processes` text COLLATE utf8_czech_ci NOT NULL,
-  `up_speed` text COLLATE utf8_czech_ci NOT NULL,
-  `down_speed` text COLLATE utf8_czech_ci NOT NULL,
+  `upload` text COLLATE utf8_czech_ci NOT NULL,
+  `download` text COLLATE utf8_czech_ci NOT NULL,
   `timestamp` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 

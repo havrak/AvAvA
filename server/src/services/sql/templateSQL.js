@@ -1,13 +1,15 @@
 import mysql from "mysql";
-import Template from "./../models/Template.js";
-import User from "./../models/User.js";
-import config from "./../../config/sqlconfig.js";
-export class templateSQL {
+import sqlconfig from "./../../../config/sqlconfig.js";
+import Template from "./../../models/Template.js";
+import User from "./../../models/User.js";
+import ApplicationToInstall from "../../models/ApplicationToInstall.js";
+
+export default class templateSQL {
   constructor() {}
 
   static getProfilePath(id) {
     return new Promise((resolve) => {
-      const con = mysql.createConnection(config);
+      const con = mysql.createConnection(sqlconfig);
       con.query(
         "SELECT profilePath FROM templates WHERE id = ?",
         [id],
@@ -22,7 +24,7 @@ export class templateSQL {
 
   static getAllTemplates() {
     return new Promise((resolve) => {
-      const con = mysql.createConnection(config);
+      const con = mysql.createConnection(sqlconfig);
       con.query("SELECT * FROM templates", (err, rows) => {
         if (err) throw err;
         let toReturn = [rows.length];
@@ -43,7 +45,7 @@ export class templateSQL {
 
   static addNewTemplate(template, templatePath) {
     return new Promise((resolve) => {
-      const con = mysql.createConnection(config);
+      const con = mysql.createConnection(sqlconfig);
       con.query(
         "INSERT INTO templates (id, timestamp, profileName, imageName, version, profileDescription, imageDescription, profilePath) VALUES (NULL, 'CURRENT_TIMESTAMP(6).000000', ?, ?, ?, ?, ?, ?)",
         [
@@ -63,6 +65,24 @@ export class templateSQL {
           resolve("done");
         }
       );
+    });
+  }
+  static getAllAppsToInstall() {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query("SELECT * FROM appsToInstall", (err, rows) => {
+        if (err) throw err;
+        let toReturn = [rows.length];
+        rows.forEach((row, index) => {
+          toReturn[index] = new ApplicationToInstall(
+            row.id,
+            row.name,
+            row.description,
+            row.icon
+          );
+        });
+        resolve(toReturn);
+      });
     });
   }
 }
