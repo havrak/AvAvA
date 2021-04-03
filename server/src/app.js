@@ -60,32 +60,15 @@ const email = "krystof.havranek@student.gyarab.cz";
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
 
 app.get("/project/createConfigData", isLoggedIn, (req, res) => {
-<<<<<<< HEAD
-  projectSQL.createCreateProjectData(req.user.email).then((result) => {
-=======
   projectSQL.createCreateProjectData(email).then((result) => {
->>>>>>> a1f6130 (SQL logic for creating containers and project, not tested, just need to get newest commit)
     res.send(result);
   });
 });
 
 app.post("/project", isLoggedIn, (req, res) => {
-<<<<<<< HEAD
-  //let email = req.user.email;
-  // email -> havranek.krystof@student.gyarab.cz
-  let email = "havranek.krystof@student.gyarab.cz";
-  projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
-    //
-  });
-  console.log(req);
-  console.log(req.body);
-  console.log(req.body.name);
-  //
-=======
   projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
     console.log(result);
   });
->>>>>>> a1f6130 (SQL logic for creating containers and project, not tested, just need to get newest commit)
 });
 
 app.get(
@@ -103,13 +86,6 @@ app.post("/instances", isLoggedIn, (req, res) => {
   //let email = req.user.email;
   // email -> havranek.krystof@student.gyarab.cz
   containerSQL.createCreateContainerJSON(email, req.body).then((result) => {
-    //
-  });
-});
-
-app.post("/project", isLoggedIn, (req, res) => {
-  let email = "havranek.krystof@student.gyarab.cz";
-  containerSQL.createCreateContainerJSON(email, config).then((result) => {
     //
   });
 });

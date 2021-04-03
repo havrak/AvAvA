@@ -1,14 +1,5 @@
 import mysql from "mysql";
-<<<<<<< HEAD
 import config from "./../../../config/sqlconfig.js";
-
-export default class containerSQL {
-	static createCreateContainerJSON(email, config) {}
-=======
-import sqlconfig from "../../../config/sqlconfig.js";
-import CreateInstanceJSONObj from "./../../models/CreateInstanceJSONObj.js";
-import CreateInstanceConfigData from "./../../models/CreateInstanceConfigData.js";
-import templateSQL from "./templateSQL.js";
 
 export default class containerSQL {
   static createCreateContainerJSON(email, config) {
@@ -208,5 +199,4 @@ export default class containerSQL {
       });
     });
   }
->>>>>>> a1f6130 (SQL logic for creating containers and project, not tested, just need to get newest commit)
 }

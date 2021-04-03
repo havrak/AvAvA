@@ -1,5 +1,5 @@
 export default class CreateInstanceJSONObj {
-  constructor(name, profiles, config, source, project) {
+  constructor(name, profiles, source, project) {
     this.name = name;
     this.profiles = profiles;
     this.config = config;
@@ -11,7 +11,25 @@ export default class CreateInstanceJSONObj {
   profiles;
   ephemeral = false;
   type = "container";
-  config;
+  config = {
+    "limits.memory": undefined,
+    "limits.cpu.allowance": undefined,
+  };
+  device = {
+    root: {
+      path: "/",
+      pool: "default",
+      size: undefined,
+      type: disk,
+    },
+    eth0: {
+      name: "eth0",
+      network: "lxdbr0",
+      type: "nic",
+      "limits.ingress": undefined,
+      "limits.egress": undefined,
+    },
+  };
   source;
   project;
 }
