@@ -38,6 +38,7 @@ export default class projectSQL {
                   userLimits.network.download -= rows[i].download;
                 } else {
                   // we need to get all containers in given
+                  console.log("asdsad");
                 }
               }
               resolve(userLimits);
@@ -113,6 +114,7 @@ export default class projectSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
+          resolve(1);
         }
       );
     });

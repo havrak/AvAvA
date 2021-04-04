@@ -2,7 +2,6 @@ export default class CreateInstanceJSONObj {
   constructor(name, profiles, source, project) {
     this.name = name;
     this.profiles = profiles;
-    this.config = config;
     this.source = source;
     this.project = project;
   }
@@ -20,7 +19,7 @@ export default class CreateInstanceJSONObj {
       path: "/",
       pool: "default",
       size: undefined,
-      type: disk,
+      type: "disk",
     },
     eth0: {
       name: "eth0",

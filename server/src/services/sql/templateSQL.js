@@ -3,6 +3,7 @@ import sqlconfig from "./../../../config/sqlconfig.js";
 import Template from "./../../models/Template.js";
 import User from "./../../models/User.js";
 import ApplicationToInstall from "../../models/ApplicationToInstall.js";
+import Image from "../../models/Image.js";
 
 export default class templateSQL {
   constructor() {}
@@ -28,16 +29,16 @@ export default class templateSQL {
       con.query("SELECT * FROM templates", (err, rows) => {
         if (err) throw err;
         let toReturn = [rows.length];
-        for (i = 0; i < rows.length; i++) {
-          toReturn[i] = new Template();
-          toReturn[i].id = rows[i].id;
-          toReturn[i].name = rows[i].profileName;
-          toReturn[i].timestamp = rows[i].timestamp;
-          toReturn[i].image.os = rows[i].imageName;
-          toReturn[i].image.version = rows[i].version;
-          toReturn[i].image.description = rows[i].imageDescription;
-          toReturn[i].description = rows[i].profileDescription;
-        }
+        rows.forEach((row, index) => {
+          toReturn[index] = new Template(
+            row.id,
+            row.profile_name,
+            row.timestamp,
+            new Image(row.image_name, row.version, row.image_description),
+            row.profile_description,
+            row.min_disk_size
+          );
+        });
         resolve(toReturn);
       });
     });
@@ -78,7 +79,7 @@ export default class templateSQL {
             row.id,
             row.name,
             row.description,
-            row.icon
+            row.icon_path
           );
         });
         resolve(toReturn);

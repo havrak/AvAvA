@@ -66,6 +66,7 @@ app.get("/project/createConfigData", isLoggedIn, (req, res) => {
 });
 
 app.post("/project", isLoggedIn, (req, res) => {
+  console.log("asdasd");
   projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
     console.log(result);
   });
@@ -76,7 +77,7 @@ app.get(
   isLoggedIn,
   (req, res) => {
     containerSQL
-      .createCreateContainerData(projectId.params.projectId, email)
+      .createCreateContainerData(req.params.projectId, email)
       .then((result) => {
         res.send(result);
       });
@@ -86,6 +87,6 @@ app.post("/instances", isLoggedIn, (req, res) => {
   //let email = req.user.email;
   // email -> havranek.krystof@student.gyarab.cz
   containerSQL.createCreateContainerJSON(email, req.body).then((result) => {
-    //
+    console.log(result);
   });
 });

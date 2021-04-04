@@ -2,7 +2,7 @@ export default class CreateInstanceConfigData {
   constructor(templateTypes, applicationsToInstall, limits) {
     this.templateTypes = templateTypes;
     this.applicationsToInstall = applicationsToInstall;
-    this.limits = limits;
+    this.maxLimits = limits;
   }
   templateTypes; // -> Template.js[]
   applicationsToInstall; // ApplicationsToInstall.js[]

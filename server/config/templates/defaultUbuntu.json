@@ -1,6 +1,6 @@
 {
   "name": "defaultUbuntu",
-  "profile": "default",
+  "profiles": "default",
   "source": {
     "type": "image",
     "protocol": "simplestreams",
