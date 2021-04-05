@@ -16,6 +16,8 @@ import ApplicationToInstall from './model/ApplicationToInstall';
 import Body from './model/Body';
 import Body1 from './model/Body1';
 import Body2 from './model/Body2';
+import Body3 from './model/Body3';
+import Body4 from './model/Body4';
 import Container from './model/Container';
 import ContainerResourceState from './model/ContainerResourceState';
 import ContainerResourceStateCPU from './model/ContainerResourceStateCPU';
@@ -23,13 +25,13 @@ import ContainerResourceStateDisk from './model/ContainerResourceStateDisk';
 import ContainerResourceStateDiskDevices from './model/ContainerResourceStateDiskDevices';
 import ContainerResourceStateRAM from './model/ContainerResourceStateRAM';
 import ContainerStateWithHistory from './model/ContainerStateWithHistory';
+import CreateInstanceConfigData from './model/CreateInstanceConfigData';
+import ErrorResponse from './model/ErrorResponse';
 import Image from './model/Image';
-import InlineResponse200 from './model/InlineResponse200';
-import InlineResponse2001 from './model/InlineResponse2001';
 import Limits from './model/Limits';
 import LimitsInternet from './model/LimitsInternet';
 import NetworkState from './model/NetworkState';
-import NetworkStateAdresses from './model/NetworkStateAdresses';
+import NetworkStateAddresses from './model/NetworkStateAddresses';
 import NetworkStateCounters from './model/NetworkStateCounters';
 import NetworkStateCountersDownload from './model/NetworkStateCountersDownload';
 import NetworkStateCountersUpload from './model/NetworkStateCountersUpload';
@@ -107,6 +109,18 @@ export {
     Body2,
 
     /**
+     * The Body3 model constructor.
+     * @property {module:model/Body3}
+     */
+    Body3,
+
+    /**
+     * The Body4 model constructor.
+     * @property {module:model/Body4}
+     */
+    Body4,
+
+    /**
      * The Container model constructor.
      * @property {module:model/Container}
      */
@@ -149,22 +163,22 @@ export {
     ContainerStateWithHistory,
 
     /**
+     * The CreateInstanceConfigData model constructor.
+     * @property {module:model/CreateInstanceConfigData}
+     */
+    CreateInstanceConfigData,
+
+    /**
+     * The ErrorResponse model constructor.
+     * @property {module:model/ErrorResponse}
+     */
+    ErrorResponse,
+
+    /**
      * The Image model constructor.
      * @property {module:model/Image}
      */
     Image,
-
-    /**
-     * The InlineResponse200 model constructor.
-     * @property {module:model/InlineResponse200}
-     */
-    InlineResponse200,
-
-    /**
-     * The InlineResponse2001 model constructor.
-     * @property {module:model/InlineResponse2001}
-     */
-    InlineResponse2001,
 
     /**
      * The Limits model constructor.
@@ -185,10 +199,10 @@ export {
     NetworkState,
 
     /**
-     * The NetworkStateAdresses model constructor.
-     * @property {module:model/NetworkStateAdresses}
+     * The NetworkStateAddresses model constructor.
+     * @property {module:model/NetworkStateAddresses}
      */
-    NetworkStateAdresses,
+    NetworkStateAddresses,
 
     /**
      * The NetworkStateCounters model constructor.

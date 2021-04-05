@@ -15,43 +15,39 @@ import ApiClient from '../ApiClient';
 import Limits from './Limits';
 
 /**
-* The Snapshot model module.
-* @module model/Snapshot
+* The Body3 model module.
+* @module model/Body3
 * @version 1.0
 */
-export default class Snapshot {
+export default class Body3 {
     /**
-    * Constructs a new <code>Snapshot</code>.
-    * @alias module:model/Snapshot
+    * Constructs a new <code>Body3</code>.
+    * @alias module:model/Body3
     * @class
+    * @param name {String} 
     */
 
-    constructor() {
+    constructor(name) {
         
         
+        this['name'] = name;
         
     }
 
     /**
-    * Constructs a <code>Snapshot</code> from a plain JavaScript object, optionally creating a new instance.
+    * Constructs a <code>Body3</code> from a plain JavaScript object, optionally creating a new instance.
     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
     * @param {Object} data The plain JavaScript object bearing properties of interest.
-    * @param {module:model/Snapshot} obj Optional instance to populate.
-    * @return {module:model/Snapshot} The populated <code>Snapshot</code> instance.
+    * @param {module:model/Body3} obj Optional instance to populate.
+    * @return {module:model/Body3} The populated <code>Body3</code> instance.
     */
     static constructFromObject(data, obj) {
         if (data) {
-            obj = obj || new Snapshot();
+            obj = obj || new Body3();
                         
             
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
-            }
-            if (data.hasOwnProperty('createdOn')) {
-                obj['createdOn'] = ApiClient.convertToType(data['createdOn'], 'String');
-            }
-            if (data.hasOwnProperty('stateful')) {
-                obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
             }
             if (data.hasOwnProperty('limits')) {
                 obj['limits'] = Limits.constructFromObject(data['limits']);
@@ -61,20 +57,9 @@ export default class Snapshot {
     }
 
     /**
-    * Name of the snapshot
     * @member {String} name
     */
     'name' = undefined;
-    /**
-    * The time of creation
-    * @member {String} createdOn
-    */
-    'createdOn' = undefined;
-    /**
-    * True if state of the container should be maintained
-    * @member {Boolean} stateful
-    */
-    'stateful' = undefined;
     /**
     * @member {module:model/Limits} limits
     */

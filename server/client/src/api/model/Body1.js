@@ -12,6 +12,8 @@
  */
 
 import ApiClient from '../ApiClient';
+import ApplicationToInstall from './ApplicationToInstall';
+import Limits from './Limits';
 
 /**
 * The Body1 model module.
@@ -23,11 +25,21 @@ export default class Body1 {
     * Constructs a new <code>Body1</code>.
     * @alias module:model/Body1
     * @class
+    * @param name {String} 
+    * @param autostart {Boolean} 
+    * @param stateful {Boolean} 
+    * @param applicationsToInstall {Array.<module:model/ApplicationToInstall>} 
+    * @param connectToInternet {Boolean} 
     */
 
-    constructor() {
+    constructor(name, autostart, stateful, applicationsToInstall, connectToInternet) {
         
         
+        this['name'] = name;
+        this['autostart'] = autostart;
+        this['stateful'] = stateful;
+        this['applicationsToInstall'] = applicationsToInstall;
+        this['connectToInternet'] = connectToInternet;
         
     }
 
@@ -43,25 +55,52 @@ export default class Body1 {
             obj = obj || new Body1();
                         
             
-            if (data.hasOwnProperty('snapshotName')) {
-                obj['snapshotName'] = ApiClient.convertToType(data['snapshotName'], 'String');
+            if (data.hasOwnProperty('name')) {
+                obj['name'] = ApiClient.convertToType(data['name'], 'String');
+            }
+            if (data.hasOwnProperty('autostart')) {
+                obj['autostart'] = ApiClient.convertToType(data['autostart'], 'Boolean');
             }
             if (data.hasOwnProperty('stateful')) {
                 obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
+            }
+            if (data.hasOwnProperty('applicationsToInstall')) {
+                obj['applicationsToInstall'] = ApiClient.convertToType(data['applicationsToInstall'], [ApplicationToInstall]);
+            }
+            if (data.hasOwnProperty('connectToInternet')) {
+                obj['connectToInternet'] = ApiClient.convertToType(data['connectToInternet'], 'Boolean');
+            }
+            if (data.hasOwnProperty('limits')) {
+                obj['limits'] = Limits.constructFromObject(data['limits']);
             }
         }
         return obj;
     }
 
     /**
-    * @member {String} snapshotName
+    * @member {String} name
     */
-    'snapshotName' = undefined;
+    'name' = undefined;
     /**
-    * true if the snapshot should be created stateful
+    * @member {Boolean} autostart
+    */
+    'autostart' = undefined;
+    /**
     * @member {Boolean} stateful
     */
     'stateful' = undefined;
+    /**
+    * @member {Array.<module:model/ApplicationToInstall>} applicationsToInstall
+    */
+    'applicationsToInstall' = undefined;
+    /**
+    * @member {Boolean} connectToInternet
+    */
+    'connectToInternet' = undefined;
+    /**
+    * @member {module:model/Limits} limits
+    */
+    'limits' = undefined;
 
 
 

@@ -15,10 +15,12 @@ import ApiClient from "../ApiClient";
 import Body from '../model/Body';
 import Body1 from '../model/Body1';
 import Body2 from '../model/Body2';
+import Body3 from '../model/Body3';
+import Body4 from '../model/Body4';
 import Container from '../model/Container';
 import ContainerStateWithHistory from '../model/ContainerStateWithHistory';
-import InlineResponse200 from '../model/InlineResponse200';
-import InlineResponse2001 from '../model/InlineResponse2001';
+import CreateInstanceConfigData from '../model/CreateInstanceConfigData';
+import ErrorResponse from '../model/ErrorResponse';
 import OperationState from '../model/OperationState';
 import Project from '../model/Project';
 import ProjectStateWithHistory from '../model/ProjectStateWithHistory';
@@ -109,11 +111,46 @@ export default class DefaultApi {
 
       let authNames = [];
       let contentTypes = [];
-      let accepts = [];
+      let accepts = ['application/json'];
       let returnType = null;
 
       return this.apiClient.callApi(
         '/instances/{containerId}/snapshots/{snapshotId}', 'DELETE',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
+     * Callback function to receive the result of the instancesCreateInstanceConfigDataGet operation.
+     * @callback module:api/DefaultApi~instancesCreateInstanceConfigDataGetCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/CreateInstanceConfigData} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {module:api/DefaultApi~instancesCreateInstanceConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/CreateInstanceConfigData}
+     */
+    instancesCreateInstanceConfigDataGet(callback) {
+      let postBody = null;
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = [];
+      let accepts = ['application/json'];
+      let returnType = CreateInstanceConfigData;
+
+      return this.apiClient.callApi(
+        '/instances/createInstanceConfigData', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -180,7 +217,7 @@ export default class DefaultApi {
 
       let authNames = [];
       let contentTypes = [];
-      let accepts = [];
+      let accepts = ['application/json'];
       let returnType = null;
 
       return this.apiClient.callApi(
@@ -229,13 +266,13 @@ export default class DefaultApi {
      * Callback function to receive the result of the instancesIdFreezePatch operation.
      * @callback module:api/DefaultApi~instancesIdFreezePatchCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/OperationState} data The data returned by the service call.
+     * @param {module:model/Container} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * @param {module:api/DefaultApi~instancesIdFreezePatchCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/OperationState}
+     * data is of type: {@link module:model/Container}
      */
     instancesIdFreezePatch(id, callback) {
       let postBody = null;
@@ -253,7 +290,7 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = OperationState;
+      let returnType = Container;
 
       return this.apiClient.callApi(
         '/instances/{id}/freeze', 'PATCH',
@@ -293,6 +330,43 @@ export default class DefaultApi {
 
       return this.apiClient.callApi(
         '/instances/{id}', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
+     * Callback function to receive the result of the instancesIdPatch operation.
+     * @callback module:api/DefaultApi~instancesIdPatchCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/Container} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Change instances settings
+     * @param {module:api/DefaultApi~instancesIdPatchCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/Container}
+     */
+    instancesIdPatch(body, id, callback) {
+      let postBody = body;
+
+      let pathParams = {
+        'id': id
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = Container;
+
+      return this.apiClient.callApi(
+        '/instances/{id}', 'PATCH',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -411,13 +485,13 @@ export default class DefaultApi {
      * Callback function to receive the result of the instancesIdStartPatch operation.
      * @callback module:api/DefaultApi~instancesIdStartPatchCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/OperationState} data The data returned by the service call.
+     * @param {module:model/Container} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * @param {module:api/DefaultApi~instancesIdStartPatchCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/OperationState}
+     * data is of type: {@link module:model/Container}
      */
     instancesIdStartPatch(id, callback) {
       let postBody = null;
@@ -435,7 +509,7 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = OperationState;
+      let returnType = Container;
 
       return this.apiClient.callApi(
         '/instances/{id}/start', 'PATCH',
@@ -483,13 +557,13 @@ export default class DefaultApi {
      * Callback function to receive the result of the instancesIdStopPatch operation.
      * @callback module:api/DefaultApi~instancesIdStopPatchCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/OperationState} data The data returned by the service call.
+     * @param {module:model/Container} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * @param {module:api/DefaultApi~instancesIdStopPatchCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/OperationState}
+     * data is of type: {@link module:model/Container}
      */
     instancesIdStopPatch(id, callback) {
       let postBody = null;
@@ -507,7 +581,7 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = OperationState;
+      let returnType = Container;
 
       return this.apiClient.callApi(
         '/instances/{id}/stop', 'PATCH',
@@ -519,13 +593,13 @@ export default class DefaultApi {
      * Callback function to receive the result of the instancesIdUnfreezePatch operation.
      * @callback module:api/DefaultApi~instancesIdUnfreezePatchCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/OperationState} data The data returned by the service call.
+     * @param {module:model/Project} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * @param {module:api/DefaultApi~instancesIdUnfreezePatchCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/OperationState}
+     * data is of type: {@link module:model/Project}
      */
     instancesIdUnfreezePatch(id, callback) {
       let postBody = null;
@@ -543,7 +617,7 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = OperationState;
+      let returnType = Project;
 
       return this.apiClient.callApi(
         '/instances/{id}/unfreeze', 'PATCH',
@@ -623,41 +697,6 @@ export default class DefaultApi {
       );
     }
     /**
-     * Callback function to receive the result of the projectsCreateConfigDataGet operation.
-     * @callback module:api/DefaultApi~projectsCreateConfigDataGetCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/InlineResponse200} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * @param {module:api/DefaultApi~projectsCreateConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/InlineResponse200}
-     */
-    projectsCreateConfigDataGet(callback) {
-      let postBody = null;
-
-      let pathParams = {
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = [];
-      let accepts = ['application/json'];
-      let returnType = InlineResponse200;
-
-      return this.apiClient.callApi(
-        '/projects/createConfigData', 'GET',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
      * Callback function to receive the result of the projectsGet operation.
      * @callback module:api/DefaultApi~projectsGetCallback
      * @param {String} error Error message, if any.
@@ -718,7 +757,7 @@ export default class DefaultApi {
 
       let authNames = [];
       let contentTypes = [];
-      let accepts = [];
+      let accepts = ['application/json'];
       let returnType = null;
 
       return this.apiClient.callApi(
@@ -759,6 +798,43 @@ export default class DefaultApi {
 
       return this.apiClient.callApi(
         '/projects/{id}', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
+     * Callback function to receive the result of the projectsIdPatch operation.
+     * @callback module:api/DefaultApi~projectsIdPatchCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/Project} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Change settings of existing project
+     * @param {module:api/DefaultApi~projectsIdPatchCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/Project}
+     */
+    projectsIdPatch(body, id, callback) {
+      let postBody = body;
+
+      let pathParams = {
+        'id': id
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = Project;
+
+      return this.apiClient.callApi(
+        '/projects/{id}', 'PATCH',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -831,42 +907,6 @@ export default class DefaultApi {
 
       return this.apiClient.callApi(
         '/projects', 'POST',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
-     * Callback function to receive the result of the projectsProjectIdCreateInstanceConfigDataGet operation.
-     * @callback module:api/DefaultApi~projectsProjectIdCreateInstanceConfigDataGetCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/InlineResponse2001} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * @param {module:api/DefaultApi~projectsProjectIdCreateInstanceConfigDataGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/InlineResponse2001}
-     */
-    projectsProjectIdCreateInstanceConfigDataGet(projectId, callback) {
-      let postBody = null;
-
-      let pathParams = {
-        'projectId': projectId
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = [];
-      let accepts = ['application/json'];
-      let returnType = InlineResponse2001;
-
-      return this.apiClient.callApi(
-        '/projects/{projectId}/createInstanceConfigData', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );

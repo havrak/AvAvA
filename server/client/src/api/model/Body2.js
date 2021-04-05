@@ -12,7 +12,6 @@
  */
 
 import ApiClient from '../ApiClient';
-import Limits from './Limits';
 
 /**
 * The Body2 model module.
@@ -24,13 +23,11 @@ export default class Body2 {
     * Constructs a new <code>Body2</code>.
     * @alias module:model/Body2
     * @class
-    * @param name {String} 
     */
 
-    constructor(name) {
+    constructor() {
         
         
-        this['name'] = name;
         
     }
 
@@ -46,24 +43,25 @@ export default class Body2 {
             obj = obj || new Body2();
                         
             
-            if (data.hasOwnProperty('name')) {
-                obj['name'] = ApiClient.convertToType(data['name'], 'String');
+            if (data.hasOwnProperty('snapshotName')) {
+                obj['snapshotName'] = ApiClient.convertToType(data['snapshotName'], 'String');
             }
-            if (data.hasOwnProperty('limits')) {
-                obj['limits'] = Limits.constructFromObject(data['limits']);
+            if (data.hasOwnProperty('stateful')) {
+                obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
             }
         }
         return obj;
     }
 
     /**
-    * @member {String} name
+    * @member {String} snapshotName
     */
-    'name' = undefined;
+    'snapshotName' = undefined;
     /**
-    * @member {module:model/Limits} limits
+    * true if the snapshot should be created stateful
+    * @member {Boolean} stateful
     */
-    'limits' = undefined;
+    'stateful' = undefined;
 
 
 

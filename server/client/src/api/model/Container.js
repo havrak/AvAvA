@@ -83,6 +83,7 @@ export default class Container {
     */
     'id' = undefined;
     /**
+    * max 30 characters long
     * @member {String} name
     */
     'name' = undefined;

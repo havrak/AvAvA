@@ -6,7 +6,6 @@ import { connect } from "react-redux";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "components/Tables/EnhancedTable.js";
-import NotificationAlert from "react-notification-alert";
 import { ProjectProgressBar } from "components/Tables/ProgressBars.js";
 import { Link } from "react-router-dom";
 
@@ -26,6 +25,7 @@ function Project(props) {
       userState,
       userProjectsGet,
       setCustomizableBrandText,
+      notify
    } = props;
    const brand = [
       {
@@ -591,22 +591,9 @@ function Project(props) {
    //       })
    //    );
    // };
-
-   const notificationAlertRef = React.useRef();
-   const notify = (message, type, autoDismiss) => {
-      const options = {
-         place: "tr",
-         message,
-         type,
-         autoDismiss,
-      };
-      console.log(notificationAlertRef);
-      notificationAlertRef.current.notificationAlert(options);
-   };
    return (
       <>
          <Container fluid>
-            <NotificationAlert ref={notificationAlertRef} />
             <Row>
                <Col md="12">
                   <Card>
@@ -620,7 +607,7 @@ function Project(props) {
                         view={view}
                         notify={notify}
                         setView={setView}
-                        tableToolbar={<ProjectsTableToolbar />}
+                        tableToolbar={<ProjectsTableToolbar notify={notify}/>}
                      />
                   </Card>
                </Col>

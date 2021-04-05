@@ -77,7 +77,7 @@ export default class Project {
     */
     'id' = undefined;
     /**
-    * Name of the project
+    * Name of the project - max 30 characters long
     * @member {String} name
     */
     'name' = undefined;

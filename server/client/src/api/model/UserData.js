@@ -12,6 +12,7 @@
  */
 
 import ApiClient from '../ApiClient';
+import CreateInstanceConfigData from './CreateInstanceConfigData';
 import User from './User';
 import UserProjects from './UserProjects';
 
@@ -52,6 +53,9 @@ export default class UserData {
             if (data.hasOwnProperty('userProjects')) {
                 obj['userProjects'] = UserProjects.constructFromObject(data['userProjects']);
             }
+            if (data.hasOwnProperty('createInstanceConfigData')) {
+                obj['createInstanceConfigData'] = CreateInstanceConfigData.constructFromObject(data['createInstanceConfigData']);
+            }
         }
         return obj;
     }
@@ -64,6 +68,10 @@ export default class UserData {
     * @member {module:model/UserProjects} userProjects
     */
     'userProjects' = undefined;
+    /**
+    * @member {module:model/CreateInstanceConfigData} createInstanceConfigData
+    */
+    'createInstanceConfigData' = undefined;
 
 
 

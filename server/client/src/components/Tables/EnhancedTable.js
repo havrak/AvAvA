@@ -150,7 +150,7 @@ const EnhancedTable = ({
                         >
                            <ClipLoader color={"#212529"} loading={true} size={30} />
                            <span style={{ marginLeft: "5px" }}>
-                              {!row.original.state.operationState ? row.original.pendingState : ""}
+                              {!row.original?.state?.operationState ? row.original.pendingState : ""}
                            </span>
                         </div>
                      ) : (

@@ -1,19 +1,15 @@
 import React, { useState } from "react";
 //source: https://github.com/tannerlinsley/react-table/tree/master/examples/material-UI-kitchen-sink
-import AddIcon from "@material-ui/icons/Add";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import IconButton from "@material-ui/core/IconButton";
 import TextField from "@material-ui/core/TextField";
-import Tooltip from "@material-ui/core/Tooltip";
 import { connect } from "react-redux";
-import {AddClickableIcon} from 'components/Icons/ClickableIcons'
 
-import Slider from "components/Limits/Slider.js";
-import { startSpinnerProjectPost, projectPost } from "actions/ProjectActions.js";
+import {InputSliderWithSwitch} from "components/Limits/Slider.js";
+import { projectPost } from "actions/ProjectActions.js";
 import {
    ramToMB,
    diskToGB,
@@ -23,7 +19,6 @@ import {
 
 const CreateProjectDialog = ({
    projectPost,
-   startSpinnerProjectPost,
    userProjects,
    notify,
    open,
@@ -53,13 +48,8 @@ const CreateProjectDialog = ({
       if (errorMessage !== null) {
          return;
       }
-      startSpinnerProjectPost(project);
-      projectPost(project, projectPostFailNotification);
+      projectPost(project, notify);
       setOpen(false);
-   };
-
-   const projectPostFailNotification = (name) => {
-      notify(`project "${name}" could not be created`, "danger", 4);
    };
 
    const handleNameType = (event) => {
@@ -98,7 +88,7 @@ const CreateProjectDialog = ({
                   helperText={errorMessage}
                />
                <h3 className={"limits-headding"}>Limits</h3>
-               <Slider
+               <InputSliderWithSwitch
                   headding={"RAM"}
                   setValueToParentElement={(value) => {
                      project.limits.RAM = value;
@@ -107,7 +97,7 @@ const CreateProjectDialog = ({
                   max={convertedRAM}
                   unit={"MB"}
                />
-               <Slider
+               <InputSliderWithSwitch
                   headding={"CPU"}
                   min={0}
                   setValueToParentElement={(value) => {
@@ -116,7 +106,7 @@ const CreateProjectDialog = ({
                   max={convertedCPU}
                   unit={"Hz"}
                />
-               <Slider
+               <InputSliderWithSwitch
                   headding={"Disk"}
                   min={0}
                   setValueToParentElement={(value) => {
@@ -125,7 +115,7 @@ const CreateProjectDialog = ({
                   max={convertedDisk}
                   unit={"GB"}
                />
-               <Slider
+               <InputSliderWithSwitch
                   headding={"Upload"}
                   min={0}
                   setValueToParentElement={(value) => {
@@ -134,7 +124,7 @@ const CreateProjectDialog = ({
                   max={convertedUpload}
                   unit={"Mbit/s"}
                />
-               <Slider
+               <InputSliderWithSwitch
                   headding={"Download"}
                   min={0}
                   setValueToParentElement={(value) => {
@@ -167,9 +157,6 @@ const mapDispatchToProps = (dispatch) => {
    return {
       projectPost: (project, projectPostFailNotification) => {
          dispatch(projectPost(project, projectPostFailNotification));
-      },
-      startSpinnerProjectPost: (project) => {
-         dispatch(startSpinnerProjectPost(project));
       },
    };
 };

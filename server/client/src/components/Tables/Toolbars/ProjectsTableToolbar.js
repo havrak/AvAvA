@@ -19,22 +19,13 @@ function ProjectsTableToolbar(props) {
       views,
       setView,
       projectIdDelete,
-      startSpinnerProjectDelete,
    } = props;
 
    const [dialogOpen, setDialogOpen] = React.useState(false);
-   
    const deleteProjectsHandler = () => {
       for (const project of selectedData) {
-         startSpinnerProjectDelete(project);
-         projectIdDelete(project.id, projectDeleteFailNotification(project.name));
+         projectIdDelete(project.id, notify);
       }
-   };
-
-   const projectDeleteFailNotification = (name) => {
-      return () => {
-         notify(`project "${name}" could not be deleted`, "danger", 4);
-      };
    };
 
    const backIcons = [
@@ -68,9 +59,6 @@ function ProjectsTableToolbar(props) {
 
 const mapDispatchToProps = (dispatch) => {
    return {
-      startSpinnerProjectDelete: (project) => {
-         dispatch(startSpinnerProjectDelete(project));
-      },
       projectIdDelete: (id, projectDeleteFailNotification) => {
          dispatch(projectIdDelete(id, projectDeleteFailNotification));
       },

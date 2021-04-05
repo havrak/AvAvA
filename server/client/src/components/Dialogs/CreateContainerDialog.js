@@ -1,19 +1,15 @@
 import React, { useState } from "react";
 //source: https://github.com/tannerlinsley/react-table/tree/master/examples/material-UI-kitchen-sink
-import AddIcon from "@material-ui/icons/Add";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import IconButton from "@material-ui/core/IconButton";
 import TextField from "@material-ui/core/TextField";
-import Tooltip from "@material-ui/core/Tooltip";
 import { connect } from "react-redux";
-import {AddClickableIcon} from 'components/Icons/ClickableIcons'
-
-import Slider from "components/Limits/Slider.js";
-import { startSpinnerProjectPost, projectPost } from "actions/ProjectActions.js";
+import Checkbox from "@material-ui/core/Checkbox";
+import { InputSlider } from "components/Limits/Slider.js";
+import { projectPost } from "actions/ProjectActions.js";
 import {
    ramToMB,
    diskToGB,
@@ -21,14 +17,7 @@ import {
    networkSpeedToMbits,
 } from "service/UnitsConvertor.js";
 
-const CreateProjectDialog = ({
-   projectPost,
-   startSpinnerProjectPost,
-   userProjects,
-   notify,
-   open,
-   setOpen
-}) => {
+const CreateContainerDialog = ({ projectPost, userProjects, notify, open, setOpen }) => {
    const { projects, state } = userProjects;
    const [errorMessage, setErrorMessage] = React.useState(null);
    const project = {
@@ -53,13 +42,8 @@ const CreateProjectDialog = ({
       if (errorMessage !== null) {
          return;
       }
-      startSpinnerProjectPost(project);
-      projectPost(project, projectPostFailNotification);
+      projectPost(project, notify);
       setOpen(false);
-   };
-
-   const projectPostFailNotification = (name) => {
-      notify(`project "${name}" could not be created`, "danger", 4);
    };
 
    const handleNameType = (event) => {
@@ -84,21 +68,32 @@ const CreateProjectDialog = ({
    return (
       <div>
          <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-            <DialogTitle id="form-dialog-title">Create new project</DialogTitle>
+            <DialogTitle id="form-dialog-title">Create new container</DialogTitle>
             <DialogContent>
                <TextField
                   autoFocus
                   error={errorMessage !== null}
                   margin="dense"
-                  label="Project Name"
+                  label="Container Name"
                   type="text"
                   fullWidth
                   onChange={handleNameType}
-                  style={{ marginBottom: "20px" }}
+                  style={{ marginBottom: "10px" }}
                   helperText={errorMessage}
                />
-               <h3 className={"limits-headding"}>Limits</h3>
-               <Slider
+               <div style={{width: "100%", marginLeft: "-12px"}}>
+                  <Checkbox size="small" color="primary" onChange={() => {}} />
+                  <span>Autostart</span>
+               </div>
+               <div style={{width: "100%", marginLeft: "-12px"}}>
+                  <Checkbox size="small" color="primary" onChange={() => {}} />
+                  <span>Stateful</span>
+               </div>
+               <div style={{width: "100%", marginLeft: "-12px", marginBottom: "5px"}}>
+                  <Checkbox size="small" color="primary" onChange={() => {}} />
+                  <span>Connect to the internet</span>
+               </div>
+               <InputSlider
                   headding={"RAM"}
                   setValueToParentElement={(value) => {
                      project.limits.RAM = value;
@@ -107,7 +102,7 @@ const CreateProjectDialog = ({
                   max={convertedRAM}
                   unit={"MB"}
                />
-               <Slider
+               <InputSlider
                   headding={"CPU"}
                   min={0}
                   setValueToParentElement={(value) => {
@@ -116,7 +111,7 @@ const CreateProjectDialog = ({
                   max={convertedCPU}
                   unit={"Hz"}
                />
-               <Slider
+               <InputSlider
                   headding={"Disk"}
                   min={0}
                   setValueToParentElement={(value) => {
@@ -125,7 +120,7 @@ const CreateProjectDialog = ({
                   max={convertedDisk}
                   unit={"GB"}
                />
-               <Slider
+               <InputSlider
                   headding={"Upload"}
                   min={0}
                   setValueToParentElement={(value) => {
@@ -134,7 +129,7 @@ const CreateProjectDialog = ({
                   max={convertedUpload}
                   unit={"Mbit/s"}
                />
-               <Slider
+               <InputSlider
                   headding={"Download"}
                   min={0}
                   setValueToParentElement={(value) => {
@@ -159,6 +154,7 @@ const CreateProjectDialog = ({
 
 const mapStateToProps = (state) => {
    return {
+      createInstanceConfigData: state.combinedUserData.createInstanceConfigData,
       userProjects: state.combinedUserData.userProjects,
    };
 };
@@ -168,10 +164,7 @@ const mapDispatchToProps = (dispatch) => {
       projectPost: (project, projectPostFailNotification) => {
          dispatch(projectPost(project, projectPostFailNotification));
       },
-      startSpinnerProjectPost: (project) => {
-         dispatch(startSpinnerProjectPost(project));
-      },
    };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateProjectDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(CreateContainerDialog);

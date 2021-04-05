@@ -13,7 +13,7 @@
 
 import ApiClient from '../ApiClient';
 import LimitsInternet from './LimitsInternet';
-import NetworkStateAdresses from './NetworkStateAdresses';
+import NetworkStateAddresses from './NetworkStateAddresses';
 import NetworkStateCounters from './NetworkStateCounters';
 
 /**
@@ -52,8 +52,8 @@ export default class NetworkState {
             if (data.hasOwnProperty('limits')) {
                 obj['limits'] = LimitsInternet.constructFromObject(data['limits']);
             }
-            if (data.hasOwnProperty('adresses')) {
-                obj['adresses'] = ApiClient.convertToType(data['adresses'], [NetworkStateAdresses]);
+            if (data.hasOwnProperty('addresses')) {
+                obj['addresses'] = ApiClient.convertToType(data['addresses'], [NetworkStateAddresses]);
             }
             if (data.hasOwnProperty('counters')) {
                 obj['counters'] = NetworkStateCounters.constructFromObject(data['counters']);
@@ -87,9 +87,9 @@ export default class NetworkState {
     */
     'limits' = undefined;
     /**
-    * @member {Array.<module:model/NetworkStateAdresses>} adresses
+    * @member {Array.<module:model/NetworkStateAddresses>} addresses
     */
-    'adresses' = undefined;
+    'addresses' = undefined;
     /**
     * @member {module:model/NetworkStateCounters} counters
     */

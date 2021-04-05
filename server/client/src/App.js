@@ -27,13 +27,26 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import UserLayout from "./layouts/User.js";
 import UserSetup from "./components/UserSetup.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
+import NotificationAlert from "react-notification-alert";
 
 function App(props) {
+
+   const notificationAlertRef = React.useRef();
+   const notify = (message, type = "danger", autoDismiss = 4) => {
+      const options = {
+         place: "tr",
+         message,
+         type,
+         autoDismiss,
+      };
+      notificationAlertRef.current.notificationAlert(options);
+   };
    return (
       <>
+         <NotificationAlert ref={notificationAlertRef} />
          <BrowserRouter>
             <Switch>
-               <Route path="/user" component={UserLayout} />
+               <Route path="/user" component={() => <UserLayout notify={notify}/>} />
                {/* <Redirect from="/" to="/user/dashboard" /> */}
                <Route path="/userSetup" exact={true}>
                   <UserSetup />

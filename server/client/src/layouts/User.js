@@ -25,7 +25,7 @@ import ProtectedRoute from "components/ProtectedRoute.js";
 
 import routes from "routes.js";
 
-function User() {
+function User({notify}) {
    const [color, setColor] = React.useState("black");
    const location = useLocation();
    const mainPanel = React.useRef(null);
@@ -35,14 +35,14 @@ function User() {
             return prop.unprotected ? (
                <Route
                   path={prop.layout + prop.path}
-                  render={(props) => <prop.view {...props} />}
+                  render={(props) => <prop.view {...props} notify={notify}/>}
                   key={key}
                   exact={prop.exact === undefined}
                />
             ) : (
                <ProtectedRoute
                   path={prop.layout + prop.path}
-                  component={prop.view}
+                  component={(props) => <prop.view {...props} notify={notify}/>}
                   key={key}
                   exact={prop.exact === undefined}
                />

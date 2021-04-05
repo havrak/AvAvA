@@ -7,7 +7,7 @@ export const startSpinnerContainerPost = (projectId, container) => {
       type: "START_SPINNER_CONTAINER_POST",
       payload: {
          projectId: projectId,
-         container: container
+         container: container,
       },
    };
 };
@@ -17,7 +17,7 @@ export const containerPostFail = (project, container) => {
       type: "CONTAINER_POST_FAIL",
       payload: {
          project: project,
-         container: container
+         container: container,
       },
    };
 };
@@ -27,18 +27,18 @@ export const containerPostSuccess = (project, container) => {
       type: "CONTAINER_POST_SUCCESS",
       payload: {
          project: project,
-         container: container
+         container: container,
       },
    };
 };
 
-export const containerPost = (body, displayFail) => {
+export const containerPost = (body, notify) => {
    return (dispatch) => {
       const callback = function (error, data, response) {
          if (error) {
             console.error(error + "containerPostError");
             dispatch(containerPostFail(body.name));
-            displayFail(body.name);
+            notify(`Error occured: ${error.ErrorResponse ? error.ErrorResponse : ""}`);
          } else {
             // data.name = "asdf";
             // data.id = "123"; //TESTING PURPOSES
@@ -56,24 +56,14 @@ export const startSpinnerContainer = (projectId, containerId, message) => {
       payload: {
          projectId: projectId,
          containerId: containerId,
-         message: message
+         message: message,
       }, //MAYBE CHANGE
-   };
-};
-
-export const containerDeleteFail = (projectId, containerId) => {
-   return {
-      type: "CONTAINER_ACTION_FAIL",
-      payload: {
-         projectId: projectId,
-         containerId: containerId,
-      },
    };
 };
 
 export const containerDeleteSuccess = (projectId, containerId) => {
    return {
-      type: "CONTAINER_ACTION_SUCCESS",
+      type: "CONTAINER_DELETE_SUCCESS",
       payload: {
          projectId: projectId,
          containerId: containerId,
@@ -81,62 +71,119 @@ export const containerDeleteSuccess = (projectId, containerId) => {
    };
 };
 
-export const containerIdStart = (projectId, containerId, containerDeleteFailNotification) => {
-   return (dispatch) => {
-      const callback = function (error, data, response) {
-         // console.log(response, 'container id delete');
-         if (error) {
-            dispatch(containerDeleteFail(id));
-            containerDeleteFailNotification();
-         } else {
-            dispatch(containerDeleteSuccess(id));
-         }
-      };
-      api.instancesIdStart(containerId, callback);
+export const containerStateChangeFail = (projectId, containerId) => {
+   return {
+      type: "CONTAINER_STATE_CHANGE_FAIL",
+      payload: {
+         projectId: projectId,
+         containerId: containerId,
+      },
    };
 };
 
-export const containerIdStop = (projectId, containerId, containerDeleteFailNotification) => {
-   return (dispatch) => {
-      const callback = function (error, data, response) {
-         // console.log(response, 'container id delete');
-         if (error) {
-            dispatch(containerDeleteFail(id));
-            containerDeleteFailNotification();
-         } else {
-            dispatch(containerDeleteSuccess(id));
-         }
-      };
-      api.instancesIdStop(containerId, callback);
+export const containerStateChangeSuccess = (projectId, container) => {
+   return {
+      type: "CONTAINER_STATE_CHANGE_SUCCESS",
+      payload: {
+         projectId: projectId,
+         container: container,
+      },
    };
 };
 
-export const containerIdFreeze = (projectId, containerId, containerDeleteFailNotification) => {
+export const containerIdStart = (
+   projectId,
+   containerId,
+   notify,
+) => {
    return (dispatch) => {
+      dispatch(startSpinnerContainer(projectId, containerId, "starting"));
       const callback = function (error, data, response) {
          // console.log(response, 'container id delete');
          if (error) {
-            dispatch(containerDeleteFail(id));
-            containerDeleteFailNotification();
+            dispatch(containerStateChangeFail(projectId, containerId));
+            notify(`Error occured: ${error ? error : ""}`);
          } else {
-            dispatch(containerDeleteSuccess(id));
+            dispatch(containerStateChangeSuccess(projectId, data));
          }
       };
-      api.instancesIdFreeze(containerId, callback);
+      api.instancesIdStartPatch(containerId, callback);
    };
 };
 
-export const containerIdDelete = (projectId, containerId, containerDeleteFailNotification) => {
+export const containerIdStop = (
+   projectId,
+   containerId,
+   notify
+) => {
    return (dispatch) => {
+      dispatch(startSpinnerContainer(projectId, containerId, "stopping"));
+      const callback = function (error, data, response) {
+         if (error) {
+            dispatch(containerStateChangeFail(projectId, containerId));
+            notify(`Error occured: ${error ? error : ""}`);
+         } else {
+            dispatch(containerStateChangeSuccess(projectId, data));
+         }
+      };
+      api.instancesIdStopPatch(containerId, callback);
+   };
+};
+
+export const containerIdFreeze = (
+   projectId,
+   containerId,
+   notify
+) => {
+   return (dispatch) => {
+      dispatch(startSpinnerContainer(projectId, containerId, "freezing"));
+      const callback = function (error, data, response) {
+         if (error) {
+            dispatch(containerStateChangeFail(projectId, containerId));
+            notify(`Error occured: ${error ? error : ""}`);
+         } else {
+            dispatch(containerStateChangeSuccess(projectId, data));
+         }
+      };
+      api.instancesIdFreezePatch(containerId, callback);
+   };
+};
+
+export const containerIdUnfreeze = (
+   projectId,
+   containerId,
+   notify
+) => {
+   return (dispatch) => {
+      dispatch(startSpinnerContainer(projectId, containerId, "unfreezing"));
+      const callback = function (error, data, response) {
+         if (error) {
+            dispatch(containerStateChangeFail(projectId, containerId));
+            notify(`Error occured: ${error ? error : ""}`);
+         } else {
+            dispatch(containerStateChangeSuccess(projectId, data));
+         }
+      };
+      api.instancesIdUnfreezePatch(containerId, callback);
+   };
+};
+
+export const containerIdDelete = (
+   projectId,
+   containerId,
+   notify
+) => {
+   return (dispatch) => {
+      dispatch(startSpinnerContainer(projectId, containerId, "deleting"));
       const callback = function (error, data, response) {
          // console.log(response, 'container id delete');
          if (error) {
-            dispatch(containerDeleteFail(id));
-            containerDeleteFailNotification();
+            dispatch(containerStateChangeFail(projectId, containerId));
+            notify(`Error occured: ${error ? error : ""}`);
          } else {
-            dispatch(containerDeleteSuccess(id));
+            dispatch(containerDeleteSuccess(projectId, containerId));
          }
       };
-      api.instancesIdDelete(id, callback);
+      api.instancesIdDelete(containerId, callback);
    };
 };
