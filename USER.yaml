@@ -15,7 +15,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserData"
-  #  /stateDetailed: #nebo /instances#get ??
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /instances:
     post:
@@ -64,7 +69,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/Container"
         "500":
-          description: Internal server error - e.g. not enough resources
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/{id}:
     get:
       parameters:
@@ -81,6 +90,63 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Container"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      description: Change instances settings
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the container to be querried
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                autostart:
+                  type: boolean
+                stateful:
+                  type: boolean
+                applicationsToInstall: #TODO
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/ApplicationToInstall"
+                connectToInternet:
+                  type: boolean
+                limits:
+                  description: limits have to be specified when creating container for all resources
+                  $ref: "#/components/schemas/Limits"
+              required:
+                - name
+                - autostart
+                - stateful
+                - applicationsToInstall
+                - connectToInternet
+                - cusotmLimits
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Container"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     delete:
       parameters:
         - in: path
@@ -92,6 +158,12 @@ paths:
       responses:
         "200":
           description: deleted the container
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/{id}/stateWithHistory:
     get:
       parameters:
@@ -108,6 +180,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ContainerStateWithHistory"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/{id}/console: #TODO
     get:
       parameters:
@@ -125,6 +203,12 @@ paths:
               schema:
                 type: integer
                 description: TODO
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   #/instances/{id}/files: TODO
   #  get:
   #    parameters:
@@ -156,6 +240,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Snapshot"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     post:
       parameters:
         - in: path
@@ -183,6 +273,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Snapshot"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/{containerId}/snapshots/{snapshotId}:
     delete:
       parameters:
@@ -201,6 +297,12 @@ paths:
       responses:
         "200":
           description: OK
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/{id}/restore/{snapshotId}:
     patch:
       parameters:
@@ -223,6 +325,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OperationState"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/{id}/export:
     get:
       parameters:
@@ -240,6 +348,12 @@ paths:
               schema:
                 type: string
                 description: Stream souboru
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/import:
     put:
       parameters:
@@ -258,6 +372,12 @@ paths:
               schema:
                 type: integer
                 description: ID to the process
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/{id}/start:
     patch:
       parameters:
@@ -273,7 +393,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OperationState"
+                $ref: "#/components/schemas/Container"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/{id}/stop:
     patch:
       parameters:
@@ -289,7 +415,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OperationState"
+                $ref: "#/components/schemas/Container"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/{id}/freeze:
     patch:
       parameters:
@@ -305,7 +437,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OperationState"
+                $ref: "#/components/schemas/Container"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /instances/{id}/unfreeze:
     patch:
       parameters:
@@ -321,7 +459,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OperationState"
+                $ref: "#/components/schemas/Project"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /instaces/createConfigData:
+    get:
+      responses:
+        "200":
+          description: Returns all data that are necesarry to create an instance in this project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateConfigData"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /projects:
     get:
       responses:
@@ -331,6 +490,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserProjects"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     post:
       description: Create a new project
       requestBody:
@@ -343,7 +508,7 @@ paths:
                 name:
                   type: string
                 limits:
-                  description: limits don't have to be specified when creating project, so it can be undefined. Undefined can also be some properties of limits when they are not set
+                  description: limits don't have to be specified when creating project, so it can be null. Null can also be some properties of limits when they are not set
                   $ref: "#/components/schemas/Limits"
               required:
                 - name
@@ -354,18 +519,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
-  /projects/createConfigData:
-    get:
-      responses:
-        "200":
-          description: Returns all data that are necesarry to create a project
+        "500":
+          description: Error 
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  maxLimits:
-                    $ref: "#/components/schemas/Limits"
+                $ref: "#/components/schemas/ErrorResponse"
+  #/projects/createConfigData:
+  #  get:
+  #    responses:
+  #      "200":
+  #        description: Returns all data that are necesarry to create a project
+  #        content:
+  #          application/json:
+  #            schema:
+  #              type: object
+  #              properties:
+  #                maxLimits:
+  #                  $ref: "#/components/schemas/Limits"
   /projects/stateWithHistory:
     get:
       responses:
@@ -375,33 +546,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserStateWithHistory"
-  /projects/{projectId}/createInstanceConfigData:
-    get:
-      parameters:
-        - in: path
-          required: true
-          name: projectId
-          schema:
-            type: integer
-          description: ID of the project to be querried
-      responses:
-        "200":
-          description: Returns all data that are necesarry to create an instance in this project
+        "500":
+          description: Error 
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  templateTypes:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Template"
-                  applicationsToInstall:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/ApplicationToInstall"
-                  maxLimits:
-                    $ref: "#/components/schemas/Limits"
+                $ref: "#/components/schemas/ErrorResponse"
   /projects/{id}:
     get:
       parameters:
@@ -418,6 +568,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      description: Create a new project
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: integer
+          description: ID of the project to be querried
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                limits:
+                  description: limits don't have to be specified when creating project, so it can be null. Null can also be some properties of limits when they are not set
+                  $ref: "#/components/schemas/Limits"
+              required:
+                - name
+      responses:
+        "200":
+          description: Successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     delete:
       parameters:
         - in: path
@@ -429,6 +621,12 @@ paths:
       responses:
         "200":
           description: deleted the container
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /projects/{id}/stateWithHistory:
     get:
       parameters:
@@ -445,6 +643,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProjectStateWithHistory"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /user:
     get:
       responses:
@@ -454,8 +658,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        "500":
+          description: Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
+    ErrorResponse:
+      type: string
+      description: Message that explains what went wrong
     Image:
       type: object
       properties:
@@ -685,6 +898,7 @@ components:
           type: number
         name:
           type: string
+          description: max 30 characters long
         url:
           type: string
         template:
@@ -812,6 +1026,10 @@ components:
         icon:
           type: string
           description: href to icon of the application - optional
+      example: 
+        id: 1
+        name: Tomcat
+        description: Java WebServer
     ProjectStateWithHistory:
       type: object
       description: Object that knows state and history of project and all containers in it
@@ -832,7 +1050,7 @@ components:
           description: id of the project generated by the database
         name:
           type: string
-          description: Name of the project
+          description: Name of the project - max 30 characters long
         owner:
           $ref: "#/components/schemas/User"
         limits:
@@ -1444,6 +1662,47 @@ components:
         role: 0
         icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
         coins: 154
+    CreateConfigData:
+      type: object
+      properties:
+        templates:
+          type: array
+          items:
+            $ref: "#/components/schemas/Template"
+        applicationsToInstall:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationToInstall"
+      example: 
+        templates:
+        - id: 44
+          name: Ubuntu
+          createdOn: 2015-06-07T19:07:24.379615253-06:00
+          image:
+            os: Ubuntu
+            version: 18.44
+            description: Ubuntu OS description
+          description: default profile for users with Ubuntu image
+          minDiskUsage: 180_000_000
+        - id: 45
+          name: Debian
+          createdOn: 2015-06-07T19:07:24.379615253-06:00
+          image:
+            os: Debian
+            version: 11.2
+            description: Debian OS description
+          description: default profile for users with Debian image
+          minDiskUsage: 190_000_000
+        applicationsToInstall:
+        - id: 1
+          name: Tomcat
+          description: Java WebServer
+        - id: 2
+          name: Vim
+          description: Text editor
+        - id: 3
+          name: Apache Webserver
+          description: Apache Webserver
     UserData:
       type: object
       description: Object containing everything that is necessary for the user frontend to work
@@ -1452,6 +1711,8 @@ components:
           $ref: "#/components/schemas/User"
         userProjects:
           $ref: "#/components/schemas/UserProjects"
+        createConfigData: 
+          $ref: "#/components/schemas/CreateConfigData"
       example:
         user:
           id: 1
