@@ -1,0 +1,486 @@
+\documentclass[a4paper,oneside,12pt]{report}
+\setlength\textwidth{155mm}
+\setlength\textheight{247mm}
+\setlength\topmargin{-10mm}
+\setlength\headheight{0mm}
+\setlength\oddsidemargin{05mm}
+\setlength\evensidemargin{05mm}
+\let\openright=\clearpage
+
+
+%% Vytváříme PDF/A-2u
+\usepackage[a-2u]{pdfx}
+
+%% Přepneme na českou sazbu a fonty Latin Modern
+\usepackage[czech]{babel}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+
+%% Použité kódování znaků: obvykle latin2, cp1250 nebo utf8:
+\usepackage[utf8]{inputenc}
+
+%%% Další užitečné balíčky (jsou součástí běžnýsrov.stribucí LaTeXu)
+\usepackage{amsmath}        % rozšíření pro sazbu matematiky
+\usepackage{amsfonts}       % matematické fonty
+\usepackage{amsthm}         % sazba vět, definic apod.
+\usepackage{bbding}         % balíček s nejrůznějšími symboly
+			   										% (čtverečky, hvězdičky, tužtičky, nůžtičky, ...)
+\usepackage{bm}             % tučné symboly (příkaz \bm)
+\usepackage{graphicx}       % vkládání obrázků
+\usepackage{fancyhdr}				% možnost slylizovat záhlaví
+\usepackage{fancyvrb}       % vylepšené prostředí pro strojové písmo
+\usepackage{indentfirst}    % zavede odsazení 1. odstavce kapitoly
+\usepackage[nottoc]{tocbibind} % zajistí přidání seznamu literatury,
+\usepackage{icomma}         % inteligetní čárka v matematickém módu
+\usepackage{dcolumn}        % lepší zarovnání sloupců v tabulkách
+\usepackage{booktabs}       % lepší vodorovné linky v tabulkách
+\usepackage{paralist}       % lepší enumerate a itemize
+\usepackage{caption}				%	popisky
+\usepackage{dirtree}				% strom souborů
+\usepackage{listings}				% vkládání kódu
+\usepackage[bottom]{footmisc}  % poznámky pod čarou vespod
+\usepackage{bibentry}
+\usepackage{xurl}						% umožní url zalomit všude
+\nobibliography*
+
+\usepackage{color}
+\usepackage{forest}					% na rodokmeny
+\usepackage{natbib}
+%\setbibentrystyle{author}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+\renewcommand{\baselinestretch}{1.5}
+%%% Údaje o práci
+
+\def\NazevSkoly{Gymnázium, Praha 6, Arabská 14}
+% Název oboru včetně počátečního 'Obor'.
+\def\NazevOboru{Programování}
+
+% Název práce v jazyce práce (přesně podle zadání)
+\def\NazevPrace{Kontejnerizační systém pro školní server}
+
+% Název práce v angličtině
+\def\NazevPraceEN{Containerization system for school server}
+
+% Název práce v němčině
+\def\NazevPraceDE{Containerisierungssystem für Schulserver }
+
+% Jméno autra
+\def\AutorPrace{Havránek Kryštof, Vávra Vladimír, Litoš Josef 3.E }
+
+% Rok odevzdání
+\def\RokOdevzdani{2021}
+% Měsíc odevzdání
+\def\MesicOdevzdani{Duben}
+
+% Vedoucí práce: Jméno a příjmení s~tituly
+\def\Vedouci{Ing. Daniel Kahoun}
+
+% Nepovinné poděkování (vedoucímu práce, konzultantovi, tomu, kdo
+% zapůjčil software, literaturu apod.)
+\def\Podekovani{%
+\textbf{Poděkování}
+}
+
+% Abstrakt (doporučený rozsah cca 80-200 slov; nejedná se o zadání práce)
+\def\Abstrakt{%
+Cílem práce je vytvořit kontejnerizační systém pro operační systém GNU/Linux.
+Ten by měl v jednoduchém a přehledném uživatelském prostředí umožnit žákům vytvořit si vlastný linuxový server.
+Na které si poté mohou hostovat svoje aplikace, webové stránky, či videohry.
+Systém by se měl postarat o to, aby zdroje serveru byly spravedlivě rozdělené mezi jednotlivé uživatele.
+}
+
+\def\AbstraktEN{%
+Goal of the work is to create containerization system for GNU/Linux operating system.
+With its help students should be able to create their own private server in a easy to use webUI.
+On such server they will be able to host their applications, websites or video games.
+System should aslo garantee fair redistribution of server resources.
+}
+\def\AbstraktDE{%
+Ich spreche Deutsch nicht sehr gut.
+}
+% 3 až 5 klíčových slov (doporučeno), každé uzavřeno ve složených závorkách
+\def\KlicovaSlova{%
+	{linux}, {lxd}, {lxc}, {kontejnery}, {nodejs}, {REST API}, {react js}
+}
+\def\KlicovaSlovaEN{%
+	{linux}, {lxd}, {lxc}, {containers}, {nodejs}, {REST API}, {react js}
+}
+
+\def\KlicovaSlovaDE{%
+	{linux}, {lxd}, {lxc}, {Schulprojekt}, {nodejs}, {REST API}, {react js}
+}
+
+%% Balíček hyperref, kterým jdou vyrábět klikací odkazy v PDF,
+%% ale hlavně ho používáme k uložení metadat do PDF (včetně obsahu).
+%% Většinu nastavítek přednastaví balíček pdfx.
+\hypersetup{unicode}
+\hypersetup{breaklinks=true}
+
+%% Definice různých užitečných maker (viz popis uvnitř souboru)
+\include{makra}
+
+%% Titulní strana a různé povinné informační strany
+\fancypagestyle{plain}{
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead[C]{}
+\fancyhead[L]{Ročníková práce -- \NazevSkoly}
+\fancyhead[R]{AvAvA}
+\fancyfoot[L]{Vypracovali: \AutorPrace	(\NazevOboru)}
+\fancyfoot[C]{}
+\fancyfoot[R]{\thepage}
+}
+
+
+
+\begin{document}
+
+\include{titulka}
+
+\tableofcontents
+
+
+\newpage
+
+\include{uvod}
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\chapter{Základní informace}
+
+Tato kapitola spěšně projde hardware, na kterém je program vybudován, knihovny, které byly použity.
+Dále projde technologie, či protokoly, a na závěr čtenáře seznámí se strukturou souborů.
+
+\section{Hardware}
+
+Projekt je postaven na modulární platformě M5Stack, který je postaven na základě platformy ESP32 (velice podobné Arduinu, ale má zabudovaný wifi modul).
+Tyto jednotky obsahuje projekt 5 -- voda, GPS, vytápění podlahy/stav baterie, kola a na záver samotná centrála.
+Další hardwarové prvky jsou rozepsány níže ve seznamu, a jsou přiřazeny k jednotlivým jednotkám.
+Nákresy s obvody nejsou součástí práce, neb připojení je zřetelné z kódu (jsou zapsané GPIO piny).
+\begin{itemize}
+	\item Centrální jednotka
+		\begin{itemize}
+			\item NEXTION display intelligent series model NX8048P070-011C, kód kompatibilní i s Enchanted sérií (stačí vypnout videa pro počasí)
+			\item LAN M5Stack modul
+			\item Switch od firmy Mikrotik
+	\end{itemize}
+	\item Jednotka pro vodu
+		\begin{itemize}
+			\item 2 * tepelný senzor DS18B20 -- jeden umístění zvenčí, druhý ponořený do vody. (Jsou zapojeny na busu paralelně)
+			\item průtokoměr -- umístění u odtoku z nádrže s vodou
+			\item 2 * relé -- jedno ovládá tepelný okruh v nádrži, druhé ventil pro napouštění nádrže
+			\item analogový podvodní senzor tlaku -- umístěn v přípojce na vodu, zjišťuje zda je umístěna přípojka
+			\item 2 * vodotěsný spínač -- umístěn dole a nahoře v nádrži, určuje zda voda klesla pod kritickou úroveň a zda je nádrž plná
+		\end{itemize}
+	\item Jednotka pro GPS -- M5Stack GPS module
+	\item Jednotka pro vytápění podlahy, stav baterie (Není realizována)
+		\begin{itemize}
+			\item 8 * tepelný senzor DS18B20 -- v každém okruhu dva senzory
+			\item 4 solid state relé -- ovládání okruhů
+			\item eventuálně Bezdrátový stejnosměrný wattmetr VAC1030A, není ani zmíněn v kódu
+			\item hall sensory
+		\end{itemize}
+\end{itemize}
+
+\section{Použité knihovny}
+
+\begin{itemize}
+	\item M5Stack -- ovládání displaye na M5Stack -- Dostupné z URL: \url{https://github.com/m5stack/M5Stack}
+	\item WiFi -- WiFi, nutné pro protokol ESP-NOW -- Dostupné z URL: \url{https://dl.espressif.com/dl/package_esp32_index.json}
+	\item esp\_now -- ESP-NOW -- Dostupné z URL: \url{https://dl.espressif.com/dl/package_esp32_index.json}
+	\item EEPROM -- zprovoznění EEPROM -- Dostupné z URL: \url{https://dl.espressif.com/dl/package_esp32_index.json}
+	\item TinyGPS++ -- zpracování dat z GPS -- Dostupné z URL: \url{http://arduiniana.org/libraries/tinygpsplus/}
+	\item Time -- trackování času -- součást standardní knihovny
+	\item Timezone -- práci s časovými pásmy, použita jen pro středoevropské -- Dostupné z URL: \url{https://github.com/JChristensen/Timezone}
+	\item NTPClient -- zajištění protokolu NTP -- Dostupné z URL: \url{https://github.com/taranais/NTPClient/})
+	\item Ethernet2 -- LAN modul k M5Stack -- Dostupné z URL: \url{https://github.com/m5stack/M5Stack/blob/master/examples/Modules/W5500/Ethernet2.zip}
+	\item Ethernet2Udp -- zajištění UDP protokolu -- součást Ethernet2
+	\item WebServer -- web server -- součást Ethernet2
+	\item Nextion -- práci s displayem Nextion -- Dostupné z URL: \url{https://github.com/itead/ITEADLIB_Arduino_Nextion}
+	\item espsoftwareserial -- potřebný k knihovně Nextion -- Dostupné z URL: \url{https://github.com/plerup/espsoftwareserial}
+	\item OneWire -- knihovna potřebná k DallasTemperature
+	\item DallasTemerature -- tepelné čidla -- Dostupné z URL: \url{https://github.com/milesburton/Arduino-Temperature-Control-Library}
+	\item PCA9554 a ClosedCube\_TCA9548A -- pro IO extender na jednotce vytápění
+	\item ArduinoJson -- parsování jsonu -- Dostupné z URL: \url{https://github.com/bblanchon/ArduinoJson}
+\end{itemize}
+
+\section{Použité programy}
+
+Celý kód byl napsán v textovém editoru Vim a v Arduino IDE.
+Gui interface na Nextion display byl vytvořen v Nextion editoru.
+
+Vývoj nejvíce komplikovalo právě Arduino IDE.
+Prostředí nemá automatické doplnění, ani žádné možnosti rychle přecházet mezi metodami.
+Samozřejmě nejsou k dispozici ani debugovací nástroje, takže přehledné výpisy na sériovou liknu jsou nutností.
+Tyto debug zprávy jsou v kódu ponechané a většina z nich má následující formát: ZKRATKA NÁZVU TŘÍDY | název metody | samotná správa.
+
+\section{Požité technologie}
+
+Bezdrátovou komunikaci mezi jednotlivými jednotkami zprostředkovává proprietární protokol ESP-NOW, který je vlastní čipu ESP32.
+K získání aktuálního počasí centrála používá standardní http protokol, jedná se však o pouhý jeden GET request.
+Komunikace se switchem je zprostředkována za pomocí telnetu.
+Čas je aktualizován prostřednictvím NTP, v případě potřeby je však možnost použít data z GPS.
+Ke zbylé komunikaci slouží sériová linka a GPIO piny.
+
+Většina práce je napsaná v programovacím jazyce C++, přesněji jeho verzi pro Ardunio.
+Některý kód je napsán v programovacím jazyce pro Nextion, ten je uložen v .HMI souboru.
+Jedná však o několik málo primitivních funkcí, jako třeba přičtení dne.
+
+
+\section{Struktura souborů práce}
+
+\dirtree{%
+.1 Karavan.
+.2 CentralUnit -- složka obsahující kód centrální jednotky.
+.3 CentralUnit.ino -- hlavní třída.
+.3 Connection.h -- zajišťuje ovládání switche MikroTik pomocí \linebreak[4]telentu.
+.3 PowerAndHeating.h -- reprezentuje jednotku zajišťující vytápění\linebreak[4] podlahy a kontrolu stavu baterie.
+.3 Security.h -- reprezentuje jednotku zajišťující GPS.
+.3 UnitAbstract.h -- abstraktní třída, slouží jako šablona pro\linebreak[4] všechny třídy, které reprezentují fyzickou jednotku.
+.3 Water.h -- reprezentuje jednotku u vody.
+.3 Weather -- spravuje informace o počasí.
+.3 Wheels -- reprezentuje možnou jednotku u kol, nebyla vůbec\linebreak[4] provedena instalace do čidel do kol karavanu.
+.2 ESPNowSlaveTemplate -- složka obsahující šablonu pro jednotku.
+.3 ESPNowSlaveTemplate.ino -- šablona s implementací ESP-NOW.
+.2 HeatingUnit -- složka obsahující kód jednotky pro vytápění.
+.3 HeatingUnit.ino  -- kód pro jednotku na vytápění.
+.2 WaterUnit -- složka obsahující kód jednotky pro vodu.
+.3 WaterUnit.ino -- kód pro jednotku pro vodu.
+.2 WheelsUnit -- složka obsahující kód jednotky pro kola.
+.3 WheelsUnit.ino -- kód pro jednotku pro kola.
+.2 NextionFiles -- soubory pro display Nextion.
+.3 Backgrounds -- složka s pozadími.
+.3 Fonts -- složka s fonty.
+.3 Icons -- složka s ikonkami pro Nextion.
+.4 UI -- ikonky pro UI, vlastní tvorba.
+.4 Weather icons -- ikonky pro počasí, jak obrázky, tak videa\footnotemark.
+.3 Caravan.HMI -- soubor s rozložením displaye.
+.3 Caraven.tft -- vyexportované rozložení displaye.
+}
+\footnotetext{Obrázky pochází z \url{https://dribbble.com/shots/1669480-Weather-Icons/attachments/263247}, ikona tornáda z \url{https://www.flaticon.com/free-icons/tornado}, obrázky, které na těchto stránkách, nenajdete vznikli editací. Zakoupeny z \url{https://videohive.net/item/animated-weather-icons/19199689}}
+
+\chapter{Vybrané části programu}
+
+Vzhledem k délce programu a jeho různorodosti, není možné s limitem délky této dokumentace projít všechny funkce programu.
+Proto se tato dokumentace zaměří jen na několik vybraných částí.
+
+\section{ESP-NOW}
+
+Jak už bylo zmíněno, bezdrátový přenos dat mezi jednotkami je zprostředkována pomocí protokolu ESP-NOW.
+Tento protokol je relativně jednoduché používat, stačí přidat jednotku mezi peery a poté lze jednoduše posílat na danou mac adresu.
+Data jsou posílána ve formě struktury, která je stejná jak na centrále, tak na jednotce.
+Po přijmutí dat se jednoduše pomocí memcpy překopírují do instance struktury.
+
+Samozřejmě je nutné při spuštění vytvořit síť s centrálou ve středu a k ní připojenými jednotlivými jednotkami.
+Centrála musí vědět od jaké jednotky data přichází a musí být schopna poslat data, či konfiguraci (Zatím není použito, bude nutné u podlahy.).
+
+Původně systém fungoval následovně.
+Všechny jednotky měli viditelné SSID centrála je postupně všechny kontaktovala.
+Jakmile nalezla jednotku bylo jí zasláno číslo 92 (Není v tom žádný význam) a jednotka odpověděla svým kódem -- 101 pro GPS, 102 pro vodu.
+Tento systém měl však několik nevýhod.
+Zaprvé nahrál li se nový kód do centrály, tak se museli zresetovat všechny jednotky, protože centrála se v nich se smaže až po 5 minutách nečinnosti.
+A zadruhé SSID jednotek byly pořád viditelné a systém neumožňoval je schovat.
+
+Proto byl nakonec tento systém obrácen.
+Místo toho aby centrála vyhledávala jednotky nyní jednotky vyhledávají centrálu.
+Té poté pošlou svůj kód a centrála opět odpoví číslem 92.
+Zároveň si jednotky uloží mac centrály do své EEPROM (stejně tak činní i centrála, kdy ukládá mac jednotek do své EEPROM).
+Při dalším spuštění nemusí tak mít centrála viditelné SSID a síť se stejně postaví.
+Viditelnost SSID se ovládá pomocí tlačítka na M5Stacku, s tím že na rozdíl od předchozí implementace pouze centrála má své SSID viditelné.
+
+Centrála pravidelně posílá všem jednotkám ping, aby si jednotky centrálu nevzali jako neaktivní a nesmazali jí.
+Stejně tak centrála si pamatuje poslední čas, kdy přišla zpráva od jednotky a v případě nečinnosti ji smaže.
+
+Jediný problém při vývoji, který stojí za zmínku, je chybová hláška, již vyvolávala knihovní funkce esp\_now\_add\_peer().
+Ta z neznámých důvodů vyhazovala hlášku invalid peer, ovšem někdy se stejným vstupním parametrem funkce proběhla v pořádku.
+Tento problém vyřešilo až přesunutí instance struktury toAdd na globální proměnou.
+Naštěstí tento problém byl vyřešen již na fóru\footnote{\bibentry{CoolForum}}.
+
+\section{Telnet}
+
+Jednou z funkcí projektu je možnost přepínat zdroj internetu -- mezi WiFi access pointem a LTE modemem.
+Tuto funkci zajišťuje switch, ke kterému je centrála připojená přes ethernetový kabel.
+
+Původně bylo v plánu napsat celou implementaci protokolu telnet.
+Bohužel logika z neznámých důvodů nefungovala.
+Pomocí programu wire shark byly proto odposlechnuty jaké příkazy si mezi sebou client a server posílají během párovaní.
+Ty poté byly napevno dané do programu.
+Program tak jen čeká na určitou posloupnost a jí odpoví určitou posloupností.
+
+Samotné posílání příkazů již nečiní žádné problémy a celý systém funguje.
+
+\section{Čas}
+
+Uživatel má celkem 3 možnosti jak nastavit čas.
+
+Standardně je čas řešen pomocí protokolu NTP pomocí knihovny NTPClient.
+Tento způsob samozřejmě vyžaduje internetové připojení, ale to je téměř vždy dostupné.
+Navíc po jednom dotazu si čas centrála udržuje.
+
+Případě nedostupnosti sítě lze použít GPS, samozřejmě pouze za předpokladu, že je připojená GPS jednotka.
+Čas z GPS není tak tak přesný jako u NTP, protože po přečtení se musí poslat přes EPS-NOW (Třeba na několikátý pokus.), na centrále se musí zpracovat callback (ESP32 má jen jedno vlákno, takže než se zpracuje uběhne nějaký čas.).
+Každopádně se jedná o možnou variantu.
+
+V poslední řadě lze čas nastavit manuálně.
+Uživatel na stránce s nastavením času zmáčkne tlačítko nastavit, dále nastaví čas a poté zmáčkne tlačítko znovu.
+V callbacku, který tato akce na centrále vyvolá se zkontroluje stav tlačítek NTP a GPS a jsou li obě vypnuté čas se nastaví ze zadaného.
+V jiném případě bude uživatelem zadaný čas ignorován.
+Na Nextionu jsou samozřejmě přidány různé omezení, aby uživatel nemohl zadat třeba 13. měsíc.
+Lze však i tak zadat neplatné datum a to tím, že člověk změní měsíc po nastavení dne.
+Bohužel programovací jazyk Nextionu je velmi primitivní a nepodporuje ani základní věci jako je tvorba proměnných (Všechny proměnné jsou součástí objektu na display).
+Už jen kód na přidání dne má 57 řádků a není možné třeba při změně měsíce udělat aby vyskočila uživateli chybová hláška.
+Nebo minimálně by nebyl takový kód zrovna elegantní.
+
+Střídání času je funguje pouze na středoevropské pásmo, jinak si uživatel musí měnit střídání času a časové zóny sám.
+Logika všech pravidel na úpravu času je relativně složitá a jsou na ní potřeba stovky souborů.
+Ty sice lze mít uložené na SD kartě (Kterou M5Stack podporuje.), ale nejedná se o příliš efektivní řešení, protože parsování souborů je relativně složitý proces na něčem nevýkoném jako je ESP32.
+Uživatel si proto na druhé stránce Nextionu může zvolit manuální nastavení posunu času, to je dě pomocí hodinových inkrementů.
+
+\section{Nextion display}
+
+Ovládacím prvkem celého systému je dispaly od Nextionu.
+Na něm jsou aktuálně tři stránky -- hlavní, nastavení času a nastevení vytápění.
+Stránka na vytápění však aktuálně neplní žádnou funkci.
+
+Posílání dat display je relativně jednoduché.
+Pro čtení dat a používání callbacků je nutná knihovna Nextion.
+Pomocí ní vytvoříme instance objektů, které odpovídají těm na obrazovce.
+U callbacků je ještě nutné přidat instanci do pole nex\_listen\_list a manuálně přiřadit jaká metoda bude zavolána.
+
+Nutno upozornit, že stejně všechny akce na centrále obstarává jen jedno vlákno.
+Takže ne vždy uživatelova akce na obrazovce vyvolá okamžitou reakci v programu.
+Někdy se může jedna až o sekundy, než bude callback zpracován.
+Z tohoto důvodu se malé akce jako přičtení čísla řeší přímo na Nextionu.
+
+Syntaxe jazyku na Nextionu je velmi podobná ostaním mainstreamovým jazykům.
+Ale, jak už bylo zmíněno, nedovoluje vytvářet vlastní proměnné.
+Z tohoto důvodu jsou například na stránce s nastavení času tři čísla, které mají barvu textu stejnou jako barvu pozadí.
+Jedná se o krkolomné řešení, ale jiné neexistuje.
+Také jazyk nepodporuje základní věci jako složené podmínky, či možnost provádět operace v podmínkách.
+
+Jediným problémem je, že přes sériovou linku nelze poslat charaktery s diakritikou.
+Z tohoto důvodu není v aktuální době sladěný jazyk, kde ovládací prvky na Nextionu jsou v češtině, zatímco data přicházející z centrály v angličtině.
+
+% \begin{figure}[h]
+% 	\centering
+% 		\includegraphics[height=7.5cm]{../img/mainScreen.png}
+% 		\caption[Hlavní obrzovka]{
+% 		Hlavní obrazovka
+% 	}
+% \end{figure}
+
+% \begin{figure}[h]
+% 	\centering
+% 		\includegraphics[height=7.5cm]{../img/timeSettingScreen.png}
+% 		\caption[Obrazovka s nastavením času]{
+% 		Obrazovka s nastavením času
+% 	}
+% \end{figure}
+\section{Paměť}
+
+Některé informace si sytém přenáší do svého dalšího spuštění.
+K tomu slouží integrovaná EEPROM v ESP-32.
+Jedná se o velmi primitivní typ paměti a konstrukce jako soubory nejsou možné.
+Všechna data se dokonce musí zapisovat ručně po bytech.
+To činní nutným mít paměť rozkouskovanou a vědět jaké bloky patří jaké proměnné.
+Zároveň má EEPROM relativně malý počet možných zapsání.
+Z tohoto důvodu se při zápisu čte paměť a data se porovnávají, aby nedocházelo k zbytečným zápisům.
+
+\section{Počasí}
+
+Počasí je získáno pomocí API z open weather map.
+Odpovědí na http request je json, který se zprasuje pomocí knihovny ArduinoJson.
+Zobrazení počasí může být uděláno jak formou videa, tak formou obrázku.
+Video je však možné jen pro Enchated Series display.
+Mezi styly je možné vybírat si pouze v kódu, a změna vyžaduje flashnutí centrály novým kódem.
+Jaké ikona se zobrazí se řídí ID daného počasí, kompletní seznam je dostupný na stránkách open weather map\footnote{\bibentry{CoolCodes}}.
+
+\chapter{Budoucí části programu}
+
+Bohužel nebylo možné kompletně práci dokončit.
+Nebyl realizován systém pro kola, z důvodu chybějící instalace, a nutnosti ji prakticky otestovat.
+Také nebyla realizována část podlahy a stavu baterie.
+Technicky jsou však tyto části již vymyšlené a na GitHubu, kde je práce publikována, budou časem dostupné.
+Tato kapitola projde alespoň jejich algoritmickou stránku, i když samotný kód ještě nebyl naspán.
+
+\section{Senzoru u pneumatik}
+
+Je plánované do kol karavanu vložit senzory tlaku a teploty.
+Podobný systém je jíž instalovaný v multivanu, které karavan tahá.
+Informace ze senzorů se budou stejně jako další zobrazovat na Nextionu, ale zároveň budou posílány i do jednotky v autě, aby byly dostupné pro řidiče i za jízdy.
+Bude se jednat o senzory vybavené technologií bluetooth, kterou M5Stick podporuje.
+
+Prakticky je implementace relativně jednoduchá, s tím, že valnou většinu práce řeší knihovna.
+Jedinou problémovou stránku je identifikace jednotlivých kol.
+Zatím je kód napsaný s napevno danými ID senzorů a kola musí být dána vždy ve stejném pořadí.
+Na vysvětlenou mám zjištěný ID předního levého kola a to kolo musí být vždy levé přední, nelze ho dát jinam a pokud by bylo potřeba kolo vyměnit za nové, tak by se musel předělávat kód.
+Toto je nadmíru nepraktické.
+Teoreticky by nová implementace měla pracovat se sílou signálu.
+M5Stick by se nenacházel ve středu auta, ale byl by výrazně blíž jedné pneumatice (Jeho pozice by byla napevno daná.).
+Identifikace čidel by poté probíhala pomocí síly signálu.
+Bohužel implementace vyžaduje zkušení a ruční dolaďování, neboť vzdálenost čidel se mění (Jsou v kolech, která se otáčí.), navíc některé části auta můžou bránit signálu.
+To je potřeba řešit přímo u karavanu, z tohoto důvodu nebyla udělána implementace.
+
+\section{Vytápění podlahy a stav baterie}
+
+Implementace podlahy a stavu baterie nebyla zprovozněna ze stejných důvodů jako pneumatiky -- psaní naslepo bez možnosti některé části testovat je velmi komplikované a prakticky zbytečné.
+
+\subsection{Elektřina}
+
+Implementace elektřiny je relativně jednoduchá.
+Původně měla probíhat komunikace s wattmetrem pomocí bezdrátové technologie, bohužel protokol není otevřený veřejnosti a data jsou zašifrovaná.
+Komunikace aktuálně funguje pomocí sériové linky přes USB.
+Bohužel se také nepodařilo sehnat chtěné hall senzory, z tohoto důvodu je dokončení této části pozastaveno na neurčito.
+Nutno podotknou, že jak wattmetrem, tak hall senzory se zabýval hlavně strýc.
+Sám jsem se v této části projektu příliš neangažoval.
+Z tohoto důvodu nejsou v kódu jednotky vytápění žádné reference na elektřinu a je zmíněna pouze na Nextionu a centrále (Nemá smysl schovávat ).
+
+\subsection{Vytápění podlahy}
+
+U vytápění podlahy se řeší podobný problém jako u kol -- je potřeba identifikovat tepelné senzory, které jsou při každém zapnutí indexované v jiném pořadí.
+Ze senzorů lze získat 8 bytové unikátní číslo, které bylo senzoru přiřazeno při výrobě.
+Identifikace bude probíhat podobně jako probíhá u vody, kde byl takový systém v mnohem menším měřítku již implementován a odzkoušen.
+Vytápěcích okruhů bude 4 až 5 a na každý připadnou právě dvě čidla DS.
+
+Při identifikaci, kterou člověk spustí z Nextionu, se postupně budou zapínat okruhy a bude se měřit $\Delta t$, vždy které senzory přesáhnou 3 (asi 3) stupně, tak se přidají k danému okruhu.
+Na rozdíl od vody, je však potřeba více testovaní, protože podlaha se bude zahřívat i tam, kde se zrovna netopí a mohly by tak vzniknout třeba 3 senzory pro jeden okruh atd.
+Také je nutné řešit, že některé čidla přestanou fungovat a jejich rychlá výměna je nemožná.
+Program vyžaduje nalezení celé řady konstant, navíc velmi záleží na rozmístění čidel, a proto jsem implementaci řešil pouze algoritmicky.
+
+Na vysvětlenou čidla teploty podlahy jsou nutné, aby se podlaha nezahřála nad limitní teplotu.
+Nehledě na to, že je praktické mít možnost nastavit si teplotu podlahy a ne pouze teplotu vzduchu.
+
+% \chapter{Obrázky systému}
+% \begin{figure}[h]
+% 	\centering
+% 		\includegraphics[height=8cm]{../img/dataatad.jpg}
+% 		\caption[Obrazovka při běhu programu]{
+% 		Obrazovka při běhu programu
+% 	}
+% \end{figure}
+
+% \begin{figure}[h]
+% 	\centering
+% 		\includegraphics[height=8cm]{../img/sys.jpg}
+% 		\caption[Obrazovka s 2 moduly M5Stack]{
+% 		Obrazovka s 2 moduly M5Stack
+% 	}
+% \end{figure}
+
+\chapter*{}
+\pagenumbering{roman}
+\setcounter{page}{6}
+\include{zaver}
+
+\include{literatura}
+
+\listoffigures
+\openright
+\end{document}
