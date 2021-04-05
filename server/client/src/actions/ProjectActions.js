@@ -31,8 +31,8 @@ export const projectPost = (body, displayFail) => {
             dispatch(projectPostFail(body.name));
             displayFail(body.name);
          } else {
-            // data.name = 'asdf';
-            // data.id ='123'; //TESTING PURPOSES
+            data.name = 'asdf';
+            data.id ='123'; //TESTING PURPOSES
             dispatch(projectPostSuccess(data));
          }
       };
@@ -65,7 +65,7 @@ export const projectDeleteSuccess = (id) => {
 export const projectIdDelete = (id, projectDeleteFailNotification) => {
    return (dispatch) => {
       const callback = function (error, data, response) {
-         console.log(data + 'project id delete');
+         // console.log(response, 'project id delete');
          if (error) {
             dispatch(projectDeleteFail(id));
             projectDeleteFailNotification();

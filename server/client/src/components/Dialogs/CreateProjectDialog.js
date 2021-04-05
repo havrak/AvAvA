@@ -10,6 +10,7 @@ import IconButton from "@material-ui/core/IconButton";
 import TextField from "@material-ui/core/TextField";
 import Tooltip from "@material-ui/core/Tooltip";
 import { connect } from "react-redux";
+import {AddClickableIcon} from 'components/Icons/ClickableIcons'
 
 import Slider from "components/Limits/Slider.js";
 import { startSpinnerProjectPost, projectPost } from "actions/ProjectActions.js";
@@ -25,9 +26,10 @@ const CreateProjectDialog = ({
    startSpinnerProjectPost,
    userProjects,
    notify,
+   open,
+   setOpen
 }) => {
    const { projects, state } = userProjects;
-   const [open, setOpen] = React.useState(false);
    const [errorMessage, setErrorMessage] = React.useState(null);
    const project = {
       name: "",
@@ -41,9 +43,6 @@ const CreateProjectDialog = ({
             download: null,
          },
       },
-   };
-   const handleClickOpen = () => {
-      setOpen(true);
    };
 
    const handleClose = () => {
@@ -84,11 +83,6 @@ const CreateProjectDialog = ({
 
    return (
       <div>
-         <Tooltip title="Add">
-            <IconButton aria-label="add" onClick={handleClickOpen}>
-               <AddIcon />
-            </IconButton>
-         </Tooltip>
          <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title">Create new project</DialogTitle>
             <DialogContent>

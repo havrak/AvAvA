@@ -9,15 +9,15 @@
    margin: 0px;
 }
 
-.running {
+.running, .starting {
    color: #66bb6a;
 }
 
-.stopped {
+.stopped, .stopping {
    color: #fb404b;
 }
 
-.frozen {
+.frozen, .freezing {
    color: #f98131;
 }
 

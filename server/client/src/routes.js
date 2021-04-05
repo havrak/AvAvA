@@ -157,8 +157,8 @@ const routes = [
       layout: "/user",
    },
    {
-      path: "/user",
-      name: "User",
+      path: "/Profile",
+      name: "Profile",
       icon: "nc-icon nc-circle-09",
       view: UserProfile,
       layout: "/user",

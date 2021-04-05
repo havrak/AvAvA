@@ -11,7 +11,6 @@ import { ProjectProgressBar } from "components/Tables/ProgressBars.js";
 import { Link } from "react-router-dom";
 
 import { userProjectsGet } from "actions/UserActions";
-import { projectIdDelete, startSpinnerProjectDelete } from "actions/ProjectActions";
 import { setCustomizableBrandText } from "actions/FrontendActions";
 import {
    bytesToAdequateValue,
@@ -19,15 +18,13 @@ import {
    secondsToAdequateValue,
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
-import CreateProjectDialog from "components/Dialogs/CreateProjectDialog.js";
+import ProjectsTableToolbar from "components/Tables/Toolbars/ProjectsTableToolbar";
 
 function Project(props) {
    const {
       projects,
       userState,
       userProjectsGet,
-      projectIdDelete,
-      startSpinnerProjectDelete,
       setCustomizableBrandText,
    } = props;
    const brand = [
@@ -301,7 +298,11 @@ function Project(props) {
                      return HzToAdequateValue(value).getMessage();
                   },
                },
-               { Header: "%", accessor: "state.CPU.allocatedPercent", view: views["CPU"] },
+               {
+                  Header: "%",
+                  accessor: "state.CPU.allocatedPercent",
+                  view: views["CPU"],
+               },
             ],
          },
          {
@@ -568,43 +569,30 @@ function Project(props) {
       []
    );
 
-   const [skipPageReset, setSkipPageReset] = useState(false);
+   // const [skipPageReset, setSkipPageReset] = useState(false);
 
    // We need to keep the table from resetting the pageIndex when we
    // Update data. So we can keep track of that flag with a ref.
    // When our cell renderer calls updateMyData, we'll use
    // the rowIndex, columnId and new value to update the
    // original data
-   const updateMyData = (rowIndex, columnId, value) => {
-      // We also turn on the flag to not reset the page
-      setSkipPageReset(true);
-      setData((old) =>
-         old.map((row, index) => {
-            if (index === rowIndex) {
-               return {
-                  ...old[rowIndex],
-                  [columnId]: value,
-               };
-            }
-            return row;
-         })
-      );
-   };
+   // const updateMyData = (rowIndex, columnId, value) => {
+   //    // We also turn on the flag to not reset the page
+   //    setSkipPageReset(true);
+   //    setData((old) =>
+   //       old.map((row, index) => {
+   //          if (index === rowIndex) {
+   //             return {
+   //                ...old[rowIndex],
+   //                [columnId]: value,
+   //             };
+   //          }
+   //          return row;
+   //       })
+   //    );
+   // };
 
-   const deleteProjectsHandler = (projects) => {
-      for (const project of projects) {
-         startSpinnerProjectDelete(project);
-         projectIdDelete(project.id, projectDeleteFailNotification(project.name));
-      }
-   };
-
-   const projectDeleteFailNotification = (name) => {
-      return () => {
-         notify(`project "${name}" could not be deleted`, "danger", 4);
-      };
-   };
-
-   const notificationAlertRef = React.useRef(null);
+   const notificationAlertRef = React.useRef();
    const notify = (message, type, autoDismiss) => {
       const options = {
          place: "tr",
@@ -612,6 +600,7 @@ function Project(props) {
          type,
          autoDismiss,
       };
+      console.log(notificationAlertRef);
       notificationAlertRef.current.notificationAlert(options);
    };
    return (
@@ -625,22 +614,13 @@ function Project(props) {
                      <EnhancedTable
                         columns={columns}
                         data={projects}
-                        updateMyData={updateMyData}
-                        skipPageReset={skipPageReset}
+                        // updateMyData={updateMyData}
+                        // skipPageReset={skipPageReset}
                         views={views}
                         view={view}
+                        notify={notify}
                         setView={setView}
-                        creationLimits={{
-                           RAM: userState.RAM.free,
-                           CPU: userState.CPU.free,
-                           disk: userState.disk.free,
-                           internet: {
-                              upload: userState.internet.upload.free,
-                              download: userState.internet.download.free,
-                           },
-                        }}
-                        deleteHandler={deleteProjectsHandler}
-                        createDialog={<CreateProjectDialog notify={notify} />}
+                        tableToolbar={<ProjectsTableToolbar />}
                      />
                   </Card>
                </Col>

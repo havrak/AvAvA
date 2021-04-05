@@ -12,7 +12,8 @@ import TablePagination from "@material-ui/core/TablePagination";
 import TablePaginationActions from "./TablePaginationActions";
 import TableRow from "@material-ui/core/TableRow";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
-import TableToolbar from "./TableToolbar";
+// import TableToolbar from "./Toolbars/TableToolbar";
+// import ProjectsTableToolbar from "./Toolbars/ProjectsTableToolbar";
 import ClipLoader from "react-spinners/ClipLoader";
 import {
    useGlobalFilter,
@@ -80,13 +81,13 @@ const createHiddenColumnsArray = (columns, selectedView, views) => {
 const EnhancedTable = ({
    columns,
    data,
-   updateMyData,
-   skipPageReset,
+   notify,
+   // updateMyData,
+   // skipPageReset,
    views,
    view,
    setView,
-   createDialog,
-   deleteHandler,
+   tableToolbar
 }) => {
    const {
       getTableProps,
@@ -103,13 +104,13 @@ const EnhancedTable = ({
       {
          columns,
          data,
-         autoResetPage: !skipPageReset,
+         // autoResetPage: !skipPageReset,
          // updateMyData isn't part of the API, but
          // anything we put into these options will
          // automatically be available on the instance.
          // That way we can call this function from our
          // cell renderer!
-         updateMyData,
+         // updateMyData,
          initialState: {
             hiddenColumns: createHiddenColumnsArray(columns, view, views),
             // hiddenColumns: "containers running stopped frozen"
@@ -149,7 +150,7 @@ const EnhancedTable = ({
                         >
                            <ClipLoader color={"#212529"} loading={true} size={30} />
                            <span style={{ marginLeft: "5px" }}>
-                              {row.original.pendingState}
+                              {!row.original.state.operationState ? row.original.pendingState : ""}
                            </span>
                         </div>
                      ) : (
@@ -171,42 +172,30 @@ const EnhancedTable = ({
       setHiddenColumns(createHiddenColumnsArray(columns, view, views));
    }, [view]);
 
-   // useEffect(() => {
-   //    setHiddenColumns(createHiddenColumnsArray(columns, view));
-   // }, []);
-
    const handleChangeRowsPerPage = (event) => {
       setPageSize(Number(event.target.value));
    };
 
-   const getByIndexs = (array, indexs) =>
-      array.filter((_, i) => {
+   const getByIndexs = () => {
+      const indexs = Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
+      return data.filter((_, i) => {
          return indexs.includes(i);
       });
-
-   const deleteHandlerLocal = (event) => {
-      const selectedIds = getByIndexs(
-         data,
-         Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
-      );
-      deleteHandler(selectedIds);
    };
 
    const styles = useStyles();
    // Render the UI for your table
    return (
       <TableContainer>
-         <TableToolbar
-            numSelected={Object.keys(selectedRowIds).length}
-            deleteHandlerLocal={deleteHandlerLocal}
-            createDialog={createDialog}
+         <tableToolbar.type {...tableToolbar.props}
+            selectedData={getByIndexs(selectedRowIds)}
             preGlobalFilteredRows={preGlobalFilteredRows}
             setGlobalFilter={setGlobalFilter}
             globalFilter={globalFilter}
             views={views}
             view={view}
             setView={setView}
-            data={data}
+            notify={notify}
          />
          <MaUTable {...getTableProps()} size={"small"}>
             <TableHead>
@@ -281,8 +270,8 @@ const EnhancedTable = ({
 EnhancedTable.propTypes = {
    columns: PropTypes.array.isRequired,
    data: PropTypes.array.isRequired,
-   updateMyData: PropTypes.func.isRequired,
-   skipPageReset: PropTypes.bool.isRequired,
+   // updateMyData: PropTypes.func.isRequired,
+   // skipPageReset: PropTypes.bool.isRequired,
 };
 
 export default EnhancedTable;

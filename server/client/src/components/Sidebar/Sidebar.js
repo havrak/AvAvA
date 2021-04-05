@@ -60,7 +60,7 @@ function Sidebar({ color, routes, projects }) {
                                    name={project.name}
                                    level={2}
                                    key={`p${project.id}`}
-                                   toCollapse={project.containers.map(
+                                   toCollapse={project.containers ? project.containers.map(
                                       (container, key2) => {
                                          return (
                                             <SidebarLink
@@ -70,7 +70,7 @@ function Sidebar({ color, routes, projects }) {
                                             />
                                          );
                                       }
-                                   )}
+                                   ) : ""}
                                 />
                              );
                           })
@@ -81,7 +81,7 @@ function Sidebar({ color, routes, projects }) {
                   route={routes[routes.length - 1].layout + routes[routes.length - 1].path}
                   icon={routes[routes.length - 1].icon}
 						name={routes[routes.length - 1].name}
-						key="Userrasrsdrs"
+						key="Profile"
                />
             </Nav>
          </div>

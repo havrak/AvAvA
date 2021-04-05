@@ -8,7 +8,7 @@ import { Link, Redirect } from "react-router-dom";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "components/Tables/EnhancedTable.js";
 import NotificationAlert from "react-notification-alert";
-import { ProjectProgressBar } from "components/Tables/ProgressBars.js";
+import { ContainerProgressBar } from "components/Tables/ProgressBars.js";
 
 import { userProjectsGet } from "actions/UserActions";
 import { projectIdDelete, startSpinnerProjectDelete } from "actions/ProjectActions";
@@ -20,7 +20,7 @@ import {
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
 import { removePathParts, getCurrentProject } from "service/RoutesHelper";
-import CreateProjectDialog from "components/Dialogs/CreateProjectDialog.js";
+import ContainersTableToolbar from "components/Tables/Toolbars/ContainersTableToolbar";
 
 function Containers(props) {
    const {
@@ -65,7 +65,10 @@ function Containers(props) {
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <Link className="table-link" to={`/user/projects/${currentProject.id}/containers/${data.id}`}>
+                  <Link
+                     className="table-link"
+                     to={`/user/projects/${currentProject.id}/containers/${data.id}`}
+                  >
                      {data.name}
                   </Link>
                );
@@ -74,6 +77,11 @@ function Containers(props) {
          {
             Header: "Url",
             accessor: "url",
+            view: views["Basic info"],
+         },
+         {
+            Header: "Template",
+            accessor: "template.name",
             view: views["Basic info"],
          },
          {
@@ -96,18 +104,19 @@ function Containers(props) {
             Header: "State",
             accessor: "state.operationState",
             view: views["Basic info"],
-            Cell: ({ value }) => {
-               if (value.status === "Running") {
-               } else if (value.status === "Frozen") {
-               } else if (value.status === "Stopped") {
+            Cell: (props) => {
+               const data = props.row.original;
+               if(data.pendingState){
+                  return <b className={data.pendingState.toLowerCase()} >{data.pendingState}</b>
+               } else {
+                  return <b className={data.state.operationState.status.toLowerCase()} >{data.state.operationState.status}</b>
                }
-               return value.status;
             },
          },
          //LIMITS
          {
             Header: view === views["Limits"] ? "RAM" : "Max",
-            accessor: "limits.RAM",
+            accessor: "state.RAM.limit",
             view: views["Limits"],
             Cell: ({ value }) => {
                return value ? bytesToAdequateValue(value).getMessage() : "-";
@@ -115,7 +124,7 @@ function Containers(props) {
          },
          {
             Header: view === views["Limits"] ? "CPU" : "Max",
-            accessor: "limits.CPU",
+            accessor: "state.CPU.limit",
             view: views["Limits"],
             Cell: ({ value }) => {
                return value ? HzToAdequateValue(value).getMessage() : "-";
@@ -123,7 +132,7 @@ function Containers(props) {
          },
          {
             Header: view === views["Limits"] ? "Disk" : "Max",
-            accessor: "limits.disk",
+            accessor: "state.disk.limit",
             view: views["Limits"],
             Cell: ({ value }) => {
                return value ? bytesToAdequateValue(value).getMessage() : "-";
@@ -131,7 +140,7 @@ function Containers(props) {
          },
          {
             Header: view === views["Limits"] ? "Download" : "Max",
-            accessor: "limits.internet.download",
+            accessor: "state.internet.limits.download",
             view: views["Limits"],
             Cell: ({ value }) => {
                return value ? bytesPerSecondToAdequateValue(value).getMessage() : "-";
@@ -139,7 +148,7 @@ function Containers(props) {
          },
          {
             Header: view === views["Limits"] ? "Upload" : "Max",
-            accessor: "limits.internet.upload",
+            accessor: "state.internet.limits.upload",
             view: views["Limits"],
             Cell: ({ value }) => {
                return value ? bytesPerSecondToAdequateValue(value).getMessage() : "-";
@@ -153,9 +162,8 @@ function Containers(props) {
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <ProjectProgressBar
+                  <ContainerProgressBar
                      usedPercent={data.state.RAM.usedPercent}
-                     allocatedPercent={data.state.RAM.allocatedPercent}
                      freePercent={data.state.RAM.freePercent}
                   />
                );
@@ -182,26 +190,6 @@ function Containers(props) {
             ],
          },
          {
-            Header: "Allocated",
-            accessor: "ramAllocated",
-            view: views["RAM"],
-            columns: [
-               {
-                  Header: "Value",
-                  accessor: "state.RAM.allocated",
-                  view: views["RAM"],
-                  Cell: ({ value }) => {
-                     return bytesToAdequateValue(value).getMessage();
-                  },
-               },
-               {
-                  Header: "%",
-                  accessor: "state.RAM.allocatedPercent",
-                  view: views["RAM"],
-               },
-            ],
-         },
-         {
             Header: "Free",
             accessor: "ramFreeSpecific",
             view: views["RAM"],
@@ -210,11 +198,8 @@ function Containers(props) {
                   Header: "Value",
                   accessor: "state.RAM.free",
                   view: views["RAM"],
-                  Cell: (props) => {
-                     const data = props.row.original;
-                     return data.limits?.RAM
-                        ? bytesToAdequateValue(props.value).getMessage()
-                        : bytesToAdequateValue(userState.RAM.free).getMessage();
+                  Cell: ({ value }) => {
+                     return bytesToAdequateValue(value).getMessage();
                   },
                },
                {
@@ -232,9 +217,8 @@ function Containers(props) {
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <ProjectProgressBar
+                  <ContainerProgressBar
                      usedPercent={data.state.CPU.usedPercent}
-                     allocatedPercent={data.state.CPU.allocatedPercent}
                      freePercent={data.state.CPU.freePercent}
                   />
                );
@@ -265,26 +249,6 @@ function Containers(props) {
             ],
          },
          {
-            Header: "Allocated",
-            accessor: "cpuAllocated",
-            view: views["CPU"],
-            columns: [
-               {
-                  Header: "Value",
-                  accessor: "state.CPU.allocated",
-                  view: views["CPU"],
-                  Cell: ({ value }) => {
-                     return HzToAdequateValue(value).getMessage();
-                  },
-               },
-               {
-                  Header: "%",
-                  accessor: "state.CPU.allocatedPercent",
-                  view: views["CPU"],
-               },
-            ],
-         },
-         {
             Header: "Free",
             accessor: "cpuFree",
             view: views["CPU"],
@@ -293,11 +257,8 @@ function Containers(props) {
                   Header: "Value",
                   accessor: "state.CPU.free",
                   view: views["CPU"],
-                  Cell: (props) => {
-                     const data = props.row.original;
-                     return data.limits?.CPU
-                        ? HzToAdequateValue(props.value).getMessage()
-                        : HzToAdequateValue(userState.CPU.free).getMessage();
+                  Cell: ({ value }) => {
+                     return bytesToAdequateValue(value).getMessage();
                   },
                },
                { Header: "%", accessor: "state.CPU.freePercent", view: views["CPU"] },
@@ -311,9 +272,8 @@ function Containers(props) {
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <ProjectProgressBar
+                  <ContainerProgressBar
                      usedPercent={data.state.disk.usedPercent}
-                     allocatedPercent={data.state.disk.allocatedPercent}
                      freePercent={data.state.disk.freePercent}
                   />
                );
@@ -340,26 +300,6 @@ function Containers(props) {
             ],
          },
          {
-            Header: "Allocated",
-            accessor: "diskAllocated",
-            view: views["Disk"],
-            columns: [
-               {
-                  Header: "value",
-                  accessor: "state.disk.allocated",
-                  view: views["Disk"],
-                  Cell: ({ value }) => {
-                     return bytesToAdequateValue(value).getMessage();
-                  },
-               },
-               {
-                  Header: "%",
-                  accessor: "state.disk.allocatedPercent",
-                  view: views["Disk"],
-               },
-            ],
-         },
-         {
             Header: "Free",
             accessor: "diskFreeSpecific",
             view: views["Disk"],
@@ -368,11 +308,8 @@ function Containers(props) {
                   Header: "value",
                   accessor: "state.disk.free",
                   view: views["Disk"],
-                  Cell: (props) => {
-                     const data = props.row.original;
-                     return data.limits?.disk
-                        ? bytesToAdequateValue(props.value).getMessage()
-                        : bytesToAdequateValue(userState.disk.free).getMessage();
+                  Cell: ({ value }) => {
+                     return bytesToAdequateValue(value).getMessage();
                   },
                },
                {
@@ -390,10 +327,9 @@ function Containers(props) {
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <ProjectProgressBar
-                     usedPercent={data.state.internet.download.usedPercent}
-                     allocatedPercent={data.state.internet.download.allocatedPercent}
-                     freePercent={data.state.internet.download.freePercent}
+                  <ContainerProgressBar
+                     usedPercent={data.state.internet.counters.download.usedPercent}
+                     freePercent={data.state.internet.counters.download.freePercent}
                   />
                );
             },
@@ -405,7 +341,7 @@ function Containers(props) {
             columns: [
                {
                   Header: "Value",
-                  accessor: "state.internet.download.usage",
+                  accessor: "state.internet.counters.download.usedSpeed",
                   view: views["Download"],
                   Cell: ({ value }) => {
                      return bytesPerSecondToAdequateValue(value).getMessage();
@@ -413,27 +349,7 @@ function Containers(props) {
                },
                {
                   Header: "%",
-                  accessor: "state.internet.download.usedPercent",
-                  view: views["Download"],
-               },
-            ],
-         },
-         {
-            Header: "Allocated",
-            accessor: "downloadAllocated",
-            view: views["Download"],
-            columns: [
-               {
-                  Header: "Value",
-                  accessor: "state.internet.download.allocated",
-                  view: views["Download"],
-                  Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateValue(value).getMessage();
-                  },
-               },
-               {
-                  Header: "%",
-                  accessor: "state.internet.download.allocatedPercent",
+                  accessor: "state.internet.counters.download.usedPercent",
                   view: views["Download"],
                },
             ],
@@ -445,20 +361,15 @@ function Containers(props) {
             columns: [
                {
                   Header: "Value",
-                  accessor: "state.internet.download.free",
+                  accessor: "state.internet.counters.download.freeSpeed",
                   view: views["Download"],
-                  Cell: (props) => {
-                     const data = props.row.original;
-                     return data.limits?.internet?.download
-                        ? bytesPerSecondToAdequateValue(props.value).getMessage()
-                        : bytesPerSecondToAdequateValue(
-                             userState.internet.download.free
-                          ).getMessage();
+                  Cell: ({ value }) => {
+                     return bytesPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "state.internet.download.freePercent",
+                  accessor: "state.internet.counters.download.freePercent",
                   view: views["Download"],
                },
             ],
@@ -471,10 +382,9 @@ function Containers(props) {
             Cell: (props) => {
                const data = props.row.original;
                return (
-                  <ProjectProgressBar
-                     usedPercent={data.state.internet.upload.usedPercent}
-                     allocatedPercent={data.state.internet.upload.allocatedPercent}
-                     freePercent={data.state.internet.upload.freePercent}
+                  <ContainerProgressBar
+                     usedPercent={data.state.internet.counters.upload.usedPercent}
+                     freePercent={data.state.internet.counters.upload.freePercent}
                   />
                );
             },
@@ -486,7 +396,7 @@ function Containers(props) {
             columns: [
                {
                   Header: "Value",
-                  accessor: "state.internet.upload.usage",
+                  accessor: "state.internet.counters.upload.usedSpeed",
                   view: views["Upload"],
                   Cell: ({ value }) => {
                      return bytesPerSecondToAdequateValue(value).getMessage();
@@ -494,27 +404,7 @@ function Containers(props) {
                },
                {
                   Header: "%",
-                  accessor: "state.internet.upload.usedPercent",
-                  view: views["Upload"],
-               },
-            ],
-         },
-         {
-            Header: "Allocated",
-            accessor: "uploadAllocated",
-            view: views["Upload"],
-            columns: [
-               {
-                  Header: "Value",
-                  accessor: "state.internet.upload.allocated",
-                  view: views["Upload"],
-                  Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateValue(value).getMessage();
-                  },
-               },
-               {
-                  Header: "%",
-                  accessor: "state.internet.upload.allocatedPercent",
+                  accessor: "state.internet.counters.upload.usedPercent",
                   view: views["Upload"],
                },
             ],
@@ -526,20 +416,15 @@ function Containers(props) {
             columns: [
                {
                   Header: "Value",
-                  accessor: "state.internet.upload.free",
+                  accessor: "state.internet.counters.upload.freeSpeed",
                   view: views["Upload"],
-                  Cell: (props) => {
-                     const data = props.row.original;
-                     return data.limits?.internet?.upload
-                        ? bytesPerSecondToAdequateValue(props.value).getMessage()
-                        : bytesPerSecondToAdequateValue(
-                             userState.internet.upload.free
-                          ).getMessage();
+                  Cell: ({ value }) => {
+                     return bytesPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
                   Header: "%",
-                  accessor: "state.internet.upload.freePercent",
+                  accessor: "state.internet.counters.upload.freePercent",
                   view: views["Upload"],
                },
             ],
@@ -548,41 +433,28 @@ function Containers(props) {
       []
    );
 
-   const [skipPageReset, setSkipPageReset] = useState(false);
+   // const [skipPageReset, setSkipPageReset] = useState(false);
 
    // We need to keep the table from resetting the pageIndex when we
    // Update data. So we can keep track of that flag with a ref.
    // When our cell renderer calls updateMyData, we'll use
    // the rowIndex, columnId and new value to update the
    // original data
-   const updateMyData = (rowIndex, columnId, value) => {
-      // We also turn on the flag to not reset the page
-      setSkipPageReset(true);
-      setData((old) =>
-         old.map((row, index) => {
-            if (index === rowIndex) {
-               return {
-                  ...old[rowIndex],
-                  [columnId]: value,
-               };
-            }
-            return row;
-         })
-      );
-   };
-
-   const deleteProjectsHandler = (projects) => {
-      for (const project of projects) {
-         startSpinnerProjectDelete(project);
-         projectIdDelete(project.id, projectDeleteFailNotification(project.name));
-      }
-   };
-
-   const projectDeleteFailNotification = (name) => {
-      return () => {
-         notify(`project "${name}" could not be deleted`, "danger", 4);
-      };
-   };
+   // const updateMyData = (rowIndex, columnId, value) => {
+   //    // We also turn on the flag to not reset the page
+   //    setSkipPageReset(true);
+   //    setData((old) =>
+   //       old.map((row, index) => {
+   //          if (index === rowIndex) {
+   //             return {
+   //                ...old[rowIndex],
+   //                [columnId]: value,
+   //             };
+   //          }
+   //          return row;
+   //       })
+   //    );
+   // };
 
    const notificationAlertRef = React.useRef(null);
    const notify = (message, type, autoDismiss) => {
@@ -602,25 +474,17 @@ function Containers(props) {
                <Col md="12">
                   <Card>
                      <CssBaseline />
+                     
                      <EnhancedTable
                         columns={columns}
                         data={currentProject.containers}
-                        updateMyData={updateMyData}
-                        skipPageReset={skipPageReset}
+                        // updateMyData={updateMyData}
+                        // skipPageReset={skipPageReset}
                         views={views}
                         view={view}
+                        notify={notify}
                         setView={setView}
-                        creationLimits={{
-                           RAM: userState.RAM.free,
-                           CPU: userState.CPU.free,
-                           disk: userState.disk.free,
-                           internet: {
-                              upload: userState.internet.upload.free,
-                              download: userState.internet.download.free,
-                           },
-                        }}
-                        deleteHandler={deleteProjectsHandler}
-                        createDialog={<CreateProjectDialog notify={notify} />}
+                        tableToolbar={<ContainersTableToolbar project={currentProject}/>}
                      />
                   </Card>
                </Col>

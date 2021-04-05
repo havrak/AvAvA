@@ -5,78 +5,144 @@ import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import IconButton from "@material-ui/core/IconButton";
-import PropTypes from "prop-types";
-import Switch from "@material-ui/core/Switch";
 import TextField from "@material-ui/core/TextField";
 import Tooltip from "@material-ui/core/Tooltip";
-import Slider from 'components/Limits/Slider';
+import { connect } from "react-redux";
+import {AddClickableIcon} from 'components/Icons/ClickableIcons'
 
-const AddUserDialog = (props) => {
-   const [user, setUser] = useState(initialUser);
-   const { addUserHandler, createRecordHeadding } = props;
-   const [open, setOpen] = React.useState(false);
+import Slider from "components/Limits/Slider.js";
+import { startSpinnerProjectPost, projectPost } from "actions/ProjectActions.js";
+import {
+   ramToMB,
+   diskToGB,
+   CPUToMHz,
+   networkSpeedToMbits,
+} from "service/UnitsConvertor.js";
 
-   const [switchState, setSwitchState] = React.useState({
-      addMultiple: false,
-   });
-
-   const handleSwitchChange = (name) => (event) => {
-      setSwitchState({ ...switchState, [name]: event.target.checked });
-   };
-
-   const resetSwitch = () => {
-      setSwitchState({ addMultiple: false });
-   };
-
-   const handleClickOpen = () => {
-      setOpen(true);
+const CreateProjectDialog = ({
+   projectPost,
+   startSpinnerProjectPost,
+   userProjects,
+   notify,
+   open,
+   setOpen
+}) => {
+   const { projects, state } = userProjects;
+   const [errorMessage, setErrorMessage] = React.useState(null);
+   const project = {
+      name: "",
+      owner: {},
+      limits: {
+         RAM: null,
+         CPU: null,
+         disk: null,
+         network: {
+            upload: null,
+            download: null,
+         },
+      },
    };
 
    const handleClose = () => {
       setOpen(false);
-      resetSwitch();
    };
 
    const handleAdd = (event) => {
-      addUserHandler(user);
-      setUser(initialUser);
-      switchState.addMultiple ? setOpen(true) : setOpen(false);
+      if (errorMessage !== null) {
+         return;
+      }
+      startSpinnerProjectPost(project);
+      projectPost(project, projectPostFailNotification);
+      setOpen(false);
    };
 
-   const handleChange = (name) => {
-      return ({ target: { value } }) => {
-         setUser({ ...user, [name]: value });
-      };
+   const projectPostFailNotification = (name) => {
+      notify(`project "${name}" could not be created`, "danger", 4);
    };
+
+   const handleNameType = (event) => {
+      project.name = event.target.value;
+      if (projects.map((item) => item.name).includes(project.name)) {
+         setErrorMessage("There is already project with this name present.");
+      } else if (project.name === "") {
+         setErrorMessage("Must not be empty");
+      } else if (project.name.length >= 30) {
+         setErrorMessage("Name must be shorter than 30 characters");
+      } else if (errorMessage) {
+         setErrorMessage(null);
+      }
+   };
+
+   const convertedRAM = ramToMB(state.RAM.free);
+   const convertedCPU = CPUToMHz(state.CPU.free);
+   const convertedDisk = diskToGB(state.disk.free);
+   const convertedUpload = networkSpeedToMbits(state.internet.upload.free);
+   const convertedDownload = networkSpeedToMbits(state.internet.download.free);
 
    return (
       <div>
-         <Tooltip title="Add">
-            <IconButton aria-label="add" onClick={handleClickOpen}>
-               <AddIcon />
-            </IconButton>
-         </Tooltip>
          <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-            <DialogTitle id="form-dialog-title">{createRecordHeadding}</DialogTitle>
+            <DialogTitle id="form-dialog-title">Create new project</DialogTitle>
             <DialogContent>
                <TextField
                   autoFocus
+                  error={errorMessage !== null}
                   margin="dense"
-                  label="First Name"
+                  label="Project Name"
                   type="text"
                   fullWidth
-                  value={user.firstName}
-                  onChange={handleChange("firstName")}
-                  style={{marginBottom: "20px"}}
+                  onChange={handleNameType}
+                  style={{ marginBottom: "20px" }}
+                  helperText={errorMessage}
                />
-               <Slider headding={"RAM"} min={0} max={280} units={"MB"}/>
-               <Slider headding={"CPU"} min={0} max={280} units={"%"}/>
-               <Slider headding={"Disk"} min={0} max={280} units={"GB"}/>
-               <Slider headding={"Upload"} min={0} max={280} units={"Mb/s"}/>
-               <Slider headding={"Download"} min={0} max={280} units={"Mb/s"}/>
+               <h3 className={"limits-headding"}>Limits</h3>
+               <Slider
+                  headding={"RAM"}
+                  setValueToParentElement={(value) => {
+                     project.limits.RAM = value;
+                  }}
+                  min={0}
+                  max={convertedRAM}
+                  unit={"MB"}
+               />
+               <Slider
+                  headding={"CPU"}
+                  min={0}
+                  setValueToParentElement={(value) => {
+                     project.limits.CPU = value;
+                  }}
+                  max={convertedCPU}
+                  unit={"Hz"}
+               />
+               <Slider
+                  headding={"Disk"}
+                  min={0}
+                  setValueToParentElement={(value) => {
+                     project.limits.disk = value;
+                  }}
+                  max={convertedDisk}
+                  unit={"GB"}
+               />
+               <Slider
+                  headding={"Upload"}
+                  min={0}
+                  setValueToParentElement={(value) => {
+                     project.limits.network.download = value;
+                  }}
+                  max={convertedUpload}
+                  unit={"Mbit/s"}
+               />
+               <Slider
+                  headding={"Download"}
+                  min={0}
+                  setValueToParentElement={(value) => {
+                     project.limits.network.upload = value;
+                  }}
+                  max={convertedDownload}
+                  unit={"Mbit/s"}
+               />
             </DialogContent>
             <DialogActions>
                <Button onClick={handleClose} color="primary">
@@ -91,8 +157,21 @@ const AddUserDialog = (props) => {
    );
 };
 
-AddUserDialog.propTypes = {
-   addUserHandler: PropTypes.func.isRequired,
+const mapStateToProps = (state) => {
+   return {
+      userProjects: state.combinedUserData.userProjects,
+   };
 };
 
-export default AddUserDialog;
+const mapDispatchToProps = (dispatch) => {
+   return {
+      projectPost: (project, projectPostFailNotification) => {
+         dispatch(projectPost(project, projectPostFailNotification));
+      },
+      startSpinnerProjectPost: (project) => {
+         dispatch(startSpinnerProjectPost(project));
+      },
+   };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreateProjectDialog);

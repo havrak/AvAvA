@@ -31,16 +31,16 @@ function UserCard({ Nav, logout, user }) {
             </div>
          </Dropdown.Toggle>
          <Dropdown.Menu aria-labelledby="navbarDropdownMenuLink" alignRight>
-            <Dropdown.Item as={Link} to="/user/user">
+            <Dropdown.Item as={Link} to="/user/profile">
                Account
             </Dropdown.Item>
-            <Dropdown.Item
+            {/* <Dropdown.Item
                as={Link}
                to="/user/settings"
                onClick={(e) => e.preventDefault()}
             >
                Settings
-            </Dropdown.Item>
+            </Dropdown.Item> */}
             <div className="divider"></div>
             <Dropdown.Item href="/user/dashboard" onClick={(e) => logout()}>
                Logout{" "}
