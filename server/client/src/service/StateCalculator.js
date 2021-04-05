@@ -42,7 +42,6 @@ export const addStateToUserData = (userData) => {
       foreign: 0,
    });
    CPU.usedTime = 0;
-   console.log(userProjects.projects);
    for (const project of userProjects.projects) {
       if (!project.pendingState) {
          addStateToProject(project);

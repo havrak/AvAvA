@@ -8,7 +8,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import { connect } from "react-redux";
 
-import {InputSliderWithSwitch} from "components/Limits/Slider.js";
+import { InputSliderWithSwitch } from "components/Form/Slider.js";
 import { projectPost } from "actions/ProjectActions.js";
 import {
    ramToMB,
@@ -17,13 +17,7 @@ import {
    networkSpeedToMbits,
 } from "service/UnitsConvertor.js";
 
-const CreateProjectDialog = ({
-   projectPost,
-   userProjects,
-   notify,
-   open,
-   setOpen
-}) => {
+const CreateProjectDialog = ({ projectPost, userProjects, notify, open, setOpen }) => {
    const { projects, state } = userProjects;
    const [errorMessage, setErrorMessage] = React.useState(null);
    const project = {
@@ -96,6 +90,7 @@ const CreateProjectDialog = ({
                   min={0}
                   max={convertedRAM}
                   unit={"MB"}
+                  helperTooltipText={"Guarantee"}
                />
                <InputSliderWithSwitch
                   headding={"CPU"}

@@ -6,6 +6,7 @@ import {
    containerIdStop,
    containerIdFreeze,
    containerIdUnfreeze,
+   instancesCreateInstanceConfigDataGet,
 } from "actions/ContainerActions";
 import {
    AddClickableIcon,
@@ -33,8 +34,14 @@ function ContainersTableToolbar(props) {
       containerIdStop,
       containerIdFreeze,
       containerIdUnfreeze,
+      instancesCreateInstanceConfigDataGet
    } = props;
    const [dialogOpen, setDialogOpen] = React.useState(false);
+
+   const openDialogHandler = () => {
+      instancesCreateInstanceConfigDataGet();
+      setDialogOpen(true);
+   };
 
    const startContainersHandler = () => {
       for (const container of selectedData) {
@@ -99,9 +106,7 @@ function ContainersTableToolbar(props) {
             notify={notify}
             addIcon={
                <AddClickableIcon
-                  handler={(e) => {
-                     setDialogOpen(true);
-                  }}
+                  handler={openDialogHandler}
                />
             }
             backIcons={backIcons}
@@ -126,6 +131,9 @@ const mapDispatchToProps = (dispatch) => {
       },
       containerIdUnfreeze: (id, containerDeleteFailNotification) => {
          dispatch(containerIdUnfreeze(id, containerDeleteFailNotification));
+      },
+      instancesCreateInstanceConfigDataGet: () => {
+         dispatch(instancesCreateInstanceConfigDataGet());
       },
    };
 };

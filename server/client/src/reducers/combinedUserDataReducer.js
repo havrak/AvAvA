@@ -95,9 +95,6 @@ export const combinedUserDataReducer = (state = null, action) => {
                break;
             }
          }
-         console.log(newState);
-         console.log("fsdafdasfjasdfkjdasfdlashfke");
-         console.log(action.payload);
          StateCalculator.addStateToUserData(newState);
          return newState;
       }
@@ -169,6 +166,10 @@ export const combinedUserDataReducer = (state = null, action) => {
             }
          }
       }
+      case "CREATE_INSTANCE_CONFIG_DATA_GET":
+         const newState = _.cloneDeep(state);
+         newState.createinstanceConfigData = action.payload;
+         return newState;
       case "LOGOUT":
          return null;
       default:

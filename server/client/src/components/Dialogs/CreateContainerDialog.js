@@ -7,8 +7,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import { connect } from "react-redux";
-import Checkbox from "@material-ui/core/Checkbox";
-import { InputSlider } from "components/Limits/Slider.js";
+import { InputSlider } from "components/Form/Slider.js";
+import CheckboxDiv from 'components/Form/CheckboxDiv.js';
 import { projectPost } from "actions/ProjectActions.js";
 import {
    ramToMB,
@@ -16,13 +16,13 @@ import {
    CPUToMHz,
    networkSpeedToMbits,
 } from "service/UnitsConvertor.js";
+import {getCurrentProject} from 'service/RoutesHelper';
 
-const CreateContainerDialog = ({ projectPost, userProjects, notify, open, setOpen }) => {
-   const { projects, state } = userProjects;
+const CreateContainerDialog = ({ projectPost, currentProject, userState, notify, open, setOpen }) => {
    const [errorMessage, setErrorMessage] = React.useState(null);
-   const project = {
+   const container = {
       name: "",
-      owner: {},
+      connectToInternet: true,
       limits: {
          RAM: null,
          CPU: null,
@@ -47,7 +47,7 @@ const CreateContainerDialog = ({ projectPost, userProjects, notify, open, setOpe
    };
 
    const handleNameType = (event) => {
-      project.name = event.target.value;
+      container.name = event.target.value;
       if (projects.map((item) => item.name).includes(project.name)) {
          setErrorMessage("There is already project with this name present.");
       } else if (project.name === "") {
@@ -58,13 +58,24 @@ const CreateContainerDialog = ({ projectPost, userProjects, notify, open, setOpe
          setErrorMessage(null);
       }
    };
-
-   const convertedRAM = ramToMB(state.RAM.free);
-   const convertedCPU = CPUToMHz(state.CPU.free);
-   const convertedDisk = diskToGB(state.disk.free);
-   const convertedUpload = networkSpeedToMbits(state.internet.upload.free);
-   const convertedDownload = networkSpeedToMbits(state.internet.download.free);
-
+   let convertedRAM;
+   let convertedCPU;
+   let convertedDisk;
+   let convertedUpload;
+   let convertedDownload;
+   if(currentProject.limits){
+      convertedRAM = ramToMB(currentProject.state.RAM.free);
+      convertedCPU = CPUToMHz(currentProject.state.CPU.free);
+      convertedDisk = diskToGB(currentProject.state.disk.free);
+      convertedUpload = networkSpeedToMbits(currentProject.state.internet.upload.free);
+      convertedDownload = networkSpeedToMbits(currentProject.state.internet.download.free);
+   } else {
+      convertedRAM = ramToMB(userState.RAM.free);
+      convertedCPU = CPUToMHz(userState.CPU.free);
+      convertedDisk = diskToGB(userState.disk.free);
+      convertedUpload = networkSpeedToMbits(userState.internet.upload.free);
+      convertedDownload = networkSpeedToMbits(userState.internet.download.free);
+   }
    return (
       <div>
          <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
@@ -81,18 +92,9 @@ const CreateContainerDialog = ({ projectPost, userProjects, notify, open, setOpe
                   style={{ marginBottom: "10px" }}
                   helperText={errorMessage}
                />
-               <div style={{width: "100%", marginLeft: "-12px"}}>
-                  <Checkbox size="small" color="primary" onChange={() => {}} />
-                  <span>Autostart</span>
-               </div>
-               <div style={{width: "100%", marginLeft: "-12px"}}>
-                  <Checkbox size="small" color="primary" onChange={() => {}} />
-                  <span>Stateful</span>
-               </div>
-               <div style={{width: "100%", marginLeft: "-12px", marginBottom: "5px"}}>
-                  <Checkbox size="small" color="primary" onChange={() => {}} />
-                  <span>Connect to the internet</span>
-               </div>
+               {/* <CheckboxDiv tooltipText={"Autostart means that "} inputText={"Autostart"} /> */}
+               {/* <CheckboxDiv tooltipText={"Dunno what it is"} inputText={"Stateful"} /> */}
+               <CheckboxDiv tooltipText={"Container will be accessible via this kind of adress: container.project.yourname.servername.cz"} inputText={"Connect to the internet"} />
                <InputSlider
                   headding={"RAM"}
                   setValueToParentElement={(value) => {
@@ -101,6 +103,7 @@ const CreateContainerDialog = ({ projectPost, userProjects, notify, open, setOpe
                   min={0}
                   max={convertedRAM}
                   unit={"MB"}
+                  helperTooltipText={"Guarantee"}
                />
                <InputSlider
                   headding={"CPU"}
@@ -155,7 +158,8 @@ const CreateContainerDialog = ({ projectPost, userProjects, notify, open, setOpe
 const mapStateToProps = (state) => {
    return {
       createInstanceConfigData: state.combinedUserData.createInstanceConfigData,
-      userProjects: state.combinedUserData.userProjects,
+      userState: state.combinedUserData.userProjects.state,
+      currentProject: getCurrentProject(state.combinedUserData.userProjects.projects)
    };
 };
 

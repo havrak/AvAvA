@@ -176,7 +176,6 @@ export const containerIdDelete = (
    return (dispatch) => {
       dispatch(startSpinnerContainer(projectId, containerId, "deleting"));
       const callback = function (error, data, response) {
-         // console.log(response, 'container id delete');
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
             notify(`Error occured: ${error ? error : ""}`);
@@ -187,3 +186,22 @@ export const containerIdDelete = (
       api.instancesIdDelete(containerId, callback);
    };
 };
+
+export const instancesCreateInstanceConfigDataGet = () => {
+   return (dispatch) => {
+      const callback = function (error, data, response) {
+         // console.log(response, 'container id delete');
+         if (!error) {
+            dispatch(instancesCreateInstanceConfigDataGetSuccess(data));
+         }
+      };
+      api.instancesCreateInstanceConfigDataGet(callback);
+   }
+}
+
+function instancesCreateInstanceConfigDataGetSuccess(createinstanceConfigData){
+   return {
+      type: "CREATE_INSTANCE_CONFIG_DATA_GET",
+      payload: createinstanceConfigData
+   }
+}

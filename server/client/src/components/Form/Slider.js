@@ -4,13 +4,14 @@ import Grid from "@material-ui/core/Grid";
 import Switch from "@material-ui/core/Switch";
 import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
+import { HelpIcon } from "components/Icons/ClickableIcons";
 //adjusted https://material-ui.com/components/slider/
 const useStyles = makeStyles({
    root: {
       width: 400,
    },
    input: {
-      width: 60,
+      width: 63,
    },
 });
 
@@ -21,6 +22,7 @@ export function InputSlider({
    max,
    unit,
    step,
+   helperTooltipText
 }) {
    const classes = useStyles();
    const [value, setValue] = React.useState(min);
@@ -51,7 +53,7 @@ export function InputSlider({
 
    return (
       <div className={classes.root}>
-         {headding} ({unit})
+         {headding} ({unit}) {helperTooltipText ? <HelpIcon tooltipText={helperTooltipText} /> : ""}
          <Grid container spacing={2} alignItems="center">
             <Grid item xs>
                <Slider
@@ -91,6 +93,7 @@ export function InputSliderWithSwitch({
    max,
    unit,
    step,
+   helperTooltipText
 }) {
    const classes = useStyles();
    const [value, setValue] = React.useState(min);
@@ -136,7 +139,7 @@ export function InputSliderWithSwitch({
             color="primary"
             onChange={handleMakeNullToggle}
          />
-         {headding} ({unit})
+         {headding} ({unit}) {helperTooltipText ? <HelpIcon tooltipText={helperTooltipText} /> : ""}
          {!shouldBeNull ? (
          (<Grid container spacing={2} alignItems="center">
             <Grid item xs>
