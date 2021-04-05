@@ -6,7 +6,6 @@ export default class Container {
     template,
     createdOn,
     lastStartedOn,
-    maxResources,
     snapshots,
     state
   ) {
@@ -16,7 +15,6 @@ export default class Container {
     this.template = template;
     this.createdOn = createdOn;
     this.lastStartedOn = lastStartedOn;
-    this.maxResources = maxResources;
     this.snapshots = snapshots;
     this.state = state;
   }

@@ -1,6 +1,6 @@
 export class NetworkState {
-	constructor(networkName, addresses, hwaddr, hostName, mtu, state, type) {
-		this.networkName = networkName;
+	constructor(name, addresses, hwaddr, hostName, mtu, state, type) {
+		this.name = name;
 		this.addresses = addresses;
 		this.hwaddr = hwaddr;
 		this.hostName = hostName;
@@ -9,7 +9,7 @@ export class NetworkState {
 		this.type = type;
 	}
 
-	networkName;
+	name;
 	limits = {
 		download: undefined,
 		upload: undefined,

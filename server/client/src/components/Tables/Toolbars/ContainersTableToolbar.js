@@ -29,21 +29,21 @@ function ContainersTableToolbar(props) {
    const startContainersHandler = () => {
       for (const container of selectedData) {
          startSpinnerContainer(project.id, container.id, "starting");
-         containerIdStart(project.id, container.id, containerDeleteFailNotification(project.name));
+         containerIdStart(project.id, container.id, containerDeleteFailNotification(`container ${project.name} could not be started`));
       }
    };
    
    const stopContainersHandler = () => {
       for (const container of selectedData) {
          startSpinnerContainer(project.id, container.id, "stopping");
-         // ContainerIdDelete(project.id, containerDeleteFailNotification(project.name));
+         containerIdStart(project.id, container.id, containerDeleteFailNotification(`container ${project.name} could not be stopped`));
       }
    };
    
    const freezeContainersHandler = () => {
       for (const container of selectedData) {
          startSpinnerContainer(project.id, container.id, "freezing");
-         // ContainerIdDelete(project.id, containerDeleteFailNotification(project.name));
+         containerIdStart(project.id, container.id, containerDeleteFailNotification(`container ${project.name} could not be started`));
       }
    };
    

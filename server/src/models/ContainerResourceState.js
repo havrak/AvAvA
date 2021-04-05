@@ -1,9 +1,9 @@
 export default class ContainerResourceState {
-	measureOn;
+	measuredOn;
 	CPU = {
 		limit: undefined,
-		consumedTime: undefined,
-		percentConsumed: undefined,
+		usedTime: undefined,
+		usage: undefined,
 	};
 	RAM = {
 		limit: undefined,

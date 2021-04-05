@@ -1,10 +1,10 @@
 export default class UserData {
-  constructor(user, userProjects, hostInformation) {
+  constructor(user, userProjects, createInstanceConfigData) {
     this.user = user;
     this.userProjects = userProjects;
-    this.hostInformation = hostInformation;
+    this.createInstanceConfigData = createInstanceConfigData
   }
   user; // -> User.js;
   userProjects; // -> UserProjects.js
-  hostInformation; // -> hostInformation.js
+  createInstanceConfigData;
 }
