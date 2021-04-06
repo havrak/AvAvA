@@ -3,9 +3,16 @@ import fs from "fs";
 import path from "path";
 import querystring from "querystring";
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
+import mongodb from "mongodb";
+let mdb;
+new mongodb.MongoClient("mongodb://localhost:27017/lxd", {
+	useNewUrlParser: true,
+	useUnifiedTopology: true,
+}).connect((err, db) => (mdb = db));
 import ContainerResourceState from "../models/ContainerResourceState.js";
 import * as NS from "../models/NetworkState.js";
 import Container from "../models/Container.js";
+import Template from "../models/Template.js";
 import Image from "../models/Image.js";
 import OperationState from "../models/OperationState.js";
 import Snapshot from "../models/Snapshot.js";
@@ -35,8 +42,9 @@ function mkOpts(path, method) {
 
 function mkRequest(path, method, data) {
 	let opts = mkOpts(path, method);
-	if (debug) console.log({ path: path, method: method, data: data });
-	if (data !== undefined) {
+	if (debug && !path.includes("operation"))
+		console.log({ path: path, method: method, data: data });
+	if (data) {
 		if (method == "GET") {
 			opts.path += "?" + querystring.stringify(data);
 			opts.headers = { "Content-Type": "application/x-www-form-urlencoded" };
@@ -59,32 +67,34 @@ function mkRequest(path, method, data) {
 					: resolve(JSON.parse(body))
 			);
 		});
-		if (data !== undefined && method != "GET") req.write(data);
+		if (data && method != "GET") req.write(data);
 		req.end();
 	});
 }
 
 export async function getOperation(operation) {
-	if (operation.status_code <= 103) {
+	if (!operation || (!operation.status_code && !operation.error_code))
+		return new OperationState("Success", 200);
+	if (operation.status_code < 200) {
 		operation = await mkRequest(`/1.0/operations/${operation.id}/wait`);
 		if (debug)
 			console.log({
+				status: operation.status,
 				desc: operation.description,
 				code: operation.status_code,
-				err:
-					operation.error === undefined ? operation.err : operation.error,
 				resources: operation.resources,
 			});
-	} else if (operation.error_code !== undefined) {
+	}
+	if (operation.error || operation.err) {
 		if (debug)
 			console.log({
-				desc: operation.description,
-				code: operation.status_code,
-				err:
-					operation.error === undefined ? operation.err : operation.error,
+				error: operation.err ? operation.err : operation.error,
+				code: operation.err ? operation.status_code : operation.error_code,
 				resources: operation.resources,
 			});
-		return new OperationState(operation.error, operation.error_code);
+		return operation.error
+			? new OperationState(operation.error, operation.error_code)
+			: new OperationState(operation.err, operation.status_code);
 	}
 	return new OperationState(operation.status, operation.status_code);
 }
@@ -105,57 +115,76 @@ export async function test() {
 			"default"
 		)
 	);*/
-	// console.log(await startInstance("createTest", "p2"));
 	// console.log(await deleteBackup("c1", "b4", "p2"));
-	// console.log(await getInstance("c1", "p2"));
-	// console.log((await getState("c1", "p2")));
-	// console.log(await execInstance("c2", "p2", "apt-get -yqq install neovim"));
-	// let routes = await mkRequest(`/1.0/instances?project=p2`);
-	// let instances = new Array();
-	// routes.forEach((path) => {
-	//	let i = new Container(path.substring(15));
-	//	i.template = new Template();
-	//	i.state = new ContainerResourceState();
-	//	instances.push(i);
-	// });
-	// console.log(await getInstances(instances, "p2"));
+	/*let instance = new Container("createTest");
+	instance.template = new Template();
+	instance.state = new ContainerResourceState();
+	console.log(await getInstance(instance, "p2"));*/
+	/*let routes = await mkRequest(`/1.0/instances?project=p2`);
+	let instances = new Array();
+	routes.forEach((path) => {
+		let i = new Container(path.substring(15));
+		i.template = new Template();
+		i.state = new ContainerResourceState();
+		instances.push(i);
+	});
+	console.log(await getInstances(instances, "p2"));*/
 	// console.log(await getSnapshots("c1", "p2"));
-	// console.log(await createSnapshot("c1", "snap2", false, "p2"));
-	/*console.log(await stopInstance("c2", "p2"));
-	console.log(await deleteInstance("c2", "p2"));
-	createInstance(
-		{
-			name: "c2",
-			architecture: "x86_64",
-			profiles: ["default"],
-			ephemeral: false,
-			config: { "limits.cpu": "2" },
-			type: "container",
-			source: {
-				type: "image",
-				protocol: "simplestreams",
-				server: "https://cloud-images.ubuntu.com/daily",
-				alias: "20.04",
+	// console.log(await startInstance("c2", "p2"));
+	/*console.log(
+		await createProject({
+			name: "p2",
+			config: {
+				"features.images": "false",
+				"features.profiles": "false",
 			},
-			project: "p2",
-		},
-		[
-			["bash", "-c", "sleep 4 ; apt-get update"], //minimum time to get internet
-			"apt-get -yqq install neovim", //pkg installation test
-			["bash", "-c", "df -B 1 | awk '/\\/$/{print $4;exit}' > test"],//bash execution test
-		]
-	).then((res) => console.log(res));*/
+			description: "Test project p2.",
+		})
+	);*/
+	/*console.log(
+		await createInstance(
+			{
+				project: "p1",
+				name: "c2",
+				architecture: "x86_64",
+				profiles: ["default"],
+				ephemeral: false,
+				config: { "limits.cpu": "2" },
+				type: "container",
+				source: {
+					type: "image",
+					protocol: "simplestreams",
+					server: "https://cloud-images.ubuntu.com/daily",
+					alias: "20.04",
+				},
+			},
+			[
+				// ["bash", "-c", "sleep 4 ; apt-get update"], //minimum time to get internet
+				"apt-get -yqq install neovim", //pkg installation test
+				["bash", "-c", "df -B 1 | awk '/\\/$/{print $4;exit}' > test"], //bash execution test
+			]
+		)
+	);
+	console.log(await getState(new ContainerResourceState(), "c1", "p2"));
+	console.log(await createSnapshot("c2", "snap2", false, "p2"));
+	console.log(await execInstance("c1", "p2", "apt-get -yqq install neovim"));*/
+	// console.log(await stopInstance("c1", "p1"));
+	// console.log(await getState(new ContainerResourceState(), "c1", "p2"));
+	// console.log(await deleteProject("p1"));
+	// console.log(await deleteInstance("c2", "p2"));
 }
 
 export function getInstances(instances, project) {
 	return new Promise((resolve) => {
 		let done = 0;
-		instances.forEach((i) =>
-			getInstance(i, project).then((instance) => {
-				done++;
-				if (done == instances.length) resolve(instances);
-			})
-		);
+		if (instances.length > 0)
+			instances.forEach((i) =>
+				getInstance(i, project).then((instance) => {
+					done++;
+					if (done == instances.length) resolve(instances);
+				})
+			);
+		else resolve(instances);
 	});
 }
 
@@ -166,7 +195,12 @@ export async function createInstance(data, commands) {
 		await mkRequest(`/1.0/instances?project=${data.project}`, "POST", data)
 	);
 	if (res.statusCode == 200) {
-		await startInstance(data.name, data.project);
+		res = await startInstance(data.name, data.project);
+		if (res.statusCode != 200) {
+			await deleteInstance(data.name, data.project);
+			return res;
+		}
+		let errcmd = 0;
 		for (let i = 0; i < commands.length; i++) {
 			let stat = await execInstance(
 				data.name,
@@ -174,11 +208,13 @@ export async function createInstance(data, commands) {
 				commands[i],
 				false
 			);
-			if (stat.statusCode != 200) {
-				res = stat;
-			}
-			if (debug) console.log(`createCmd: ${stat}`);
+			if (stat.statusCode != 200) errcmd++;
+			if (debug) console.log({ createCmd: stat });
 		}
+		if (errcmd > 0)
+			res.status =
+				`Unable to execute ${errcmd} initial command` +
+				(errcmd > 1 ? "s." : ".");
 	}
 	return res;
 }
@@ -188,10 +224,11 @@ export async function createInstance(data, commands) {
 export function getInstance(instance, project) {
 	return mkRequest(`/1.0/instances/${instance.id}?project=${project}`).then(
 		(res) => {
+			if (res.error) return new OperationState(res.error, res.error_code);
 			instance.createdOn = new Date(res.created_at);
 			instance.lastStartedOn = new Date(res.last_used_at);
 			instance.stateful = res.stateful;
-			if (res.config["image.os"] !== undefined) {
+			if (res.config["image.os"]) {
 				instance.template.image = new Image(
 					res.config["image.os"],
 					res.config["image.version"],
@@ -215,7 +252,7 @@ export function deleteInstance(id, project) {
 	).then((res) => getOperation(res));
 }
 
-// Metoda vrací výstup zadaného příkazu
+// Returns the result of the given command, if not opt out
 export function execInstance(id, project, command, getOutput) {
 	return mkRequest(`/1.0/instances/${id}/exec?project=${project}`, "POST", {
 		command: Array.isArray(command) ? command : command.split(" "),
@@ -253,7 +290,7 @@ export function execInstance(id, project, command, getOutput) {
 								.end()
 					  )
 					: new OperationState(
-							res.status,
+							res.metadata.return == 0 ? res.status : res.description,
 							res.metadata.return == 0 ? 200 : 400
 					  )
 			);
@@ -264,7 +301,7 @@ export function execInstance(id, project, command, getOutput) {
 async function getStateFromSource(rs, instancedata, project) {
 	let limit =
 		instancedata.config.limits === undefined ||
-		instancedata.contif.limits.cpu === undefined
+		instancedata.config.limits.cpu === undefined
 			? 0
 			: instancedata.config.limits.cpu;
 	let data = await mkRequest(
@@ -274,70 +311,90 @@ async function getStateFromSource(rs, instancedata, project) {
 	//for another measure, we put all available data in its place
 	await new Promise((resolve) => {
 		rs.OperationState = new OperationState(data.status, data.status_code);
-		rs.CPU.consumedTime = data.cpu.usage;
+		rs.CPU.usedTime = data.cpu.usage;
 		rs.RAM.usage = data.memory.usage + data.memory.swap_usage;
 		rs.RAM.usagePeak = data.memory.usage_peak + data.memory.swap_usage_peak;
 		rs.disk.devices[0].name = "root";
-		if (data.disk.root !== undefined) {
-			rs.disk.devices[0].usage = data.disk.root.usage; //must be divided by users
-			//https://discuss.linuxcontainers.org/t/how-to-check-lxd-container-size-and-how-much-space-they-are-tacking/4770/3
-		} else {
+		if (data.status_code != 102) {
 			execInstance(instancedata.name, project, [
 				"bash",
 				"-c",
 				"df -B 1 | awk '/\\/$/{print $4;exit}'",
-			]).then((res) => (rs.disk.devices[0].usage = parseInt(res)));
+			]).then((res) => (rs.disk.devices[0].usage = parseInt(res.status)));
+			if (data.network)
+				Object.keys(data.network).forEach((key) => {
+					let lxdn = data.network[key];
+					let network = new NS.NetworkState(
+						key,
+						lxdn.addresses,
+						lxdn.hwaddr,
+						lxdn.host_name,
+						lxdn.mtu,
+						lxdn.state,
+						lxdn.type
+					);
+					network.counters.download.bytesRecieved =
+						lxdn.counters.bytes_received;
+					network.counters.upload.bytesSent = lxdn.counters.bytes_sent;
+					network.counters.download.packetsRecieved =
+						lxdn.counters.packets_received;
+					network.counters.upload.packetsSent = lxdn.counters.packets_sent;
+					switch (key) {
+						case "eth0":
+							//TODO: DO NOT FORGET TO UNCOMMENT THIS BEFORE HANDING IN.
+							// network.limits = rs.internet.limits;
+							rs.internet = network;
+							break;
+						case "lo":
+							rs.loopback = network;
+							break;
+						default:
+							rs.networks.push(network);
+					}
+				});
+			rs.numberOfProcesses = data.processes;
+			setTimeout(resolve, 1000);
+		} else {
+			rs.numberOfProcesses = data.processes;
+			resolve();
 		}
-		if (data.network != undefined)
-			Object.keys(data.network).forEach((key) => {
-				let lxdn = data.network[key];
-				let network = new NS.NetworkState(
-					key,
-					lxdn.addresses,
-					lxdn.hwaddr,
-					lxdn.host_name,
-					lxdn.mtu,
-					lxdn.state,
-					lxdn.type
-				);
-				network.networkName = key;
-				network.addresses = lxdn.addresses;
-				network.counters.bytesRecieved = lxdn.bytes_recieved;
-				network.counters.bytesSent = lxdn.bytes_sent;
-				network.counters.packetsRecieved = lxdn.packets_recieved;
-				network.counters.packetsSent = lxdn.packets_sent;
-				network.hwaddr = lxdn.hwaddr;
-				network.hostName = lxdn.host_name;
-				network.mtu = lxdn.mtu;
-				network.state = lxdn.state;
-				network.type = lxdn.type;
-				switch (key) {
-					case "eth0":
-						// network.limits = rs.internet.limits;
-						rs.internet = network;
-					case "lo":
-						rs.loopback = network;
-					default:
-						rs.networks.push(network);
-				}
-			});
-		rs.numberOfProcesses = data.processes;
-		setTimeout(resolve, 1000);
 	}, 1000);
-	let dataNew = await mkRequest(
-		`/1.0/instances/${instancedata.name}/state?project=${project}`
-	);
-	rs.CPU.percentConsumed =
-		(dataNew.cpu.usage - data.cpu.usage) /
-		10000000 /
-		(limit < 1 ? os.cpus().length - 6 : limit);
-	return rs;
+	if (data.status_code != 102) {
+		let dataNew = await mkRequest(
+			`/1.0/instances/${instancedata.name}/state?project=${project}`
+		);
+		rs.CPU.percentConsumed =
+			(dataNew.cpu.usage - data.cpu.usage) /
+			10000000 /
+			(limit < 1 ? os.cpus().length : limit);
+		return rs;
+	} else
+		return new Promise((resolve) =>
+			mdb
+				.db("lxd")
+				.collection(project)
+				.findOne({ _id: instancedata.name }, (err, res) => {
+					if (!err) {
+						rs.CPU.usedTime = res.data.cpuTime;
+						rs.disk.devices[0].usage = res.data.disk;
+						//TODO: DO NOT FORGET TO UNCOMMENT THIS BEFORE HANDING IN.
+						// res.networks.internet.limits = rs.internet.limits;
+						rs.internet = res.data.networks.internet;
+						rs.loopback = res.data.networks.loopback;
+						rs.networks = res.data.networks.other;
+					}
+					rs.CPU.usage = 0;
+					resolve(rs);
+				})
+		);
 }
 
 export function getState(state, id, project) {
-	return mkRequest(
-		`/1.0/instances/${id}?project=${project}`
-	).then((instance) => getStateFromSource(state, instance, project));
+	return mkRequest(`/1.0/instances/${id}?project=${project}`).then((res) => {
+		return res.error
+			? new OperationState(res.error, res.error_code)
+			: getStateFromSource(state, res, project);
+	});
 }
 
 // Returns array of snapshot objects for the given container.
@@ -348,16 +405,18 @@ export function getSnapshots(id, project) {
 				let prefix = `/1.0/instances/${id}/snapshots/`.length;
 				let suffix = `?project=${project}`.length;
 				let snapshots = new Array();
-				snaps.forEach((name) =>
-					getSnapshot(
-						id,
-						name.substring(prefix, name.length - suffix),
-						project
-					).then((snap) => {
-						snapshots.push(snap);
-						if (snapshots.length == snaps.length) resolve(snapshots);
-					})
-				);
+				if (snaps.length > 0)
+					snaps.forEach((name) =>
+						getSnapshot(
+							id,
+							name.substring(prefix, name.length - suffix),
+							project
+						).then((snap) => {
+							snapshots.push(snap);
+							if (snapshots.length == snaps.length) resolve(snapshots);
+						})
+					);
+				else resolve(snapshots);
 			}
 		)
 	);
@@ -472,10 +531,82 @@ export function startInstance(id, project) {
 }
 
 export function stopInstance(id, project) {
-	return mkRequest(`/1.0/instances/${id}/state?project=${project}`, "PUT", {
-		action: "stop",
-		timeout: 60,
-	}).then((res) => getOperation(res));
+	let data = { networks: { other: [] } };
+	return new Promise((resolve) =>
+		execInstance(id, project, [
+			"bash",
+			"-c",
+			"df -B 1 | awk '/\\/$/{print $4;exit}'",
+		]).then((res) => {
+			if (res.statusCode != 0) {
+				resolve(res);
+				return;
+			}
+			data.disk = parseInt(res.status);
+			mkRequest(`/1.0/instances/${id}/state?project=${project}`).then(
+				(res) => {
+					data.cpuTime = res.cpu.usage;
+					Object.keys(res.network).forEach((key) => {
+						let lxdn = res.network[key];
+						let network = new NS.NetworkState(
+							key,
+							lxdn.addresses,
+							lxdn.hwaddr,
+							lxdn.host_name,
+							lxdn.mtu,
+							lxdn.state,
+							lxdn.type
+						);
+						network.counters.download.bytesRecieved =
+							lxdn.counters.bytes_received;
+						network.counters.upload.bytesSent = lxdn.counters.bytes_sent;
+						network.counters.download.packetsRecieved =
+							lxdn.counters.packets_received;
+						network.counters.upload.packetsSent =
+							lxdn.counters.packets_sent;
+						switch (key) {
+							case "eth0":
+								data.networks.internet = network;
+								break;
+							case "lo":
+								data.networks.loopback = network;
+								break;
+							default:
+								data.networks.other.push(network);
+								break;
+						}
+					});
+					mkRequest(
+						`/1.0/instances/${id}/state?project=${project}`,
+						"PUT",
+						{
+							action: "stop",
+							timeout: 60,
+						}
+					).then((res) =>
+						getOperation(res).then((res) => {
+							if (!res.error) {
+								let proj = mdb.db("lxd").collection(project);
+								proj.updateOne(
+									{ _id: id },
+									{ $set: { data: data } },
+									(err, result) => {
+										if (err)
+											res = new OperationState(err.toString(), 400);
+										if (result.result.n == 0)
+											proj.insertOne({ _id: id, data: data }, () =>
+												resolve(res)
+											);
+										else resolve(res);
+									}
+								);
+							} else resolve(getOperation(res));
+						})
+					);
+				}
+			);
+		})
+	);
 }
 
 export function freezeInstance(id, project) {
@@ -493,7 +624,33 @@ export function unfreezeInstance(id, project) {
 }
 
 export function createProject(data) {
-	return mkRequest("/1.0/projects", "POST", data).then((res) =>
-		getOperation(res)
+	return new Promise((resolve) =>
+		mkRequest("/1.0/projects", "POST", data).then((res) => {
+			if (!res || !res.error)
+				mdb.db("lxd").createCollection(data.name, (err, result) => {
+					if (err) res = { error: err.toString(), error_code: 400 };
+					resolve(getOperation(res));
+				});
+			else resolve(new OperationState(res.error, res.error_code));
+		})
 	);
+}
+
+export function deleteProject(id) {
+	return new Promise((resolve) =>
+		mkRequest(`/1.0/projects/${id}`, "DELETE").then((res) => {
+			if (!res || !res.error)
+				mdb.db("lxd")
+					.collection(id)
+					.drop((err, result) => {
+						if (err) res = { error: err.toString(), eror_code: 400 };
+						resolve(getOperation(res));
+					});
+			else resolve(getOperation(res));
+		})
+	);
+}
+
+export function shutdownMongo() {
+	return mdb.close();
 }
