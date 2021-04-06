@@ -161,10 +161,10 @@ const CreateContainerDialog = ({
                                  inputText={app.description}
                                  handler={shouldAdd => {
                                     if(shouldAdd){
-                                       createdContainer.current.applicationsToInstall.push(app)
+                                       createdContainer.current.applicationsToInstall.push(app.id)
                                     } else {
                                        for(let i = 0; i < createdContainer.current.applicationsToInstall.length; i++){
-                                          if(createdContainer.current.applicationsToInstall[i].id === app.id){
+                                          if(createdContainer.current.applicationsToInstall[i] === app.id){
                                              createdContainer.current.applicationsToInstall.splice(i, 1);
                                           }
                                        }

@@ -79,3 +79,23 @@ export const projectIdDelete = (projectId, notify) => {
       api.projectsIdDelete(projectId, callback);
    };
 };
+
+export const projectIdGet = (projectId, notify) => {
+   return (dispatch) => {
+      const callback = function (error, data, response) {
+         if (error) {
+            notify(`Error occured: ${error}`);
+         } else {
+            dispatch(projectGetSuccess(data));
+         }
+      };
+      api.projectsIdGet(projectId, callback);
+   }
+}
+
+const projectGetSuccess = (project) => {
+   return {
+      type: "PROJECT_GET_SUCCESS",
+      payload: project
+   }
+}

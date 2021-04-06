@@ -13,6 +13,19 @@ export const combinedUserDataReducer = (state = null, action) => {
          StateCalculator.addStateToUserData(newState);
          return newState;
       }
+      case "PROJECT_GET_SUCCESS": {
+         const newState = _.cloneDeep(state);
+         for (let i = 0; i < newState.userProjects.projects.length; i++) {
+            if (newState.userProjects.projects[i].id === action.payload.id) {
+               newState.userProjects.projects[i] = action.payload;
+               return newState;
+            }
+         }
+         newState.userProjects.projects = [action.pyaload].concat(
+            newState.userProjects.projects
+         );
+         return newState;
+      }
       case "START_SPINNER_PROJECT_POST": {
          const newState = _.cloneDeep(state);
          const project = action.payload;

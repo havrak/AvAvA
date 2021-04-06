@@ -38,6 +38,11 @@
    text-decoration: underline;
 }
 
+.information-container .information-item{
+   margin-bottom: 5px;
+   margin-top: 5px;
+}
+
 @media (min-width: 1600px) {
    .col-xxl-5-group {
       flex: 0 0 20%;

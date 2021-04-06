@@ -10,8 +10,7 @@ import EnhancedTable from "components/Tables/EnhancedTable.js";
 import NotificationAlert from "react-notification-alert";
 import { ContainerProgressBar } from "components/Tables/ProgressBars.js";
 
-import { userProjectsGet } from "actions/UserActions";
-import { projectIdDelete, startSpinnerProjectDelete } from "actions/ProjectActions";
+import { projectIdDelete, startSpinnerProjectDelete, projectIdGet } from "actions/ProjectActions";
 import { setCustomizableBrandText } from "actions/FrontendActions";
 import {
    bytesToAdequateValue,
@@ -25,7 +24,7 @@ import ContainersTableToolbar from "components/Tables/Toolbars/ContainersTableTo
 function Containers(props) {
    const {
       currentProject,
-      userProjectsGet,
+      projectIdGet,
       setCustomizableBrandText,
       notify
    } = props;
@@ -41,7 +40,7 @@ function Containers(props) {
       setCustomizableBrandText(brand);
    });
    useEffect(() => {
-      userProjectsGet();
+      projectIdGet(currentProject.id);
    }, []);
 
    const views = {
@@ -494,8 +493,8 @@ const mapDispatchToProps = (dispatch) => {
       setCustomizableBrandText: (text) => {
          dispatch(setCustomizableBrandText(text));
       },
-      userProjectsGet: () => {
-         dispatch(userProjectsGet());
+      projectIdGet: (projectId) => {
+         dispatch(projectIdGet(projectId));
       },
       startSpinnerProjectDelete: (project) => {
          dispatch(startSpinnerProjectDelete(project));
