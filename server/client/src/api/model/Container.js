@@ -59,9 +59,6 @@ export default class Container {
             if (data.hasOwnProperty('template')) {
                 obj['template'] = Template.constructFromObject(data['template']);
             }
-            if (data.hasOwnProperty('stateful')) {
-                obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
-            }
             if (data.hasOwnProperty('createdOn')) {
                 obj['createdOn'] = ApiClient.convertToType(data['createdOn'], 'String');
             }
@@ -95,10 +92,6 @@ export default class Container {
     * @member {module:model/Template} template
     */
     'template' = undefined;
-    /**
-    * @member {Boolean} stateful
-    */
-    'stateful' = undefined;
     /**
     * Date and time of the creation of the container
     * @member {String} createdOn

@@ -12,41 +12,42 @@ export const startSpinnerContainerPost = (projectId, container) => {
    };
 };
 
-export const containerPostFail = (project, container) => {
+export const containerPostFail = (projectId, containerName) => {
    return {
       type: "CONTAINER_POST_FAIL",
       payload: {
-         project: project,
-         container: container,
+         project: projectId,
+         container: containerName,
       },
    };
 };
 
-export const containerPostSuccess = (project, container) => {
+export const containerPostSuccess = (projectId, container) => {
    return {
       type: "CONTAINER_POST_SUCCESS",
       payload: {
-         project: project,
+         projectId: projectId,
          container: container,
       },
    };
 };
 
-export const containerPost = (body, notify) => {
+export const containerPost = (container, notify) => {
    return (dispatch) => {
+      dispatch(startSpinnerContainerPost(container.projectId, container));
       const callback = function (error, data, response) {
          if (error) {
             console.error(error + "containerPostError");
-            dispatch(containerPostFail(body.name));
-            notify(`Error occured: ${error.ErrorResponse ? error.ErrorResponse : ""}`);
+            dispatch(containerPostFail(container.projectId, container.name));
+            notify(`Error occured: ${error}`);
+            console.log(error);
          } else {
-            // data.name = "asdf";
-            // data.id = "123"; //TESTING PURPOSES
-            dispatch(containerPostSuccess(data));
+            data.name = "asdf";
+            data.id = "123"; //TESTING PURPOSES
+            dispatch(containerPostSuccess(container.projectId, data));
          }
       };
-      console.log(body);
-      api.instancesPost(body, callback);
+      api.instancesPost(container, callback);
    };
 };
 

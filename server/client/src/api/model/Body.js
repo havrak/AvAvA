@@ -27,23 +27,21 @@ export default class Body {
     * @class
     * @param name {String} 
     * @param projectId {Number} Id of project where container should be created
-    * @param autostart {Boolean} 
     * @param templateId {Number} 
-    * @param stateful {Boolean} 
     * @param applicationsToInstall {Array.<module:model/ApplicationToInstall>} 
     * @param connectToInternet {Boolean} 
+    * @param limits {module:model/Limits} 
     */
 
-    constructor(name, projectId, autostart, templateId, stateful, applicationsToInstall, connectToInternet) {
+    constructor(name, projectId, templateId, applicationsToInstall, connectToInternet, limits) {
         
         
         this['name'] = name;
         this['projectId'] = projectId;
-        this['autostart'] = autostart;
         this['templateId'] = templateId;
-        this['stateful'] = stateful;
         this['applicationsToInstall'] = applicationsToInstall;
         this['connectToInternet'] = connectToInternet;
+        this['limits'] = limits;
         
     }
 
@@ -65,14 +63,8 @@ export default class Body {
             if (data.hasOwnProperty('projectId')) {
                 obj['projectId'] = ApiClient.convertToType(data['projectId'], 'Number');
             }
-            if (data.hasOwnProperty('autostart')) {
-                obj['autostart'] = ApiClient.convertToType(data['autostart'], 'Boolean');
-            }
             if (data.hasOwnProperty('templateId')) {
                 obj['templateId'] = ApiClient.convertToType(data['templateId'], 'Number');
-            }
-            if (data.hasOwnProperty('stateful')) {
-                obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
             }
             if (data.hasOwnProperty('applicationsToInstall')) {
                 obj['applicationsToInstall'] = ApiClient.convertToType(data['applicationsToInstall'], [ApplicationToInstall]);
@@ -97,17 +89,9 @@ export default class Body {
     */
     'projectId' = undefined;
     /**
-    * @member {Boolean} autostart
-    */
-    'autostart' = undefined;
-    /**
     * @member {Number} templateId
     */
     'templateId' = undefined;
-    /**
-    * @member {Boolean} stateful
-    */
-    'stateful' = undefined;
     /**
     * @member {Array.<module:model/ApplicationToInstall>} applicationsToInstall
     */

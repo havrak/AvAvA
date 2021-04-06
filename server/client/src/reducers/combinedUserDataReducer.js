@@ -77,33 +77,47 @@ export const combinedUserDataReducer = (state = null, action) => {
       //containers
       case "START_SPINNER_CONTAINER_POST": {
          const newState = _.cloneDeep(state);
+         action.payload.container.pendingState = "creating";
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
             if (newState.userProjects.projects[i].id === action.payload.projectId) {
                newState.userProjects.projects[i].containers = [
                   action.payload.container,
                ].concat(newState.userProjects.projects[i].containers);
-               break;
+               // StateCalculator.addStateToUserData(newState);
+               return newState;
             }
          }
          return newState;
       }
       case "CONTAINER_POST_SUCCESS": {
          const newState = _.cloneDeep(state);
-         for (let i = 0; i < newState.userProjects.projects.length; i++) {
-            if (newState.userProjects.projects[i].name === action.payload.name) {
-               newState.userProjects.projects[i] = action.payload;
-               break;
+         const projects = newState.userProjects.projects;
+         console.log(action.pa)
+         for (let i = 0; i < projects.length; i++) {
+            if (projects[i].id === action.payload.projectId) {
+               for (let j = 0; j < projects[i].containers.length; j++) {
+                  if (projects[i].containers[j].name === action.payload.container.name) {
+                     projects[i].containers[j] = action.payload.container;
+                     StateCalculator.addStateToUserData(newState);
+                     return newState;
+                  }
+               }
             }
          }
-         StateCalculator.addStateToUserData(newState);
          return newState;
       }
       case "CONTAINER_POST_FAIL": {
          const newState = _.cloneDeep(state);
-         for (let i = 0; i < newState.userProjects.projects.length; i++) {
-            if (newState.userProjects.projects[i].name === action.payload) {
-               newState.userProjects.projects.splice(i, 1);
-               break;
+         const projects = newState.userProjects.projects;
+         for (let i = 0; i < projects.length; i++) {
+            if (projects[i].id === action.payload.projectId) {
+               for (let j = 0; j < projects[i].containers.length; j++) {
+                  if (projects[i].containers[j].name === action.payload.containerName) {
+                     projects[i].containers.splice(j, 1);
+                     StateCalculator.addStateToUserData(newState);
+                     return newState;
+                  }
+               }
             }
          }
          return newState;
@@ -113,7 +127,7 @@ export const combinedUserDataReducer = (state = null, action) => {
          for (const project of newState.userProjects.projects) {
             if (project.id === action.payload.projectId) {
                for (const container of project.containers) {
-                  if(container.id === action.payload.containerId){
+                  if (container.id === action.payload.containerId) {
                      container.pendingState = action.payload.message;
                      return newState;
                   }
@@ -126,8 +140,8 @@ export const combinedUserDataReducer = (state = null, action) => {
          const projects = newState.userProjects.projects;
          for (let i = 0; i < projects.length; i++) {
             if (projects[i].id === action.payload.projectId) {
-               for(let j = 0; j < projects[i].containers.length; j++){
-                  if(projects[i].containers[j].id === action.payload.containerId){
+               for (let j = 0; j < projects[i].containers.length; j++) {
+                  if (projects[i].containers[j].id === action.payload.containerId) {
                      projects[i].containers.splice(j, 1);
                      StateCalculator.addStateToUserData(newState);
                      return newState;
@@ -142,8 +156,8 @@ export const combinedUserDataReducer = (state = null, action) => {
          const projects = newState.userProjects.projects;
          for (let i = 0; i < projects.length; i++) {
             if (projects[i].id === action.payload.projectId) {
-               for(let j = 0; j < projects[i].containers.length; j++){
-                  if(projects[i].containers[j].id === action.payload.container.id){
+               for (let j = 0; j < projects[i].containers.length; j++) {
+                  if (projects[i].containers[j].id === action.payload.container.id) {
                      projects[i].containers[j] = action.payload.container;
                      StateCalculator.addStateToUserData(newState);
                      return newState;
@@ -157,8 +171,8 @@ export const combinedUserDataReducer = (state = null, action) => {
          const projects = newState.userProjects.projects;
          for (let i = 0; i < projects.length; i++) {
             if (projects[i].id === action.payload.projectId) {
-               for(let j = 0; j < projects[i].containers.length; j++){
-                  if(projects[i].containers[j].id === action.payload.containerId){
+               for (let j = 0; j < projects[i].containers.length; j++) {
+                  if (projects[i].containers[j].id === action.payload.containerId) {
                      projects[i].containers[j].pendingState = null;
                      return newState;
                   }
@@ -168,7 +182,7 @@ export const combinedUserDataReducer = (state = null, action) => {
       }
       case "CREATE_INSTANCE_CONFIG_DATA_GET":
          const newState = _.cloneDeep(state);
-         newState.createinstanceConfigData = action.payload;
+         newState.createInstanceConfigData = action.payload;
          return newState;
       case "LOGOUT":
          return null;

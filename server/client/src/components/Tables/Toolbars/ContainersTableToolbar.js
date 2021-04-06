@@ -18,6 +18,25 @@ import {
 import { connect } from "react-redux";
 import CreateContainerDialog from "components/Dialogs/CreateContainerDialog.js";
 
+const containerCreateBaseState = (projectId, firstTemplate) => {
+   return {
+      projectId: projectId,
+      name: "",
+      applicationsToInstall: [],
+      templateId: firstTemplate.id,
+      connectToInternet: false,
+      limits: {
+         RAM: 0,
+         CPU: 0,
+         disk: firstTemplate.minDiskUsage,
+         internet: {
+            upload: 0,
+            download: 0,
+         },
+      },
+   };
+};
+
 function ContainersTableToolbar(props) {
    const {
       project,
@@ -34,12 +53,15 @@ function ContainersTableToolbar(props) {
       containerIdStop,
       containerIdFreeze,
       containerIdUnfreeze,
-      instancesCreateInstanceConfigDataGet
+      instancesCreateInstanceConfigDataGet,
+      createInstanceConfigData
    } = props;
    const [dialogOpen, setDialogOpen] = React.useState(false);
+   const createdContainer = React.useRef(containerCreateBaseState(project.id, createInstanceConfigData.templates[0]))
 
    const openDialogHandler = () => {
       instancesCreateInstanceConfigDataGet();
+      createdContainer.current = containerCreateBaseState(project.id, createInstanceConfigData.templates[0]);
       setDialogOpen(true);
    };
 
@@ -94,6 +116,7 @@ function ContainersTableToolbar(props) {
             notify={notify}
             open={dialogOpen}
             setOpen={setDialogOpen}
+            createdContainer={createdContainer}
          />
          <TableToolbar
             selectedData={selectedData}
@@ -113,6 +136,12 @@ function ContainersTableToolbar(props) {
          />
       </>
    );
+}
+
+const mapStateToProps = (state) => {
+   return {
+      createInstanceConfigData: state.combinedUserData.createInstanceConfigData,
+   }
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -138,4 +167,4 @@ const mapDispatchToProps = (dispatch) => {
    };
 };
 
-export default connect(null, mapDispatchToProps)(ContainersTableToolbar);
+export default connect(mapStateToProps, mapDispatchToProps)(ContainersTableToolbar);

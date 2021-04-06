@@ -32,6 +32,12 @@ export function InputSlider({
       setValueToParentElement(newValue);
    };
 
+   if(value < min){
+      handleSliderChange(null, min);
+   } else if(value > max){
+      handleSliderChange(null, max);
+   }
+
    const handleInputChange = (event) => {
       if (event.target.value === "") {
          setValue("");
@@ -50,7 +56,6 @@ export function InputSlider({
    };
 
    const stepValue = () => (max - min < 100 ? (max - min < 10 ? 0.01 : 0.1) : 1);
-
    return (
       <div className={classes.root}>
          {headding} ({unit}) {helperTooltipText ? <HelpIcon tooltipText={helperTooltipText} /> : ""}

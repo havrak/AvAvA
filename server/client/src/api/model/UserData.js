@@ -14,6 +14,7 @@
 import ApiClient from '../ApiClient';
 import CreateInstanceConfigData from './CreateInstanceConfigData';
 import User from './User';
+import UserDataHostInformation from './UserDataHostInformation';
 import UserProjects from './UserProjects';
 
 /**
@@ -56,6 +57,9 @@ export default class UserData {
             if (data.hasOwnProperty('createInstanceConfigData')) {
                 obj['createInstanceConfigData'] = CreateInstanceConfigData.constructFromObject(data['createInstanceConfigData']);
             }
+            if (data.hasOwnProperty('hostInformation')) {
+                obj['hostInformation'] = UserDataHostInformation.constructFromObject(data['hostInformation']);
+            }
         }
         return obj;
     }
@@ -72,6 +76,10 @@ export default class UserData {
     * @member {module:model/CreateInstanceConfigData} createInstanceConfigData
     */
     'createInstanceConfigData' = undefined;
+    /**
+    * @member {module:model/UserDataHostInformation} hostInformation
+    */
+    'hostInformation' = undefined;
 
 
 

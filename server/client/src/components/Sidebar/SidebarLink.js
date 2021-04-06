@@ -3,7 +3,6 @@ import { NavLink } from "react-router-dom";
 import { getCurrentProject, getCurrentProjectAndContainer } from "service/RoutesHelper";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ArrowDropUpIcon from "@material-ui/icons/ArrowDropUp";
-import Tooltip from "@material-ui/core/Tooltip";
 import IconButton from "@material-ui/core/IconButton";
 import { isActive, shouldOpenBasedOnLocation } from "service/RoutesHelper";
 import { Collapse } from "react-bootstrap";
@@ -28,10 +27,10 @@ export function SidebarLinkWithDropdown({ route, icon, name, toCollapse }) {
             <NavLink to={route} className="nav-link" activeClassName="active">
                {icon ? <i className={icon} /> : "" }
                <p>{name}</p>
-               <Tooltip className="dropdown-toggler" title="Display projects">
                   <IconButton
+                  className="dropdown-toggler"
                      color="inherit"
-                     aria-label="delete"
+                     aria-label="collapseButton"
                      onClick={(e) => {
                         // console.log($(e.target));
                         e.preventDefault();
@@ -40,7 +39,6 @@ export function SidebarLinkWithDropdown({ route, icon, name, toCollapse }) {
                   >
                      {shown || shouldOpenBasedOnLocation(route) ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                   </IconButton>
-               </Tooltip>
             </NavLink>
          </li>
          <Collapse className="sidebar-collapsed-block" in={shown || shouldOpenBasedOnLocation(route)}>

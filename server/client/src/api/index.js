@@ -42,6 +42,8 @@ import Snapshot from './model/Snapshot';
 import Template from './model/Template';
 import User from './model/User';
 import UserData from './model/UserData';
+import UserDataHostInformation from './model/UserDataHostInformation';
+import UserDataHostInformationCPU from './model/UserDataHostInformationCPU';
 import UserProjects from './model/UserProjects';
 import UserStateWithHistory from './model/UserStateWithHistory';
 import DefaultApi from './api/DefaultApi';
@@ -263,6 +265,18 @@ export {
      * @property {module:model/UserData}
      */
     UserData,
+
+    /**
+     * The UserDataHostInformation model constructor.
+     * @property {module:model/UserDataHostInformation}
+     */
+    UserDataHostInformation,
+
+    /**
+     * The UserDataHostInformationCPU model constructor.
+     * @property {module:model/UserDataHostInformationCPU}
+     */
+    UserDataHostInformationCPU,
 
     /**
      * The UserProjects model constructor.

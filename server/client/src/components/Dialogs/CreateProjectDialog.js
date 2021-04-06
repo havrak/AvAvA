@@ -15,24 +15,16 @@ import {
    diskToGB,
    CPUToMHz,
    networkSpeedToMbits,
+   ramFromMBToB,
+   diskFromGBToB,
+   CPUFromMHzToHz,
+   networkSpeedFromMBitsToBits
 } from "service/UnitsConvertor.js";
 
-const CreateProjectDialog = ({ projectPost, userProjects, notify, open, setOpen }) => {
+
+const CreateProjectDialog = ({ projectPost, userProjects, notify, open, setOpen, createdProject }) => {
    const { projects, state } = userProjects;
    const [errorMessage, setErrorMessage] = React.useState(null);
-   const project = {
-      name: "",
-      owner: {},
-      limits: {
-         RAM: null,
-         CPU: null,
-         disk: null,
-         network: {
-            upload: null,
-            download: null,
-         },
-      },
-   };
 
    const handleClose = () => {
       setOpen(false);
@@ -42,17 +34,22 @@ const CreateProjectDialog = ({ projectPost, userProjects, notify, open, setOpen 
       if (errorMessage !== null) {
          return;
       }
-      projectPost(project, notify);
+      createdProject.current.limits.RAM = ramFromMBToB(createdProject.current.limits.RAM);
+      createdProject.current.limits.CPU = CPUFromMHzToHz(createdProject.current.limits.CPU);
+      createdProject.current.limits.disk = diskFromGBToB(createdProject.current.limits.disk);
+      createdProject.current.limits.internet.download = networkSpeedFromMBitsToBits(createdProject.current.limits.internet.download);
+      createdProject.current.limits.internet.upload = networkSpeedFromMBitsToBits(createdProject.current.limits.internet.upload);
+      projectPost(createdProject.current, notify);
       setOpen(false);
    };
 
    const handleNameType = (event) => {
-      project.name = event.target.value;
-      if (projects.map((item) => item.name).includes(project.name)) {
+      createdProject.current.name = event.target.value;
+      if (projects.map((item) => item.name).includes(createdProject.current.name)) {
          setErrorMessage("There is already project with this name present.");
-      } else if (project.name === "") {
+      } else if (createdProject.current.name === "") {
          setErrorMessage("Must not be empty");
-      } else if (project.name.length >= 30) {
+      } else if (createdProject.current.name.length >= 30) {
          setErrorMessage("Name must be shorter than 30 characters");
       } else if (errorMessage) {
          setErrorMessage(null);
@@ -85,7 +82,7 @@ const CreateProjectDialog = ({ projectPost, userProjects, notify, open, setOpen 
                <InputSliderWithSwitch
                   headding={"RAM"}
                   setValueToParentElement={(value) => {
-                     project.limits.RAM = value;
+                     createdProject.current.limits.RAM = value;
                   }}
                   min={0}
                   max={convertedRAM}
@@ -96,16 +93,16 @@ const CreateProjectDialog = ({ projectPost, userProjects, notify, open, setOpen 
                   headding={"CPU"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     project.limits.CPU = value;
+                     createdProject.current.limits.CPU = value;
                   }}
                   max={convertedCPU}
-                  unit={"Hz"}
+                  unit={"MHz"}
                />
                <InputSliderWithSwitch
                   headding={"Disk"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     project.limits.disk = value;
+                     createdProject.current.limits.disk = value;
                   }}
                   max={convertedDisk}
                   unit={"GB"}
@@ -114,7 +111,7 @@ const CreateProjectDialog = ({ projectPost, userProjects, notify, open, setOpen 
                   headding={"Upload"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     project.limits.network.download = value;
+                     createdProject.current.limits.internet.download = value;
                   }}
                   max={convertedUpload}
                   unit={"Mbit/s"}
@@ -123,7 +120,7 @@ const CreateProjectDialog = ({ projectPost, userProjects, notify, open, setOpen 
                   headding={"Download"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     project.limits.network.upload = value;
+                     createdProject.current.limits.internet.upload = value;
                   }}
                   max={convertedDownload}
                   unit={"Mbit/s"}

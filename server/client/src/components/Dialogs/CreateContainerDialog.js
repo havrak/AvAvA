@@ -1,38 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 //source: https://github.com/tannerlinsley/react-table/tree/master/examples/material-UI-kitchen-sink
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import RadioGroup from "@material-ui/core/RadioGroup";
+import Radio from "@material-ui/core/Radio";
 import TextField from "@material-ui/core/TextField";
 import { connect } from "react-redux";
 import { InputSlider } from "components/Form/Slider.js";
-import CheckboxDiv from 'components/Form/CheckboxDiv.js';
-import { projectPost } from "actions/ProjectActions.js";
+import { CheckboxDiv, RadioDiv } from "components/Form/ControlDivs.js";
+import { containerPost } from "actions/ContainerActions.js";
 import {
    ramToMB,
    diskToGB,
    CPUToMHz,
    networkSpeedToMbits,
+   bytesToAdequateValue,
+   ramFromMBToB,
+   diskFromGBToB,
+   CPUFromMHzToHz,
+   networkSpeedFromMBitsToBits
 } from "service/UnitsConvertor.js";
-import {getCurrentProject} from 'service/RoutesHelper';
+import { getCurrentProject } from "service/RoutesHelper";
+import { Collapse } from "react-bootstrap";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import ArrowDropUpIcon from "@material-ui/icons/ArrowDropUp";
+import IconButton from "@material-ui/core/IconButton";
+import { HelpIcon } from "components/Icons/ClickableIcons";
 
-const CreateContainerDialog = ({ projectPost, currentProject, userState, notify, open, setOpen }) => {
-   const [errorMessage, setErrorMessage] = React.useState(null);
-   const container = {
-      name: "",
-      connectToInternet: true,
-      limits: {
-         RAM: null,
-         CPU: null,
-         disk: null,
-         network: {
-            upload: null,
-            download: null,
-         },
-      },
-   };
+const CreateContainerDialog = ({
+   containerPost,
+   currentProject,
+   userState,
+   notify,
+   open,
+   setOpen,
+   createInstanceConfigData,
+   createdContainer,
+}) => {
+   const [errorMessage, setErrorMessage] = useState(null);
+   const [selectedTemplate, setSelectedTemplate] = useState(
+      createInstanceConfigData.templates[0]
+   );
 
    const handleClose = () => {
       setOpen(false);
@@ -42,33 +53,56 @@ const CreateContainerDialog = ({ projectPost, currentProject, userState, notify,
       if (errorMessage !== null) {
          return;
       }
-      projectPost(project, notify);
+      createdContainer.current.limits.RAM = ramFromMBToB(createdContainer.current.limits.RAM);
+      createdContainer.current.limits.CPU = CPUFromMHzToHz(createdContainer.current.limits.CPU);
+      createdContainer.current.limits.disk = diskFromGBToB(createdContainer.current.limits.disk);
+      createdContainer.current.limits.internet.download = networkSpeedFromMBitsToBits(createdContainer.current.limits.internet.download);
+      createdContainer.current.limits.internet.upload = networkSpeedFromMBitsToBits(createdContainer.current.limits.internet.upload);
+      containerPost(createdContainer.current, notify);
       setOpen(false);
    };
 
    const handleNameType = (event) => {
-      container.name = event.target.value;
-      if (projects.map((item) => item.name).includes(project.name)) {
+      createdContainer.current.name = event.target.value;
+      if (
+         currentProject.containers
+            .map((item) => item.name)
+            .includes(createdContainer.current.name)
+      ) {
          setErrorMessage("There is already project with this name present.");
-      } else if (project.name === "") {
+      } else if (createdContainer.current.name === "") {
          setErrorMessage("Must not be empty");
-      } else if (project.name.length >= 30) {
+      } else if (createdContainer.current.name.length >= 30) {
          setErrorMessage("Name must be shorter than 30 characters");
       } else if (errorMessage) {
          setErrorMessage(null);
       }
    };
+
+   const handleTemplateChange = (item) => {
+      if (item.minDiskUsage > userState.disk.free) {
+         notify(
+            "Required disk space for this template is greater than your current free disk capacity"
+         );
+      } else {
+         setSelectedTemplate(item);
+         createdContainer.current.templateId = item.id;
+      }
+   };
+
    let convertedRAM;
    let convertedCPU;
    let convertedDisk;
    let convertedUpload;
    let convertedDownload;
-   if(currentProject.limits){
+   if (currentProject.limits) {
       convertedRAM = ramToMB(currentProject.state.RAM.free);
       convertedCPU = CPUToMHz(currentProject.state.CPU.free);
       convertedDisk = diskToGB(currentProject.state.disk.free);
       convertedUpload = networkSpeedToMbits(currentProject.state.internet.upload.free);
-      convertedDownload = networkSpeedToMbits(currentProject.state.internet.download.free);
+      convertedDownload = networkSpeedToMbits(
+         currentProject.state.internet.download.free
+      );
    } else {
       convertedRAM = ramToMB(userState.RAM.free);
       convertedCPU = CPUToMHz(userState.CPU.free);
@@ -76,9 +110,16 @@ const CreateContainerDialog = ({ projectPost, currentProject, userState, notify,
       convertedUpload = networkSpeedToMbits(userState.internet.upload.free);
       convertedDownload = networkSpeedToMbits(userState.internet.download.free);
    }
+   const [showTemplates, setTemplatesShown] = useState(false);
+   const [showApplicationsToInstall, setApplicationsToInstallShown] = useState(false);
    return (
       <div>
-         <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+         <Dialog
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="form-dialog-title"
+            className={"dialog"}
+         >
             <DialogTitle id="form-dialog-title">Create new container</DialogTitle>
             <DialogContent>
                <TextField
@@ -92,13 +133,105 @@ const CreateContainerDialog = ({ projectPost, currentProject, userState, notify,
                   style={{ marginBottom: "10px" }}
                   helperText={errorMessage}
                />
-               {/* <CheckboxDiv tooltipText={"Autostart means that "} inputText={"Autostart"} /> */}
-               {/* <CheckboxDiv tooltipText={"Dunno what it is"} inputText={"Stateful"} /> */}
-               <CheckboxDiv tooltipText={"Container will be accessible via this kind of adress: container.project.yourname.servername.cz"} inputText={"Connect to the internet"} />
+               <div>
+                  <span>Applications to install </span>
+                  <HelpIcon tooltipText={"ff"} />
+                  <IconButton
+                     color="inherit"
+                     aria-label="collapseButton"
+                     onClick={(e) => {
+                        setApplicationsToInstallShown(!showApplicationsToInstall);
+                     }}
+                  >
+                     {showApplicationsToInstall ? (
+                        <ArrowDropUpIcon />
+                     ) : (
+                        <ArrowDropDownIcon />
+                     )}
+                  </IconButton>
+                  <Collapse
+                     className={"dialog-collapse-div"}
+                     in={showApplicationsToInstall}
+                  >
+                     <div>
+                        {createInstanceConfigData.applicationsToInstall.map((app) => {
+                           return (
+                              <CheckboxDiv
+                                 tooltipText={app.name}
+                                 inputText={app.description}
+                                 handler={shouldAdd => {
+                                    if(shouldAdd){
+                                       createdContainer.current.applicationsToInstall.push(app)
+                                    } else {
+                                       for(let i = 0; i < createdContainer.current.applicationsToInstall.length; i++){
+                                          if(createdContainer.current.applicationsToInstall[i].id === app.id){
+                                             createdContainer.current.applicationsToInstall.splice(i, 1);
+                                          }
+                                       }
+                                    }
+                                 }}
+                                 key={app.id}
+                              />
+                           );
+                        })}
+                     </div>
+                  </Collapse>
+               </div>
+               <div>
+                  <span>
+                     Template - {selectedTemplate.name} <HelpIcon tooltipText={"ff"} />
+                  </span>
+                  <IconButton
+                     // className="dropdown-toggler"
+                     color="inherit"
+                     aria-label="collapseButton"
+                     onClick={(e) => {
+                        setTemplatesShown(!showTemplates);
+                     }}
+                  >
+                     {showTemplates ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                  </IconButton>
+                  <Collapse className={"dialog-collapse-div"} in={showTemplates}>
+                     <RadioGroup
+                        aria-label="quiz"
+                        name="quiz"
+                        // value={value}
+                        // onChange={handleRadioChange}
+                     >
+                        {createInstanceConfigData.templates.map((template) => {
+                           return (
+                              <RadioDiv
+                                 checked={template.id === selectedTemplate.id}
+                                 handleChange={(e) => {
+                                    handleTemplateChange(template);
+                                 }}
+                                 tooltipText={template.description}
+                                 inputText={`${
+                                    template.name
+                                 } - min disk (${bytesToAdequateValue(
+                                    template.minDiskUsage
+                                 ).getMessage()})`}
+                                 key={template.id}
+                              />
+                           );
+                        })}
+                     </RadioGroup>
+                  </Collapse>
+               </div>
+               <CheckboxDiv
+                  tooltipText={
+                     "Container will be accessible via this kind of adress: container.project.yourname.servername.cz"
+                  }
+                  inputText={"Connect to internet"}
+                  handler={(value) => {
+                     createdContainer.current.connectToInternet = value;
+                     console.log(createdContainer.current);
+                  }}
+               />
                <InputSlider
                   headding={"RAM"}
                   setValueToParentElement={(value) => {
-                     project.limits.RAM = value;
+                     createdContainer.current.limits.RAM = value;
                   }}
                   min={0}
                   max={convertedRAM}
@@ -109,16 +242,16 @@ const CreateContainerDialog = ({ projectPost, currentProject, userState, notify,
                   headding={"CPU"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     project.limits.CPU = value;
+                     createdContainer.current.limits.CPU = value;
                   }}
                   max={convertedCPU}
                   unit={"Hz"}
                />
                <InputSlider
                   headding={"Disk"}
-                  min={0}
+                  min={diskToGB(selectedTemplate.minDiskUsage)}
                   setValueToParentElement={(value) => {
-                     project.limits.disk = value;
+                     createdContainer.current.limits.disk = value;
                   }}
                   max={convertedDisk}
                   unit={"GB"}
@@ -127,7 +260,7 @@ const CreateContainerDialog = ({ projectPost, currentProject, userState, notify,
                   headding={"Upload"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     project.limits.network.download = value;
+                     createdContainer.current.limits.internet.download = value;
                   }}
                   max={convertedUpload}
                   unit={"Mbit/s"}
@@ -136,7 +269,7 @@ const CreateContainerDialog = ({ projectPost, currentProject, userState, notify,
                   headding={"Download"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     project.limits.network.upload = value;
+                     createdContainer.current.limits.internet.upload = value;
                   }}
                   max={convertedDownload}
                   unit={"Mbit/s"}
@@ -159,14 +292,14 @@ const mapStateToProps = (state) => {
    return {
       createInstanceConfigData: state.combinedUserData.createInstanceConfigData,
       userState: state.combinedUserData.userProjects.state,
-      currentProject: getCurrentProject(state.combinedUserData.userProjects.projects)
+      currentProject: getCurrentProject(state.combinedUserData.userProjects.projects),
    };
 };
 
 const mapDispatchToProps = (dispatch) => {
    return {
-      projectPost: (project, projectPostFailNotification) => {
-         dispatch(projectPost(project, projectPostFailNotification));
+      containerPost: (project, projectPostFailNotification) => {
+         dispatch(containerPost(project, projectPostFailNotification));
       },
    };
 };

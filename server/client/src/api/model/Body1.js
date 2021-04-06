@@ -26,20 +26,18 @@ export default class Body1 {
     * @alias module:model/Body1
     * @class
     * @param name {String} 
-    * @param autostart {Boolean} 
-    * @param stateful {Boolean} 
     * @param applicationsToInstall {Array.<module:model/ApplicationToInstall>} 
     * @param connectToInternet {Boolean} 
+    * @param limits {module:model/Limits} 
     */
 
-    constructor(name, autostart, stateful, applicationsToInstall, connectToInternet) {
+    constructor(name, applicationsToInstall, connectToInternet, limits) {
         
         
         this['name'] = name;
-        this['autostart'] = autostart;
-        this['stateful'] = stateful;
         this['applicationsToInstall'] = applicationsToInstall;
         this['connectToInternet'] = connectToInternet;
+        this['limits'] = limits;
         
     }
 
@@ -58,12 +56,6 @@ export default class Body1 {
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
-            if (data.hasOwnProperty('autostart')) {
-                obj['autostart'] = ApiClient.convertToType(data['autostart'], 'Boolean');
-            }
-            if (data.hasOwnProperty('stateful')) {
-                obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
-            }
             if (data.hasOwnProperty('applicationsToInstall')) {
                 obj['applicationsToInstall'] = ApiClient.convertToType(data['applicationsToInstall'], [ApplicationToInstall]);
             }
@@ -81,14 +73,6 @@ export default class Body1 {
     * @member {String} name
     */
     'name' = undefined;
-    /**
-    * @member {Boolean} autostart
-    */
-    'autostart' = undefined;
-    /**
-    * @member {Boolean} stateful
-    */
-    'stateful' = undefined;
     /**
     * @member {Array.<module:model/ApplicationToInstall>} applicationsToInstall
     */

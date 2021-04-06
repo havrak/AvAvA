@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import TableToolbar from "./TableToolbar";
 import { projectIdDelete, startSpinnerProjectDelete } from "actions/ProjectActions";
 import {
@@ -7,6 +7,22 @@ import {
 } from "components/Icons/ClickableIcons.js";
 import { connect } from "react-redux";
 import CreateProjectDialog from "components/Dialogs/CreateProjectDialog.js";
+
+const baseState = () => {
+   return {
+      name: "",
+      owner: {},
+      limits: {
+         RAM: null,
+         CPU: null,
+         disk: null,
+         internet: {
+            upload: null,
+            download: null,
+         },
+      },
+   };
+};
 
 function ProjectsTableToolbar(props) {
    const {
@@ -20,6 +36,12 @@ function ProjectsTableToolbar(props) {
       setView,
       projectIdDelete,
    } = props;
+   const createdProject = React.useRef(baseState);
+
+   const openDialogHandler = () => {
+      createdProject.current = baseState();
+      setDialogOpen(true);
+   };
 
    const [dialogOpen, setDialogOpen] = React.useState(false);
    const deleteProjectsHandler = () => {
@@ -34,7 +56,12 @@ function ProjectsTableToolbar(props) {
 
    return (
       <>
-         <CreateProjectDialog notify={notify} open={dialogOpen} setOpen={setDialogOpen} />
+         <CreateProjectDialog
+            createdProject={createdProject}
+            notify={notify}
+            open={dialogOpen}
+            setOpen={setDialogOpen}
+         />
          <TableToolbar
             selectedData={selectedData}
             preGlobalFilteredRows={preGlobalFilteredRows}
@@ -44,13 +71,7 @@ function ProjectsTableToolbar(props) {
             view={view}
             setView={setView}
             notify={notify}
-            addIcon={
-               <AddClickableIcon
-                  handler={(e) => {
-                     setDialogOpen(true);
-                  }}
-               />
-            }
+            addIcon={<AddClickableIcon handler={openDialogHandler} />}
             backIcons={backIcons}
          />
       </>

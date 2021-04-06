@@ -75,7 +75,7 @@ export function ramToMB(bytes) {
 }
 
 export function ramFromMBToB(MB) {
-   return GB * 1_000_000;
+   return MB * 1_000_000;
 }
 
 export function diskToGB(bytes) {
@@ -88,6 +88,10 @@ export function diskFromGBToB(GB) {
 
 export function CPUToMHz(Hz) {
    return Math.round(Hz / 1_000) / 1_000.0;
+}
+
+export function CPUFromMHzToHz(MHz) {
+   return MHz * 1_000_000;
 }
 
 export function networkSpeedToMbits(bytes) {

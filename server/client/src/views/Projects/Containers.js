@@ -25,11 +25,9 @@ import ContainersTableToolbar from "components/Tables/Toolbars/ContainersTableTo
 function Containers(props) {
    const {
       currentProject,
-      userState,
       userProjectsGet,
-      projectIdDelete,
-      startSpinnerProjectDelete,
       setCustomizableBrandText,
+      notify
    } = props;
    if (!currentProject) {
       return <Redirect to={removePathParts(2)} />;
@@ -456,20 +454,9 @@ function Containers(props) {
    //    );
    // };
 
-   const notificationAlertRef = React.useRef(null);
-   const notify = (message, type, autoDismiss) => {
-      const options = {
-         place: "tr",
-         message,
-         type,
-         autoDismiss,
-      };
-      notificationAlertRef.current.notificationAlert(options);
-   };
    return (
       <>
          <Container fluid>
-            <NotificationAlert ref={notificationAlertRef} />
             <Row>
                <Col md="12">
                   <Card>
