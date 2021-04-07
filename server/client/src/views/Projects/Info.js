@@ -44,7 +44,7 @@ function Info({
                <Col sm="12" md="12" lg="6" xl="6">
                   <Card className="card-dashboard">
                      <Card.Header>
-                        <Card.Title as="h4">Info</Card.Title>
+                        <Card.Title as="h4">Project Info</Card.Title>
                      </Card.Header>
                      <Card.Body className="p-0">
                         <Container fluid className="information-container">
