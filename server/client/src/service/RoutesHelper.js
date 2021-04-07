@@ -87,12 +87,14 @@ function currentProjectAndContainerId() {
 export function getCurrentProjectAndContainer(projects) {
    const { containerId, projectId } = currentProjectAndContainerId();
    for (const project of projects) {
-      if (project.id === currentProjectId) {
+      if (project.id === projectId) {
          for (const container of project.containers) {
-            return {
-               currentProject: project,
-               currentContainer: container,
-            };
+            if(container.id === containerId){
+               return {
+                  currentProject: project,
+                  currentContainer: container,
+               };
+            }
          }
       }
    }

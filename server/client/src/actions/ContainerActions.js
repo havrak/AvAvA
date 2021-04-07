@@ -12,6 +12,29 @@ export const startSpinnerContainerPost = (projectId, container) => {
    };
 };
 
+export const containerIdGet = (projectId, containerId, notify) => {
+   return (dispatch) => {
+      const callback = function (error, data, response) {
+         if (error) {
+            notify(`Error occured: ${error}`);
+         } else {
+            dispatch(containerGetSuccess(projectId, data));
+         }
+      };
+      api.instancesIdGet(containerId, callback);
+   }
+}
+
+const containerGetSuccess = (projectId, container) => {
+   return {
+      type: "CONTAINER_GET_SUCCESS",
+      payload: {
+         projectId: projectId,
+         container: container
+      }
+   }
+}
+
 export const containerPostFail = (projectId, containerName) => {
    return {
       type: "CONTAINER_POST_FAIL",

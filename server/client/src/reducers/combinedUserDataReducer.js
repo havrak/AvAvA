@@ -18,6 +18,7 @@ export const combinedUserDataReducer = (state = null, action) => {
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
             if (newState.userProjects.projects[i].id === action.payload.id) {
                newState.userProjects.projects[i] = action.payload;
+               StateCalculator.addStateToUserData(newState);
                return newState;
             }
          }
@@ -105,7 +106,7 @@ export const combinedUserDataReducer = (state = null, action) => {
       case "CONTAINER_POST_SUCCESS": {
          const newState = _.cloneDeep(state);
          const projects = newState.userProjects.projects;
-         console.log(action.pa)
+         console.log(action.pa);
          for (let i = 0; i < projects.length; i++) {
             if (projects[i].id === action.payload.projectId) {
                for (let j = 0; j < projects[i].containers.length; j++) {
@@ -192,6 +193,32 @@ export const combinedUserDataReducer = (state = null, action) => {
                }
             }
          }
+      }
+      case "CONTAINER_GET_SUCCESS": {
+         const newState = _.cloneDeep(state);
+         for (let i = 0; i < newState.userProjects.projects.length; i++) {
+            if (newState.userProjects.projects[i].id === action.payload.projectId) {
+               for (
+                  let j = 0;
+                  j < newState.userProjects.projects[i].containers.length;
+                  j++
+               ) {
+                  if (
+                     newState.userProjects.projects[i].containers[j].id ===
+                     action.payload.container.id
+                  ) {
+                     newState.userProjects.projects[i].containers[j] = action.payload.container;
+                     
+                     StateCalculator.addStateToUserData(newState);
+                     return newState;
+                  }
+               }
+            }
+         }
+         newState.userProjects.projects[action.payload.projectId].containers = [action.payload.container].concat(
+            newState.userProjects.projects[action.payload.projectId].containers
+         );
+         return newState;
       }
       case "CREATE_INSTANCE_CONFIG_DATA_GET":
          const newState = _.cloneDeep(state);

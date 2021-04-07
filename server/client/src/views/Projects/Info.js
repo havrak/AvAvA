@@ -12,6 +12,13 @@ import {
    UploadCircularStateChartCard,
    DownloadCircularStateChartCard,
 } from "components/Cards/state/CurrentStateCards.js";
+import {
+   CPUCircularStateChartCardWithoutLimits,
+   RAMCircularStateChartCardWithoutLimits,
+   DiskCircularStateChartCardWithoutLimits,
+   UploadCircularStateChartCardWithoutLimits,
+   DownloadCircularStateChartCardWithoutLimits,
+} from "components/Cards/state/CurrentProjectStateWithoutLimitsCards.js";
 import { removePathParts, getCurrentProject } from "service/RoutesHelper";
 import { ContainerCounter, ProjectCounter } from "components/Cards/Counters.js";
 import { connect } from "react-redux";
@@ -19,7 +26,7 @@ import { connect } from "react-redux";
 function Info({
    currentProject,
    userState,
-   limits,
+   userLimits,
    projectIdGet,
    setCustomizableBrandText,
 }) {
@@ -62,11 +69,13 @@ function Info({
                            </div>
                            <div className="information-item">
                               <b>Coworkers: </b>
-                              {currentProject.coworkers.map((coworker, i) => {
+                              {currentProject?.coworkers?.map((coworker, i) => {
                                  return (
                                     <span key={i}>
                                        {`${coworker.givenName} ${coworker.familyName}${
-                                          i + 1 !== currentProject.coworkers.length ? "," : ""
+                                          i + 1 !== currentProject.coworkers.length
+                                             ? ","
+                                             : ""
                                        } `}{" "}
                                     </span>
                                  );
@@ -86,27 +95,64 @@ function Info({
                </Col>
             </Row>
             <Row>
-               <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
-                  <DiskCircularStateChartCard disk={userState.disk} max={limits.disk} />
-               </Col>
-               <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
-                  <CPUCircularStateChartCard CPU={userState.CPU} max={limits.CPU} />
-               </Col>
-               <Col sm="12" md="4" lg="4" xl="4" className="col-xxl-5-group">
-                  <RAMCircularStateChartCard RAM={userState.RAM} max={limits.RAM} />
-               </Col>
-               <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
-                  <DownloadCircularStateChartCard
-                     download={userState.internet.download}
-                     max={limits.internet.download}
-                  />
-               </Col>
-               <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
-                  <UploadCircularStateChartCard
-                     upload={userState.internet.upload}
-                     max={limits.internet.upload}
-                  />
-               </Col>
+               {currentProject.limits ? (
+                  <>
+                     <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                        <DiskCircularStateChartCard
+                           disk={currentProject.state.disk}
+                           max={currentProject.limits.disk}
+                        />
+                     </Col>
+                     <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                        <CPUCircularStateChartCard CPU={currentProject.state.CPU} max={currentProject.limits.CPU} />
+                     </Col>
+                     <Col sm="12" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                        <RAMCircularStateChartCard RAM={currentProject.state.RAM} max={currentProject.limits.RAM} />
+                     </Col>
+                     <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
+                        <DownloadCircularStateChartCard
+                           download={currentProject.state.internet.download}
+                           max={currentProject.limits.internet.download}
+                        />
+                     </Col>
+                     <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
+                        <UploadCircularStateChartCard
+                           upload={currentProject.state.internet.upload}
+                           max={currentProject.limits.internet.upload}
+                        />
+                     </Col>
+                  </>
+               ) : (
+                  <>
+                     <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                        <DiskCircularStateChartCardWithoutLimits
+                           parentDiskState={userState.disk}
+                           diskState={currentProject.state.disk}
+                           max={userLimits.disk}
+                        />
+                     </Col>
+                     <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                        <CPUCircularStateChartCardWithoutLimits parentCPUState={userState.CPU} CPUState={currentProject.state.CPU} max={userLimits.CPU} />
+                     </Col>
+                     <Col sm="12" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                        <RAMCircularStateChartCardWithoutLimits parentRAMState={userState.RAM} RAMState={currentProject.state.RAM} max={userLimits.RAM} />
+                     </Col>
+                     <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
+                        <DownloadCircularStateChartCardWithoutLimits
+                           parentDownloadState={userState.internet.download}
+                           downloadState={currentProject.state.internet.download}
+                           max={userLimits.internet.download}
+                        />
+                     </Col>
+                     <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
+                        <UploadCircularStateChartCardWithoutLimits
+                           parentUploadState={userState.internet.upload}
+                           uploadState={currentProject.state.internet.upload}
+                           max={userLimits.internet.upload}
+                        />
+                     </Col>
+                  </>
+               )}
                {/* <Col sm="12" md="4" lg="4" xl="4">
                      <NumberOfProcessesCard numberOfProcesses={1}/>
                   </Col> */}
@@ -136,7 +182,7 @@ const mapStateToProps = (state) => {
    return {
       currentProject: getCurrentProject(state.combinedUserData.userProjects.projects),
       userState: state.combinedUserData.userProjects.state,
-      limits: state.combinedUserData.userProjects.limits,
+      userLimits: state.combinedUserData.userProjects.limits,
    };
 };
 
