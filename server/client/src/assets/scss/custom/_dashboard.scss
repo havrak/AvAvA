@@ -9,15 +9,18 @@
    margin: 0px;
 }
 
-.running, .starting {
+.running,
+.starting {
    color: #66bb6a;
 }
 
-.stopped, .stopping {
+.stopped,
+.stopping {
    color: #fb404b;
 }
 
-.frozen, .freezing {
+.frozen,
+.freezing {
    color: #f98131;
 }
 
@@ -38,9 +41,26 @@
    text-decoration: underline;
 }
 
-.information-container .information-item{
+.information-container .information-item {
    margin-bottom: 5px;
    margin-top: 5px;
+}
+
+.action-card {
+   .icon-button {
+      padding: 0px;
+   }
+   .icon-button-wrapper {
+      padding-left: 15px;
+   }
+   .card-title {
+      margin-right: auto;
+   }
+   .card-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+   }
 }
 
 @media (min-width: 1600px) {

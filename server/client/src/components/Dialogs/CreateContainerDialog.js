@@ -21,7 +21,7 @@ import {
    ramFromMBToB,
    diskFromGBToB,
    CPUFromMHzToHz,
-   networkSpeedFromMBitsToBits
+   networkSpeedFromMBitsToBits,
 } from "service/UnitsConvertor.js";
 import { getCurrentProject } from "service/RoutesHelper";
 import { Collapse } from "react-bootstrap";
@@ -41,6 +41,7 @@ const CreateContainerDialog = ({
    createdContainer,
 }) => {
    const [errorMessage, setErrorMessage] = useState(null);
+   const [passwordErrorMessage, setPasswordErrorMessage] = useState(null);
    const [selectedTemplate, setSelectedTemplate] = useState(
       createInstanceConfigData.templates[0]
    );
@@ -50,33 +51,73 @@ const CreateContainerDialog = ({
    };
 
    const handleAdd = (event) => {
-      if (errorMessage !== null) {
+      const isThereANameError = checkForContainerNameErrors();
+      const isThereAPasswordError = checkForPasswordErrors();
+      if (isThereANameError || isThereAPasswordError) {
          return;
       }
-      createdContainer.current.limits.RAM = ramFromMBToB(createdContainer.current.limits.RAM);
-      createdContainer.current.limits.CPU = CPUFromMHzToHz(createdContainer.current.limits.CPU);
-      createdContainer.current.limits.disk = diskFromGBToB(createdContainer.current.limits.disk);
-      createdContainer.current.limits.internet.download = networkSpeedFromMBitsToBits(createdContainer.current.limits.internet.download);
-      createdContainer.current.limits.internet.upload = networkSpeedFromMBitsToBits(createdContainer.current.limits.internet.upload);
+      createdContainer.current.limits.RAM = ramFromMBToB(
+         createdContainer.current.limits.RAM
+      );
+      createdContainer.current.limits.CPU = CPUFromMHzToHz(
+         createdContainer.current.limits.CPU
+      );
+      createdContainer.current.limits.disk = diskFromGBToB(
+         createdContainer.current.limits.disk
+      );
+      createdContainer.current.limits.internet.download = networkSpeedFromMBitsToBits(
+         createdContainer.current.limits.internet.download
+      );
+      createdContainer.current.limits.internet.upload = networkSpeedFromMBitsToBits(
+         createdContainer.current.limits.internet.upload
+      );
       containerPost(createdContainer.current, notify);
       setOpen(false);
    };
 
    const handleNameType = (event) => {
       createdContainer.current.name = event.target.value;
+      checkForContainerNameErrors();
+   };
+
+   const checkForContainerNameErrors = () => {
       if (
          currentProject.containers
             .map((item) => item.name)
             .includes(createdContainer.current.name)
       ) {
          setErrorMessage("There is already project with this name present.");
-      } else if (createdContainer.current.name === "") {
+         return true;
+      } else if (!createdContainer.current.name || createdContainer.current.name === "") {
          setErrorMessage("Must not be empty");
+         return true;
       } else if (createdContainer.current.name.length >= 30) {
          setErrorMessage("Name must be shorter than 30 characters");
+         return true;
       } else if (errorMessage) {
          setErrorMessage(null);
+         return true;
       }
+      return false;
+   };
+
+   const handlePasswordType = (event) => {
+      createdContainer.current.rootPassword = event.target.value;
+      checkForPasswordErrors();
+   };
+
+   const checkForPasswordErrors = () => {
+      if (
+         !createdContainer.current.rootPassword ||
+         createdContainer.current.rootPassword === ""
+      ) {
+         setPasswordErrorMessage("Must not be empty");
+         return true;
+      } else if (passwordErrorMessage) {
+         setPasswordErrorMessage(null);
+         return true;
+      }
+      return false;
    };
 
    const handleTemplateChange = (item) => {
@@ -133,6 +174,17 @@ const CreateContainerDialog = ({
                   style={{ marginBottom: "10px" }}
                   helperText={errorMessage}
                />
+               <TextField
+                  autoFocus
+                  error={passwordErrorMessage !== null}
+                  margin="dense"
+                  label="Root password"
+                  type="password"
+                  fullWidth
+                  onChange={handlePasswordType}
+                  style={{ marginBottom: "10px" }}
+                  helperText={passwordErrorMessage}
+               />
                <div>
                   <span>Applications to install </span>
                   <HelpIcon tooltipText={"ff"} />
@@ -159,13 +211,27 @@ const CreateContainerDialog = ({
                               <CheckboxDiv
                                  tooltipText={app.name}
                                  inputText={app.description}
-                                 handler={shouldAdd => {
-                                    if(shouldAdd){
-                                       createdContainer.current.applicationsToInstall.push(app.id)
+                                 handler={(shouldAdd) => {
+                                    if (shouldAdd) {
+                                       createdContainer.current.applicationsToInstall.push(
+                                          app.id
+                                       );
                                     } else {
-                                       for(let i = 0; i < createdContainer.current.applicationsToInstall.length; i++){
-                                          if(createdContainer.current.applicationsToInstall[i] === app.id){
-                                             createdContainer.current.applicationsToInstall.splice(i, 1);
+                                       for (
+                                          let i = 0;
+                                          i <
+                                          createdContainer.current.applicationsToInstall
+                                             .length;
+                                          i++
+                                       ) {
+                                          if (
+                                             createdContainer.current
+                                                .applicationsToInstall[i] === app.id
+                                          ) {
+                                             createdContainer.current.applicationsToInstall.splice(
+                                                i,
+                                                1
+                                             );
                                           }
                                        }
                                     }

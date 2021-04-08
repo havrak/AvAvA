@@ -7,6 +7,7 @@ import {
 } from "components/Icons/ClickableIcons.js";
 import { connect } from "react-redux";
 import CreateProjectDialog from "components/Dialogs/CreateProjectDialog.js";
+import AreYouSureDialog from "components/Dialogs/AreYouSureDialog";
 
 const baseState = () => {
    return {
@@ -44,11 +45,17 @@ function ProjectsTableToolbar(props) {
    };
 
    const [dialogOpen, setDialogOpen] = React.useState(false);
+   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+
    const deleteProjectsHandler = () => {
+      setDeleteDialogOpen(true);
+   };
+
+   const proceedWithDeletionHandler = () => {
       for (const project of selectedData) {
          projectIdDelete(project.id, notify);
       }
-   };
+   }
 
    const backIcons = [
       <DeleteClickableIcon key={"DeleteIconButton"} handler={deleteProjectsHandler} />,
@@ -62,6 +69,15 @@ function ProjectsTableToolbar(props) {
             open={dialogOpen}
             setOpen={setDialogOpen}
          />
+         <AreYouSureDialog
+         open={deleteDialogOpen}
+         setOpen={setDeleteDialogOpen}
+         actionCallback={proceedWithDeletionHandler}
+         whatToDo={`Do you want to delete there projects?`}
+         smallText={selectedData.map(selectedProject => {
+            return <div className="small-text-item">{selectedProject.name}</div>
+         })}
+      />
          <TableToolbar
             selectedData={selectedData}
             preGlobalFilteredRows={preGlobalFilteredRows}

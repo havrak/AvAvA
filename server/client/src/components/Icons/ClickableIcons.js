@@ -9,20 +9,34 @@ import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 
 function Icon({ iconName, iconComponent, handler }) {
    return (
-      <Tooltip title={iconName}>
-         <IconButton aria-label={iconName} onClick={handler}>
-            {iconComponent}
-         </IconButton>
-      </Tooltip>
+      <span className={'icon-button-wrapper'}>
+         <Tooltip title={iconName}>
+            <IconButton aria-label={iconName} onClick={handler} className={"icon-button"}>
+               {iconComponent}
+            </IconButton>
+         </Tooltip>
+      </span>
    );
 }
 
 export function AddClickableIcon({ handler }) {
-   return <Icon iconName={"Add"} iconComponent={<AddIcon />} handler={handler} />;
+   return (
+      <Icon
+         iconName={"Add"}
+         iconComponent={<AddIcon />}
+         handler={handler}
+      />
+   );
 }
 
 export function DeleteClickableIcon({ handler }) {
-   return <Icon iconName={"Delete"} iconComponent={<DeleteIcon />} handler={handler} />;
+   return (
+      <Icon
+         iconName={"Delete"}
+         iconComponent={<DeleteIcon />}
+         handler={handler}
+      />
+   );
 }
 
 export function StartClickableIcon({ handler }) {
@@ -58,7 +72,11 @@ export function FreezeClickableIcon({ handler }) {
 export function HelpIcon({ tooltipText }) {
    return (
       <Tooltip title={tooltipText}>
-         <IconButton className={"helper-icon"} aria-label={tooltipText} onClick={() => {}}>
+         <IconButton
+            className={"helper-icon"}
+            aria-label={tooltipText}
+            onClick={() => {}}
+         >
             <HelpOutlineIcon className={"helper-icon"} />
          </IconButton>
       </Tooltip>

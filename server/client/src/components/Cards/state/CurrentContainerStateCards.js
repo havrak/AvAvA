@@ -9,24 +9,18 @@ import {
    bytesPerSecondToAdequateValue,
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
+import { secondsToAdequateValue } from "service/UnitsConvertor";
 
-export function CircularStateChartCard({
+export function CircularStateChartCardForContainer({
    stateData,
    max,
+   usedExtraData,
    stateName,
    convertorCallback,
    baseUnit,
 }) {
-   const {
-      usage,
-      allocated,
-      free,
-      usedPercent,
-      allocatedPercent,
-      freePercent,
-   } = stateData;
+   const { usage, free, usedPercent, freePercent } = stateData;
    let usageMessage = convertorCallback(usage).getMessage();
-   let allocatedMessage = convertorCallback(allocated).getMessage();
    let freeMessage = convertorCallback(free).getMessage();
    return (
       <Card className="card-dashboard">
@@ -49,21 +43,16 @@ export function CircularStateChartCard({
                      usage,
                      `<div class="ggl-tooltip"><b>used</b><br/>${usageMessage}<br/>${
                         usage + baseUnit
-                     }<br/>${usedPercent}%</div>`,
-                  ],
-                  [
-                     "allocated",
-                     allocated,
-                     `<div class="ggl-tooltip"><b>allocated</b><br/>${allocatedMessage}<br/>${
-                        allocated + baseUnit
-                     }<br/>${allocatedPercent}%</div>`,
+                     }<br/>${usedPercent}%
+                     <br/>${usedExtraData ? `<hr/>${usedExtraData}` : ""}</div>`,
                   ],
                   [
                      "free",
                      free,
                      `<div class="ggl-tooltip"><b>free</b><br/>${freeMessage}<br/>${
                         free + baseUnit
-                     }<br/>${freePercent}%</div>`,
+                     }<br/>${freePercent}%
+                     <br/>${usedExtraData ? `<hr/>${usedExtraData}` : ""}</div>`,
                   ],
                ]}
                options={{
@@ -76,8 +65,7 @@ export function CircularStateChartCard({
                   pieSliceText: "none",
                   slices: {
                      0: { color: "#FB404B" },
-                     1: { color: "#FFA534" },
-                     2: { color: "#E9ECEF" },
+                     1: { color: "#E9ECEF" },
                   },
                   tooltip: { isHtml: true, trigger: "visible" },
                }}
@@ -86,18 +74,26 @@ export function CircularStateChartCard({
             <div className="resource-chart-headding">
                <p className="stat-name">{stateName}</p>
                <p className="used-size">{freeMessage}</p>
-               <p className="max-size">{`of ${convertorCallback(max).getMessage()} left`}</p>
+               <p className="max-size">{`of ${convertorCallback(
+                  max
+               ).getMessage()} left`}</p>
             </div>
          </Card.Body>
       </Card>
    );
 }
 
-export function DiskCircularStateChartCard({ disk, max }) {
+export function DiskCircularStateChartCardForContainer({ disk, max }) {
+   const deviceItems = disk.devices.map((device) => {
+      return `<li >${device.name}: ${bytesToAdequateValue(
+         device.usage
+      ).getMessage()}</li>`;
+   });
    return (
-      <CircularStateChartCard
+      <CircularStateChartCardForContainer
          stateData={disk}
          max={max}
+         usedExtraData={`devices: <br />${deviceItems.toString()}`}
          stateName={"Disk"}
          convertorCallback={bytesToAdequateValue}
          baseUnit={"B"}
@@ -105,10 +101,13 @@ export function DiskCircularStateChartCard({ disk, max }) {
    );
 }
 
-export function CPUCircularStateChartCard({ CPU, max }) {
+export function CPUCircularStateChartCardForContainer({ CPU, max }) {
    return (
-      <CircularStateChartCard
+      <CircularStateChartCardForContainer
          stateData={CPU}
+         usedExtraData={`total used time: ${secondsToAdequateValue(
+            CPU.usedTime
+         ).getMessage()} <br />`}
          max={max}
          stateName={"CPU"}
          convertorCallback={HzToAdequateValue}
@@ -117,10 +116,13 @@ export function CPUCircularStateChartCard({ CPU, max }) {
    );
 }
 
-export function RAMCircularStateChartCard({ RAM, max }) {
+export function RAMCircularStateChartCardForContainer({ RAM, max }) {
    return (
-      <CircularStateChartCard
+      <CircularStateChartCardForContainer
          stateData={RAM}
+         usedExtraData={`usage peak: ${bytesToAdequateValue(
+            RAM.usagePeak
+         ).getMessage()} <br />`}
          max={max}
          stateName={"RAM"}
          convertorCallback={bytesToAdequateValue}
@@ -129,11 +131,19 @@ export function RAMCircularStateChartCard({ RAM, max }) {
    );
 }
 
-export function DownloadCircularStateChartCard({ download, max }) {
+export function DownloadCircularStateChartCardForContainer({ download, max }) {
+   const stateData = {
+      usage: download.usedSpeed,
+      free: download.freeSpeed,
+      ...download,
+   };
    return (
-      <CircularStateChartCard
-         stateData={download}
+      <CircularStateChartCardForContainer
+         stateData={stateData}
          max={max}
+         usedExtraData={`All bytes received: ${bytesToAdequateValue(
+            download.bytesFromStart
+         ).getMessage()} <br />All packets reveived: ${download.packetsFromStart} <br />`}
          stateName={"Download"}
          convertorCallback={bytesPerSecondToAdequateValue}
          baseUnit={"b/s"}
@@ -141,14 +151,35 @@ export function DownloadCircularStateChartCard({ download, max }) {
    );
 }
 
-export function UploadCircularStateChartCard({ upload, max }) {
+export function UploadCircularStateChartCardForContainer({ upload, max }) {
+   const stateData = {
+      usage: upload.usedSpeed,
+      free: upload.freeSpeed,
+      ...upload,
+   };
    return (
-      <CircularStateChartCard
+      <CircularStateChartCardForContainer
          max={max}
-         stateData={upload}
+         stateData={stateData}
+         usedExtraData={`All bytes sent: ${bytesToAdequateValue(
+            upload.bytesFromStart
+         ).getMessage()} <br />All packets sent: ${upload.packetsFromStart} <br />`}
          stateName={"Upload"}
          convertorCallback={bytesPerSecondToAdequateValue}
          baseUnit={"b/s"}
       />
+   );
+}
+
+export function NumberOfProcessesCard({ numberOfProcesses }) {
+   return (
+      <Card className="card-dashboard">
+         <Card.Header>
+            <Card.Title as="h4">{numberOfProcesses}</Card.Title>
+         </Card.Header>
+         <Card.Body className="p-0">
+            <Container fluid>processes running</Container>
+         </Card.Body>
+      </Card>
    );
 }

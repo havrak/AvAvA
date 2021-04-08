@@ -121,7 +121,7 @@ export const containerIdStart = (
    notify,
 ) => {
    return (dispatch) => {
-      dispatch(startSpinnerContainer(projectId, containerId, "starting"));
+      dispatch(startSpinnerContainer(projectId, containerId, "Starting"));
       const callback = function (error, data, response) {
          // console.log(response, 'container id delete');
          if (error) {
@@ -141,7 +141,7 @@ export const containerIdStop = (
    notify
 ) => {
    return (dispatch) => {
-      dispatch(startSpinnerContainer(projectId, containerId, "stopping"));
+      dispatch(startSpinnerContainer(projectId, containerId, "Stopping"));
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
@@ -160,7 +160,7 @@ export const containerIdFreeze = (
    notify
 ) => {
    return (dispatch) => {
-      dispatch(startSpinnerContainer(projectId, containerId, "freezing"));
+      dispatch(startSpinnerContainer(projectId, containerId, "Freezing"));
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
@@ -179,7 +179,7 @@ export const containerIdUnfreeze = (
    notify
 ) => {
    return (dispatch) => {
-      dispatch(startSpinnerContainer(projectId, containerId, "unfreezing"));
+      dispatch(startSpinnerContainer(projectId, containerId, "Unfreezing"));
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
@@ -198,7 +198,7 @@ export const containerIdDelete = (
    notify
 ) => {
    return (dispatch) => {
-      dispatch(startSpinnerContainer(projectId, containerId, "deleting"));
+      dispatch(startSpinnerContainer(projectId, containerId, "Deleting"));
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));

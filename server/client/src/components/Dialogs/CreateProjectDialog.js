@@ -31,7 +31,8 @@ const CreateProjectDialog = ({ projectPost, userProjects, notify, open, setOpen,
    };
 
    const handleAdd = (event) => {
-      if (errorMessage !== null) {
+      const isThereANameError = checkForProjectNameErrors();
+      if (isThereANameError) {
          return;
       }
       createdProject.current.limits.RAM = ramFromMBToB(createdProject.current.limits.RAM);
@@ -45,16 +46,24 @@ const CreateProjectDialog = ({ projectPost, userProjects, notify, open, setOpen,
 
    const handleNameType = (event) => {
       createdProject.current.name = event.target.value;
+   };
+
+   const checkForProjectNameErrors = () => {
       if (projects.map((item) => item.name).includes(createdProject.current.name)) {
          setErrorMessage("There is already project with this name present.");
+         return true;
       } else if (createdProject.current.name === "") {
          setErrorMessage("Must not be empty");
+         return true;
       } else if (createdProject.current.name.length >= 30) {
          setErrorMessage("Name must be shorter than 30 characters");
+         return true;
       } else if (errorMessage) {
          setErrorMessage(null);
+         return true;
       }
-   };
+      return false;
+   }
 
    const convertedRAM = ramToMB(state.RAM.free);
    const convertedCPU = CPUToMHz(state.CPU.free);

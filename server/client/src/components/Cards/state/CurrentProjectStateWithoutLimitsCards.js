@@ -10,7 +10,7 @@ import {
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
 
-export function CircularStateChartCard({
+function CircularStateChartCard({
    parentStateData,
    stateData,
    max,
@@ -197,18 +197,5 @@ export function UploadCircularStateChartCardWithoutLimits({
          convertorCallback={bytesPerSecondToAdequateValue}
          baseUnit={"b/s"}
       />
-   );
-}
-
-export function NumberOfProcessesCard({ numberOfProcesses }) {
-   return (
-      <Card className="card-dashboard">
-         <Card.Header>
-            <Card.Title as="h4">{numberOfProcesses}</Card.Title>
-         </Card.Header>
-         <Card.Body className="p-0">
-            <Container fluid>processes running</Container>
-         </Card.Body>
-      </Card>
    );
 }

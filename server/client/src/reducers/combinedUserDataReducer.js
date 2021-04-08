@@ -22,15 +22,15 @@ export const combinedUserDataReducer = (state = null, action) => {
                return newState;
             }
          }
-         newState.userProjects.projects = [action.pyaload].concat(
-            newState.userProjects.projects
-         );
+         // newState.userProjects.projects = [action.pyaload].concat(
+         //    newState.userProjects.projects
+         // );
          return newState;
       }
       case "START_SPINNER_PROJECT_POST": {
          const newState = _.cloneDeep(state);
          const project = action.payload;
-         project.pendingState = "creating";
+         project.pendingState = "Creating";
          newState.userProjects.projects = [project].concat(
             newState.userProjects.projects
          );
@@ -91,7 +91,7 @@ export const combinedUserDataReducer = (state = null, action) => {
       //containers
       case "START_SPINNER_CONTAINER_POST": {
          const newState = _.cloneDeep(state);
-         action.payload.container.pendingState = "creating";
+         action.payload.container.pendingState = "Creating";
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
             if (newState.userProjects.projects[i].id === action.payload.projectId) {
                newState.userProjects.projects[i].containers = [
@@ -215,9 +215,9 @@ export const combinedUserDataReducer = (state = null, action) => {
                }
             }
          }
-         newState.userProjects.projects[action.payload.projectId].containers = [action.payload.container].concat(
-            newState.userProjects.projects[action.payload.projectId].containers
-         );
+         // newState.userProjects.projects[action.payload.projectId].containers = [action.payload.container].concat(
+         //    newState.userProjects.projects[action.payload.projectId].containers
+         // );
          return newState;
       }
       case "CREATE_INSTANCE_CONFIG_DATA_GET":

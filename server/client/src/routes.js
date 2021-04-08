@@ -66,6 +66,10 @@ const containerNavLinks = [
       link: "backup",
    },
    {
+      name: "Networking",
+      link: "networking",
+   },
+   {
       name: "Settings",
       link: "settings",
    },

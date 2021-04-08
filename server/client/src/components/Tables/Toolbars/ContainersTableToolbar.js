@@ -17,6 +17,7 @@ import {
 } from "components/Icons/ClickableIcons.js";
 import { connect } from "react-redux";
 import CreateContainerDialog from "components/Dialogs/CreateContainerDialog.js";
+import AreYouSureDialog from "components/Dialogs/AreYouSureDialog";
 
 const containerCreateBaseState = (projectId, firstTemplate) => {
    return {
@@ -93,12 +94,17 @@ function ContainersTableToolbar(props) {
          }
       }
    };
+   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
 
    const deleteContainersHandler = () => {
+      setDeleteDialogOpen(true);
+   };
+
+   const proceedWithDeletionHandler = () => {
       for (const container of selectedData) {
          containerIdDelete(project.id, container.id, notify);
       }
-   };
+   }
 
    const backIcons = [
       <StartClickableIcon key={"StartClickableIcon"} handler={startContainersHandler} />,
@@ -117,6 +123,15 @@ function ContainersTableToolbar(props) {
             open={dialogOpen}
             setOpen={setDialogOpen}
             createdContainer={createdContainer}
+         />
+         <AreYouSureDialog
+            open={deleteDialogOpen}
+            setOpen={setDeleteDialogOpen}
+            actionCallback={proceedWithDeletionHandler}
+            whatToDo={`Do you want to delete there containers?`}
+            smallText={selectedData.map(selectedContainer => {
+               return <div className="small-text-item">{selectedContainer.name}</div>
+            })}
          />
          <TableToolbar
             selectedData={selectedData}
