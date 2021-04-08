@@ -100,9 +100,7 @@ function Header({ logout, user, brand }) {
                              return (
                                 <li className={isActive(item.link) ? "nav-active" : ""}>
                                    <Nav.Item className={"navbar-link"}>
-                                      <Link className="" to={item.link}>
-                                         <span className="no-icon">{item.name}</span>
-                                      </Link>
+                                      {item.component(item.name, item.link)}
                                    </Nav.Item>
                                 </li>
                              );

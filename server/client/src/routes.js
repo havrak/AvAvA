@@ -15,6 +15,8 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
+import React from "react";
+import { Link } from "react-router-dom";
 import Dashboard from "views/User/Dashboard.js";
 import UserProfile from "views/User/UserProfile.js";
 import Projects from "views/User/Projects.js";
@@ -32,48 +34,142 @@ import ContainerSnapshots from "views/Containers/Snapshots.js";
 import ContainerBackup from "views/Containers/Backup.js";
 import ContainerSettings from "views/Containers/Settings.js";
 // import Upgrade from "views/Upgrade.js";
+import AreYouSureDialog from "components/Dialogs/AreYouSureDialog";
 
 const projectsNavLinks = [
    {
       name: "Info",
       link: "info",
+      component: (name, link) => {
+         return (
+            <Link to={link}>
+               <span className="no-icon">{name}</span>
+            </Link>
+         );
+      },
    },
    {
       name: "Containers",
       link: "containers",
+      component: (name, link) => {
+         return (
+            <Link to={link}>
+               <span className="no-icon">{name}</span>
+            </Link>
+         );
+      },
    },
    {
       name: "Settings",
       link: "settings",
+      component: (name, link) => {
+         const [openDialog, setDialogOpen] = React.useState(false);
+         return (
+            <>
+               <AreYouSureDialog
+                  open={openDialog}
+                  setOpen={setDialogOpen}
+                  actionCallback={function () {}}
+                  whatToDo={`Do you want to delete there containers?`}
+               />
+               <Link
+                  to={link}
+                  onClick={(e) => {
+                     e.preventDefault();
+                     setDialogOpen(true);
+                  }}
+               >
+                  <span className="no-icon">{name}</span>
+               </Link>
+            </>
+         );
+      },
    },
 ];
 
 const containerNavLinks = [
    {
       name: "Info",
-      link: "info"
+      link: "info",
+      component: (name, link) => {
+         return (
+            <Link to={link}>
+               <span className="no-icon">{name}</span>
+            </Link>
+         );
+      },
    },
    {
       name: "Console",
       link: "console",
+      component: (name, link) => {
+         return (
+            <Link to={link}>
+               <span className="no-icon">{name}</span>
+            </Link>
+         );
+      },
    },
    {
       name: "Snapshots",
       link: "snapshots",
+      component: (name, link) => {
+         return (
+            <Link to={link}>
+               <span className="no-icon">{name}</span>
+            </Link>
+         );
+      },
    },
    {
       name: "Backup",
       link: "backup",
+      component: (name, link) => {
+         return (
+            <Link to={link}>
+               <span className="no-icon">{name}</span>
+            </Link>
+         );
+      },
    },
    {
       name: "Networking",
       link: "networking",
+      component: (name, link) => {
+         return (
+            <Link to={link}>
+               <span className="no-icon">{name}</span>
+            </Link>
+         );
+      },
    },
    {
       name: "Settings",
       link: "settings",
+      component: (name, link) => {
+         const [openDialog, setDialogOpen] = React.useState(false);
+         return (
+            <>
+               <AreYouSureDialog
+                  open={openDialog}
+                  setOpen={setDialogOpen}
+                  actionCallback={function () {}}
+                  whatToDo={`Do you want to delete there containers?`}
+               />
+               <Link
+                  to={link}
+                  onClick={(e) => {
+                     e.preventDefault();
+                     setDialogOpen(true);
+                  }}
+               >
+                  <span className="no-icon">{name}</span>
+               </Link>
+            </>
+         );
+      },
    },
-]
+];
 
 const routes = [
    {
@@ -169,28 +265,28 @@ const routes = [
    },
 ];
 
-   // {
-   //   path: "/typography",
-   //   name: "Typegraphy",
-   //   sublinks: ["Typography"],
-   //   icon: "nc-icon nc-paper-2",
-   //   component: Typography,
-   //   layout: "/user",
-   // },
-   // {
-   //   path: "/icons",
-   //   name: "Icons",
-   //   sublinks: ["Icons"],
-   //   icon: "nc-icon nc-atom",
-   //   component: Icons,
-   //   layout: "/user",
-   // },
-   // {
-   //   path: "/notifications",
-   //   name: "Notifications",
-   //   sublinks: ["Notifications"],
-   //   icon: "nc-icon nc-bell-55",
-   //   component: Notifications,
-   //   layout: "/user",
-   // },
+// {
+//   path: "/typography",
+//   name: "Typegraphy",
+//   sublinks: ["Typography"],
+//   icon: "nc-icon nc-paper-2",
+//   component: Typography,
+//   layout: "/user",
+// },
+// {
+//   path: "/icons",
+//   name: "Icons",
+//   sublinks: ["Icons"],
+//   icon: "nc-icon nc-atom",
+//   component: Icons,
+//   layout: "/user",
+// },
+// {
+//   path: "/notifications",
+//   name: "Notifications",
+//   sublinks: ["Notifications"],
+//   icon: "nc-icon nc-bell-55",
+//   component: Notifications,
+//   layout: "/user",
+// },
 export default routes;

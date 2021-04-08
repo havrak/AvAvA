@@ -6,7 +6,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { DialogContent } from "@material-ui/core";
 
-const CreateContainerDialog = ({
+const AreYouSureDialog = ({
    open,
    setOpen,
    actionCallback,
@@ -48,4 +48,4 @@ const CreateContainerDialog = ({
    );
 };
 
-export default CreateContainerDialog;
+export default AreYouSureDialog;
