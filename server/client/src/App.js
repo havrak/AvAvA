@@ -28,7 +28,6 @@ import UserLayout from "./layouts/User.js";
 import UserSetup from "./components/UserSetup.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import NotificationAlert from "react-notification-alert";
-
 function App(props) {
 
    const notificationAlertRef = React.useRef();

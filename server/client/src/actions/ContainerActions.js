@@ -31,7 +31,8 @@ export const containerIdPatch = (projectId, containerPatched, notify) => {
          dispatch(startSpinnerContainerPatch(projectId, containerPatched.id));
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerPatched.id));
-            notify(`Error occured: ${error}`);
+            notify(`Error occured: ${response.body}`);
+            console.log(response)
          } else {
             console.log(data, "success");
             dispatch(containerGetSuccess(projectId, data));

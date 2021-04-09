@@ -15,7 +15,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserData"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -34,33 +34,30 @@ paths:
               properties:
                 name:
                   type: string
+                rootPassword:
+                  type: string
+                  description: password of the root user in container
                 projectId:
                   type: integer
                   description: Id of project where container should be created
-                autostart:
-                  type: boolean
                 templateId:
                   type: integer
-                stateful:
-                  type: boolean
-                applicationsToInstall: #TODO
+                applicationsToInstall:
                   type: array
+                  description: Ids of apps that should be installed
                   items:
-                    $ref: "#/components/schemas/ApplicationToInstall"
-                connectToInternet:
-                  type: boolean
+                    type: integer
                 limits:
                   description: limits have to be specified when creating container for all resources
                   $ref: "#/components/schemas/Limits"
               required:
                 - name
+                - rootPassword
                 - projectId
-                - autostart
                 - templateId
-                - stateful
                 - applicationsToInstall
                 - connectToInternet
-                - cusotmLimits
+                - limits
       responses:
         "200":
           description: OK
@@ -68,7 +65,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Container"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -90,7 +87,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Container"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -114,26 +111,14 @@ paths:
               properties:
                 name:
                   type: string
-                autostart:
-                  type: boolean
-                stateful:
-                  type: boolean
-                applicationsToInstall: #TODO
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/ApplicationToInstall"
+                rootPassword:
+                  type: string
+                  description: password of the root user in container. If this item is null, it means that it has not been changed
                 connectToInternet:
                   type: boolean
                 limits:
                   description: limits have to be specified when creating container for all resources
                   $ref: "#/components/schemas/Limits"
-              required:
-                - name
-                - autostart
-                - stateful
-                - applicationsToInstall
-                - connectToInternet
-                - cusotmLimits
       responses:
         "200":
           description: OK
@@ -141,7 +126,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Container"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -158,7 +143,7 @@ paths:
       responses:
         "200":
           description: deleted the container
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -180,7 +165,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ContainerStateWithHistory"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -203,7 +188,7 @@ paths:
               schema:
                 type: integer
                 description: TODO
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -240,7 +225,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Snapshot"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -273,7 +258,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Snapshot"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -297,7 +282,7 @@ paths:
       responses:
         "200":
           description: OK
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -325,7 +310,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OperationState"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -348,7 +333,7 @@ paths:
               schema:
                 type: string
                 description: Stream souboru
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -372,7 +357,7 @@ paths:
               schema:
                 type: integer
                 description: ID to the process
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -394,7 +379,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Container"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -416,7 +401,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Container"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -438,7 +423,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Container"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -460,22 +445,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /instaces/createConfigData:
+  /instances/createInstanceConfigData:
     get:
       responses:
         "200":
-          description: Returns all data that are necesarry to create an instance in this project
+          description: Returns all data that are necesarry to create an instance (without project state and limits)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CreateConfigData"
-        "500":
+                $ref: "#/components/schemas/CreateInstanceConfigData"
+        "400":
           description: Error 
           content:
             application/json:
@@ -490,7 +475,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserProjects"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -519,7 +504,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -546,7 +531,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserStateWithHistory"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -568,14 +553,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
     patch:
-      description: Create a new project
+      description: Change settings of existing project
       parameters:
         - in: path
           required: true
@@ -599,12 +584,12 @@ paths:
                 - name
       responses:
         "200":
-          description: Successfully created
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -621,7 +606,7 @@ paths:
       responses:
         "200":
           description: deleted the container
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -643,7 +628,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProjectStateWithHistory"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -658,7 +643,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-        "500":
+        "400":
           description: Error 
           content:
             application/json:
@@ -667,8 +652,12 @@ paths:
 components:
   schemas:
     ErrorResponse:
-      type: string
-      description: Message that explains what went wrong
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message that explains what went wrong
+          example: "This is error message generated by backend"
     Image:
       type: object
       properties:
@@ -808,14 +797,14 @@ components:
             upload:
               type: integer
               description: in bits/s
-        adresses:
+        addresses:
           type: array
           items:
             type: object
             properties:
               family:
                 type: string
-              adress:
+              address:
                 type: string
               netmask:
                 type: integer
@@ -871,6 +860,9 @@ components:
         stateful:
           type: boolean
           description: True if state of the container should be maintained
+        limits: 
+          description: minimum required limits that are needed in order to revert to this snapshot
+          $ref: "#/components/schemas/Limits"
     OperationState:
       type: object
       properties:
@@ -903,8 +895,6 @@ components:
           type: string
         template:
           $ref: "#/components/schemas/Template"
-        stateful:
-          type: boolean
         createdOn:
           type: string
           description: Date and time of the creation of the container
@@ -947,7 +937,7 @@ components:
           RAM:
             limit: 4_123_987_456
             usage: 128_456_000
-            usagePeak: 1_500_000_000
+            usagePeak: 1_400_000_000
           disk:
             limit: 20_000_000_000
             devices:
@@ -978,7 +968,7 @@ components:
                 packetsFromStart: 752
             hwaddr: 00:16:3e:ec:65:a8,
             hostName: vethBWTSU5,
-            mtu: 1500,
+            mtu: 1400,
             state: up,
             type: broadcast
           loopback:
@@ -1003,7 +993,7 @@ components:
                 packetsFromStart: 752
             hwaddr: 00:16:3e:ec:65:a8,
             hostName: vethBWTSU5,
-            mtu: 1500,
+            mtu: 1400,
             state: up,
             type: broadcast
           networks:
@@ -1030,6 +1020,47 @@ components:
         id: 1
         name: Tomcat
         description: Java WebServer
+    CreateInstanceConfigData:
+      type: object
+      properties:
+        templates:
+          type: array
+          items:
+            $ref: "#/components/schemas/Template"
+        applicationsToInstall:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationToInstall"
+      example: 
+        templates:
+        - id: 44
+          name: Ubuntu
+          createdOn: 2015-06-07T19:07:24.379615253-06:00
+          image:
+            os: Ubuntu
+            version: 18.44
+            description: Ubuntu OS description
+          description: default profile for users with Ubuntu image
+          minDiskUsage: 180_000_000
+        - id: 45
+          name: Debian
+          createdOn: 2015-06-07T19:07:24.379615253-06:00
+          image:
+            os: Debian
+            version: 11.2
+            description: Debian OS description
+          description: default profile for users with Debian image
+          minDiskUsage: 190_000_000
+        applicationsToInstall:
+        - id: 1
+          name: Tomcat
+          description: Java WebServer
+        - id: 2
+          name: Vim
+          description: Text editor
+        - id: 3
+          name: Apache Webserver
+          description: Apache Webserver
     ProjectStateWithHistory:
       type: object
       description: Object that knows state and history of project and all containers in it
@@ -1124,7 +1155,7 @@ components:
               RAM:
                 limit: 4_123_987_456
                 usage: 128_456_000
-                usagePeak: 1_500_000_000
+                usagePeak: 1_400_000_000
               disk:
                 limit: 20_000_000_000
                 devices:
@@ -1155,7 +1186,7 @@ components:
                     packetsFromStart: 752
                 hwaddr: 00:16:3e:ec:65:a8,
                 hostName: vethBWTSU5,
-                mtu: 1500,
+                mtu: 1400,
                 state: up,
                 type: broadcast
               loopback:
@@ -1180,7 +1211,7 @@ components:
                     packetsFromStart: 752
                 hwaddr: 00:16:3e:ec:65:a8,
                 hostName: vethBWTSU5,
-                mtu: 1500,
+                mtu: 1400,
                 state: up,
                 type: broadcast
               networks:
@@ -1209,13 +1240,13 @@ components:
             state:
               measuredOn: 2015-06-10T19:07:24.379615253-06:00
               CPU:
-                limit: 500_000_001
+                limit: 400_000_001
                 usedTime: 553_469_541
                 usage: 50_000_501
               RAM:
                 limit: 8_123_987_456
                 usage: 828_456_000
-                usagePeak: 7_500_000_000
+                usagePeak: 7_400_000_000
               disk:
                 limit: 100_000_000_000
                 devices:
@@ -1246,7 +1277,7 @@ components:
                     packetsFromStart: 752
                 hwaddr: 00:16:3e:ec:65:a8,
                 hostName: vethBWTSU5,
-                mtu: 1500,
+                mtu: 1400,
                 state: up,
                 type: broadcast
               loopback:
@@ -1271,7 +1302,7 @@ components:
                     packetsFromStart: 752
                 hwaddr: 00:16:3e:ec:65:a8,
                 hostName: vethBWTSU5,
-                mtu: 1500,
+                mtu: 1400,
                 state: up,
                 type: broadcast
               networks:
@@ -1364,7 +1395,7 @@ components:
                   RAM:
                     limit: 4_123_987_456
                     usage: 128_456_000
-                    usagePeak: 1_500_000_000
+                    usagePeak: 1_400_000_000
                   disk:
                     limit: 20_000_000_000
                     devices:
@@ -1395,7 +1426,7 @@ components:
                         packetsFromStart: 752
                     hwaddr: 00:16:3e:ec:65:a8,
                     hostName: vethBWTSU5,
-                    mtu: 1500,
+                    mtu: 1400,
                     state: up,
                     type: broadcast
                   loopback:
@@ -1420,7 +1451,7 @@ components:
                         packetsFromStart: 752
                     hwaddr: 00:16:3e:ec:65:a8,
                     hostName: vethBWTSU5,
-                    mtu: 1500,
+                    mtu: 1400,
                     state: up,
                     type: broadcast
                   networks:
@@ -1449,13 +1480,13 @@ components:
                 state:
                   measuredOn: 2015-06-10T19:07:24.379615253-06:00
                   CPU:
-                    limit: 500_000_001
+                    limit: 400_000_001
                     usedTime: 553_469_541
                     usage: 50_000_501
                   RAM:
                     limit: 8_123_987_456
                     usage: 828_456_000
-                    usagePeak: 7_500_000_000
+                    usagePeak: 7_400_000_000
                   disk:
                     limit: 100_000_000_000
                     devices:
@@ -1486,7 +1517,7 @@ components:
                         packetsFromStart: 752
                     hwaddr: 00:16:3e:ec:65:a8,
                     hostName: vethBWTSU5,
-                    mtu: 1500,
+                    mtu: 1400,
                     state: up,
                     type: broadcast
                   loopback:
@@ -1511,7 +1542,7 @@ components:
                         packetsFromStart: 752
                     hwaddr: 00:16:3e:ec:65:a8,
                     hostName: vethBWTSU5,
-                    mtu: 1500,
+                    mtu: 1400,
                     state: up,
                     type: broadcast
                   networks:
@@ -1557,17 +1588,17 @@ components:
                 createdOn: 2015-06-08T19:07:24.379615253-06:00
                 lastStartedOn: 2015-06-09T19:07:24.379615253-06:00
                 snapshots:
-          
+  
                 state:
                   measuredOn: 2015-06-10T19:07:24.379615253-06:00
                   CPU:
-                    limit: 500_000_001
+                    limit: 400_000_001
                     usedTime: 553_469_541
                     usage: 50_000_501
                   RAM:
                     limit: 8_123_987_456
                     usage: 828_456_000
-                    usagePeak: 7_500_000_000
+                    usagePeak: 7_400_000_000
                   disk:
                     limit: 100_000_000_000
                     devices:
@@ -1598,7 +1629,7 @@ components:
                         packetsFromStart: 752
                     hwaddr: 00:16:3e:ec:65:a8,
                     hostName: vethBWTSU5,
-                    mtu: 1500,
+                    mtu: 1400,
                     state: up,
                     type: broadcast
                   loopback:
@@ -1623,7 +1654,7 @@ components:
                         packetsFromStart: 752
                     hwaddr: 00:16:3e:ec:65:a8,
                     hostName: vethBWTSU5,
-                    mtu: 1500,
+                    mtu: 1400,
                     state: up,
                     type: broadcast
                   networks:
@@ -1662,47 +1693,6 @@ components:
         role: 0
         icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
         coins: 154
-    CreateConfigData:
-      type: object
-      properties:
-        templates:
-          type: array
-          items:
-            $ref: "#/components/schemas/Template"
-        applicationsToInstall:
-          type: array
-          items:
-            $ref: "#/components/schemas/ApplicationToInstall"
-      example: 
-        templates:
-        - id: 44
-          name: Ubuntu
-          createdOn: 2015-06-07T19:07:24.379615253-06:00
-          image:
-            os: Ubuntu
-            version: 18.44
-            description: Ubuntu OS description
-          description: default profile for users with Ubuntu image
-          minDiskUsage: 180_000_000
-        - id: 45
-          name: Debian
-          createdOn: 2015-06-07T19:07:24.379615253-06:00
-          image:
-            os: Debian
-            version: 11.2
-            description: Debian OS description
-          description: default profile for users with Debian image
-          minDiskUsage: 190_000_000
-        applicationsToInstall:
-        - id: 1
-          name: Tomcat
-          description: Java WebServer
-        - id: 2
-          name: Vim
-          description: Text editor
-        - id: 3
-          name: Apache Webserver
-          description: Apache Webserver
     UserData:
       type: object
       description: Object containing everything that is necessary for the user frontend to work
@@ -1711,8 +1701,18 @@ components:
           $ref: "#/components/schemas/User"
         userProjects:
           $ref: "#/components/schemas/UserProjects"
-        createConfigData: 
-          $ref: "#/components/schemas/CreateConfigData"
+        createInstanceConfigData: 
+          $ref: "#/components/schemas/CreateInstanceConfigData"
+        hostInformation:
+          type: object
+          properties:
+            CPU:
+              type: object
+              properties:
+                model:
+                  type: string
+                frequency: 
+                  type: integer
       example:
         user:
           id: 1
@@ -1722,6 +1722,36 @@ components:
           role: 0
           icon: https://lh3.googleusercontent.com/a-/AOh14Gihydkn4TuY5bLkYUe4nHcOFf7FPWKDKmxG1WPpHA=s96-c
           coins: 154
+        createInstanceConfigData:
+          templates:
+          - id: 44
+            name: Ubuntu
+            createdOn: 2015-06-07T19:07:24.379615253-06:00
+            image:
+              os: Ubuntu
+              version: 18.44
+              description: Ubuntu OS description
+            description: default profile for users with Ubuntu image
+            minDiskUsage: 180_000_000
+          - id: 45
+            name: Debian
+            createdOn: 2015-06-07T19:07:24.379615253-06:00
+            image:
+              os: Debian
+              version: 11.2
+              description: Debian OS description
+            description: default profile for users with Debian image
+            minDiskUsage: 190_000_000
+          applicationsToInstall:
+          - id: 1
+            name: Tomcat
+            description: Java WebServer
+          - id: 2
+            name: Vim
+            description: Text editor
+          - id: 3
+            name: Apache Webserver
+            description: Apache Webserver
         userProjects:
           limits: 
             RAM: 90_000_000_000
@@ -1787,7 +1817,7 @@ components:
                     RAM:
                       limit: 4_123_987_456
                       usage: 128_456_000
-                      usagePeak: 1_500_000_000
+                      usagePeak: 1_400_000_000
                     disk:
                       limit: 20_000_000_000
                       devices:
@@ -1818,7 +1848,7 @@ components:
                           packetsFromStart: 752
                       hwaddr: 00:16:3e:ec:65:a8,
                       hostName: vethBWTSU5,
-                      mtu: 1500,
+                      mtu: 1400,
                       state: up,
                       type: broadcast
                     loopback:
@@ -1843,7 +1873,7 @@ components:
                           packetsFromStart: 752
                       hwaddr: 00:16:3e:ec:65:a8,
                       hostName: vethBWTSU5,
-                      mtu: 1500,
+                      mtu: 1400,
                       state: up,
                       type: broadcast
                     networks:
@@ -1872,13 +1902,13 @@ components:
                   state:
                     measuredOn: 2015-06-10T19:07:24.379615253-06:00
                     CPU:
-                      limit: 500_000_001
+                      limit: 400_000_001
                       usedTime: 553_469_541
                       usage: 50_000_501
                     RAM:
                       limit: 8_123_987_456
                       usage: 828_456_000
-                      usagePeak: 7_500_000_000
+                      usagePeak: 7_400_000_000
                     disk:
                       limit: 100_000_000_000
                       devices:
@@ -1909,7 +1939,7 @@ components:
                           packetsFromStart: 752
                       hwaddr: 00:16:3e:ec:65:a8,
                       hostName: vethBWTSU5,
-                      mtu: 1500,
+                      mtu: 1400,
                       state: up,
                       type: broadcast
                     loopback:
@@ -1934,7 +1964,7 @@ components:
                           packetsFromStart: 752
                       hwaddr: 00:16:3e:ec:65:a8,
                       hostName: vethBWTSU5,
-                      mtu: 1500,
+                      mtu: 1400,
                       state: up,
                       type: broadcast
                     networks:
@@ -1984,13 +2014,13 @@ components:
                   state:
                     measuredOn: 2015-06-10T19:07:24.379615253-06:00
                     CPU:
-                      limit: 500_000_001
+                      limit: 400_000_001
                       usedTime: 553_469_541
                       usage: 50_000_501
                     RAM:
                       limit: 8_123_987_456
                       usage: 828_456_000
-                      usagePeak: 7_500_000_000
+                      usagePeak: 7_400_000_000
                     disk:
                       limit: 100_000_000_000
                       devices:
@@ -2021,7 +2051,7 @@ components:
                           packetsFromStart: 752
                       hwaddr: 00:16:3e:ec:65:a8,
                       hostName: vethBWTSU5,
-                      mtu: 1500,
+                      mtu: 1400,
                       state: up,
                       type: broadcast
                     loopback:
@@ -2046,7 +2076,7 @@ components:
                           packetsFromStart: 752
                       hwaddr: 00:16:3e:ec:65:a8,
                       hostName: vethBWTSU5,
-                      mtu: 1500,
+                      mtu: 1400,
                       state: up,
                       type: broadcast
                     networks:
