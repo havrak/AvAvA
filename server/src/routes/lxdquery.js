@@ -1,7 +1,6 @@
 import https from "https";
 import fs from "fs";
 import path from "path";
-import querystring from "querystring";
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 import mongodb from "mongodb";
 let mdb;
@@ -9,10 +8,12 @@ new mongodb.MongoClient("mongodb://localhost:27017/lxd", {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
 }).connect((err, db) => (mdb = db));
-import ContainerResourceState from "../models/ContainerResourceState.js";
+import WebSocket from "ws";
+import { connections } from "../services/websocket.js";
+// import ContainerResourceState from "../models/ContainerResourceState.js";
 import * as NS from "../models/NetworkState.js";
-import Container from "../models/Container.js";
-import Template from "../models/Template.js";
+// import Container from "../models/Container.js";
+// import Template from "../models/Template.js";
 import Image from "../models/Image.js";
 import OperationState from "../models/OperationState.js";
 import Snapshot from "../models/Snapshot.js";
@@ -24,7 +25,7 @@ const crt = fs.readFileSync(
 	path.resolve(__dirname, "../../config/lxcclient.crt")
 );
 
-const debug = true;
+const debug = false;
 
 function mkOpts(path, method) {
 	return {
@@ -35,7 +36,6 @@ function mkOpts(path, method) {
 		json: true,
 		key: key,
 		cert: crt,
-		//  resolveWithFullResponse: true,
 		rejectUnauthorized: false,
 	};
 }
@@ -45,16 +45,11 @@ function mkRequest(path, method, data) {
 	if (debug && !path.includes("operation"))
 		console.log({ path: path, method: method, data: data });
 	if (data) {
-		if (method == "GET") {
-			opts.path += "?" + querystring.stringify(data);
-			opts.headers = { "Content-Type": "application/x-www-form-urlencoded" };
-		} else {
-			data = JSON.stringify(data);
-			opts.headers = {
-				"Content-Type": "application/json",
-				"Content-Length": Buffer.byteLength(data),
-			};
-		}
+		data = JSON.stringify(data);
+		opts.headers = {
+			"Content-Type": "application/json",
+			"Content-Length": Buffer.byteLength(data),
+		};
 	}
 	return new Promise((resolve) => {
 		let req = https.request(opts, (res) => {
@@ -67,7 +62,7 @@ function mkRequest(path, method, data) {
 					: resolve(JSON.parse(body))
 			);
 		});
-		if (data && method != "GET") req.write(data);
+		if (data) req.write(data);
 		req.end();
 	});
 }
@@ -86,12 +81,12 @@ export async function getOperation(operation) {
 			});
 	}
 	if (operation.error || operation.err) {
-		if (debug)
-			console.log({
-				error: operation.err ? operation.err : operation.error,
-				code: operation.err ? operation.status_code : operation.error_code,
-				resources: operation.resources,
-			});
+		console.log({
+			error: operation.err ? operation.err : operation.error,
+			code: operation.err ? operation.status_code : operation.error_code,
+			desc: operation.description,
+			resources: operation.resources,
+		});
 		return operation.error
 			? new OperationState(operation.error, operation.error_code)
 			: new OperationState(operation.err, operation.status_code);
@@ -99,7 +94,42 @@ export async function getOperation(operation) {
 	return new OperationState(operation.status, operation.status_code);
 }
 
+export function getConsole(id, project) {
+	return mkRequest(`/1.0/instances/${id}/exec?project=${project}`, "POST", {
+		// command: "login -f -- root".split(" "),
+		command: ["bash"],
+		environment: {
+			HOME: "/root",
+			TERM: "xterm",
+			USER: "root",
+		},
+		"wait-for-websocket": true,
+		interactive: true,
+	}).then((res) => {
+		if (res.status_code != 103) return getOperation(res);
+		let ws = new WebSocket(
+			`wss://127.0.0.1:8443/1.0/operations/${res.id}/websocket?secret=${res.metadata.fds["0"]}`,
+			{
+				key: key,
+				cert: crt,
+				rejectUnauthorized: false,
+			}
+		);
+		connections[`/${project}/${id}/${res.metadata.fds["0"]}`] = ws;
+		ws.on("error", (error) =>
+			console.log(`/${project}/${id}/console ERROR:  ${error}`)
+		);
+		return res.metadata.fds["0"];
+	});
+}
+
 export async function test() {
+	// console.log(await stopInstance("c1", "p1"));
+	// console.log(await deleteInstance("c1", "p1"));
+	// console.log(await startInstance("c1", "p1"));
+	// process.stdin.resume();
+	// getConsole("c1", "p1");
+	// getConsole("c1", "p1", process.stdin, process.stdout);
 	/*(await mkRequest(`/1.0/instances/test/backups`)).forEach((b) =>
 		deleteBackup(b)
 	);*/
@@ -133,19 +163,19 @@ export async function test() {
 	// console.log(await startInstance("c2", "p2"));
 	/*console.log(
 		await createProject({
-			name: "p2",
+			name: "p1",
 			config: {
 				"features.images": "false",
 				"features.profiles": "false",
 			},
-			description: "Test project p2.",
+			description: "Test project p1.",
 		})
 	);*/
 	/*console.log(
 		await createInstance(
 			{
+				name: "c1",
 				project: "p1",
-				name: "c2",
 				architecture: "x86_64",
 				profiles: ["default"],
 				ephemeral: false,
@@ -159,19 +189,16 @@ export async function test() {
 				},
 			},
 			[
-				// ["bash", "-c", "sleep 4 ; apt-get update"], //minimum time to get internet
-				"apt-get -yqq install neovim", //pkg installation test
+				["bash", "-c", "sleep 5 ; apt-get update"], //minimum time to get internet
 				["bash", "-c", "df -B 1 | awk '/\\/$/{print $4;exit}' > test"], //bash execution test
+	// "apt-get -yqq install neovim", //pkg installation test
+				["bash", "-c", "echo root:root | chpasswd"], //set password
 			]
 		)
-	);
-	console.log(await getState(new ContainerResourceState(), "c1", "p2"));
+	);*/
+	/*console.log(await getState(new ContainerResourceState(), "c1", "p2"));
 	console.log(await createSnapshot("c2", "snap2", false, "p2"));
 	console.log(await execInstance("c1", "p2", "apt-get -yqq install neovim"));*/
-	// console.log(await stopInstance("c1", "p1"));
-	// console.log(await getState(new ContainerResourceState(), "c1", "p2"));
-	// console.log(await deleteProject("p1"));
-	// console.log(await deleteInstance("c2", "p2"));
 }
 
 export function getInstances(instances, project) {
@@ -200,6 +227,9 @@ export async function createInstance(data, commands) {
 			await deleteInstance(data.name, data.project);
 			return res;
 		}
+		mdb.db("lxd")
+			.collection(data.project)
+			.insertOne({ _id: data.name, data: null }, () => {});
 		let errcmd = 0;
 		for (let i = 0; i < commands.length; i++) {
 			let stat = await execInstance(
@@ -209,7 +239,8 @@ export async function createInstance(data, commands) {
 				false
 			);
 			if (stat.statusCode != 200) errcmd++;
-			if (debug) console.log({ createCmd: stat });
+			if (debug)
+				console.log({ createCmd: stat.statusCode, desc: stat.status });
 		}
 		if (errcmd > 0)
 			res.status =
@@ -246,10 +277,21 @@ export function getInstance(instance, project) {
 }
 
 export function deleteInstance(id, project) {
-	return mkRequest(
-		`/1.0/instances/${id}?project=${project}`,
-		"DELETE"
-	).then((res) => getOperation(res));
+	return new Promise((resolve) =>
+		mkRequest(`/1.0/instances/${id}?project=${project}`, "DELETE").then(
+			(res) =>
+				getOperation(res).then((res) =>
+					mdb
+						.db("lxd")
+						.collection(project)
+						.deleteOne({ _id: id }, (err, data) =>
+							resolve(
+								err ? new OperationState(JSON.stringify(err), 400) : res
+							)
+						)
+				)
+		)
+	);
 }
 
 // Returns the result of the given command, if not opt out
@@ -391,8 +433,8 @@ async function getStateFromSource(rs, instancedata, project) {
 
 export function getState(state, id, project) {
 	return mkRequest(`/1.0/instances/${id}?project=${project}`).then((res) => {
-		return res.error
-			? new OperationState(res.error, res.error_code)
+		return res.error || res.err
+			? getOperation(res)
 			: getStateFromSource(state, res, project);
 	});
 }
@@ -594,10 +636,10 @@ export function stopInstance(id, project) {
 										if (err)
 											res = new OperationState(err.toString(), 400);
 										if (result.result.n == 0)
-											proj.insertOne({ _id: id, data: data }, () =>
-												resolve(res)
+											console.log(
+												`mdb: ${id} in ${project} not initialized!`
 											);
-										else resolve(res);
+										resolve(res);
 									}
 								);
 							} else resolve(getOperation(res));
