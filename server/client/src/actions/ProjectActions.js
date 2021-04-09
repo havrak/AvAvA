@@ -93,6 +93,22 @@ export const projectIdGet = (projectId, notify) => {
    }
 }
 
+export const projectIdPatch = (patchedProject, notify) => {
+   return (dispatch) => {
+      const callback = function (error, data, response) {
+         if (error) {
+            console.log(response);
+            notify(`Error occured: ${error}`);
+         } else {
+            console.log(data, 'success');
+            dispatch(projectGetSuccess(data)); 
+         }
+      };
+      console.log(patchedProject);
+      api.projectsIdPatch(patchedProject, patchedProject.id, callback);
+   }
+}
+
 const projectGetSuccess = (project) => {
    return {
       type: "PROJECT_GET_SUCCESS",

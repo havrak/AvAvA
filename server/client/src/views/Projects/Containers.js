@@ -7,10 +7,9 @@ import { Link, Redirect } from "react-router-dom";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "components/Tables/EnhancedTable.js";
-import NotificationAlert from "react-notification-alert";
 import { ContainerProgressBar } from "components/Tables/ProgressBars.js";
 
-import { projectIdDelete, startSpinnerProjectDelete, projectIdGet } from "actions/ProjectActions";
+import { projectIdDelete, projectIdGet } from "actions/ProjectActions";
 import { setCustomizableBrandText } from "actions/FrontendActions";
 import {
    bytesToAdequateValue,
@@ -184,6 +183,14 @@ function Containers(props) {
                   accessor: "state.RAM.usedPercent",
                   view: views["RAM"],
                },
+               {
+                  Header: "Peak",
+                  accessor: "state.RAM.usagePeak",
+                  view: views["RAM"],
+                  Cell: ({ value }) => {
+                     return bytesToAdequateValue(value).getMessage();
+                  },
+               },
             ],
          },
          {
@@ -277,6 +284,14 @@ function Containers(props) {
             },
          },
          {
+            Header: "Devices",
+            accessor: "state.disk.devices",
+            view: views["Disk"],
+            Cell: ({ value }) => {
+               return value.length;
+            },
+         },
+         {
             Header: "Used",
             accessor: "diskUsed",
             view: views["Disk"],
@@ -349,6 +364,19 @@ function Containers(props) {
                   accessor: "state.internet.counters.download.usedPercent",
                   view: views["Download"],
                },
+               {
+                  Header: "Bytes from beginning",
+                  accessor: "state.internet.counters.download.bytesFromStart",
+                  view: views["Download"],
+                  Cell: ({ value }) => {
+                     return bytesToAdequateValue(value).getMessage();
+                  },
+               },
+               {
+                  Header: "Packets from beginning",
+                  accessor: "state.internet.counters.download.packetsFromStart",
+                  view: views["Download"],
+               },
             ],
          },
          {
@@ -402,6 +430,19 @@ function Containers(props) {
                {
                   Header: "%",
                   accessor: "state.internet.counters.upload.usedPercent",
+                  view: views["Upload"],
+               },
+               {
+                  Header: "Bytes from beginning",
+                  accessor: "state.internet.counters.upload.bytesFromStart",
+                  view: views["Upload"],
+                  Cell: ({ value }) => {
+                     return bytesToAdequateValue(value).getMessage();
+                  },
+               },
+               {
+                  Header: "Packets from beginning",
+                  accessor: "state.internet.counters.upload.packetsFromStart",
                   view: views["Upload"],
                },
             ],
@@ -495,9 +536,6 @@ const mapDispatchToProps = (dispatch) => {
       },
       projectIdGet: (projectId) => {
          dispatch(projectIdGet(projectId));
-      },
-      startSpinnerProjectDelete: (project) => {
-         dispatch(startSpinnerProjectDelete(project));
       },
       projectIdDelete: (id, projectDeleteFailNotification) => {
          dispatch(projectIdDelete(id, projectDeleteFailNotification));

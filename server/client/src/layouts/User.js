@@ -70,7 +70,7 @@ function User({notify}) {
          <div className="wrapper">
             <Sidebar color={color} routes={routes} />
             <div className="main-panel" ref={mainPanel}>
-               <UserNavbar />
+               <UserNavbar notify={notify}/>
                <div className="content">
                   <Switch>{getRoutes(routes)}</Switch>
                </div>

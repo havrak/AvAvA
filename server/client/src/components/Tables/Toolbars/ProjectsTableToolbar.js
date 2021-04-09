@@ -37,7 +37,7 @@ function ProjectsTableToolbar(props) {
       setView,
       projectIdDelete,
    } = props;
-   const createdProject = React.useRef(baseState);
+   const createdProject = React.useRef(baseState());
 
    const openDialogHandler = () => {
       createdProject.current = baseState();
@@ -55,7 +55,7 @@ function ProjectsTableToolbar(props) {
       for (const project of selectedData) {
          projectIdDelete(project.id, notify);
       }
-   }
+   };
 
    const backIcons = [
       <DeleteClickableIcon key={"DeleteIconButton"} handler={deleteProjectsHandler} />,
@@ -70,14 +70,14 @@ function ProjectsTableToolbar(props) {
             setOpen={setDialogOpen}
          />
          <AreYouSureDialog
-         open={deleteDialogOpen}
-         setOpen={setDeleteDialogOpen}
-         actionCallback={proceedWithDeletionHandler}
-         whatToDo={`Do you want to delete there projects?`}
-         smallText={selectedData.map(selectedProject => {
-            return <div className="small-text-item">{selectedProject.name}</div>
-         })}
-      />
+            open={deleteDialogOpen}
+            setOpen={setDeleteDialogOpen}
+            actionCallback={proceedWithDeletionHandler}
+            whatToDo={`Do you want to delete there projects?`}
+            smallText={selectedData.map((selectedProject, key) => {
+               return <div key={key} className="small-text-item">{selectedProject.name}</div>;
+            })}
+         />
          <TableToolbar
             selectedData={selectedData}
             preGlobalFilteredRows={preGlobalFilteredRows}

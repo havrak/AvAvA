@@ -1,3 +1,5 @@
+
+
 import React, { useState } from "react";
 //source: https://github.com/tannerlinsley/react-table/tree/master/examples/material-UI-kitchen-sink
 import Button from "@material-ui/core/Button";
@@ -7,7 +9,9 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import { connect } from "react-redux";
-import { projectPost } from "actions/ProjectActions.js";
+
+import {projectIdPatch} from 'actions/ProjectActions';
+import _ from 'lodash';
 
 import { InputSliderWithSwitch } from "components/Form/Slider.js";
 import {
@@ -21,13 +25,14 @@ import {
    networkSpeedFromMBitsToBits,
 } from "service/UnitsConvertor.js";
 
-const CreateProjectDialog = ({
-   projectPost,
+const PatchProjectDialog = ({
+   patchedProject,
+   currentProject,
    userProjects,
+   projectIdPatch,
    notify,
    open,
    setOpen,
-   createdProject,
 }) => {
    const { projects, state } = userProjects;
    const [errorMessage, setErrorMessage] = React.useState(null);
@@ -41,48 +46,48 @@ const CreateProjectDialog = ({
       if (isThereANameError) {
          return;
       }
-      if (createdProject.current.limits.RAM) {
-         createdProject.current.limits.RAM = ramFromMBToB(
-            createdProject.current.limits.RAM
+      if (patchedProject.current.limits.RAM) {
+         patchedProject.current.limits.RAM = ramFromMBToB(
+            patchedProject.current.limits.RAM
          );
       }
-      if (createdProject.current.limits.CPU) {
-         createdProject.current.limits.CPU = CPUFromMHzToHz(
-            createdProject.current.limits.CPU
+      if (patchedProject.current.limits.CPU) {
+         patchedProject.current.limits.CPU = CPUFromMHzToHz(
+            patchedProject.current.limits.CPU
          );
       }
-      if (createdProject.current.limits.disk) {
-         createdProject.current.limits.disk = diskFromGBToB(
-            createdProject.current.limits.disk
+      if (patchedProject.current.limits.disk) {
+         patchedProject.current.limits.disk = diskFromGBToB(
+            patchedProject.current.limits.disk
          );
       }
-      if (createdProject.current.limits.internet.download) {
-         createdProject.current.limits.internet.download = networkSpeedFromMBitsToBits(
-            createdProject.current.limits.internet.download
+      if (patchedProject.current.limits.internet.download) {
+         patchedProject.current.limits.internet.download = networkSpeedFromMBitsToBits(
+            patchedProject.current.limits.internet.download
          );
       }
-      if (createdProject.current.limits.internet.upload) {
-         createdProject.current.limits.internet.upload = networkSpeedFromMBitsToBits(
-            createdProject.current.limits.internet.upload
+      if (patchedProject.current.limits.internet.upload) {
+         patchedProject.current.limits.internet.upload = networkSpeedFromMBitsToBits(
+            patchedProject.current.limits.internet.upload
          );
       }
-      projectPost(createdProject.current, notify);
+      projectIdPatch(patchedProject.current, notify);
       setOpen(false);
    };
 
    const handleNameType = (event) => {
-      createdProject.current.name = event.target.value;
+      patchedProject.current.name = event.target.value;
       checkForProjectNameErrors();
    };
 
    const checkForProjectNameErrors = () => {
-      if (projects.map((item) => item.name).includes(createdProject.current.name)) {
+      if (patchedProject.current.name !== currentProject.name && projects.map((item) => item.name).includes(patchedProject.current.name)) {
          setErrorMessage("There is already project with this name present.");
          return true;
-      } else if (createdProject.current.name === "") {
+      } else if (patchedProject.current.name === "") {
          setErrorMessage("Must not be empty");
          return true;
-      } else if (createdProject.current.name.length >= 30) {
+      } else if (patchedProject.current.name.length >= 30) {
          setErrorMessage("Name must be shorter than 30 characters");
          return true;
       } else if (errorMessage) {
@@ -101,7 +106,7 @@ const CreateProjectDialog = ({
    return (
       <div>
          <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-            <DialogTitle id="form-dialog-title">Create new container</DialogTitle>
+            <DialogTitle id="form-dialog-title">Settings</DialogTitle>
             <DialogContent>
                <TextField
                   autoFocus
@@ -111,6 +116,7 @@ const CreateProjectDialog = ({
                   type="text"
                   fullWidth
                   onChange={handleNameType}
+                  defaultValue={currentProject.name}
                   style={{ marginBottom: "20px" }}
                   helperText={errorMessage}
                />
@@ -118,10 +124,10 @@ const CreateProjectDialog = ({
                <InputSliderWithSwitch
                   headding={"RAM"}
                   setValueToParentElement={(value) => {
-                     createdProject.current.limits.RAM = value;
+                     patchedProject.current.limits.RAM = value;
                   }}
                   min={0}
-                  initialValue={createdProject.current.limits.RAM}
+                  initialValue={ramToMB(currentProject?.limits?.RAM)}
                   max={convertedRAM}
                   unit={"MB"}
                   helperTooltipText={"Guarantee"}
@@ -130,19 +136,19 @@ const CreateProjectDialog = ({
                   headding={"CPU"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     createdProject.current.limits.CPU = value;
+                     patchedProject.current.limits.CPU = value;
                   }}
-                  initialValue={createdProject.current.limits.CPU}
+                  initialValue={CPUToMHz(currentProject?.limits?.CPU)}
                   max={convertedCPU}
                   unit={"MHz"}
                />
                <InputSliderWithSwitch
                   headding={"Disk"}
-                  min={0}
+                  min={diskToGB(currentProject.state.disk.usage)}
                   setValueToParentElement={(value) => {
-                     createdProject.current.limits.disk = value;
+                     patchedProject.current.limits.disk = value;
                   }}
-                  initialValue={createdProject.current.limits.disk}
+                  initialValue={diskToGB(currentProject?.limits?.disk)}
                   max={convertedDisk}
                   unit={"GB"}
                />
@@ -150,9 +156,9 @@ const CreateProjectDialog = ({
                   headding={"Upload"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     createdProject.current.limits.internet.download = value;
+                     patchedProject.current.limits.internet.download = value;
                   }}
-                  initialValue={createdProject.current.limits.internet.download}
+                  initialValue={networkSpeedToMbits(currentProject?.limits?.internet.download)}
                   max={convertedUpload}
                   unit={"Mbit/s"}
                />
@@ -160,9 +166,9 @@ const CreateProjectDialog = ({
                   headding={"Download"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     createdProject.current.limits.internet.upload = value;
+                     patchedProject.current.limits.internet.upload = value;
                   }}
-                  initialValue={createdProject.current.limits.internet.upload}
+                  initialValue={networkSpeedToMbits(currentProject?.limits?.internet.upload)}
                   max={convertedDownload}
                   unit={"Mbit/s"}
                />
@@ -172,7 +178,7 @@ const CreateProjectDialog = ({
                   Cancel
                </Button>
                <Button onClick={handleAdd} color="primary">
-                  Create
+                  Update
                </Button>
             </DialogActions>
          </Dialog>
@@ -188,10 +194,10 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
    return {
-      projectPost: (project, notify) => {
-         dispatch(projectPost(project, notify));
+      projectIdPatch: (project, notify) => {
+         dispatch(projectIdPatch(project, notify));
       },
    };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateProjectDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(PatchProjectDialog);

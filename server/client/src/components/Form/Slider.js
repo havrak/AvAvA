@@ -18,6 +18,7 @@ const useStyles = makeStyles({
 export function InputSlider({
    headding,
    setValueToParentElement,
+   initialValue,
    min,
    max,
    unit,
@@ -25,7 +26,7 @@ export function InputSlider({
    helperTooltipText
 }) {
    const classes = useStyles();
-   const [value, setValue] = React.useState(min);
+   const [value, setValue] = React.useState(initialValue ? initialValue : min);
 
    const handleSliderChange = (event, newValue) => {
       setValue(newValue);
@@ -96,13 +97,19 @@ export function InputSliderWithSwitch({
    setValueToParentElement,
    min,
    max,
+   initialValue,
    unit,
    step,
    helperTooltipText
 }) {
    const classes = useStyles();
-   const [value, setValue] = React.useState(min);
-   const [shouldBeNull, setShouldBeNull] = React.useState(true);
+   const [value, setValue] = React.useState(initialValue ? initialValue : min);
+   const [shouldBeNull, setShouldBeNull] = React.useState(initialValue ? false : true);
+
+   const marks = initialValue ? [{
+      value: initialValue,
+      label: `${initialValue}${unit}`
+   }] : null;
 
    const handleSliderChange = (event, newValue) => {
       setValue(newValue);
@@ -154,6 +161,7 @@ export function InputSliderWithSwitch({
                   aria-labelledby="input-slider"
                   max={max}
                   min={min}
+                  marks={marks}
                   step={stepValue()}
                />
             </Grid>

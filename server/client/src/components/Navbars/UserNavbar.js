@@ -17,7 +17,7 @@ import { relativeLocation, getValidRoute, isActive } from "service/RoutesHelper.
 import { connect } from "react-redux";
 import _ from "lodash";
 
-function Header({ logout, user, brand }) {
+function Header({ logout, user, brand, notify }) {
    const location = useLocation();
    const mobileSidebarToggle = (e) => {
       e.preventDefault();
@@ -100,7 +100,7 @@ function Header({ logout, user, brand }) {
                              return (
                                 <li className={isActive(item.link) ? "nav-active" : ""}>
                                    <Nav.Item className={"navbar-link"}>
-                                      {item.component(item.name, item.link)}
+                                      {item.component(item.name, item.link, notify)}
                                    </Nav.Item>
                                 </li>
                              );

@@ -7,7 +7,6 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import { connect } from "react-redux";
-import { projectPost } from "actions/ProjectActions.js";
 
 import { InputSliderWithSwitch } from "components/Form/Slider.js";
 import {
@@ -21,13 +20,15 @@ import {
    networkSpeedFromMBitsToBits,
 } from "service/UnitsConvertor.js";
 
-const CreateProjectDialog = ({
-   projectPost,
+const ProjectDialog = ({
+   yesAction,
+   yesText,
    userProjects,
    notify,
    open,
    setOpen,
    createdProject,
+   dialogTitle
 }) => {
    const { projects, state } = userProjects;
    const [errorMessage, setErrorMessage] = React.useState(null);
@@ -37,6 +38,7 @@ const CreateProjectDialog = ({
    };
 
    const handleAdd = (event) => {
+      console.log(createdProject.current);
       const isThereANameError = checkForProjectNameErrors();
       if (isThereANameError) {
          return;
@@ -66,7 +68,7 @@ const CreateProjectDialog = ({
             createdProject.current.limits.internet.upload
          );
       }
-      projectPost(createdProject.current, notify);
+      yesAction(createdProject.current, notify);
       setOpen(false);
    };
 
@@ -101,7 +103,7 @@ const CreateProjectDialog = ({
    return (
       <div>
          <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-            <DialogTitle id="form-dialog-title">Create new container</DialogTitle>
+            <DialogTitle id="form-dialog-title">{dialogTitle}</DialogTitle>
             <DialogContent>
                <TextField
                   autoFocus
@@ -172,7 +174,7 @@ const CreateProjectDialog = ({
                   Cancel
                </Button>
                <Button onClick={handleAdd} color="primary">
-                  Create
+                  {yesText}
                </Button>
             </DialogActions>
          </Dialog>
@@ -186,12 +188,4 @@ const mapStateToProps = (state) => {
    };
 };
 
-const mapDispatchToProps = (dispatch) => {
-   return {
-      projectPost: (project, notify) => {
-         dispatch(projectPost(project, notify));
-      },
-   };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(CreateProjectDialog);
+export default connect(mapStateToProps, null)(ProjectDialog);

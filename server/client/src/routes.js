@@ -20,9 +20,6 @@ import { Link } from "react-router-dom";
 import Dashboard from "views/User/Dashboard.js";
 import UserProfile from "views/User/UserProfile.js";
 import Projects from "views/User/Projects.js";
-import Typography from "views/Other/Typography.js";
-import Icons from "views/Other/Icons.js";
-import Notifications from "views/Other/Notifications.js";
 import Project from "views/Projects/Project.js";
 import ProjectContainers from "views/Projects/Containers.js";
 import ProjectInfo from "views/Projects/Info.js";
@@ -34,7 +31,8 @@ import ContainerSnapshots from "views/Containers/Snapshots.js";
 import ContainerBackup from "views/Containers/Backup.js";
 import ContainerSettings from "views/Containers/Settings.js";
 // import Upgrade from "views/Upgrade.js";
-import AreYouSureDialog from "components/Dialogs/AreYouSureDialog";
+import PatchContainer from "components/RouteComponents/PatchContainer";
+import PatchProject from "components/RouteComponents/PatchProject";
 
 const projectsNavLinks = [
    {
@@ -62,27 +60,8 @@ const projectsNavLinks = [
    {
       name: "Settings",
       link: "settings",
-      component: (name, link) => {
-         const [openDialog, setDialogOpen] = React.useState(false);
-         return (
-            <>
-               <AreYouSureDialog
-                  open={openDialog}
-                  setOpen={setDialogOpen}
-                  actionCallback={function () {}}
-                  whatToDo={`Do you want to delete there containers?`}
-               />
-               <Link
-                  to={link}
-                  onClick={(e) => {
-                     e.preventDefault();
-                     setDialogOpen(true);
-                  }}
-               >
-                  <span className="no-icon">{name}</span>
-               </Link>
-            </>
-         );
+      component: (name, link, notify) => {
+         return <PatchProject name={name} link={link} notify={notify}/>;
       },
    },
 ];
@@ -147,26 +126,27 @@ const containerNavLinks = [
       name: "Settings",
       link: "settings",
       component: (name, link) => {
-         const [openDialog, setDialogOpen] = React.useState(false);
-         return (
-            <>
-               <AreYouSureDialog
-                  open={openDialog}
-                  setOpen={setDialogOpen}
-                  actionCallback={function () {}}
-                  whatToDo={`Do you want to delete there containers?`}
-               />
-               <Link
-                  to={link}
-                  onClick={(e) => {
-                     e.preventDefault();
-                     setDialogOpen(true);
-                  }}
-               >
-                  <span className="no-icon">{name}</span>
-               </Link>
-            </>
-         );
+         // const [openDialog, setDialogOpen] = React.useState(false);
+         // return (
+         //    <>
+         //       <AreYouSureDialog
+         //          open={openDialog}
+         //          setOpen={setDialogOpen}
+         //          actionCallback={function () {}}
+         //          whatToDo={`Do you want to delete there containers?`}
+         //       />
+         //       <Link
+         //          to={link}
+         //          onClick={(e) => {
+         //             e.preventDefault();
+         //             setDialogOpen(true);
+         //          }}
+         //       >
+         //          <span className="no-icon">{name}</span>
+         //       </Link>
+         //    </>
+         // );
+         return null;
       },
    },
 ];

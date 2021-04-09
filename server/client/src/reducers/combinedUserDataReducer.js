@@ -67,6 +67,16 @@ export const combinedUserDataReducer = (state = null, action) => {
          }
          return newState;
       }
+      case "START_SPINNER_PROJECT_PATCH": {
+         const newState = _.cloneDeep(state);
+         for (let i = 0; i < newState.userProjects.projects.length; i++) {
+            if (newState.userProjects.projects[i].id === action.payload) {
+               newState.userProjects.projects[i].pendingState = "Changing settings";
+               break;
+            }
+         }
+         return newState;
+      }
       case "PROJECT_DELETE_SUCCESS": {
          const newState = _.cloneDeep(state);
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
