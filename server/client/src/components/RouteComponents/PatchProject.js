@@ -21,8 +21,8 @@ function PatchProject({ name, link, currentProject, notify }) {
             CPU: CPUToMHz(currentProject.limits?.CPU),
             disk: diskToGB(currentProject.limits?.disk),
             internet: {
-               upload: networkSpeedToMbits(currentProject.limits?.internet.upload),
-               download: networkSpeedToMbits(currentProject.limits?.internet.download),
+               upload: networkSpeedToMbits(currentProject.limits?.internet?.upload),
+               download: networkSpeedToMbits(currentProject.limits?.internet?.download),
             },
          },
       };

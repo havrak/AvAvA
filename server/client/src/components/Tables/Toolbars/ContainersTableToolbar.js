@@ -26,6 +26,7 @@ const containerCreateBaseState = (projectId, firstTemplate) => {
       applicationsToInstall: [],
       templateId: firstTemplate.id,
       connectToInternet: false,
+      rootPassword: "",
       limits: {
          RAM: 0,
          CPU: 0,

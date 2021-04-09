@@ -284,7 +284,7 @@ const CreateContainerDialog = ({
                      </RadioGroup>
                   </Collapse>
                </div>
-               <CheckboxDiv
+               {/* <CheckboxDiv
                   tooltipText={
                      "Container will be accessible via this kind of adress: container.project.yourname.servername.cz"
                   }
@@ -293,6 +293,24 @@ const CreateContainerDialog = ({
                      createdContainer.current.connectToInternet = value;
                      console.log(createdContainer.current);
                   }}
+               /> */}
+               <InputSlider
+                  headding={"Disk"}
+                  min={diskToGB(selectedTemplate.minDiskUsage)}
+                  setValueToParentElement={(value) => {
+                     createdContainer.current.limits.disk = value;
+                  }}
+                  max={convertedDisk}
+                  unit={"GB"}
+               />
+               <InputSlider
+                  headding={"CPU"}
+                  min={0}
+                  setValueToParentElement={(value) => {
+                     createdContainer.current.limits.CPU = value;
+                  }}
+                  max={convertedCPU}
+                  unit={"MHz"}
                />
                <InputSlider
                   headding={"RAM"}
@@ -305,22 +323,13 @@ const CreateContainerDialog = ({
                   helperTooltipText={"Guarantee"}
                />
                <InputSlider
-                  headding={"CPU"}
+                  headding={"Download"}
                   min={0}
                   setValueToParentElement={(value) => {
-                     createdContainer.current.limits.CPU = value;
+                     createdContainer.current.limits.internet.upload = value;
                   }}
-                  max={convertedCPU}
-                  unit={"Hz"}
-               />
-               <InputSlider
-                  headding={"Disk"}
-                  min={diskToGB(selectedTemplate.minDiskUsage)}
-                  setValueToParentElement={(value) => {
-                     createdContainer.current.limits.disk = value;
-                  }}
-                  max={convertedDisk}
-                  unit={"GB"}
+                  max={convertedDownload}
+                  unit={"Mbit/s"}
                />
                <InputSlider
                   headding={"Upload"}
@@ -329,15 +338,6 @@ const CreateContainerDialog = ({
                      createdContainer.current.limits.internet.download = value;
                   }}
                   max={convertedUpload}
-                  unit={"Mbit/s"}
-               />
-               <InputSlider
-                  headding={"Download"}
-                  min={0}
-                  setValueToParentElement={(value) => {
-                     createdContainer.current.limits.internet.upload = value;
-                  }}
-                  max={convertedDownload}
                   unit={"Mbit/s"}
                />
             </DialogContent>

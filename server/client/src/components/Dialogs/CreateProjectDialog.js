@@ -111,20 +111,19 @@ const CreateProjectDialog = ({
                   type="text"
                   fullWidth
                   onChange={handleNameType}
-                  style={{ marginBottom: "20px" }}
+                  // style={{ marginBottom: "20px" }}
                   helperText={errorMessage}
                />
                <h3 className={"limits-headding"}>Limits</h3>
                <InputSliderWithSwitch
-                  headding={"RAM"}
-                  setValueToParentElement={(value) => {
-                     createdProject.current.limits.RAM = value;
-                  }}
+                  headding={"Disk"}
                   min={0}
-                  initialValue={createdProject.current.limits.RAM}
-                  max={convertedRAM}
-                  unit={"MB"}
-                  helperTooltipText={"Guarantee"}
+                  setValueToParentElement={(value) => {
+                     createdProject.current.limits.disk = value;
+                  }}
+                  initialValue={createdProject.current.limits.disk}
+                  max={convertedDisk}
+                  unit={"GB"}
                />
                <InputSliderWithSwitch
                   headding={"CPU"}
@@ -137,24 +136,15 @@ const CreateProjectDialog = ({
                   unit={"MHz"}
                />
                <InputSliderWithSwitch
-                  headding={"Disk"}
-                  min={0}
+                  headding={"RAM"}
                   setValueToParentElement={(value) => {
-                     createdProject.current.limits.disk = value;
+                     createdProject.current.limits.RAM = value;
                   }}
-                  initialValue={createdProject.current.limits.disk}
-                  max={convertedDisk}
-                  unit={"GB"}
-               />
-               <InputSliderWithSwitch
-                  headding={"Upload"}
                   min={0}
-                  setValueToParentElement={(value) => {
-                     createdProject.current.limits.internet.download = value;
-                  }}
-                  initialValue={createdProject.current.limits.internet.download}
-                  max={convertedUpload}
-                  unit={"Mbit/s"}
+                  initialValue={createdProject.current.limits.RAM}
+                  max={convertedRAM}
+                  unit={"MB"}
+                  helperTooltipText={"Guarantee"}
                />
                <InputSliderWithSwitch
                   headding={"Download"}
@@ -164,6 +154,16 @@ const CreateProjectDialog = ({
                   }}
                   initialValue={createdProject.current.limits.internet.upload}
                   max={convertedDownload}
+                  unit={"Mbit/s"}
+               />
+               <InputSliderWithSwitch
+                  headding={"Upload"}
+                  min={0}
+                  setValueToParentElement={(value) => {
+                     createdProject.current.limits.internet.download = value;
+                  }}
+                  initialValue={createdProject.current.limits.internet.download}
+                  max={convertedUpload}
                   unit={"Mbit/s"}
                />
             </DialogContent>

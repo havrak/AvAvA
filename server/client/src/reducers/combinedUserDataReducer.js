@@ -88,7 +88,7 @@ export const combinedUserDataReducer = (state = null, action) => {
          StateCalculator.addStateToUserData(newState);
          return newState;
       }
-      case "PROJECT_DELETE_FAIL": {
+      case "PROJECT_STATE_CHANGE_FAIL": {
          const newState = _.cloneDeep(state);
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
             if (newState.userProjects.projects[i].id === action.payload) {
@@ -153,6 +153,19 @@ export const combinedUserDataReducer = (state = null, action) => {
                for (const container of project.containers) {
                   if (container.id === action.payload.containerId) {
                      container.pendingState = action.payload.message;
+                     return newState;
+                  }
+               }
+            }
+         }
+      }
+      case "START_SPINNER_CONTAINER_PATCH": {
+         const newState = _.cloneDeep(state);
+         for (const project of newState.userProjects.projects) {
+            if (project.id === action.payload.projectId) {
+               for (const container of project.containers) {
+                  if (container.id === action.payload.containerId) {
+                     container.pendingState = action.payload = "Changing container state";
                      return newState;
                   }
                }

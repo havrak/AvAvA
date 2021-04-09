@@ -22,18 +22,44 @@ export const containerIdGet = (projectId, containerId, notify) => {
          }
       };
       api.instancesIdGet(containerId, callback);
-   }
-}
+   };
+};
+
+export const containerIdPatch = (projectId, containerPatched, notify) => {
+   return (dispatch) => {
+      const callback = function (error, data, response) {
+         dispatch(startSpinnerContainerPatch(projectId, containerPatched.id));
+         if (error) {
+            dispatch(containerStateChangeFail(projectId, containerPatched.id));
+            notify(`Error occured: ${error}`);
+         } else {
+            console.log(data, "success");
+            dispatch(containerGetSuccess(projectId, data));
+         }
+      };
+      api.instancesIdPatch(containerPatched, containerPatched.id, callback);
+   };
+};
+
+const startSpinnerContainerPatch = (projectId, containerId) => {
+   return {
+      type: "START_SPINNER_CONTAINER_PATCH",
+      payload: {
+         projectId: projectId,
+         containerId: containerId,
+      },
+   };
+};
 
 const containerGetSuccess = (projectId, container) => {
    return {
       type: "CONTAINER_GET_SUCCESS",
       payload: {
          projectId: projectId,
-         container: container
-      }
-   }
-}
+         container: container,
+      },
+   };
+};
 
 export const containerPostFail = (projectId, containerName) => {
    return {
@@ -115,11 +141,7 @@ export const containerStateChangeSuccess = (projectId, container) => {
    };
 };
 
-export const containerIdStart = (
-   projectId,
-   containerId,
-   notify,
-) => {
+export const containerIdStart = (projectId, containerId, notify) => {
    return (dispatch) => {
       dispatch(startSpinnerContainer(projectId, containerId, "Starting"));
       const callback = function (error, data, response) {
@@ -135,11 +157,7 @@ export const containerIdStart = (
    };
 };
 
-export const containerIdStop = (
-   projectId,
-   containerId,
-   notify
-) => {
+export const containerIdStop = (projectId, containerId, notify) => {
    return (dispatch) => {
       dispatch(startSpinnerContainer(projectId, containerId, "Stopping"));
       const callback = function (error, data, response) {
@@ -154,11 +172,7 @@ export const containerIdStop = (
    };
 };
 
-export const containerIdFreeze = (
-   projectId,
-   containerId,
-   notify
-) => {
+export const containerIdFreeze = (projectId, containerId, notify) => {
    return (dispatch) => {
       dispatch(startSpinnerContainer(projectId, containerId, "Freezing"));
       const callback = function (error, data, response) {
@@ -173,11 +187,7 @@ export const containerIdFreeze = (
    };
 };
 
-export const containerIdUnfreeze = (
-   projectId,
-   containerId,
-   notify
-) => {
+export const containerIdUnfreeze = (projectId, containerId, notify) => {
    return (dispatch) => {
       dispatch(startSpinnerContainer(projectId, containerId, "Unfreezing"));
       const callback = function (error, data, response) {
@@ -192,11 +202,7 @@ export const containerIdUnfreeze = (
    };
 };
 
-export const containerIdDelete = (
-   projectId,
-   containerId,
-   notify
-) => {
+export const containerIdDelete = (projectId, containerId, notify) => {
    return (dispatch) => {
       dispatch(startSpinnerContainer(projectId, containerId, "Deleting"));
       const callback = function (error, data, response) {
@@ -220,12 +226,12 @@ export const instancesCreateInstanceConfigDataGet = () => {
          }
       };
       api.instancesCreateInstanceConfigDataGet(callback);
-   }
-}
+   };
+};
 
-function instancesCreateInstanceConfigDataGetSuccess(createinstanceConfigData){
+function instancesCreateInstanceConfigDataGetSuccess(createinstanceConfigData) {
    return {
       type: "CREATE_INSTANCE_CONFIG_DATA_GET",
-      payload: createinstanceConfigData
-   }
+      payload: createinstanceConfigData,
+   };
 }

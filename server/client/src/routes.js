@@ -111,42 +111,22 @@ const containerNavLinks = [
          );
       },
    },
-   {
-      name: "Networking",
-      link: "networking",
-      component: (name, link) => {
-         return (
-            <Link to={link}>
-               <span className="no-icon">{name}</span>
-            </Link>
-         );
-      },
-   },
+   // {
+   //    name: "Networking",
+   //    link: "networking",
+   //    component: (name, link) => {
+   //       return (
+   //          <Link to={link}>
+   //             <span className="no-icon">{name}</span>
+   //          </Link>
+   //       );
+   //    },
+   // },
    {
       name: "Settings",
       link: "settings",
-      component: (name, link) => {
-         // const [openDialog, setDialogOpen] = React.useState(false);
-         // return (
-         //    <>
-         //       <AreYouSureDialog
-         //          open={openDialog}
-         //          setOpen={setDialogOpen}
-         //          actionCallback={function () {}}
-         //          whatToDo={`Do you want to delete there containers?`}
-         //       />
-         //       <Link
-         //          to={link}
-         //          onClick={(e) => {
-         //             e.preventDefault();
-         //             setDialogOpen(true);
-         //          }}
-         //       >
-         //          <span className="no-icon">{name}</span>
-         //       </Link>
-         //    </>
-         // );
-         return null;
+      component: (name, link, notify) => {
+         return <PatchContainer name={name} link={link} notify={notify}/>;
       },
    },
 ];

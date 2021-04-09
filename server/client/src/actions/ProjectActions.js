@@ -50,10 +50,10 @@ export const startSpinnerProjectDelete = (projectId) => {
    };
 };
 
-export const projectDeleteFail = (projectDd) => {
+const projectStateChangeFail = (projectId) => {
    return {
-      type: "PROJECT_DELETE_FAIL",
-      payload: projectDd,
+      type: "PROJECT_STATE_CHANGE_FAIL",
+      payload: projectId,
    };
 };
 
@@ -70,7 +70,7 @@ export const projectIdDelete = (projectId, notify) => {
       const callback = function (error, data, response) {
          // console.log(response, 'project id delete');
          if (error) {
-            dispatch(projectDeleteFail(projectId));
+            dispatch(projectStateChangeFail(projectId));
             notify(`Error occured: ${error}`);
          } else {
             dispatch(projectDeleteSuccess(projectId));
@@ -90,28 +90,36 @@ export const projectIdGet = (projectId, notify) => {
          }
       };
       api.projectsIdGet(projectId, callback);
-   }
-}
+   };
+};
 
 export const projectIdPatch = (patchedProject, notify) => {
    return (dispatch) => {
+      dispatch(startSpinnerProjectPatch(patchedProject.id));
       const callback = function (error, data, response) {
          if (error) {
-            console.log(response);
+            dispatch(projectStateChangeFail(patchedProject.id));
             notify(`Error occured: ${error}`);
          } else {
-            console.log(data, 'success');
-            dispatch(projectGetSuccess(data)); 
+            console.log(data, "success");
+            dispatch(projectGetSuccess(data));
          }
       };
       console.log(patchedProject);
       api.projectsIdPatch(patchedProject, patchedProject.id, callback);
-   }
-}
+   };
+};
+
+const startSpinnerProjectPatch = (projectId) => {
+   return {
+      type: "START_SPINNER_PROJECT_PATCH",
+      payload: projectId,
+   };
+};
 
 const projectGetSuccess = (project) => {
    return {
       type: "PROJECT_GET_SUCCESS",
-      payload: project
-   }
-}
+      payload: project,
+   };
+};

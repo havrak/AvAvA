@@ -41,7 +41,7 @@ const PatchProjectDialog = ({
       setOpen(false);
    };
 
-   const handleAdd = (event) => {
+   const handleUpdate = (event) => {
       const isThereANameError = checkForProjectNameErrors();
       if (isThereANameError) {
          return;
@@ -97,11 +97,11 @@ const PatchProjectDialog = ({
       return false;
    };
 
-   const convertedRAM = ramToMB(state.RAM.free);
-   const convertedCPU = CPUToMHz(state.CPU.free);
-   const convertedDisk = diskToGB(state.disk.free);
-   const convertedUpload = networkSpeedToMbits(state.internet.upload.free);
-   const convertedDownload = networkSpeedToMbits(state.internet.download.free);
+   const convertedRAM = ramToMB(state.RAM.free + currentProject.state.RAM.usage + currentProject.state.RAM.allocated);
+   const convertedCPU = CPUToMHz(state.CPU.free + currentProject.state.CPU.usage + currentProject.state.CPU.allocated);
+   const convertedDisk = diskToGB(state.disk.free + currentProject.state.disk.usage + currentProject.state.disk.allocated);
+   const convertedUpload = networkSpeedToMbits(state.internet.upload.free + currentProject.state.internet.upload.usage + currentProject.state.internet.upload.allocated);
+   const convertedDownload = networkSpeedToMbits(state.internet.download.free + currentProject.state.internet.download.usage + currentProject.state.internet.download.allocated);
 
    return (
       <div>
@@ -122,15 +122,14 @@ const PatchProjectDialog = ({
                />
                <h3 className={"limits-headding"}>Limits</h3>
                <InputSliderWithSwitch
-                  headding={"RAM"}
+                  headding={"Disk"}
+                  min={diskToGB(currentProject.state.disk.usage)}
                   setValueToParentElement={(value) => {
-                     patchedProject.current.limits.RAM = value;
+                     patchedProject.current.limits.disk = value;
                   }}
-                  min={0}
-                  initialValue={ramToMB(currentProject?.limits?.RAM)}
-                  max={convertedRAM}
-                  unit={"MB"}
-                  helperTooltipText={"Guarantee"}
+                  initialValue={diskToGB(currentProject?.limits?.disk)}
+                  max={convertedDisk}
+                  unit={"GB"}
                />
                <InputSliderWithSwitch
                   headding={"CPU"}
@@ -143,24 +142,15 @@ const PatchProjectDialog = ({
                   unit={"MHz"}
                />
                <InputSliderWithSwitch
-                  headding={"Disk"}
-                  min={diskToGB(currentProject.state.disk.usage)}
+                  headding={"RAM"}
                   setValueToParentElement={(value) => {
-                     patchedProject.current.limits.disk = value;
+                     patchedProject.current.limits.RAM = value;
                   }}
-                  initialValue={diskToGB(currentProject?.limits?.disk)}
-                  max={convertedDisk}
-                  unit={"GB"}
-               />
-               <InputSliderWithSwitch
-                  headding={"Upload"}
                   min={0}
-                  setValueToParentElement={(value) => {
-                     patchedProject.current.limits.internet.download = value;
-                  }}
-                  initialValue={networkSpeedToMbits(currentProject?.limits?.internet.download)}
-                  max={convertedUpload}
-                  unit={"Mbit/s"}
+                  initialValue={ramToMB(currentProject?.limits?.RAM)}
+                  max={convertedRAM}
+                  unit={"MB"}
+                  helperTooltipText={"Guarantee"}
                />
                <InputSliderWithSwitch
                   headding={"Download"}
@@ -172,12 +162,22 @@ const PatchProjectDialog = ({
                   max={convertedDownload}
                   unit={"Mbit/s"}
                />
+               <InputSliderWithSwitch
+                  headding={"Upload"}
+                  min={0}
+                  setValueToParentElement={(value) => {
+                     patchedProject.current.limits.internet.download = value;
+                  }}
+                  initialValue={networkSpeedToMbits(currentProject?.limits?.internet.download)}
+                  max={convertedUpload}
+                  unit={"Mbit/s"}
+               />
             </DialogContent>
             <DialogActions>
                <Button onClick={handleClose} color="primary">
                   Cancel
                </Button>
-               <Button onClick={handleAdd} color="primary">
+               <Button onClick={handleUpdate} color="primary">
                   Update
                </Button>
             </DialogActions>

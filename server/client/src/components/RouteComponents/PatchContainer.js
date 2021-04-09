@@ -1,37 +1,55 @@
-import React from 'react';
-import PatchProjectDialog from "components/Dialogs/PatchProjectDialog";
+import React from "react";
+import PatchContainerDialog from "components/Dialogs/PatchContainerDialog";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import { getCurrentProjectAndContainer } from "service/RoutesHelper";
+import {
+   ramToMB,
+   diskToGB,
+   CPUToMHz,
+   networkSpeedToMbits,
+} from "service/UnitsConvertor.js";
 
-function PatchContainer({name, link}){
-   
+function PatchContainer({ name, link, currentProject, currentContainer, notify }) {
    const [openDialog, setDialogOpen] = React.useState(false);
    const baseState = () => {
       return {
-         name: "",
-         owner: {},
+         id: currentContainer.id,
+         name: currentContainer.name,
+         owner: currentContainer.owner,
+         // connectToContainer: currentContainer.connectToContainer,
+         rootPassword: null,
          limits: {
-            RAM: null,
-            CPU: null,
-            disk: null,
+            RAM: ramToMB(currentContainer.state.RAM.limit),
+            CPU: CPUToMHz(currentContainer.state.CPU.limit),
+            disk: diskToGB(currentContainer.state.disk.limit),
             internet: {
-               upload: null,
-               download: null,
+               upload: networkSpeedToMbits(currentContainer.state.internet.limits.upload),
+               download: networkSpeedToMbits(currentContainer.state.internet.limits.download),
             },
          },
       };
    };
-   const patchedProject = React.useRef(baseState);
+   const patchedContainer = React.useRef(baseState());
    const openDialogHandler = () => {
-      patchedProject.current = baseState();
+      patchedContainer.current = baseState();
       setDialogOpen(true);
    };
    return (
       <>
-         <PatchProjectDialog patchedProject={patchedProject} open={openDialog} setOpen={setDialogOpen} />
+         <PatchContainerDialog
+            patchedContainer={patchedContainer}
+            currentContainer={currentContainer}
+            currentProject={currentProject}
+            open={openDialog}
+            setOpen={setDialogOpen}
+            notify={notify}
+         />{" "}
          <Link
             to={link}
             onClick={(e) => {
                e.preventDefault();
-               setDialogOpen(true);
+               openDialogHandler();
             }}
          >
             <span className="no-icon">{name}</span>
@@ -40,4 +58,12 @@ function PatchContainer({name, link}){
    );
 }
 
-export default PatchContainer;
+const mapStateToProps = (state) => {
+   const cp = getCurrentProjectAndContainer(state.combinedUserData.userProjects.projects);
+   return {
+      currentContainer: cp?.currentContainer,
+      currentProject: cp?.currentProject,
+   };
+};
+
+export default connect(mapStateToProps, null)(PatchContainer);

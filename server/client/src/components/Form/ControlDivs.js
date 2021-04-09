@@ -11,6 +11,7 @@ export function CheckboxDiv({ inputText, tooltipText, handler }) {
             size="small"
             value={value}
             color="primary"
+            value={true}
             onChange={(e) => {
                handler(!value);
                setValue(!value);

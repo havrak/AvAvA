@@ -28,6 +28,11 @@ export function InputSlider({
    const classes = useStyles();
    const [value, setValue] = React.useState(initialValue ? initialValue : min);
 
+   const marks = initialValue ? [{
+      value: initialValue,
+      label: `${initialValue}${unit}`
+   }] : null;
+
    const handleSliderChange = (event, newValue) => {
       setValue(newValue);
       setValueToParentElement(newValue);
@@ -68,6 +73,7 @@ export function InputSlider({
                   aria-labelledby="input-slider"
                   max={max}
                   min={min}
+                  marks={marks}
                   step={stepValue()}
                />
             </Grid>

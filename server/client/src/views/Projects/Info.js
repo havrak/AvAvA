@@ -49,9 +49,14 @@ function Info({
          <Container fluid>
             <Row>
                <Col sm="12" md="12" lg="6" xl="6">
-                  <Card className="card-dashboard">
+                  <Card className="card-dashboard action-card">
                      <Card.Header>
                         <Card.Title as="h4">Project Info</Card.Title>
+                        {currentProject.pendingState ? (
+                           <>
+                              <ClipLoader color={"#212529"} loading={true} size={30} />
+                           </>
+                        ) : null}
                      </Card.Header>
                      <Card.Body className="p-0">
                         <Container fluid className="information-container">
@@ -81,6 +86,12 @@ function Info({
                                  );
                               })}
                            </div>
+                           {currentProject.pendingState ? (
+                              <div className="information-item">
+                                 <b>Owner: </b>
+                                 {currentProject.pendingState}
+                              </div>
+                           ) : null}
                         </Container>
                      </Card.Body>
                   </Card>
@@ -104,10 +115,16 @@ function Info({
                         />
                      </Col>
                      <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
-                        <CPUCircularStateChartCard CPU={currentProject.state.CPU} max={currentProject.limits.CPU} />
+                        <CPUCircularStateChartCard
+                           CPU={currentProject.state.CPU}
+                           max={currentProject.limits.CPU}
+                        />
                      </Col>
                      <Col sm="12" md="4" lg="4" xl="4" className="col-xxl-5-group">
-                        <RAMCircularStateChartCard RAM={currentProject.state.RAM} max={currentProject.limits.RAM} />
+                        <RAMCircularStateChartCard
+                           RAM={currentProject.state.RAM}
+                           max={currentProject.limits.RAM}
+                        />
                      </Col>
                      <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
                         <DownloadCircularStateChartCard
@@ -132,10 +149,18 @@ function Info({
                         />
                      </Col>
                      <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
-                        <CPUCircularStateChartCardWithoutLimits parentCPUState={userState.CPU} CPUState={currentProject.state.CPU} max={userLimits.CPU} />
+                        <CPUCircularStateChartCardWithoutLimits
+                           parentCPUState={userState.CPU}
+                           CPUState={currentProject.state.CPU}
+                           max={userLimits.CPU}
+                        />
                      </Col>
                      <Col sm="12" md="4" lg="4" xl="4" className="col-xxl-5-group">
-                        <RAMCircularStateChartCardWithoutLimits parentRAMState={userState.RAM} RAMState={currentProject.state.RAM} max={userLimits.RAM} />
+                        <RAMCircularStateChartCardWithoutLimits
+                           parentRAMState={userState.RAM}
+                           RAMState={currentProject.state.RAM}
+                           max={userLimits.RAM}
+                        />
                      </Col>
                      <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
                         <DownloadCircularStateChartCardWithoutLimits
