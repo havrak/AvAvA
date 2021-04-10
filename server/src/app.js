@@ -70,23 +70,23 @@ server.on("upgrade", (req, socket, head) => {
 });
 
 app.get("/project/createConfigData", isLoggedIn, (req, res) => {
-  projectSQL.createCreateProjectData(email).then((result) => {
-    res.send(result);
-  });
+	projectSQL.createCreateProjectData(email).then((result) => {
+		res.send(result);
+	});
 });
 
 app.post("/project", isLoggedIn, (req, res) => {
-  projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
-    let id = result.name.substr(1, result.name.length);
-    lxd.createProject(result).then((result) => {
-      if (result.err_code != 200) {
-        projectSQL.removeProject(id);
-        res.send(result);
-      }
-      //
-    });
-    console.log(result);
-  });
+	projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
+		let id = result.name.substr(1, result.name.length);
+		lxd.createProject(result).then((result) => {
+			if (result.err_code != 200) {
+				projectSQL.removeProject(id);
+				res.send(result);
+			}
+			//
+		});
+		console.log(result);
+	});
 });
 
 app.get(
@@ -136,12 +136,12 @@ app.get("/instances/:instanceId", isLoggedIn, (req, res) => {
 });
 
 function getProjectObject(projectId) {
-  return new Promise((resolve) => {
-    //
-    projectSQL.createProjectObject().then((result) => {
-      //
-    });
-  });
+	return new Promise((resolve) => {
+		//
+		projectSQL.createProjectObject().then((result) => {
+			//
+		});
+	});
 }
 
 function getContainerObject(id) {
@@ -157,10 +157,12 @@ function getContainerObject(id) {
 
 function getContainerState(containerId, projectId) {
 	return new Promise((resolve) =>
-		containerSQL.createContainerStateObject(id).then((result) =>
-			lxd.getState(containerId, projectId, result).then((result) =>
-				resolve(result)
+		containerSQL
+			.createContainerStateObject(id)
+			.then((result) =>
+				lxd
+					.getState(containerId, projectId, result)
+					.then((result) => resolve(result))
 			)
-		);
 	);
 }
