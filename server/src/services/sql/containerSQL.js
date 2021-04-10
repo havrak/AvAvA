@@ -119,12 +119,11 @@ export default class containerSQL {
                 "." +
                 email.substr(0, email.indexOf("@")) +
                 "." +
-                proxyconfig.domain, // TODO: move later to configuration file
+                proxyconfig.domain,
               config.templateId,
               1,
             ],
             (err, rows) => {
-              if (err) throw err;
               if (err && err.code == "ER_DUP_ENTRY") {
                 console.log(
                   "There already is container with the same name in the database"
@@ -249,6 +248,36 @@ export default class containerSQL {
       );
     });
   }
+  static getAllContainersInProject(id) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query(
+        "SELECT * FROM containers WHERE containers.project_id=?",
+        [id],
+        (err, rows) => {
+          let toReturn = [rows.length];
+          let counter = 0;
+          rows.forEach((row, index) => {
+            templateSQL.getTemplate(row.template_id).then((template) => {
+              this.createContainerStateObject(row.id).then((result) => {
+                toReturn[index] = new Container();
+                toReturn[index].state = result;
+                toReturn[index].id = row.id;
+                toReturn[index].projectId = row.project_id;
+                toReturn[index].name = row.name;
+                toReturn[index].url = row.url;
+                toReturn[index].template = template;
+                counter++;
+                if (counter == rows.length - 1) {
+                  resolve(toReturn);
+                }
+              });
+            });
+          });
+        }
+      );
+    });
+  }
 
   static removeContainer(id) {
     return new Promise((resove) => {
@@ -284,7 +313,7 @@ export default class containerSQL {
   }
   static createContainerObject(id) {
     return new Promise((resolve) => {
-      const con = myslq.createConnection(sqlconfig);
+      const con = mysql.createConnection(sqlconfig);
       con.query(
         "SELECT * FROM containers WHERE containers.id=?",
         [id],
@@ -304,18 +333,19 @@ export default class containerSQL {
   }
   static createContainerStateObject(id) {
     return new Promise((resolve) => {
-      const con = myslq.createConnection(sqlconfig);
+      const con = mysql.createConnection(sqlconfig);
       con.query(
         "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.id=?",
         [id],
         (err, rows) => {
+          if (err) throw err;
           let toReturn = new ContainerResourceState();
           toReturn.CPU.limit = rows[0].cpu;
           toReturn.RAM.limit = rows[0].ram;
           toReturn.disk.limit = rows[0].disk;
           toReturn.internet = new NetworkState(); //
-          toReturn.internet.limit.download = rows[0].download;
-          toReturn.internet.limit.upload = rows[0].upload;
+          toReturn.internet.limits.download = rows[0].download;
+          toReturn.internet.limits.upload = rows[0].upload;
           resolve(toReturn);
         }
       );

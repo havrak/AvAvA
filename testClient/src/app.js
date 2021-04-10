@@ -3,7 +3,7 @@ const https = require("http");
 const route = "/instances";
 
 const data = JSON.stringify({
-  name: "rumburak",
+  name: "belzebub",
   rootPassword: "string",
   projectId: 18,
   templateId: 2,

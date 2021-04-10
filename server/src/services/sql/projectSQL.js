@@ -4,6 +4,8 @@ import Limits from "../../models/Limits.js";
 import sqlconfig from "./../../../config/sqlconfig.js";
 import CreateProjectJSONObj from "../../models/CreateProjectJSONObj.js";
 import Project from "../../models/Project.js";
+import containerSQL from "./containerSQL.js";
+import userSQL from "./userSQL.js";
 
 export default class projectSQL {
   static createCreateProjectData(email) {
@@ -105,19 +107,21 @@ export default class projectSQL {
       });
     });
   }
-  static createContainerObject(id) {
+  static createProjectObject(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
         "SELECT projects.id AS projectId,  name, owner_email, timestamp, project_id, ram, cpu, disk, upload, download, users.id AS userId, email, given_name, family_name, icon, role, coins FROM projects LEFT JOIN projectsResourcesLimits ON projects.id=projectsResourcesLimits.project_id LEFT JOIN users as users ON users.email=projects.owner_email WHERE projects.id=?",
         [id],
         (err, rows) => {
+          if (err) throw err;
           // query for coworkers
-          let toReturn = Project(
+          let toReturn = new Project(
             id,
             rows[0].name,
             new User(
               rows[0].userId,
+              rows[0].email,
               rows[0].given_name,
               rows[0].family_name,
               rows[0].role,
@@ -130,8 +134,16 @@ export default class projectSQL {
               rows[0].disk,
               rows[0].upload,
               rows[0].download
-            )
+            ),
+            rows[0].timestamp
           );
+          containerSQL.getAllContainersInProject(id).then((result) => {
+            toReturn.containers = result;
+            userSQL.getAllUsersWorkingOnAProject(id).then((result) => {
+              toReturn.coworkers = result;
+              resolve(toReturn);
+            });
+          });
         }
       );
     });

@@ -29,12 +29,16 @@ export default class templateSQL {
       con.query("SELECT * FROM templates WHERE id=?", [id], (err, rows) => {
         if (err) throw err;
         let toReturn = new Template(
-          row.id,
-          row.profile_name,
-          row.timestamp,
-          new Image(row.image_name, row.version, row.image_description),
-          row.profile_description,
-          row.min_disk_size
+          rows[0].id,
+          rows[0].profile_name,
+          rows[0].timestamp,
+          new Image(
+            rows[0].image_name,
+            rows[0].version,
+            rows[0].image_description
+          ),
+          rows[0].profile_description,
+          rows[0].min_disk_size
         );
         resolve(toReturn);
       });

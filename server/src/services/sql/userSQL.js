@@ -18,7 +18,7 @@ export default class userSQL {
             new User(
               rows[0].id,
               rows[0].email,
-              rows[0].give_name,
+              rows[0].given_name,
               rows[0].family_name,
               rows[0].role,
               rows[0].icon,
@@ -42,7 +42,7 @@ export default class userSQL {
             new User(
               rows[0].id,
               rows[0].email,
-              rows[0].give_name,
+              rows[0].given_name,
               rows[0].family_name,
               rows[0].role,
               rows[0].icon,
@@ -53,7 +53,31 @@ export default class userSQL {
       );
     });
   }
-
+  static getAllUsersWorkingOnAProject(id) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query(
+        "SELECT * FROM projectsCoworkers LEFT JOIN users ON users.email=projectsCoworkers.user_email WHERE project_id=?",
+        [id],
+        (err, rows) => {
+          //
+          let toReturn = [rows.length];
+          rows.forEach((row, index) => {
+            toReturn[index] = new User(
+              row.id,
+              row.email,
+              row.given_name,
+              row.family_name,
+              row.role,
+              row.icon,
+              row.coins
+            );
+          });
+          resolve(toReturn);
+        }
+      );
+    });
+  }
   /*
    * adds new user do database
    * TODO: add record to usersResourcesLimits
@@ -109,7 +133,7 @@ export default class userSQL {
             new User(
               rows[0].id,
               rows[0].email,
-              rows[0].give_name,
+              rows[0].given_name,
               rows[0].family_name,
               rows[0].role,
               rows[0].icon,
