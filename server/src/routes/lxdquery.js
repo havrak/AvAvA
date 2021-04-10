@@ -93,9 +93,9 @@ export async function getOperation(operation) {
 }
 
 export async function test() {
-	console.log(await stopInstance(1, 1));
+	// console.log(await stopInstance(1, 1));
 	// console.log(await deleteInstance("73", "1"));
-	console.log(await startInstance(1, 1));
+	// console.log(await startInstance(1, 1));
 	/*(await mkRequest(`/1.0/instances/test/backups`)).forEach((b) =>
 		deleteBackup("test", "default", b)
 	);*/
