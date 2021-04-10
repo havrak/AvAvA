@@ -314,3 +314,7 @@ export const addStateToContainer = (container) => {
 export function calculatePercent(value, max) {
    return Math.round((value / max) * 10_000.0) / 100.0;
 }
+
+export function isPending(statusCode) {
+   return statusCode >= 104 && statusCode <= 109
+}

@@ -16,7 +16,7 @@ export const containerIdGet = (projectId, containerId, notify) => {
    return (dispatch) => {
       const callback = function (error, data, response) {
          if (error) {
-            notify(`Error occured: ${error}`);
+            notify(`Error occured: ${response.body.message}`);
          } else {
             dispatch(containerGetSuccess(projectId, data));
          }
@@ -31,8 +31,7 @@ export const containerIdPatch = (projectId, containerPatched, notify) => {
          dispatch(startSpinnerContainerPatch(projectId, containerPatched.id));
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerPatched.id));
-            notify(`Error occured: ${response.body}`);
-            console.log(response)
+            notify(`Error occured: ${response.body.message}`);
          } else {
             console.log(data, "success");
             dispatch(containerGetSuccess(projectId, data));
@@ -87,13 +86,11 @@ export const containerPost = (container, notify) => {
       dispatch(startSpinnerContainerPost(container.projectId, container));
       const callback = function (error, data, response) {
          if (error) {
-            console.error(error + "containerPostError");
             dispatch(containerPostFail(container.projectId, container.name));
-            notify(`Error occured: ${error}`);
-            console.log(error);
+            notify(`Error occured: ${response.body.message}`);
          } else {
-            data.name = "asdf";
-            data.id = "123"; //TESTING PURPOSES
+            // data.name = "asdf";
+            // data.id = "123"; //TESTING PURPOSES
             dispatch(containerPostSuccess(container.projectId, data));
          }
       };
@@ -149,7 +146,7 @@ export const containerIdStart = (projectId, containerId, notify) => {
          // console.log(response, 'container id delete');
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
-            notify(`Error occured: ${error ? error : ""}`);
+            notify(`Error occured: ${response.body.message}`);
          } else {
             dispatch(containerStateChangeSuccess(projectId, data));
          }
@@ -164,7 +161,7 @@ export const containerIdStop = (projectId, containerId, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
-            notify(`Error occured: ${error ? error : ""}`);
+            notify(`Error occured: ${response.body.message}`);
          } else {
             dispatch(containerStateChangeSuccess(projectId, data));
          }
@@ -179,7 +176,7 @@ export const containerIdFreeze = (projectId, containerId, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
-            notify(`Error occured: ${error ? error : ""}`);
+            notify(`Error occured: ${response.body.message}`);
          } else {
             dispatch(containerStateChangeSuccess(projectId, data));
          }
@@ -194,7 +191,7 @@ export const containerIdUnfreeze = (projectId, containerId, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
-            notify(`Error occured: ${error ? error : ""}`);
+            notify(`Error occured: ${response.body.message}`);
          } else {
             dispatch(containerStateChangeSuccess(projectId, data));
          }
@@ -209,7 +206,7 @@ export const containerIdDelete = (projectId, containerId, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
-            notify(`Error occured: ${error ? error : ""}`);
+            notify(`Error occured: ${response.body.message}`);
          } else {
             dispatch(containerDeleteSuccess(projectId, containerId));
          }

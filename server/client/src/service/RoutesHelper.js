@@ -78,10 +78,18 @@ export function getCurrentProject(projects) {
 
 function currentProjectAndContainerId() {
    const splitted = removeEndSlashPathEndAndSplit();
-   return {
-      projectId: parseInt(splitted[3]),
-      containerId: parseInt(splitted[5]),
-   };
+   const result = {
+      projectId: null,
+      containerId: null
+   }
+   for(let i = 0; i < splitted.length; i++){
+      if(splitted[i] === "projects" && i + 1 < splitted.length){
+         result.projectId = parseInt(splitted[i + 1]);
+      } else if(splitted[i] === "containers" && i + 1 < splitted.length){
+         result.containerId = parseInt(splitted[i + 1]);
+      }
+   }
+   return result;
 }
 
 export function getCurrentProjectAndContainer(projects) {

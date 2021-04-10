@@ -29,12 +29,10 @@ export const projectPost = (project, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(projectPostFail(project.name));
-            console.log(error);
-            console.log(response);
-            notify(`Error occured: ${error.message}`);
+            notify(`Error occured: ${response.body.message}`);
          } else {
-            data.name = "asdf";
-            data.id = "123"; //TESTING PURPOSES
+            // data.name = "asdf";
+            // data.id = "123"; //TESTING PURPOSES
             dispatch(projectPostSuccess(data));
          }
       };
@@ -71,7 +69,7 @@ export const projectIdDelete = (projectId, notify) => {
          // console.log(response, 'project id delete');
          if (error) {
             dispatch(projectStateChangeFail(projectId));
-            notify(`Error occured: ${error}`);
+            notify(`Error occured: ${response.body.message}`);
          } else {
             dispatch(projectDeleteSuccess(projectId));
          }
@@ -84,7 +82,7 @@ export const projectIdGet = (projectId, notify) => {
    return (dispatch) => {
       const callback = function (error, data, response) {
          if (error) {
-            notify(`Error occured: ${error}`);
+            notify(`Error occured: ${response.body.message}`);
          } else {
             dispatch(projectGetSuccess(data));
          }
@@ -99,7 +97,7 @@ export const projectIdPatch = (patchedProject, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(projectStateChangeFail(patchedProject.id));
-            notify(`Error occured: ${error}`);
+            notify(`Error occured: ${response.body.message}`);
          } else {
             console.log(data, "success");
             dispatch(projectGetSuccess(data));

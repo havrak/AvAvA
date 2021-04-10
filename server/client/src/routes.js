@@ -33,7 +33,10 @@ import ContainerSettings from "views/Containers/Settings.js";
 // import Upgrade from "views/Upgrade.js";
 import PatchContainer from "components/RouteComponents/PatchContainer";
 import PatchProject from "components/RouteComponents/PatchProject";
-
+import { getCurrentProjectAndContainer } from "service/RoutesHelper";
+import { store } from "index.js";
+import { getCurrentProject } from "service/RoutesHelper";
+import ReactDOM from 'react-dom';
 const projectsNavLinks = [
    {
       name: "Info",
@@ -61,7 +64,7 @@ const projectsNavLinks = [
       name: "Settings",
       link: "settings",
       component: (name, link, notify) => {
-         return <PatchProject name={name} link={link} notify={notify}/>;
+         return <PatchProject name={name} link={link} notify={notify} />;
       },
    },
 ];
@@ -81,7 +84,18 @@ const containerNavLinks = [
    {
       name: "Console",
       link: "console",
-      component: (name, link) => {
+      component: (name, link, notify, otherData) => {
+         const {projects} = otherData;
+         const { currentProject, currentContainer } = getCurrentProjectAndContainer(
+            projects
+         );
+         // return (
+         //    <Link
+         //       to={`/user/projects/${currentProject.id}/containers/${currentContainer.id}`}
+         //    >
+         //       <span className="no-icon">{name}</span>
+         //    </Link>
+         // );
          return (
             <Link to={link}>
                <span className="no-icon">{name}</span>
@@ -126,7 +140,7 @@ const containerNavLinks = [
       name: "Settings",
       link: "settings",
       component: (name, link, notify) => {
-         return <PatchContainer name={name} link={link} notify={notify}/>;
+         return <PatchContainer name={name} link={link} notify={notify} />;
       },
    },
 ];
@@ -192,7 +206,7 @@ const routes = [
       path: "/projects/:projectId/containers/:containerId/console",
       name: "Console",
       navLinks: containerNavLinks,
-      view: ContainerConsole,
+      view: (ContainerConsole),
       layout: "/user",
    },
    {

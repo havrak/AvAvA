@@ -38,7 +38,7 @@ const rootReducer = combineReducers({
 
 const persistedState = loadFromLocalStorage();
 
-const store = createStore(
+export const store = createStore(
    rootReducer,
    persistedState,
    composeEnhancers(applyMiddleware(thunk))
