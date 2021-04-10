@@ -1,6 +1,7 @@
 import mysql from "mysql";
 import { resolve } from "node:dns";
 import sqlconfig from "./../../../config/sqlconfig.js";
+import proxyconfig from "./../../../config/proxyconfig.js";
 import CreateInstanceConfigData from "../../models/CreateInstanceConfigData.js";
 import CreateInstanceJSONObj from "../../models/CreateInstanceJSONObj.js";
 import fs from "fs";
@@ -82,7 +83,8 @@ export default class containerSQL {
                 rows[0].name +
                 "." +
                 email.substr(0, email.indexOf("@")) +
-                ".havrak.xyz", // TODO: move later to configuration file
+                "." +
+                proxyconfig.domain, // TODO: move later to configuration file
               config.templateId,
               1,
             ],
@@ -240,6 +242,191 @@ export default class containerSQL {
           );
         });
       });
+    });
+  }
+  static generateHaProxyConfigurationFile() {
+    return new Promise((result) => {
+      fs.readFile(
+        "config/serverconfiguartions/haproxy_header",
+        "utf8",
+        (err, data) => {
+          let stream = fs.createWriteStream(
+            "config/serverconfiguartions/haproxy.cfg",
+            { flags: "w", encoding: "utf8" }
+          );
+          stream.write(data);
+          const con = mysql.createConnection(sqlconfig);
+          con.query("SELECT * FROM containers", (err, rows) => {
+            if (err) throw err;
+            // frontend https
+            stream.write("frontend fe_https\n");
+            stream.write(
+              "\tbind *:443 ssl crt" +
+                proxyconfig.pemfilepath +
+                "no-tls-tickets ca-file" +
+                proxyconfig.cabundle +
+                "\n"
+            );
+            stream.write("\ttimeout client 5000\n");
+            stream.write("\treqadd X-Forwarded-Proto: https\n");
+            stream.write("\toption http-keep-alive\n");
+            stream.write("\toption forwardfor\n");
+            stream.write("\n");
+
+            stream.write(
+              "\tuse_backend bac_web_hostmachine if { hdr(host) -i " +
+                proxyconfig.domain +
+                " }\n"
+            );
+
+            rows.forEach((row, index) => {
+              stream.write(
+                "\tuse_backend bac_web_c" +
+                  row.id +
+                  " if { hdr(host) -i " +
+                  row.url +
+                  " }\n"
+              );
+            });
+            // frontend http
+            stream.write("\n");
+            stream.write("\n");
+            stream.write("frontend fe_http\n");
+            stream.write("\tbind *:80\n");
+            stream.write("\ttimeout client 50000\n");
+            stream.write("\n");
+            stream.write(
+              "\tuse_backend bac_web_hostmachine if { hdr(host) -i " +
+                proxyconfig.domain +
+                " }\n"
+            );
+            rows.forEach((row, index) => {
+              stream.write(
+                "\tuse_backend bac_web_c" +
+                  row.id +
+                  " if { hdr(host) -i " +
+                  row.url +
+                  " }\n"
+              );
+            });
+            // frontend rest api
+            stream.write("\n");
+            stream.write("\n");
+            stream.write("frontend fe_rest\n");
+            stream.write(
+              "\tbind *:3000 ssl crt" +
+                proxyconfig.pemfilepath +
+                "no-tls-tickets ca-file" +
+                proxyconfig.cabundle +
+                "\n"
+            );
+            stream.write("\ttimeout client 5000\n");
+            stream.write("\treqadd X-Forwarded-Proto: https\n");
+            stream.write("\toption http-keep-alive\n");
+            stream.write("\toption forwardfor\n");
+            stream.write("\n");
+
+            stream.write(
+              "\tuse_backend bac_rest_hostmachine if { hdr(host) -i " +
+                proxyconfig.domain +
+                " }\n"
+            );
+
+            rows.forEach((row, index) => {
+              stream.write(
+                "\tuse_backend bac_rest_c" +
+                  row.id +
+                  " if { hdr(host) -i " +
+                  row.url +
+                  " }\n"
+              );
+            });
+
+            // frontend ssh
+            stream.write("\n");
+            stream.write("\n");
+            stream.write("frontend fe_ssh\n");
+            stream.write(
+              "\tbind *:2222 ssl crt" +
+                proxyconfig.pemfilepath +
+                "no-tls-tickets ca-file" +
+                proxyconfig.cabundle +
+                "\n"
+            );
+            stream.write("\tmode tcp\n");
+            stream.write(
+              "\ttcp-request content set-var(sess.dst) ssl_fc_sni\n"
+            );
+            stream.write("\n");
+
+            // stream.write(
+            //   "\tuse_backend bac_ssh_hostmachine if { var(sess.dst) -i " +
+            //     proxyconfig.domain +
+            //     " }\n"
+            // );
+
+            rows.forEach((row, index) => {
+              stream.write(
+                "\tuse_backend bac_ssh_c" +
+                  row.id +
+                  " if { var(sess.dst) -i " +
+                  row.url +
+                  " }\n"
+              );
+            });
+            // web backend
+            stream.write("\n");
+            stream.write("\n");
+            stream.write("backend bac_web_hostmachine\n");
+            stream.write("\thttp-request set-header X-Client-IP %[src]\n");
+            stream.write("\tredirect scheme https if !{ssl_fc}\n");
+            stream.write(
+              "\tserver hostmachine " +
+                proxyconfig.ipAdressOfHostOnLxdbr0 +
+                ".lxd:81 check\n"
+            );
+            rows.forEach((row, index) => {
+              stream.write("\n");
+              stream.write("backend bac_web_c" + row.id + "\n");
+              stream.write("\thttp-request set-header X-Client-IP %[src]\n");
+              stream.write("\tredirect scheme https if !{ssl_fc}\n");
+              stream.write(
+                "\tserver c" + row.id + " c" + row.id + ".lxd:80 check\n"
+              );
+            });
+            // ssh backend
+            stream.write("\n");
+            stream.write("\n");
+            stream.write("backend bac_rest_hostmachine\n");
+            stream.write("\thttp-request set-header X-Client-IP %[src]\n");
+            stream.write("\tredirect scheme https if !{ssl_fc}\n");
+            stream.write(
+              "\tserver hostmachine " +
+                proxyconfig.ipAdressOfHostOnLxdbr0 +
+                ".lxd:3001 check\n"
+            );
+            rows.forEach((row, index) => {
+              stream.write("\n");
+              stream.write("backend bac_rest_c" + row.id + "\n");
+              stream.write("\thttp-request set-header X-Client-IP %[src]\n");
+              stream.write("\tredirect scheme https if !{ssl_fc}\n");
+              stream.write(
+                "\tserver c" + row.id + " c" + row.id + ".lxd:3000 check\n"
+              );
+            });
+            // ssh backend
+            stream.write("\n");
+            rows.forEach((row, index) => {
+              stream.write("\n");
+              stream.write("backend bac_ssh_c" + row.id + "\n");
+              stream.write("\tmode tcp\n");
+              stream.write(
+                "\tserver c" + row.id + " c" + row.id + ".lxd:22 check\n"
+              );
+            });
+          });
+        }
+      );
     });
   }
 }
