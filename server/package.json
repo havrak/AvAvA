@@ -18,12 +18,13 @@
     "cookie-session": "^1.4.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "mongodb": "^3.6.5",
+    "mongodb": "^3.6.6",
     "mssql": "^6.3.1",
     "mysql": "^2.18.1",
     "node": "^14.15.5",
     "package.json": "^2.0.1",
     "passport": "^0.4.1",
-    "passport-google-oauth": "^2.0.0"
+    "passport-google-oauth": "^2.0.0",
+    "ws": "^7.4.4"
   }
 }

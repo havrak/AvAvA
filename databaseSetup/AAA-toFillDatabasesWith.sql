@@ -3,7 +3,7 @@ INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("
 INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("neovim", "vylepšená verze populárního textového editoru vim", "https://www.vim.org/images/vim_small.gif", "neovim");
 INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("ranger", "prohlížeč souborů pro terminál", "https://camo.githubusercontent.com/b410f2706397b50e183a62e72ea470c31109928d92bbfa357848413843545e33/68747470733a2f2f72616e6765722e6769746875622e696f2f72616e6765725f6c6f676f2e706e67", "ranger");
 INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("apache", "http server", "https://en.wikipedia.org/wiki/File:Apache_HTTP_server_logo_(2016).svg", "apache2");
-INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("nginx", "http server", "https://en.wikipedia.org/wiki/File:Nginx_logo.svg", "nginx");
+INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("nginx", "http server", "https://en.wikipedia.org/wiki/File:Nginx_logo.svg", "nginx-core");
 
 
 -- templates

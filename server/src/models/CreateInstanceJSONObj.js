@@ -14,11 +14,11 @@ export default class CreateInstanceJSONObj {
     "limits.memory": undefined,
     "limits.cpu.allowance": undefined,
   };
-  device = {
+  devices = {
     root: {
       path: "/",
       pool: "default",
-      size: undefined,
+      //     size: undefined, <- as things stand now, lxd has unfixed error, which causes problems with creation if disk size is limited
       type: "disk",
     },
     eth0: {
@@ -30,5 +30,6 @@ export default class CreateInstanceJSONObj {
     },
   };
   source;
-  project;
+  project; // will be extracted from object
+  appsToInstall; // will be extracted from object
 }

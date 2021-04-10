@@ -62,6 +62,7 @@ const server = app.listen(PORT, () =>
 );
 
 import * as WebSocket from "./services/websocket.js";
+import { resolve } from "node:dns";
 server.on("upgrade", (req, socket, head) => {
   WebSocket.wss.handleUpgrade(req, socket, head, (socket) =>
     WebSocket.wss.emit("connection", socket, req)
@@ -75,7 +76,6 @@ app.get("/project/createConfigData", isLoggedIn, (req, res) => {
 });
 
 app.post("/project", isLoggedIn, (req, res) => {
-  console.log("asdasd");
   projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
     console.log(result);
   });
@@ -97,6 +97,21 @@ app.post("/instances", isLoggedIn, (req, res) => {
   // email -> havranek.krystof@student.gyarab.cz
   containerSQL.createCreateContainerJSON(email, req.body).then((result) => {
     console.log(result);
+    let id = result.name.substr(1, result.name.length);
+    console.log(id);
+    lxd.createInstance(result, result.appsToInstall).then((result) => {
+      if (result.statusCode != 200) containerSQL.removeContainer(id);
+      console.log("not deteled");
+      // upload sshd_config
+      containerSQL.generateHaProxyConfigurationFile().then((result) => {
+        // upload new haproxy config
+        // reload haproxy
+      });
+      this.getContainerObject(id).then((result) => {
+        res.send(result);
+      });
+    });
+    //
   });
 });
 
@@ -108,3 +123,32 @@ app.get("/instances/:instanceId/console", isLoggedIn, (req, res) => {
   });
 });
 
+app.get("/instances/:instanceId", isLoggedIn, (req, res) => {
+  this.getContainerObject(id).then((result) => {
+    res.send(result);
+  });
+});
+
+function getContainerObject(id) {
+  return new Promise((resolve) => {
+    containerSQL.createContainerObject(id).then((result) => {
+      lxd.getInstance(result, result.projectId).then((result) => {
+        this.getContainerState(result.id, result.projectId).then((result2) => {
+          result.state = result2;
+          resolve(result);
+        });
+      });
+    });
+  });
+}
+
+function getContainerState(containerId, projectId) {
+  return new Promise((resolve) => {
+    containerSQL.createContainerStateObject(id).then((result) => {
+      lxd.getState(result, containerId, projectId).then((result) => {
+        resolve(result);
+        //
+      });
+    });
+  });
+}

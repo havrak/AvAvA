@@ -4,23 +4,27 @@ import sqlconfig from "./../../../config/sqlconfig.js";
 import proxyconfig from "./../../../config/proxyconfig.js";
 import CreateInstanceConfigData from "../../models/CreateInstanceConfigData.js";
 import CreateInstanceJSONObj from "../../models/CreateInstanceJSONObj.js";
+import Container from "../../models/Container.js";
+import ContainerResourceState from "../../models/ContainerResourceState.js";
 import fs from "fs";
 import Limits from "../../models/Limits.js";
 import templateSQL from "./templateSQL.js";
+import { NetworkState } from "../../models/NetworkState.js";
 
 export default class containerSQL {
   static createCreateContainerJSON(email, config) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       this.getFreeSpaceForContainer(config.projectId, email).then((result) => {
+        if (typeof result == String) resolve(result);
         if (
-          config.customLimits.RAM > result.RAM ||
-          config.customLimits.CPU > result.CPU ||
-          config.customLimits.disk > result.disk ||
-          config.customLimits.upload > result.upload ||
-          config.customLimits.download > result.download
+          config.limits.RAM > result.RAM ||
+          config.limits.CPU > result.CPU ||
+          config.limits.disk > result.disk ||
+          config.limits.upload > result.upload ||
+          config.limits.download > result.download
         ) {
-          resolve(500);
+          resolve("500, limits are over current maximum");
         }
         // create JSON, call function to add container to database (for once can be synchronous)
         // request to templates - profile and source,
@@ -28,35 +32,66 @@ export default class containerSQL {
           "SELECT * FROM templates WHERE id=?",
           [config.templateId],
           (err, rows) => {
-            if (config.disk < rows[0].min_disk_size) {
-              resolve(500);
+            if (rows.length == 0) resolve("500, teplates doesn't exists");
+            if (config.limits.disk < rows[0].min_disk_size) {
+              resolve("500, not enough space for desired image");
             }
             this.addNewContainerToDatabase(config, email).then((result) => {
               // self
               // as contianer name is in fact his id we first need to save it to database
               let template;
               let path = "config/templates/" + rows[0].profile_path + ".json";
-              console.log(path);
               fs.readFile(path, "utf-8", (err, data) => {
-                console.log(data);
                 template = JSON.parse(data);
                 let createContainerJSON = new CreateInstanceJSONObj(
                   "c" + result,
                   template.profiles,
                   template.source,
-                  config.projectId
+                  "p" + config.projectId
                 );
-                createContainerJSON.device.root.size =
-                  config.customLimits.disk + "B";
+                // NOTE: as things stand now lxd has unfixed error which leads to contianer failing to start and throwing error related to some broken change of ownership thus limit of disk size is disabled
+                // createContainerJSON.devices.root.size =
+                //   "" + config.limits.disk + "";
                 createContainerJSON.config["limits.memory"] =
-                  config.customLimits.RAM + "B";
+                  "" + config.limits.RAM + ""; // by default in bites
                 createContainerJSON.config["limits.cpu.allowance"] =
-                  config.customLimits.CPU;
-                createContainerJSON.device.eth0["limits.ingress"] =
-                  config.customLimits.internet.upload;
-                createContainerJSON.device.eth0["limits.egress"] =
-                  config.customLimits.internet.download;
-                resolve(createContainerJSON);
+                  "" + config.limits.CPU + "%";
+                createContainerJSON.devices.eth0["limits.ingress"] =
+                  "" + config.limits.internet.upload + "";
+                createContainerJSON.devices.eth0["limits.egress"] =
+                  "" + config.limits.internet.download + "";
+                createContainerJSON.appsToInstall = new Array();
+
+                if (config.applicationsToInstall.length > 0) {
+                  let tmpString = "sleep 5; ";
+                  switch (rows[0].image_name) {
+                    case "Ubuntu":
+                      tmpString += "apt-get update && apt-get -yyq install ";
+                      break;
+                    case "Debian":
+                      tmpString += "apt-get update && apt-get -yyq install ";
+                      break;
+                  }
+                  con.query("SELECT * FROM appsToInstall", (err, apps) => {
+                    if (err) throw err;
+                    apps.forEach((app, index) => {
+                      if (config.applicationsToInstall.includes(app.id)) {
+                        switch (rows[0].image_name) {
+                          case "Ubuntu":
+                            tmpString += app.package_name + " ";
+                            break;
+                          case "Debian":
+                            tmpString += app.package_name + " ";
+                            break;
+                        }
+                      }
+                    });
+                    createContainerJSON.appsToInstall.push(tmpString);
+                    resolve(createContainerJSON);
+                  });
+                } else {
+                  resolve(createContainerJSON);
+                }
               });
             });
           }
@@ -100,11 +135,11 @@ export default class containerSQL {
                 "INSERT INTO containersResourcesLimits (container_id, ram, cpu, disk, upload, download) VALUES (?,?,?,?,?,?)",
                 [
                   rows.insertId,
-                  config.customLimits.RAM,
-                  config.customLimits.CPU,
-                  config.customLimits.disk,
-                  config.customLimits.internet.upload,
-                  config.customLimits.internet.download,
+                  config.limits.RAM,
+                  config.limits.CPU,
+                  config.limits.disk,
+                  config.limits.internet.upload,
+                  config.limits.internet.download,
                 ],
                 (err, rows) => {
                   if (err) throw err;
@@ -140,6 +175,9 @@ export default class containerSQL {
         [projectId],
         (err, rows) => {
           if (err) throw err;
+          if (rows.length == 0) {
+            resolve("project doesn't exists");
+          }
           // project either has its limit or not, so there is no need to check all variables
           if (rows[0].ram == null) {
             con.query(
@@ -216,7 +254,7 @@ export default class containerSQL {
     return new Promise((resove) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
-        "DELETE FROM containers WHERE container.id=?",
+        "DELETE FROM containers WHERE containers.id=?",
         [id],
         (err, rows) => {
           if (err) throw err;
@@ -242,6 +280,45 @@ export default class containerSQL {
           );
         });
       });
+    });
+  }
+  static createContainerObject(id) {
+    return new Promise((resolve) => {
+      const con = myslq.createConnection(sqlconfig);
+      con.query(
+        "SELECT * FROM containers WHERE containers.id=?",
+        [id],
+        (err, rows) => {
+          templateSQL.getTemplate(rows[0].template_id).then((result) => {
+            let toReturn = new Container();
+            toReturn.id = id;
+            toReturn.projectId = rows[0].project_id;
+            toReturn.name = rows[0].name;
+            toReturn.url = rows[0].url;
+            toReturn.template = result;
+            resolve(toReturn);
+          });
+        }
+      );
+    });
+  }
+  static createContainerStateObject(id) {
+    return new Promise((resolve) => {
+      const con = myslq.createConnection(sqlconfig);
+      con.query(
+        "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.id=?",
+        [id],
+        (err, rows) => {
+          let toReturn = new ContainerResourceState();
+          toReturn.CPU.limit = rows[0].cpu;
+          toReturn.RAM.limit = rows[0].ram;
+          toReturn.disk.limit = rows[0].disk;
+          toReturn.internet = new NetworkState(); //
+          toReturn.internet.limit.download = rows[0].download;
+          toReturn.internet.limit.upload = rows[0].upload;
+          resolve(toReturn);
+        }
+      );
     });
   }
   static generateHaProxyConfigurationFile() {
@@ -424,6 +501,7 @@ export default class containerSQL {
                 "\tserver c" + row.id + " c" + row.id + ".lxd:22 check\n"
               );
             });
+            resolve(200);
           });
         }
       );

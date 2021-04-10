@@ -23,6 +23,24 @@ export default class templateSQL {
     });
   }
 
+  static getTemplate(id) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query("SELECT * FROM templates WHERE id=?", [id], (err, rows) => {
+        if (err) throw err;
+        let toReturn = new Template(
+          row.id,
+          row.profile_name,
+          row.timestamp,
+          new Image(row.image_name, row.version, row.image_description),
+          row.profile_description,
+          row.min_disk_size
+        );
+        resolve(toReturn);
+      });
+    });
+  }
+
   static getAllTemplates() {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);

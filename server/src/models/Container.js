@@ -19,6 +19,7 @@ export default class Container {
     this.state = state;
   }
   id;
+  projectId;
   name;
   url;
   template; // -> Template.js
