@@ -2,8 +2,8 @@ import mysql from "mysql";
 import User from "./../../models/User.js";
 import Limits from "../../models/Limits.js";
 import sqlconfig from "./../../../config/sqlconfig.js";
-import CreateProjectJSON from "../../models/CreateProjectJSONObj.js";
 import CreateProjectJSONObj from "../../models/CreateProjectJSONObj.js";
+import Project from "../../models/Project.js";
 
 export default class projectSQL {
   static createCreateProjectData(email) {
@@ -105,6 +105,38 @@ export default class projectSQL {
       });
     });
   }
+  static createContainerObject(id) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query(
+        "SELECT projects.id AS projectId,  name, owner_email, timestamp, project_id, ram, cpu, disk, upload, download, users.id AS userId, email, given_name, family_name, icon, role, coins FROM projects LEFT JOIN projectsResourcesLimits ON projects.id=projectsResourcesLimits.project_id LEFT JOIN users as users ON users.email=projects.owner_email WHERE projects.id=?",
+        [id],
+        (err, rows) => {
+          // query for coworkers
+          let toReturn = Project(
+            id,
+            rows[0].name,
+            new User(
+              rows[0].userId,
+              rows[0].given_name,
+              rows[0].family_name,
+              rows[0].role,
+              rows[0].icon,
+              rows[0].coins
+            ),
+            new Limits(
+              rows[0].ram,
+              rows[0].cpu,
+              rows[0].disk,
+              rows[0].upload,
+              rows[0].download
+            )
+          );
+        }
+      );
+    });
+  }
+
   // it is only necessary to remove project, containers will remove automatically thanks to cascade dependency
   static removeProject(id) {
     return new Promise((resove) => {
