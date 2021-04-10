@@ -17,7 +17,6 @@ import * as NS from "../models/NetworkState.js";
 import Image from "../models/Image.js";
 import OperationState from "../models/OperationState.js";
 import Snapshot from "../models/Snapshot.js";
-import os from "os";
 const key = fs.readFileSync(
 	path.resolve(__dirname, "../../config/lxcclient.key")
 );
@@ -97,37 +96,31 @@ export async function test() {
 	// console.log(await stopInstance("c72", "p1"));
 	// console.log(await deleteInstance("c72", "p1"));
 	// console.log(await startInstance("c1", "p1"));
-	// getConsole("c1", "p1");
 	/*(await mkRequest(`/1.0/instances/test/backups`)).forEach((b) =>
-		deleteBackup(b)
+		deleteBackup("test", "default", b)
 	);*/
 	/*exportInstance(
 			"c1",
-			(res) => res.pipe(fs.createWriteStream("testBack.tar.gz")),
-			"p2"
+			"p1",
+			(res) => res.pipe(fs.createWriteStream("testBack.tar.gz"))
 	);*/
 	/*console.log(
 		await importInstance(
-			"testImport",
-			fs.createReadStream("testBack.tar.gz"),
-			"default"
+			"c1",
+			"p1",
+			fs.createReadStream("testBack.tar.gz")
 		)
 	);*/
-	// console.log(await deleteBackup("c1", "b4", "p2"));
-	/*let instance = new Container("createTest");
-	instance.template = new Template();
-	instance.state = new ContainerResourceState();
-	console.log(await getInstance(instance, "p2"));*/
 	/*let routes = await mkRequest(`/1.0/instances?project=p1`);
 	let instances = new Array();
 	routes.forEach((path) => {
 		let i = new Container(path.substring(15));
 		i.template = new Template();
 		i.state = new ContainerResourceState();
+		i.state.networks.internet = new NetworkState();
 		instances.push(i);
 	});
 	console.log(await getInstances(instances, "p1"));*/
-	// console.log(await getSnapshots("c1", "p2"));
 	/*console.log(
 		await createProject({
 			name: "p1",
@@ -164,16 +157,7 @@ export async function test() {
 			]
 		)
 	);*/
-	/*console.log(
-		await execInstance(
-			"c1",
-			"p1",
-			"sleep 5; apt-get update && apt-get -yyq install git neovim nginx"
-		)
-	);*/
-	/*console.log(await getState(new ContainerResourceState(), "c1", "p2"));
-	console.log(await createSnapshot("c2", "snap2", false, "p2"));
-	console.log(await execInstance("c1", "p2", "apt-get -yqq install neovim"));*/
+	// console.log(await createSnapshot("c1", "p1", "snap2", false));
 	/*console.log(
 		await postFileToInstance("c1", "p1", "../app.js", "/root/test.js")
 	);*/
@@ -234,28 +218,28 @@ export async function createInstance(data, commands) {
 
 // Fills in the given instance: Template.image,
 // id, persistent, timestamp, OperationState.
-export function getInstance(instance, project) {
-	return mkRequest(`/1.0/instances/${instance.id}?project=${project}`).then(
-		(res) => {
-			if (res.error) return getOperation(res);
-			instance.createdOn = new Date(res.created_at);
-			instance.lastStartedOn = new Date(res.last_used_at);
-			instance.stateful = res.stateful;
-			if (res.config["image.os"]) {
-				instance.template.image = new Image(
-					res.config["image.os"],
-					res.config["image.version"],
-					res.config["image.description"]
-				);
-			}
-			return getSnapshots(instance.id, project).then((snap) => {
-				instance.snapshots = snap;
-				return getState(instance.id, project, instance.state).then(
-					(state) => instance
-				);
-			});
+export function getInstance(instance) {
+	return mkRequest(
+		`/1.0/instances/${instance.id}?project=${instance.projectId}`
+	).then((res) => {
+		if (res.error) return getOperation(res);
+		instance.createdOn = new Date(res.created_at);
+		instance.lastStartedOn = new Date(res.last_used_at);
+		instance.stateful = res.stateful;
+		if (res.config["image.os"]) {
+			instance.template.image = new Image(
+				res.config["image.os"],
+				res.config["image.version"],
+				res.config["image.description"]
+			);
 		}
-	);
+		return getSnapshots(instance.id, instance.projectId).then((snap) => {
+			instance.snapshots = snap;
+			return getState(instance.id, instance.projectId, instance.state).then(
+				(state) => instance
+			);
+		});
+	});
 }
 
 export function deleteInstance(id, project) {
@@ -301,7 +285,19 @@ export function getConsole(id, project) {
 		ws.on("error", (error) =>
 			console.log(`/${project}/${id}/console ERROR:  ${error}`)
 		);
-		return res.metadata.fds["0"];
+		ws = new WebSocket(
+			`wss://127.0.0.1:8443/1.0/operations/${res.id}/websocket?secret=${res.metadata.fds.control}`,
+			{
+				key: key,
+				cert: crt,
+				rejectUnauthorized: false,
+			}
+		);
+		connections[`/${project}/${id}/${res.metadata.fds.control}`] = ws;
+		ws.on("error", (error) =>
+			console.log(`/${project}/${id}/consoleControl ERROR:  ${error}`)
+		);
+		return res.metadata.fds;
 	});
 }
 
@@ -413,7 +409,7 @@ export function postResponseToInstance(id, project, response, dstPath) {
 	);
 }
 
-async function getState(id, project, rs) {
+export async function getState(id, project, rs) {
 	let data = await mkRequest(`/1.0/instances/${id}/state?project=${project}`);
 	if (!data.status_code) return getOperation(data);
 	//use the time efficiently and while the measurement waits
@@ -451,8 +447,7 @@ async function getState(id, project, rs) {
 					network.counters.upload.packetsSent = lxdn.counters.packets_sent;
 					switch (key) {
 						case "eth0":
-							//TODO: DO NOT FORGET TO UNCOMMENT THIS BEFORE HANDING IN.
-							// network.limits = rs.internet.limits;
+							network.limits = rs.internet.limits;
 							rs.internet = network;
 							break;
 						case "lo":
@@ -469,7 +464,7 @@ async function getState(id, project, rs) {
 		let dataNew = await mkRequest(
 			`/1.0/instances/${id}/state?project=${project}`
 		);
-		rs.CPU.percentConsumed = (dataNew.cpu.usage - data.cpu.usage) / 10 / 2800; // ~2800MHz is the processor speed
+		rs.CPU.usage = (dataNew.cpu.usage - data.cpu.usage) / 10 / 2800; // ~2800MHz is the processor speed
 		return rs;
 	} else
 		return new Promise((resolve) =>
@@ -480,8 +475,7 @@ async function getState(id, project, rs) {
 					if (!err) {
 						rs.CPU.usedTime = res.data.cpuTime;
 						rs.disk.devices[0].usage = res.data.disk;
-						//TODO: DO NOT FORGET TO UNCOMMENT THIS BEFORE HANDING IN.
-						// res.networks.internet.limits = rs.internet.limits;
+						res.networks.internet.limits = rs.internet.limits;
 						rs.internet = res.data.networks.internet;
 						rs.loopback = res.data.networks.loopback;
 						rs.networks = res.data.networks.other;
