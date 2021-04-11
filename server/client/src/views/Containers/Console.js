@@ -22,6 +22,9 @@ class Console extends Component {
       const res = await fetch("/terminals?cols=" + term.rows + "&rows=" + term.cols, {
          method: "POST",
       });
+      // const res = await fetch("/instnces/1/console?project=1", {
+      //    method: "POST",
+      // });
       const processId = await res.text();
 
       let shouldOutput = true;
@@ -70,12 +73,12 @@ class Console extends Component {
       if (this.termElm != null) {
          return {
             cols: Math.round(this.termElm.clientWidth / 9),
-            rows: Math.round(window.innerHeight / 17.6 - 3),
+            rows: Math.round(window.innerHeight / 17.6 - 12),
          };
       } else {
          return {
             cols: Math.round(window.innerWidth / 9 - 1),
-            rows: Math.round(window.innerHeight / 17.6 - 1),
+            rows: Math.round(window.innerHeight / 17.6 - 10),
          };
       }
       // cols: Math.round(window.innerWidth / 9 - 1),

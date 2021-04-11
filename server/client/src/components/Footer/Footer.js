@@ -26,19 +26,19 @@ class Footer extends Component {
           <nav>
             <ul className="footer-menu">
               <li>
-                <a href="#pablo" onClick={(e) => e.preventDefault()}>
+                <a href="/">
                   Home
                 </a>
               </li>
               <li>
-                <a href="#pablo" onClick={(e) => e.preventDefault()}>
+                <a href="#pablo" onClick={}>
                   Github
                 </a>
               </li>
             </ul>
             <p className="copyright text-center">
               © {new Date().getFullYear()}{" "}
-              <a href="http://www.creative-tim.com">Havránek, Litoš, Vávra</a>, from students for students
+              <a href="https://github.com/havrak/AvAvA">Havránek, Litoš, Vávra</a>, from students for students
             </p>
           </nav>
         </Container>
