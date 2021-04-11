@@ -206,10 +206,11 @@ export async function createInstance(data, commands) {
 
 export async function execCommands(id, project, commands) {
 	for (let i = 0; i < commands.length; i++) {
-		let stat = await execInstance(id, data.project, commands[i], false);
+		let stat = await execInstance(id, project, commands[i], false);
 		if (debug || stat.statusCode != 200)
 			console.log({
-				createCmd: commands[i],
+				container: `c${id} in p${project}`,
+				command: commands[i],
 				status: stat.statusCode,
 				desc: stat.status,
 			});
@@ -274,7 +275,7 @@ export function getConsole(id, project) {
 		interactive: true,
 	}).then((res) => {
 		if (res.status_code != 103) return getOperation(res);
-		let terminal = `/${project}/${id}/${res.metadata.fds["0"]}`;
+		let terminal = res.metadata.fds["0"];
 		let control = `/${project}/${id}/${res.metadata.fds.control}`;
 		let term = new WebSocket(
 			`wss://127.0.0.1:8443/1.0/operations/${res.id}/websocket?secret=${res.metadata.fds["0"]}`,
@@ -318,9 +319,9 @@ export function getConsole(id, project) {
 }
 
 // Returns the result of the given command, if not opt out, always inside OperationState
-export function execInstance(id, project, command, getOutput, haproxy) {
+export function execInstance(id, project, command, getOutput, fullName) {
 	let path = `/1.0/instances/c${id}/exec?project=p${project}`;
-	if (haproxy) path = `/1.0/instances/${id}/exec?project=${project}`;
+	if (fullName) path = `/1.0/instances/${id}/exec?project=${project}`;
 	return mkRequest(path, "POST", {
 		// command: Array.isArray(command) ? command : command.split(" "),
 		command: ["sh", "-c", command],
@@ -368,9 +369,9 @@ export function execInstance(id, project, command, getOutput, haproxy) {
 
 //uses piper to write a file to given path inside specified instance
 function postToInstance(id, project, piper, dstPath, headers, fullName) {
-	let path = `/1.0/instances/c${id}/files?project=p${project}&path=${dstPath}`;
-	if (fullName)
-		path = `/1.0/instances/${id}/files?project=${project}&path=${dstPath}`;
+	let path = fullname
+		? `/1.0/instances/${id}/files?project=${project}&path=${dstPath}`
+		: `/1.0/instances/c${id}/files?project=p${project}&path=${dstPath}`;
 	let opts = mkOpts(path, "POST");
 	opts.headers = headers;
 	opts.headers["Content-Type"] = "application/octet-stream";
@@ -382,9 +383,11 @@ function postToInstance(id, project, piper, dstPath, headers, fullName) {
 			res.on("end", () => {
 				body = JSON.parse(body);
 				if (!body.status_code)
-					console.log(
-						`c${id} in p${project}; path=${dstPath} postToInstance: ${body}`
-					);
+					console.log({
+						container: `c${id} in p${project}`,
+						dstPath: dstPath,
+						response: body,
+					});
 				resolve(body.status_code || body.error_code);
 			});
 		});
