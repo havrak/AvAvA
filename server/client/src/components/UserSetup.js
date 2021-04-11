@@ -19,7 +19,7 @@ function UserSetup({ combinedDataGet, userData }) {
       // };
       // api.userGet(callback);
    }, []);
-   if (userData) {
+   if (userData?.user) {
       return <Redirect to="/user/dashboard" />;
       // console.log(userData);
    } else {

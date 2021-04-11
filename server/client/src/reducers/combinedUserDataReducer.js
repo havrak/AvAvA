@@ -5,7 +5,8 @@ export const combinedUserDataReducer = (state = null, action) => {
    switch (action.type) {
       case "COMBINED_DATA_GET": {
          StateCalculator.addStateToUserData(action.payload);
-         return action.payload || null;
+         console.log(action.payload);
+         return action.payload;
       }
       case "USER_PROJECTS_GET": {
          const newState = _.cloneDeep(state);

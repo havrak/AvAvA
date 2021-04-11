@@ -24,5 +24,5 @@ export default class ContainerResourceState {
 	networks = []; // -> [NetworkState.js]
 
 	numberOfProcesses;
-	OperationState;
+	operationState;
 }

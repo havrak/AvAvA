@@ -434,7 +434,7 @@ export async function getState(id, project, rs) {
   //use the time efficiently and while the measurement waits
   //for another measure, we put all available data in its place
   await new Promise((resolve) => {
-    rs.OperationState = new OperationState(data.status, data.status_code);
+    rs.operationState = new OperationState(data.status, data.status_code);
     rs.CPU.usedTime = data.cpu.usage;
     rs.RAM.usage = data.memory.usage + data.memory.swap_usage;
     rs.RAM.usagePeak = data.memory.usage_peak + data.memory.swap_usage_peak;
