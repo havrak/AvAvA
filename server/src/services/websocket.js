@@ -3,9 +3,7 @@ export const wss = new WebSocket.Server({ noServer: true });
 export const connections = new Map();
 wss.on("connection", (clientWS, req) => {
 	if (req.url.startsWith("/websockets/terminal/")) {
-		let path = req.url.substring(20);
-		console.log(path);
-		let lxd = connections.get(path);
+		let lxd = connections.get(req.url.substring(21));
 		if (lxd && lxd.ws) {
 			let lxdWS = lxd.ws;
 			lxd.cws = clientWS;
