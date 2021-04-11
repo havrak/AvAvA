@@ -36,8 +36,8 @@ export default class projectSQL {
                   userLimits.RAM -= rows[i].ram;
                   userLimits.CPU -= rows[i].cpu;
                   userLimits.disk -= rows[i].disk;
-                  userLimits.network.upload -= rows[i].upload;
-                  userLimits.network.download -= rows[i].download;
+                  userLimits.internet.upload -= rows[i].upload;
+                  userLimits.internet.download -= rows[i].download;
                 } else {
                   // we need to get all containers in given
                   console.log("asdsad");
@@ -59,8 +59,8 @@ export default class projectSQL {
           config.limits.RAM > currentFreeSpace.RAM ||
           config.limits.CPU > currentFreeSpace.CPU ||
           config.limits.disk > currentFreeSpace.disk ||
-          config.limits.internet.upload > currentFreeSpace.network.upload ||
-          config.limits.internet.download > currentFreeSpace.network.download
+          config.limits.internet.upload > currentFreeSpace.internet.upload ||
+          config.limits.internet.download > currentFreeSpace.internet.download
         ) {
           resolve(
             new OperationState("projects limit exceeds current free space", 500)

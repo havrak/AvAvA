@@ -104,7 +104,7 @@ export default class userSQL {
         [id],
         (err, rows) => {
           //
-          let toReturn = [rows.length];
+          let toReturn = new Array(rows.length);
           rows.forEach((row, index) => {
             toReturn[index] = new User(
               row.id,

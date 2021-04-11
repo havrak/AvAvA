@@ -4,14 +4,14 @@ export default class Limits {
     this.RAM = RAM;
     this.CPU = CPU;
     this.disk = disk;
-    this.network.upload = upload;
-    this.network.download = download;
+    this.internet.upload = upload;
+    this.internet.download = download;
   }
 
   RAM;
   CPU;
   disk;
-  network = {
+  internet = {
     upload: undefined,
     download: undefined,
   };

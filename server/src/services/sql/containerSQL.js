@@ -221,8 +221,8 @@ export default class containerSQL {
                       userLimits.RAM -= rows[i].ram;
                       userLimits.CPU -= rows[i].cpu;
                       userLimits.disk -= rows[i].disk;
-                      userLimits.network.upload -= rows[i].upload;
-                      userLimits.network.download -= rows[i].download;
+                      userLimits.internet.upload -= rows[i].upload;
+                      userLimits.internet.download -= rows[i].download;
                     });
                     con.query(
                       "SELECT * FROM containers LEFT JOIN containersResourcesLimits WHERE containers.project_id=?",
@@ -232,8 +232,8 @@ export default class containerSQL {
                           userLimits.RAM -= rows[i].ram;
                           userLimits.CPU -= rows[i].cpu;
                           userLimits.disk -= rows[i].disk;
-                          userLimits.network.upload -= rows[i].upload;
-                          userLimits.network.download -= rows[i].download;
+                          userLimits.internet.upload -= rows[i].upload;
+                          userLimits.internet.download -= rows[i].download;
                         });
                         con.end();
                         resolve(userLimits);
@@ -259,8 +259,8 @@ export default class containerSQL {
                   limits.RAM -= rows[index].ram;
                   limits.CPU -= rows[index].cpu;
                   limits.disk -= rows[index].disk;
-                  limits.network.upload -= rows[index].upload;
-                  limits.network.download -= rows[index].download;
+                  limits.internet.upload -= rows[index].upload;
+                  limits.internet.download -= rows[index].download;
                 });
               }
             );
@@ -299,7 +299,7 @@ export default class containerSQL {
             });
           });
           if (rows[0] == undefined) {
-            resolve(null);
+            resolve(new Array());
           }
         }
       );

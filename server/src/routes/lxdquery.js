@@ -170,8 +170,7 @@ export async function test() {
 export function getInstances(instances) {
   return new Promise((resolve) => {
     let done = 0;
-    if (instances == null) resolve(null);
-    else if (instances.length > 0)
+    if (instances.length > 0)
       instances.forEach((i) =>
         getInstance(i).then((instance) => {
           done++;

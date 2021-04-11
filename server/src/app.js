@@ -126,9 +126,6 @@ app.get("/api/combinedData", isLoggedIn, (req, res) => {
             getProjectObject(id).then((result) => {
               toReturn.userProjects.projects[counter] = result;
               counter++;
-              console.log(
-                counter + " " + toReturn.userProjects.projects.length
-              );
               if (counter == toReturn.userProjects.projects.length)
                 res.send(toReturn);
             });
