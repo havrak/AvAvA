@@ -193,7 +193,7 @@ export async function createInstance(data, commands) {
     }
     mdb
       .db("lxd")
-      .collection(data.project)
+      .collection("" + data.project + "")
       .insertOne({ _id: data.name, data: null }, () => {});
     let errcmd = 0;
     for (let i = 0; i < commands.length; i++) {

@@ -78,9 +78,41 @@ export default class userSQL {
       );
     });
   }
+
+  static doesUserOwnGivenContainer(email, id) {
+    return new Promis((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query(
+        "SELECT * FROM containers WHERE containers.id=?",
+        [id],
+        (err, rows) => {
+          this.doesUserOwnGivenProject(email, rows[0].project_id).then(
+            (result) => {
+              resolve(result);
+            }
+          );
+        }
+      );
+    });
+  }
+
+  static doesUserOwnGivenProject(email, id) {
+    return new Promis((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query(
+        "SELECT * FROM projects LEFT JOIN users ON projects.owner_email=users.email LEFT JOIN projectsCoworkers ON projectsCoworkers.project_id=projects.id WHERE projects.id=? AND owner_email=? OR user_email=?",
+        [id, email, email],
+        (err, rows) => {
+          if (err) throw err;
+          if (rows.length > 0) return true;
+          else return false;
+        }
+      );
+    });
+  }
+
   /*
    * adds new user do database
-   * TODO: add record to usersResourcesLimits
    */
   static addNewUserToDatabaseAndReturnIt(user) {
     return new Promise((resolve) => {
@@ -102,7 +134,7 @@ export default class userSQL {
             throw err;
           } else
             con.query(
-              "INSERT INTO usersResourcesLimits (user_email, ram, cpu, disk, upload, download)",
+              "INSERT INTO usersResourcesLimits (user_email, ram, cpu, disk, upload, download) VALUES (?,?,?,?,?,?)",
               [
                 user.emails[0].value,
                 2147483648,

@@ -1,9 +1,9 @@
 const https = require("http");
 
-const route = "/instances";
+const route = "/api/instances";
 
 const data = JSON.stringify({
-  name: "belzebub",
+  name: "rudolf2",
   rootPassword: "string",
   projectId: 18,
   templateId: 2,

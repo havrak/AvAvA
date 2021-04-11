@@ -11,9 +11,10 @@ INSERT INTO templates (profile_name, image_name, version, profile_description, i
 
 -- Users
 INSERT INTO users (email, given_name, family_name, icon, role, coins) VALUES("krystof.havranek@student.gyarab.cz", "Kryštof", "Havránek", "https://lh3.googleusercontent.com/a-/AOh14GjYfKo6KOkKITXLoVOm6ye_c91QVt1WSDc7m7Z6Hg=s96-c", 3, 1000000);
+INSERT INTO users (email, given_name, family_name, icon, role, coins) VALUES("josef.litos@student.gyarab.cz", "Kryštof", "Havránek", "https://lh3.googleusercontent.com/a-/AOh14GjYfKo6KOkKITXLoVOm6ye_c91QVt1WSDc7m7Z6Hg=s96-c", 3, 1000000);
 
 -- UsersResourcesLimits
-INSERT INTO usersResourcesLimits (user_email, ram, cpu, disk, upload, download) VALUES ("krystof.havranek@student.gyarab.cz", 2147483648, 10, 10737418240, 100000000, 100000000);
+INSERT INTO usersResourcesLimits (user_email, ram, cpu, disk, upload, download) VALUES ("josef.litos@student.gyarab.cz", 2147483648, 10, 10737418240, 100000000, 100000000);
 
 
 

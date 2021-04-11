@@ -135,10 +135,13 @@ export default class projectSQL {
               rows[0].upload,
               rows[0].download
             ),
-            rows[0].timestamp
+            rows[0].timestamp,
+            undefined,
+            undefined
           );
           containerSQL.getAllContainersInProject(id).then((result) => {
             toReturn.containers = result;
+            console.log(toReturn);
             userSQL.getAllUsersWorkingOnAProject(id).then((result) => {
               toReturn.coworkers = result;
               resolve(toReturn);

@@ -129,6 +129,7 @@ export default class containerSQL {
                   "There already is container with the same name in the database"
                 );
                 resolve(500);
+                return null;
               } else if (err) throw err;
               con.query(
                 "INSERT INTO containersResourcesLimits (container_id, ram, cpu, disk, upload, download) VALUES (?,?,?,?,?,?)",
@@ -255,7 +256,7 @@ export default class containerSQL {
         "SELECT * FROM containers WHERE containers.project_id=?",
         [id],
         (err, rows) => {
-          let toReturn = [rows.length];
+          let toReturn = new Array(rows.length);
           let counter = 0;
           rows.forEach((row, index) => {
             templateSQL.getTemplate(row.template_id).then((template) => {
@@ -319,6 +320,9 @@ export default class containerSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
+          if (rows == undefined) {
+            resolve("500, asdad");
+          }
           templateSQL.getTemplate(rows[0].template_id).then((result) => {
             let toReturn = new Container();
             toReturn.id = id;
