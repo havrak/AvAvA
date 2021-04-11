@@ -298,6 +298,9 @@ export default class containerSQL {
               });
             });
           });
+          if (rows[0] == undefined) {
+            resolve(null);
+          }
         }
       );
     });
