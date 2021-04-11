@@ -102,6 +102,7 @@ const server = app.listen(PORT, () =>
 import * as WebSocket from "./services/websocket.js";
 import { resolve } from "node:dns";
 import userSQL from "./services/sql/userSQL.js";
+import OperationState from "./models/OperationState.js";
 server.on("upgrade", (req, socket, head) => {
   WebSocket.wss.handleUpgrade(req, socket, head, (socket) =>
     WebSocket.wss.emit("connection", socket, req)
@@ -145,15 +146,12 @@ app.get("/api/project/createConfigData", isLoggedIn, (req, res) => {
 
 app.post("/api/project", isLoggedIn, (req, res) => {
   projectSQL.createCreateProjectJSON(email, req.body).then((project) => {
-    console.log(project);
+    let id = project.name; // createProject will rewrite name variable thus it is easyest to store it in variable
     lxd.createProject(project).then((result) => {
-      console.log("container created");
-      console.log(result);
-      if (result.error_code != 200) {
-        projectSQL.removeProject(project.name);
+      if (result.statusCode != 200) {
+        projectSQL.removeProject(id);
       } else {
-        console.log("got here");
-        getProjectObject(result.name).then((result) => {
+        getProjectObject(id).then((result) => {
           res.send(result);
         });
       }
@@ -275,6 +273,115 @@ app.get(
     getContainerObject(req.params.instanceId).then((result) => {
       res.send(result);
     });
+  }
+);
+app.patch(
+  "/api/instances/:instanceId/start",
+  isLoggedIn,
+  isContainerUsers,
+  (req, res) => {
+    containerSQL
+      .getProjectIdOfContainer(req.params.instanceId)
+      .then((result) => {
+        lxd.startInstance(req.params.instanceId, result).then((result) => {
+          if (result.statusCode != 200) {
+            res.send(new OperationState("failed to start the container", 500));
+          } else {
+            containerSQL
+              .updateContainerStateObject(req.params.instanceId, true, 103)
+              .then((result) => {
+                getContainerObject(req.params.instanceId).then((result) => {
+                  res.send(result);
+                });
+              });
+          }
+        });
+      });
+  }
+);
+app.patch(
+  "/api/instances/:instanceId/stop",
+  isLoggedIn,
+  isContainerUsers,
+  (req, res) => {
+    containerSQL
+      .getProjectIdOfContainer(req.params.instanceId)
+      .then((result) => {
+        lxd.stopInstance(req.params.instanceId, result).then((result) => {
+          if (result.statusCode != 200) {
+            res.send(new OperationState("failed to stop the container", 500));
+          } else {
+            containerSQL
+              .updateContainerStateObject(req.params.instanceId, false, 102)
+              .then((result) => {
+                getContainerObject(req.params.instanceId).then((result) => {
+                  res.send(result);
+                });
+              });
+          }
+        });
+      });
+  }
+);
+app.patch(
+  "/api/instances/:instanceId/freeze",
+  isLoggedIn,
+  isContainerUsers,
+  (req, res) => {
+    containerSQL
+      .getProjectIdOfContainer(req.params.instanceId)
+      .then((result) => {
+        lxd.freezeInstance(req.params.instanceId, result).then((result) => {
+          if (result.statusCode != 200) {
+            res.send(new OperationState("failed to freeze the container", 500));
+          } else {
+            containerSQL
+              .updateContainerStateObject(req.params.instanceId, false, 110)
+              .then((result) => {
+                getContainerObject(req.params.instanceId).then((result) => {
+                  res.send(result);
+                });
+              });
+          }
+        });
+      });
+  }
+);
+
+app.patch(
+  "/api/instances/:instanceId/unfreeze",
+  isLoggedIn,
+  isContainerUsers,
+  (req, res) => {
+    containerSQL
+      .getProjectIdOfContainer(req.params.instanceId)
+      .then((result) => {
+        lxd.unfreezeInstance(req.params.instanceId, result).then((result) => {
+          if (result.statusCode != 200) {
+            res.send(
+              new OperationState("failed to unfreeze the container", 500)
+            );
+          } else {
+            //
+            containerSQL
+              .updateContainerStateObject(req.params.instanceId, false, 103)
+              .then((result) => {
+                getContainerObject(req.params.instanceId).then((result) => {
+                  res.send(result);
+                });
+              });
+          }
+        });
+      });
+  }
+);
+
+app.get(
+  "/api/instances/:instanceId/snapshots",
+  isLoggedIn,
+  isContainerUsers,
+  (req, res) => {
+    //
   }
 );
 

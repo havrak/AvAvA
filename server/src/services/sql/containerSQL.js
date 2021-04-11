@@ -13,6 +13,13 @@ import { NetworkState } from "../../models/NetworkState.js";
 import OperationState from "../../models/OperationState.js";
 
 export default class containerSQL {
+  // TODO: get rid of email
+  /* creates JSON which will be send to lxd in oder to create new container
+   * params: 	email - email of user who is creating the container
+   * 					config - configuration of new container, submitted by user
+   *
+   * returns: CreateInstanceJSONObj
+   */
   static createCreateContainerJSON(email, config) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -186,6 +193,7 @@ export default class containerSQL {
     });
   }
   // check if it wordks
+  // TODO: validation won't work whne the
   static getFreeSpaceForContainer(projectId, ownerEmail) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -204,7 +212,7 @@ export default class containerSQL {
               // first we will query for limits of user
               "SELECT * FROM usersResourcesLimits WHERE user_email=?",
               [ownerEmail],
-              (err, rows) => {
+              (err, users) => {
                 userLimits = new Limits(
                   rows[0].ram,
                   rows[0].cpu,
@@ -217,7 +225,6 @@ export default class containerSQL {
                   [ownerEmail],
                   (err, rows) => {
                     rows.forEach((row, index) => {
-                      // if I could, I would shove all this primitive code into single functions but given that some impotent retard designed this language so I cant', fuck synchronous functions
                       userLimits.RAM -= rows[i].ram;
                       userLimits.CPU -= rows[i].cpu;
                       userLimits.disk -= rows[i].disk;
@@ -325,7 +332,7 @@ export default class containerSQL {
     return new Promise((resolve) => {
       let toReturn = new CreateInstanceConfigData();
       templateSQL.getAllTemplates().then((result) => {
-        toReturn.templateTypes = result;
+        toReturn.templates = result;
         templateSQL.getAllAppsToInstall().then((result) => {
           toReturn.applicationsToInstall = result;
           resolve(toReturn);
@@ -384,24 +391,28 @@ export default class containerSQL {
   }
 
   static updateContainerStateObject(id, started, statusCode) {
-    const con = mysql.createConnection(sqlconfig);
-    if (started) {
-      con.query(
-        "UPDATE containers SET state=?, time_started=CURRENT_TIMESTAMP WHERE id=?",
-        [statusCode, id],
-        (err, rows) => {
-          if (err) throw err;
-        }
-      );
-    } else {
-      con.query(
-        "UPDATE containers SET state=? WHERE id=?",
-        [statusCode, id],
-        (err, rows) => {
-          if (err) throw err;
-        }
-      );
-    }
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      if (started) {
+        con.query(
+          "UPDATE containers SET state=?, time_started=CURRENT_TIMESTAMP WHERE id=?",
+          [statusCode, id],
+          (err, rows) => {
+            if (err) throw err;
+            resolve(new OperationState("success", 200));
+          }
+        );
+      } else {
+        con.query(
+          "UPDATE containers SET state=? WHERE id=?",
+          [statusCode, id],
+          (err, rows) => {
+            if (err) throw err;
+            resolve(new OperationState("success", 200));
+          }
+        );
+      }
+    });
   }
 
   static generateHaProxyConfigurationFile() {

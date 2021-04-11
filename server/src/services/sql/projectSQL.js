@@ -9,6 +9,11 @@ import userSQL from "./userSQL.js";
 import OperationState from "../../models/OperationState.js";
 
 export default class projectSQL {
+  /* returns Limits object with free space available for new project
+   * params: email - email of user to whom limit is calculated
+   *
+   * returns: Limits - free space available for project
+   */
   static createCreateProjectData(email) {
     return new Promise((resolve) => {
       let userLimits;
@@ -28,19 +33,40 @@ export default class projectSQL {
           );
           con.query(
             "SELECT * FROM projects LEFT JOIN projectsResourcesLimits ON projects.id = projectsResourcesLimits.project_id LEFT JOIN users ON projects.owner_email=users.email WHERE users.email=?",
-            [email], // by default user is standart user
+            [email],
             (err, rows) => {
               if (err) throw err;
               for (let i = 0; i < rows.length; i++) {
                 if (rows[i].ram != null) {
+                  // project can be withou limits
                   userLimits.RAM -= rows[i].ram;
                   userLimits.CPU -= rows[i].cpu;
                   userLimits.disk -= rows[i].disk;
                   userLimits.internet.upload -= rows[i].upload;
                   userLimits.internet.download -= rows[i].download;
                 } else {
-                  // we need to get all containers in given
-                  console.log("asdsad");
+                  let wait = true;
+                  con.query(
+                    // find limits of all contnainers in project whose limits are null and substract them from userLimits
+                    "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.project_id=?",
+                    [rows[i].project_id],
+                    (err, rows) => {
+                      if (err) throw err;
+                      if (rows[0] == undefined) {
+                        wait = false;
+                      } else {
+                        rows[0].forEach((row) => {
+                          userLimits.RAM -= row.ram;
+                          userLimits.CPU -= row.cpu;
+                          userLimits.disk -= row.disk;
+                          userLimits.internet.upload -= row.upload;
+                          userLimits.internet.download -= row.download;
+                        });
+                        wait = false;
+                      }
+                    }
+                  );
+                  while (wait) sleep(1);
                 }
               }
               resolve(userLimits);
@@ -50,6 +76,13 @@ export default class projectSQL {
       );
     });
   }
+
+  /* creates JSON that will be send to lxd in oder to create new project
+   * params: 	email - email of owner of new project
+   *   				config - configuration of new container
+   *
+   * result: CreateProjectJSONObj
+   */
   static createCreateProjectJSON(email, config) {
     return new Promise((resolve) => {
       let currentFreeSpace;
@@ -104,7 +137,13 @@ export default class projectSQL {
       });
     });
   }
+  /* creates Project object with data about given project
+   * params: id - id of project in question
+   *
+   * returns: Project - project object with all data available from databse about it, rest is filled in by lxd
+   */
   static createProjectObject(id) {
+    console.log(id);
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
@@ -149,7 +188,9 @@ export default class projectSQL {
     });
   }
 
-  // it is only necessary to remove project, containers will remove automatically thanks to cascade dependency
+  /* removes project form databe
+   * params: id - id of project in question
+   */
   static removeProject(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -165,6 +206,11 @@ export default class projectSQL {
     });
   }
 
+  /* return array of id of containers in give project
+   * params: id - id of project in question
+   *
+   * returns: array - filled with ids of containers
+   */
   static getIdOfContainersInProject(id) {
     return new Promise((resove) => {
       const con = mysql.createConnection(sqlconfig);

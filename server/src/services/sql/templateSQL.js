@@ -4,10 +4,14 @@ import Template from "./../../models/Template.js";
 import User from "./../../models/User.js";
 import ApplicationToInstall from "../../models/ApplicationToInstall.js";
 import Image from "../../models/Image.js";
+import OperationState from "../../models/OperationState.js";
 
 export default class templateSQL {
-  constructor() {}
-
+  /* looks up path of profile
+   * params: id - id of profile
+   *
+   * returns: String - path to profile
+   */
   static getProfilePath(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -24,6 +28,11 @@ export default class templateSQL {
     });
   }
 
+  /* looks up template by his id
+   * params: id - id of template
+   *
+   * returns: Templates
+   */
   static getTemplate(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -47,6 +56,10 @@ export default class templateSQL {
     });
   }
 
+  /* searches database for all templates that can be used to create container with
+   *
+   * returns: array of Templates
+   */
   static getAllTemplates() {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -69,6 +82,10 @@ export default class templateSQL {
     });
   }
 
+  /* adds new template to database
+   * params: 	template - template object corresponding to new templates
+   *  				templatePath - path to new template
+   */
   static addNewTemplate(template, templatePath) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -88,12 +105,17 @@ export default class templateSQL {
           } else if (err) {
             throw err;
           }
-          resolve("done");
+          resolve(new OperationState("added", 200));
           con.end();
         }
       );
     });
   }
+
+  /* searches databse for all apps available to be installed on new machine
+   *
+   * returns: array of ApplicationToInstall
+   */
   static getAllAppsToInstall() {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);

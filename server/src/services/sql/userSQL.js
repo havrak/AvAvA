@@ -6,6 +6,11 @@ import https from "https";
 import fs from "fs";
 
 export default class userSQL {
+  /* looks up user by his email
+   * params: email - email of user for which object will be created
+   *
+   * returns: User
+   */
   static getUserByEmail(email) {
     console.log(email);
     return new Promise((resolve) => {
@@ -32,6 +37,11 @@ export default class userSQL {
     });
   }
 
+  /* looks up limits of user given in arguments
+   * params: email - email of user to which limits object corresponds
+   *
+   * returns: Limits - limits of given user
+   */
   static getUsersLimits(email) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -57,31 +67,37 @@ export default class userSQL {
     });
   }
 
+  /* looks up user by his id
+   * params: id - id of user to which User object corresponds
+   *
+   * returns: User
+   */
   static getUserByID(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
-      con.query(
-        "SELECT * FROM users WHERE id LIKE ?",
-        [id], // by default user is standart user
-        (err, rows) => {
-          if (err) throw err;
-          con.end();
-          resolve(
-            new User(
-              rows[0].id,
-              rows[0].email,
-              rows[0].given_name,
-              rows[0].family_name,
-              rows[0].role,
-              rows[0].icon,
-              rows[0].coins
-            )
-          );
-        }
-      );
+      con.query("SELECT * FROM users WHERE id LIKE ?", [id], (err, rows) => {
+        if (err) throw err;
+        con.end();
+        resolve(
+          new User(
+            rows[0].id,
+            rows[0].email,
+            rows[0].given_name,
+            rows[0].family_name,
+            rows[0].role,
+            rows[0].icon,
+            rows[0].coins
+          )
+        );
+      });
     });
   }
 
+  /* finds in what project user is listed as owner
+   * params: email - email of user which projects this methods looks for
+   *
+   * returns: array - contains ids of projects
+   */
   static getAllUsersProjects(email) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -96,6 +112,11 @@ export default class userSQL {
     });
   }
 
+  /* find what User are listed as coworkers on give project
+   * params: id - id of project
+   *
+   * returns: array of Users - coworkers on project
+   */
   static getAllUsersWorkingOnAProject(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -123,6 +144,12 @@ export default class userSQL {
     });
   }
 
+  /* return true if given user is owner or coworker on given container
+   * params:	email - email of user
+   *					id - id of container
+   *
+   * returns: boolean - true of owner has permission to the container
+   */
   static doesUserOwnGivenContainer(email, id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -131,6 +158,7 @@ export default class userSQL {
         [id],
         (err, rows) => {
           this.doesUserOwnGivenProject(email, rows[0].project_id).then(
+            // if user is listed as owner or coworker on project to which container belongs he also has permission to modify such container
             (result) => {
               con.end();
               resolve(result);
@@ -141,6 +169,12 @@ export default class userSQL {
     });
   }
 
+  /* return true if given user is owner or coworker on given project
+   * params:	email - email of user
+   *					id - id of project
+   *
+   * returns: boolean - true of owner has permission to the project
+   */
   static doesUserOwnGivenProject(email, id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -159,6 +193,9 @@ export default class userSQL {
 
   /*
    * adds new user do database
+   * params user - object User containg information about user which will be added to database
+   *
+   * returns: User - object of user just added into the database
    */
   static addNewUserToDatabaseAndReturnIt(user) {
     return new Promise((resolve) => {
@@ -193,17 +230,9 @@ export default class userSQL {
                 if (err) throw err;
               }
             );
-        }
-      );
-      con.query(
-        "SELECT * FROM users WHERE email LIKE ?",
-        [user.emails[0].value],
-        (err, rows) => {
-          if (err) throw err;
-          con.end();
           resolve(
             new User(
-              rows[0].id,
+              rows.insertId,
               rows[0].email,
               rows[0].given_name,
               rows[0].family_name,
