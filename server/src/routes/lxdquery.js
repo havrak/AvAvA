@@ -116,7 +116,12 @@ export async function test() {
 			fs.createReadStream("testBack.tar.gz")
 		)
 	);*/
+<<<<<<< HEAD
+	// console.log(await execInstance("c1", "p1", "echo hello"));
+	/*let routes = await mkRequest(`/1.0/instances?project=p1`);
+=======
   /*let routes = await mkRequest(`/1.0/instances?project=p1`);
+>>>>>>> a73f42a2fc83725b9dc6735f7222a8c0cc6df3bf
 	let instances = new Array();
 	routes.forEach((path) => {
 		let i = new Container(path.substring(15));
@@ -317,6 +322,53 @@ export function getConsole(id, project) {
 
 // Returns the result of the given command, if not opt out, always inside OperationState
 export function execInstance(id, project, command, getOutput) {
+<<<<<<< HEAD
+	if (typeof id == "number") id = `c${id}`;
+	if (typeof project == "number") project = `p${project}`;
+	return mkRequest(`/1.0/instances/${id}/exec?project=${project}`, "POST", {
+		// command: Array.isArray(command) ? command : command.split(" "),
+		command: ["sh", "-c", command],
+		"record-output": getOutput !== false,
+		"wait-for-websocket": false,
+		interactive: false,
+	}).then((res) => {
+		if (res.status_code == 103) {
+			return mkRequest(`/1.0/operations/${res.id}/wait`).then((res) =>
+				getOutput !== false
+					? new Promise((resolve) =>
+							https
+								.request(
+									mkOpts(
+										`${
+											res.metadata.output[
+												res.metadata.return == 0 ? "1" : "2"
+											]
+										}?project=${project}`
+									),
+									(req) => {
+										let body = "";
+										req.setEncoding("utf8");
+										req.on("data", (d) => (body += d));
+										req.on("end", () =>
+											resolve(
+												new OperationState(
+													body.trim(),
+													res.metadata.return
+												)
+											)
+										);
+									}
+								)
+								.end()
+					  )
+					: new OperationState(
+							res.metadata.return == 0 ? res.status : res.description,
+							res.metadata.return == 0 ? 200 : 400
+					  )
+			);
+		} else return getOperation(res);
+	});
+=======
   let path =
     typeof id == "string"
       ? `/1.0/instances/${id}/exec?project=${project}`
@@ -359,10 +411,59 @@ export function execInstance(id, project, command, getOutput) {
       );
     } else return getOperation(res);
   });
+>>>>>>> a73f42a2fc83725b9dc6735f7222a8c0cc6df3bf
 }
 
 //uses piper to write a file to given path inside specified instance
 function postToInstance(id, project, piper, dstPath, headers) {
+<<<<<<< HEAD
+	if (typeof id == "number") id = `c${id}`;
+	if (typeof project == "number") project = `p${project}`;
+	let opts = mkOpts(
+		`/1.0/instances/${id}/files?project=${project}&path=${dstPath}`,
+		"POST"
+	);
+	opts.headers = headers;
+	opts.headers["Content-Type"] = "application/octet-stream";
+	return new Promise((resolve) => {
+		let req = https.request(opts, (res) => {
+			let body = "";
+			res.setEncoding("utf8");
+			res.on("data", (d) => (body += d));
+			res.on("end", () => {
+				body = JSON.parse(body);
+				if (!body.status_code || debug)
+					console.log({
+						container: `${id} in ${project}`,
+						dstPath: dstPath,
+						response: body,
+					});
+				resolve(body.status_code || body.error_code);
+			});
+		});
+		piper(req);
+	});
+}
+
+export function postFileToInstance(id, project, srcPath, dstPath) {
+	let stream = fs.createReadStream(
+		srcPath.startsWith(".") ? path.resolve(__dirname, srcPath) : srcPath
+	);
+	return postToInstance(
+		id,
+		project,
+		(req) => {
+			stream.pipe(req);
+			stream.on("finish", () => req.end());
+		},
+		dstPath,
+		{
+			"X-LXD-mode": 311,
+			"X-LXD-type": "file",
+			"X-LXD-write": "overwrite",
+		}
+	);
+=======
   let path =
     typeof id == "string"
       ? `/1.0/instances/${id}/files?project=${project}&path=${dstPath}`
@@ -409,6 +510,7 @@ export function postFileToInstance(id, project, srcPath, dstPath, fullName) {
     },
     fullName
   );
+>>>>>>> a73f42a2fc83725b9dc6735f7222a8c0cc6df3bf
 }
 
 export function postResponseToInstance(id, project, response, dstPath) {
