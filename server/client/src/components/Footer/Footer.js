@@ -31,14 +31,16 @@ class Footer extends Component {
                 </a>
               </li>
               <li>
-                <a href="#pablo" onClick={}>
+                <a href="href=https://github.com/havrak/AvAvA">
                   Github
                 </a>
               </li>
             </ul>
             <p className="copyright text-center">
               © {new Date().getFullYear()}{" "}
-              <a href="https://github.com/havrak/AvAvA">Havránek, Litoš, Vávra</a>, from students for students
+              <a href="https://github.com/havrak">Havránek, </a>
+              <a href="https://github.com/JosefLitos">Litoš, </a>
+              <a href="https://github.com/vavrav03">Vávra</a>
             </p>
           </nav>
         </Container>
