@@ -105,6 +105,19 @@ export default class containerSQL {
     });
   }
 
+  static getProjectIdOfContainer(id) {
+    return new Promis((resolve) => {
+      con.query(
+        "SELECT project_id FROM containers WHERE id=?",
+        [id],
+        (err, rows) => {
+          if (err) throw err;
+          resolve(rows[0].project_id);
+        }
+      );
+    });
+  }
+
   static addNewContainerToDatabase(config, email) {
     const con = mysql.createConnection(sqlconfig);
     return new Promise((resolve) => {

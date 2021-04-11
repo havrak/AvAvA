@@ -1,7 +1,18 @@
 const https = require("http");
 
 const route = "/api/instances";
-
+// const data = JSON.stringify({
+//   name: "string",
+//   limits: {
+//     RAM: 0,
+//     CPU: 0,
+//     disk: 0,
+//     internet: {
+//       download: 0,
+//       upload: 0,
+//     },
+//   },
+// });
 const data = JSON.stringify({
   name: "dindu",
   rootPassword: "string",

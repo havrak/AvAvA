@@ -145,7 +145,10 @@ app.post("/api/project", isLoggedIn, (req, res) => {
     lxd.createProject(result).then((result) => {
       if (result.err_code != 200) {
         projectSQL.removeProject(id);
-        res.send(result);
+      } else {
+        getProjectObject(result.name).then((result) => {
+          res.send(result);
+        });
       }
       //
     });
@@ -248,11 +251,13 @@ app.get(
   isContainerUsers,
   (req, res) => {
     //some verification to be done beforehand...then:
-    lxd.getConsole(req.params.instanceId, req.params.projectId).then((result) => {
-      //{ terminal: "terminalSecret", control: "controlSecret"}
-      if (result.control) res.status(200).send(result);
-      else res.status(400).send(result); //result -> OperationState
-    });
+    lxd
+      .getConsole(req.params.instanceId, req.params.projectId)
+      .then((result) => {
+        //{ terminal: "terminalSecret", control: "controlSecret"}
+        if (result.control) res.status(200).send(result);
+        else res.status(400).send(result); //result -> OperationState
+      });
   }
 );
 
