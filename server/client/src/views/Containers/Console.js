@@ -26,7 +26,7 @@ class Console extends Component {
       const successConsoleCreationCallback = (error, data, response) => {
          data = response.body;
 
-         let shouldOutput = true;
+         // let shouldOutput = true;
          let firstTime = true;
 
          const terminalSocket = createTerminalSocket(data.terminal);
@@ -37,11 +37,11 @@ class Console extends Component {
                terminalSocket.send(data);
             });
             terminalSocket.onmessage = (data) => {
-               if (shouldOutput) {
+               // if (shouldOutput) {
                   term.write(data.data);
-               } else {
-                  shouldOutput = true;
-               }
+               // } else {
+               //    shouldOutput = true;
+               // }
             };
             term._initialized = true;
          };
@@ -49,23 +49,23 @@ class Console extends Component {
          const controlSocket = createTerminalSocket(data.control);
          controlSocket.onopen = () => {
             // term.attach(socket);
-            controlSocket.onmessage = (data) => {
-               console.log(data);
+            controlSocket.onmessage = (d) => {
+               console.log(d);
             };
             const ro = new ResizeObserver(async () => {
                const dimensions = this.dimensions();
                console.log(dimensions, "resized");
-               controlSocket.send({
+               controlSocket.send(JSON.stringify({
                   command: "window-resize",
                   args: {
-                     width: dimensions.cols,
-                     height: dimensions.rows,
+                     width: dimensions.cols.toString(),
+                     height: dimensions.rows.toString(),
                   },
-               });
+               }));
                term.resize(dimensions.cols, dimensions.rows);
-               if (!firstTime) {
-                  shouldOutput = false;
-               }
+               // if (!firstTime) {
+               //    shouldOutput = false;
+               // }
                firstTime = false;
             });
             ro.observe(this.termElm);
