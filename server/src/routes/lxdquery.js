@@ -259,8 +259,8 @@ export function deleteInstance(id, project) {
 
 export function getConsole(id, project) {
 	return mkRequest(`/1.0/instances/c${id}/exec?project=p${project}`, "POST", {
-		// command: "login -f -- root".split(" "),
-		command: ["bash"],
+		command: ["login", "-f", "--", "root"],
+		// command: ["bash"],
 		environment: {
 			HOME: "/root",
 			TERM: "xterm",
@@ -272,7 +272,7 @@ export function getConsole(id, project) {
 		if (res.status_code != 103) return getOperation(res);
 		let terminal = `/${project}/${id}/${res.metadata.fds["0"]}`;
 		let control = `/${project}/${id}/${res.metadata.fds.control}`;
-		let ws = new WebSocket(
+		let term = new WebSocket(
 			`wss://127.0.0.1:8443/1.0/operations/${res.id}/websocket?secret=${res.metadata.fds["0"]}`,
 			{
 				key: key,
@@ -280,11 +280,11 @@ export function getConsole(id, project) {
 				rejectUnauthorized: false,
 			}
 		);
-		connections.set(terminal, { ws: ws, control: control });
-		ws.on("error", (error) =>
+		connections.set(terminal, { ws: term, control: control });
+		term.on("error", (error) =>
 			console.log(`/p${project}/c${id}/console ERROR:  ${error}`)
 		);
-		ws = new WebSocket(
+		let ws = new WebSocket(
 			`wss://127.0.0.1:8443/1.0/operations/${res.id}/websocket?secret=${res.metadata.fds.control}`,
 			{
 				key: key,
@@ -296,7 +296,20 @@ export function getConsole(id, project) {
 		ws.on("error", (error) =>
 			console.log(`/p${project}/c${id}/consoleControl ERROR:  ${error}`)
 		);
-		return res.metadata.fds;
+		ws.on("close", () => {
+			ws = connections.get(control);
+			term = connections.get(terminal);
+			if (ws || (term && !term.cws)) {
+				if (ws && ws.cws) ws.cws.close();
+				connections.delete(terminal);
+				if (term && term.cws) term.cws.close();
+				connections.delete(control);
+			}
+		});
+		return {
+			terminal: res.metadata.fds["0"],
+			control: res.metadata.fds.control,
+		};
 	});
 }
 
@@ -492,15 +505,15 @@ export function getSnapshots(id, project) {
 	return new Promise((resolve) =>
 		mkRequest(`/1.0/instances/c${id}/snapshots?project=p${project}`).then(
 			(snaps) => {
-				let prefix = `/1.0/instances/c${id}/snapshots/`.length;
+				let prefix = `/1.0/instances/c${id}/snapshots/s`.length;
 				let suffix = `?project=p${project}`.length;
 				let snapshots = new Array();
 				if (snaps.length > 0)
 					snaps.forEach((name) =>
 						getSnapshot(
 							id,
-							name.substring(prefix, name.length - suffix),
-							project
+							project,
+							name.substring(prefix, name.length - suffix)
 						).then((snap) => {
 							snapshots.push(snap);
 							if (snapshots.length == snaps.length) resolve(snapshots);
@@ -512,32 +525,32 @@ export function getSnapshots(id, project) {
 	);
 }
 
-export function createSnapshot(instanceID, projectID, name, stateful) {
+export function createSnapshot(instanceId, projectId, snapshotId, stateful) {
 	return mkRequest(
-		`/1.0/instances/c${instanceID}/snapshots?project=p${projectID}`,
+		`/1.0/instances/c${instanceId}/snapshots?project=p${projectId}`,
 		"POST",
 		{
-			name: name,
+			name: `s${snapshotId}`,
 			stateful: stateful,
 		}
 	).then((operation) =>
 		getOperation(operation).then((res) => {
 			if (res.statusCode == 200)
-				return getSnapshot(instanceID, projectID, name);
+				return getSnapshot(instanceId, projectId, snapshotId);
 			else return res;
 		})
 	);
 }
 
-function getSnapshot(instanceID, projectID, snapshotID) {
+function getSnapshot(instanceId, projectId, snapshotId) {
 	return mkRequest(
-		`/1.0/instances/c${instanceID}/snapshots/${snapshotID}?project=p${projectID}`
-	).then((data) => new Snapshot(snapshotID, data.created_at, data.stateful));
+		`/1.0/instances/c${instanceId}/snapshots/s${snapshotId}?project=p${projectId}`
+	).then((data) => new Snapshot(snapshotId, data.created_at, data.stateful));
 }
 
-export function deleteSnapshot(instanceID, projectID, snapshotID) {
+export function deleteSnapshot(instanceId, projectId, snapshotId) {
 	return mkRequest(
-		`/1.0/instances/c${instanceID}/snapshots/${snapshotID}?project=p${projectID}`,
+		`/1.0/instances/c${instanceId}/snapshots/s${snapshotId}?project=p${projectId}`,
 		"DELETE"
 	).then((res) => getOperation(res));
 }
@@ -562,7 +575,7 @@ export async function exportInstance(id, project, fileHandler) {
 		`/1.0/instances/c${id}/backups?project=p${project}`,
 		"POST",
 		{
-			name: name,
+			name: `$b{name}`,
 			expires_at: expiry,
 			instance_only: true,
 			optimized_storage: true,
@@ -585,11 +598,11 @@ export async function exportInstance(id, project, fileHandler) {
 	} else return res;
 }
 
-export function deleteBackup(instanceID, projectID, backupID) {
+export function deleteBackup(instanceId, projectId, backupId) {
 	return mkRequest(
-		backupID === undefined
-			? instanceID
-			: `/1.0/instances/c${instanceID}/backups/b${backupID}?project=p${projectID}`,
+		backupId === undefined
+			? instanceId
+			: `/1.0/instances/c${instanceId}/backups/b${backupId}?project=p${projectId}`,
 		"DELETE"
 	).then((res) => getOperation(res));
 }
@@ -599,7 +612,7 @@ export function importInstance(id, project, stream) {
 	let opts = mkOpts(`/1.0/instances?project=p${project}`, "POST");
 	opts.headers = {
 		"Content-Type": "application/octet-stream",
-		"X-LXD-name": id,
+		"X-LXD-name": `c${id}`,
 	};
 	return new Promise((resolve) => {
 		let req = https.request(opts, (res) => {
@@ -608,12 +621,12 @@ export function importInstance(id, project, stream) {
 			res.on("data", (d) => (body += d));
 			res.on("end", () => {
 				body = JSON.parse(body);
-				res.statusCode < 300 ? resolve(body.metadata.id) : resolve(body);
+				resolve(body.metadata || body);
 			});
 		});
 		stream.pipe(req);
 		stream.on("finish", () => req.end());
-	});
+	}).then((res) => getOperation(res));
 }
 
 export function startInstance(id, project) {
@@ -719,6 +732,7 @@ export function unfreezeInstance(id, project) {
 }
 
 export function createProject(data) {
+	data.name = `p${data.name}`;
 	return new Promise((resolve) =>
 		mkRequest("/1.0/projects", "POST", data).then((res) => {
 			if (!res || !res.error)
@@ -736,7 +750,7 @@ export function deleteProject(id) {
 		mkRequest(`/1.0/projects/p${id}`, "DELETE").then((res) => {
 			if (!res || !res.error)
 				mdb.db("lxd")
-					.collection(id)
+					.collection(`p${id}`)
 					.drop((err, result) => {
 						if (err) res = { error: err.toString(), eror_code: 400 };
 						resolve(getOperation(res));
@@ -744,8 +758,4 @@ export function deleteProject(id) {
 			else resolve(getOperation(res));
 		})
 	);
-}
-
-export function shutdownMongo() {
-	return mdb.close();
 }
