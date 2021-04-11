@@ -211,6 +211,7 @@ const CreateContainerDialog = ({
                               <CheckboxDiv
                                  tooltipText={app.name}
                                  inputText={app.description}
+                                 iconSource={app.icon}
                                  handler={(shouldAdd) => {
                                     if (shouldAdd) {
                                        createdContainer.current.applicationsToInstall.push(

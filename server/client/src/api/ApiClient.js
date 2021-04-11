@@ -499,6 +499,7 @@ export default class ApiClient {
     static convertToType(data, type) {
         if (data === null || data === undefined)
             return data
+
         switch (type) {
             case 'Boolean':
                 return Boolean(data);

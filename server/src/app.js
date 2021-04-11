@@ -6,7 +6,8 @@ import hostmaschine from "../config/hostmaschine.js";
 import cookieSession from "cookie-session";
 import passport from "passport";
 import UserData from "./models/UserData.js";
-const PORT = process.env.PORT || 7000;
+
+const PORT = process.env.PORT || 5000;
 import UserProjects from "./models/UserProjects.js";
 
 import "./models/User.js";

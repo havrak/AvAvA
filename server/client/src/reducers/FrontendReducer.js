@@ -15,7 +15,6 @@ const FrontendReducer = (state, action) => {
          return newState;
       }
       case "LOGOUT":
-         console.log("logging out");
          return null;
    }
    return state;
