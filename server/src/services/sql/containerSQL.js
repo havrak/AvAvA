@@ -175,8 +175,9 @@ export default class containerSQL {
         [projectId],
         (err, rows) => {
           if (err) throw err;
-          if (rows.length == 0) {
-            resolve("project doesn't exists");
+          if (rows[0] == undefined) {
+            resolve("500, project doesn't exists or doesn't have limits;");
+            return;
           }
           // project either has its limit or not, so there is no need to check all variables
           if (rows[0].ram == null) {
@@ -269,7 +270,7 @@ export default class containerSQL {
                 toReturn[index].url = row.url;
                 toReturn[index].template = template;
                 counter++;
-                if (counter == rows.length - 1) {
+                if (counter == toReturn.length) {
                   resolve(toReturn);
                 }
               });
@@ -294,20 +295,14 @@ export default class containerSQL {
     });
   }
 
-  static createCreateContainerData(projectId, ownerEmail) {
+  static createCreateContainerData(ownerEmail) {
     return new Promise((resolve) => {
       let toReturn = new CreateInstanceConfigData();
       templateSQL.getAllTemplates().then((result) => {
         toReturn.templateTypes = result;
         templateSQL.getAllAppsToInstall().then((result) => {
           toReturn.applicationsToInstall = result;
-          console.log(toReturn);
-          this.getFreeSpaceForContainer(projectId, ownerEmail).then(
-            (result) => {
-              toReturn.maxLimits = result;
-              resolve(toReturn);
-            }
-          );
+          resolve(toReturn);
         });
       });
     });
