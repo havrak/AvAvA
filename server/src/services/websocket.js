@@ -41,5 +41,5 @@ wss.on("connection", (clientWS, req) => {
 				console.log(`ClientWS ERROR: ${error}`)
 			);
 		} else clientWS.close();
-	}
+	} else clientWS.close();
 });

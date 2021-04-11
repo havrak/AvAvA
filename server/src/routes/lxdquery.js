@@ -275,7 +275,7 @@ export function getConsole(id, project) {
 	}).then((res) => {
 		if (res.status_code != 103) return getOperation(res);
 		let terminal = res.metadata.fds["0"];
-		let control = `/${project}/${id}/${res.metadata.fds.control}`;
+		let control = res.metadata.fds.control;
 		let term = new WebSocket(
 			`wss://127.0.0.1:8443/1.0/operations/${res.id}/websocket?secret=${res.metadata.fds["0"]}`,
 			{
