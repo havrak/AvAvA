@@ -3,11 +3,21 @@ import { connect } from "react-redux";
 import { combinedDataGet } from "actions/UserActions";
 import { Redirect } from "react-router-dom";
 import BeatLoader from "react-spinners/BeatLoader";
+// import * as UserApi from "api/index";
 
+// const api = new UserApi.DefaultApi();
 function UserSetup({ combinedDataGet, userData }) {
    const [loading, setLoading] = useState(true);
    useEffect(() => {
       combinedDataGet();
+      // const callback = function (error, data, response) {
+      //    if (error) {
+      //       notify(`Error occured: ${response.body.message}`);
+      //    } else {
+      //       console.log(data);
+      //    }
+      // };
+      // api.userGet(callback);
    }, []);
    if (userData) {
       return <Redirect to="/user/dashboard" />;

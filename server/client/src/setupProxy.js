@@ -14,6 +14,9 @@ module.exports = function (app) {
    );
    app.use(createProxyMiddleware("/api/user/*", { target: "http://localhost:5000/" }));
    app.use(
-      createProxyMiddleware("/terminals", { target: "http://localhost:7000/", ws: true })
+      createProxyMiddleware("/projects/*/instances/*/console", { target: "http://localhost:7000/" })
+   );
+   app.use(
+      createProxyMiddleware("/websockets/terminals/*/*/*", { target: "http://localhost:7000/", ws: true })
    );
 };

@@ -6,36 +6,39 @@ import NewWindow from "react-new-window";
 import ReactDOM from "react-dom";
 import { ResizeObserver } from "resize-observer";
 import MyWindowPortal from "components/WindowPortal.js";
+import {terminalSocket} from 'api/WebSockets';
 // Terminal.applyAddon(attach);
 
 class Console extends Component {
    async componentDidMount() {
+      const instanceId = 142;
+      const projectId = 18;
       const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
       let socketURL =
          protocol +
          window.location.hostname +
          (window.location.port ? ":" + window.location.port : "") +
-         "/terminals/";
+         "/websockets/terminals/" + projectId + "/" + instanceId + "/";
       const term = new Terminal(this.dimensions());
-      console.log(term.cols);
       term.open(this.termElm);
-      const res = await fetch("/terminals?cols=" + term.rows + "&rows=" + term.cols, {
-         method: "POST",
+      const res = await fetch("/projects/" + projectId + "/instances/" + instanceId + "/console", {
+         method: "GET",
       });
       // const res = await fetch("/instnces/1/console?project=1", {
       //    method: "POST",
       // });
-      const processId = await res.text();
+      const data = JSON.parse(await res.text());
+      console.log(data);
 
       let shouldOutput = true;
       let firstTime = true;
       const ro = new ResizeObserver(async () => {
-         const res = await fetch(
-            "/terminals/" + processId + "/size?cols=" + term.rows + "&rows=" + term.cols,
-            {
-               method: "POST",
-            }
-         );
+         // const res = await fetch(
+         //    "/terminals/" + processId + "/size?cols=" + term.rows + "&rows=" + term.cols,
+         //    {
+         //       method: "POST",
+         //    }
+         // );
          const dimensions = this.dimensions();
          console.log(dimensions, 'resized');
          term.resize(dimensions.cols, dimensions.rows);
@@ -47,22 +50,29 @@ class Console extends Component {
       ro.observe(this.termElm);
 
       // const pid = processId;
-      socketURL += processId;
-      const socket = new WebSocket(socketURL);
-
-      socket.onopen = () => {
+      console.log(socketURL + data.terminal)
+      const terminalSocket = new WebSocket(socketURL + data.terminal);
+      terminalSocket.onopen = () => {
+         console.log('f');
          // term.attach(socket);
          term.onData((data) => {
-            
-            socket.send(data);
+            terminalSocket.send(data);
          });
-         socket.onmessage = (data) => {
-            console.log(shouldOutput);
-            // if (shouldOutput) {
+         terminalSocket.onmessage = (data) => {
+            if (shouldOutput) {
                term.write(data.data);
-            // } else {
-            //    shouldOutput = true;
-            // }
+            } else {
+               shouldOutput = true;
+            }
+         };
+         term._initialized = true;
+      };
+      const controlSocket = new WebSocket(socketURL + data.control);
+
+      controlSocket.onopen = () => {
+         // term.attach(socket);
+         controlSocket.onmessage = (data) => {
+            console.log(data);
          };
          term._initialized = true;
       };

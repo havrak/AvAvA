@@ -4,6 +4,7 @@ export const connections = new Map();
 wss.on("connection", (clientWS, req) => {
 	if (req.url.startsWith("/websockets/terminal/")) {
 		let lxd = connections.get(req.url.substring(21));
+
 		if (lxd && lxd.ws) {
 			let lxdWS = lxd.ws;
 			lxd.cws = clientWS;
@@ -24,6 +25,7 @@ wss.on("connection", (clientWS, req) => {
 				lxdWS.on("error", (error) =>
 					clientWS.send(`lxdWS ERROR: ${error}`)
 				);
+
 				clientWS.on("close", () => {
 					let control = connections.get(lxd.control);
 					if (control) control.ws.close();
@@ -39,6 +41,7 @@ wss.on("connection", (clientWS, req) => {
 			clientWS.on("error", (error) =>
 				console.log(`ClientWS ERROR: ${error}`)
 			);
+
 		} else clientWS.close();
 	}
 });

@@ -7,6 +7,7 @@ import cookieSession from "cookie-session";
 import passport from "passport";
 import UserData from "./models/UserData.js";
 const PORT = process.env.PORT || 5000;
+
 import "./models/User.js";
 import "./services/passport.js";
 import "./models/Limits.js";
@@ -228,12 +229,12 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
 });
 
 app.get(
-  "/api/instances/:instanceId/console",
+  "/api/projects/:projectId/instances/:instanceId/console",
   isLoggedIn,
   isContainerUsers,
   (req, res) => {
     //some verification to be done beforehand...then:
-    lxd.getConsole(req.params.instanceId, req.query.project).then((result) => {
+    lxd.getConsole(req.params.instanceId, req.params.projectId).then((result) => {
       //{ terminal: "terminalSecret", control: "controlSecret"}
       if (result.control) res.status(200).send(result);
       else res.status(400).send(result); //result -> OperationState
