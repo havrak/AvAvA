@@ -182,25 +182,35 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
     lxd.createInstance(result, result.appsToInstall).then((result) => {
       console.log(result);
       if (result.statusCode != 200) containerSQL.removeContainer(id);
+      console.log("container created");
       // upload sshd_config
       lxd
         .postFileToInstance(
           id,
           projectId,
-          "../../config/serverconfiguartions/ssh_config",
-          "/etc/ssh"
+          "../../config/serverconfiguartions/sshd_config",
+          "/etc/ssh/sshd_config"
         )
         .then((result) => {
-          let commands = new Array();
-          commands.push("systemctl enable haproxy.service");
-          lxd.execInstance(id, projectId, commands, false, false);
-          commands = new Array();
-          commands.push("passwd " + req.body.rootPassword);
-          lxd.execInstance(id, projectId, commands, false, false);
+          console.log("file uploaded");
+          lxd.execInstance(
+            id,
+            projectId,
+            "systemctl enable ssh.service",
+            false,
+            false
+          );
+          lxd.execInstance(
+            id,
+            projectId,
+            "passwd " + req.body.rootPassword,
+            false,
+            false
+          );
         });
       //
       if (!haproxyConfigIsBeingCreated) {
-        console.log("");
+        console.log("cretating haproxy");
         // TODO: come up with better solution to prevent concurrent creating of haproxy config but make it still create it, add listener for another variable that will create new config if container was added when another one was being created
         // this solution just makes sure that the config won't be corrupted
         haproxyConfigIsBeingCreated = true;
@@ -210,12 +220,16 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
               "haproxy",
               "default",
               "../../config/serverconfiguartions/haproxy.cfg",
-              "/etc/ssh"
+              "/etc/haproxy/haproxy.cfg"
             )
             .then((result) => {
-              let commands = new Array();
-              commands.push("systemctl reload haproxy.service");
-              lxd.execInstance("haproxy", "default", commands, false, true);
+              console.log("file uploaded");
+              lxd.execInstance(
+                "haproxy",
+                "default",
+                "sleep 5; systemctl reload haproxy.service", // it takes a little bit of time for new contianer to react
+                false
+              );
             });
           haproxyConfigIsBeingCreated = false;
         });

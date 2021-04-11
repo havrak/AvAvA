@@ -10,6 +10,7 @@ import fs from "fs";
 import Limits from "../../models/Limits.js";
 import templateSQL from "./templateSQL.js";
 import { NetworkState } from "../../models/NetworkState.js";
+import OperationState from "../../models/OperationState.js";
 
 export default class containerSQL {
   static createCreateContainerJSON(email, config) {
@@ -25,6 +26,7 @@ export default class containerSQL {
           config.limits.download > result.download
         ) {
           resolve("500, limits are over current maximum");
+          return;
         }
         // create JSON, call function to add container to database (for once can be synchronous)
         // request to templates - profile and source,
@@ -60,16 +62,18 @@ export default class containerSQL {
                   "" + config.limits.internet.upload + "";
                 createContainerJSON.devices.eth0["limits.egress"] =
                   "" + config.limits.internet.download + "";
-                createContainerJSON.appsToInstall = new Array();
+                createContainerJSON.appsToInstall = "";
 
                 if (config.applicationsToInstall.length > 0) {
-                  let tmpString = "sleep 5; ";
+                  createContainerJSON.appsToInstall += "sleep 5; ";
                   switch (rows[0].image_name) {
                     case "Ubuntu":
-                      tmpString += "apt-get update && apt-get -yyq install ";
+                      createContainerJSON.appsToInstall +=
+                        "apt-get update && apt-get -yyq install ";
                       break;
                     case "Debian":
-                      tmpString += "apt-get update && apt-get -yyq install ";
+                      createContainerJSON.appsToInstall +=
+                        "apt-get update && apt-get -yyq install ";
                       break;
                   }
                   con.query("SELECT * FROM appsToInstall", (err, apps) => {
@@ -78,15 +82,16 @@ export default class containerSQL {
                       if (config.applicationsToInstall.includes(app.id)) {
                         switch (rows[0].image_name) {
                           case "Ubuntu":
-                            tmpString += app.package_name + " ";
+                            config.applicationsToInstall +=
+                              app.package_name + " ";
                             break;
                           case "Debian":
-                            tmpString += app.package_name + " ";
+                            config.applicationsToInstall +=
+                              app.package_name + " ";
                             break;
                         }
                       }
                     });
-                    createContainerJSON.appsToInstall.push(tmpString);
                     resolve(createContainerJSON);
                   });
                 } else {
@@ -129,7 +134,7 @@ export default class containerSQL {
                   "There already is container with the same name in the database"
                 );
                 resolve(500);
-                return null;
+                return;
               } else if (err) throw err;
               con.query(
                 "INSERT INTO containersResourcesLimits (container_id, ram, cpu, disk, upload, download) VALUES (?,?,?,?,?,?)",
@@ -289,7 +294,7 @@ export default class containerSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
-          resolve(1);
+          resolve(new OperationState("Container removed from database", 500));
         }
       );
     });
@@ -315,18 +320,21 @@ export default class containerSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
-          if (rows == undefined) {
+          if (!rows) {
+            // TODO: check if this works otherwise repeat elsewhere
             resolve("500, asdad");
+            return;
+          } else {
+            templateSQL.getTemplate(rows[0].template_id).then((result) => {
+              let toReturn = new Container();
+              toReturn.id = id;
+              toReturn.projectId = rows[0].project_id;
+              toReturn.name = rows[0].name;
+              toReturn.url = rows[0].url;
+              toReturn.template = result;
+              resolve(toReturn);
+            });
           }
-          templateSQL.getTemplate(rows[0].template_id).then((result) => {
-            let toReturn = new Container();
-            toReturn.id = id;
-            toReturn.projectId = rows[0].project_id;
-            toReturn.name = rows[0].name;
-            toReturn.url = rows[0].url;
-            toReturn.template = result;
-            resolve(toReturn);
-          });
         }
       );
     });
@@ -374,7 +382,7 @@ export default class containerSQL {
   }
 
   static generateHaProxyConfigurationFile() {
-    return new Promise((result) => {
+    return new Promise((resolve) => {
       fs.readFile(
         "config/serverconfiguartions/haproxy_header",
         "utf8",
@@ -390,14 +398,14 @@ export default class containerSQL {
             // frontend https
             stream.write("frontend fe_https\n");
             stream.write(
-              "\tbind *:443 ssl crt" +
+              "\tbind *:443 ssl crt " +
                 proxyconfig.pemfilepath +
-                "no-tls-tickets ca-file" +
+                " no-tls-tickets ca-file " +
                 proxyconfig.cabundle +
                 "\n"
             );
             stream.write("\ttimeout client 5000\n");
-            stream.write("\treqadd X-Forwarded-Proto: https\n");
+            stream.write("\treqadd X-Forwarded-Proto:\\ https\n");
             stream.write("\toption http-keep-alive\n");
             stream.write("\toption forwardfor\n");
             stream.write("\n");
@@ -443,14 +451,14 @@ export default class containerSQL {
             stream.write("\n");
             stream.write("frontend fe_rest\n");
             stream.write(
-              "\tbind *:3000 ssl crt" +
+              "\tbind *:3000 ssl crt " +
                 proxyconfig.pemfilepath +
-                "no-tls-tickets ca-file" +
+                " no-tls-tickets ca-file " +
                 proxyconfig.cabundle +
                 "\n"
             );
             stream.write("\ttimeout client 5000\n");
-            stream.write("\treqadd X-Forwarded-Proto: https\n");
+            stream.write("\treqadd X-Forwarded-Proto:\\ https\n");
             stream.write("\toption http-keep-alive\n");
             stream.write("\toption forwardfor\n");
             stream.write("\n");
@@ -476,9 +484,9 @@ export default class containerSQL {
             stream.write("\n");
             stream.write("frontend fe_ssh\n");
             stream.write(
-              "\tbind *:2222 ssl crt" +
+              "\tbind *:2222 ssl crt " +
                 proxyconfig.pemfilepath +
-                "no-tls-tickets ca-file" +
+                " no-tls-tickets ca-file " +
                 proxyconfig.cabundle +
                 "\n"
             );
@@ -508,17 +516,17 @@ export default class containerSQL {
             stream.write("\n");
             stream.write("backend bac_web_hostmachine\n");
             stream.write("\thttp-request set-header X-Client-IP %[src]\n");
-            stream.write("\tredirect scheme https if !{ssl_fc}\n");
+            stream.write("\tredirect scheme https if !{ ssl_fc }\n");
             stream.write(
               "\tserver hostmachine " +
                 proxyconfig.ipAdressOfHostOnLxdbr0 +
-                ".lxd:81 check\n"
+                ":81 check\n"
             );
             rows.forEach((row, index) => {
               stream.write("\n");
               stream.write("backend bac_web_c" + row.id + "\n");
               stream.write("\thttp-request set-header X-Client-IP %[src]\n");
-              stream.write("\tredirect scheme https if !{ssl_fc}\n");
+              stream.write("\tredirect scheme https if !{ ssl_fc }\n");
               stream.write(
                 "\tserver c" + row.id + " c" + row.id + ".lxd:80 check\n"
               );
@@ -528,17 +536,17 @@ export default class containerSQL {
             stream.write("\n");
             stream.write("backend bac_rest_hostmachine\n");
             stream.write("\thttp-request set-header X-Client-IP %[src]\n");
-            stream.write("\tredirect scheme https if !{ssl_fc}\n");
+            stream.write("\tredirect scheme https if !{ ssl_fc }\n");
             stream.write(
               "\tserver hostmachine " +
                 proxyconfig.ipAdressOfHostOnLxdbr0 +
-                ".lxd:3001 check\n"
+                ":3001 check\n"
             );
             rows.forEach((row, index) => {
               stream.write("\n");
               stream.write("backend bac_rest_c" + row.id + "\n");
               stream.write("\thttp-request set-header X-Client-IP %[src]\n");
-              stream.write("\tredirect scheme https if !{ssl_fc}\n");
+              stream.write("\tredirect scheme https if !{ ssl_fc }\n");
               stream.write(
                 "\tserver c" + row.id + " c" + row.id + ".lxd:3000 check\n"
               );
@@ -553,7 +561,7 @@ export default class containerSQL {
                 "\tserver c" + row.id + " c" + row.id + ".lxd:22 check\n"
               );
             });
-            resolve(200);
+            resolve(new OperationState("Haproxy created", 200));
           });
         }
       );

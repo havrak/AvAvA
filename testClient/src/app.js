@@ -3,11 +3,11 @@ const https = require("http");
 const route = "/api/instances";
 
 const data = JSON.stringify({
-  name: "bimbac",
+  name: "dindu",
   rootPassword: "string",
   projectId: 19,
   templateId: 2,
-  applicationsToInstall: [6, 7, 10],
+  applicationsToInstall: [],
   limits: {
     RAM: 1073741824,
     CPU: 10,

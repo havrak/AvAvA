@@ -56,13 +56,11 @@ export default class projectSQL {
       this.createCreateProjectData(email).then((result) => {
         currentFreeSpace = result;
         if (
-          config.customLimits.RAM > currentFreeSpace.RAM ||
-          config.customLimits.CPU > currentFreeSpace.CPU ||
-          config.customLimits.disk > currentFreeSpace.disk ||
-          config.customLimits.network.upload >
-            currentFreeSpace.network.upload ||
-          config.customLimits.network.download >
-            currentFreeSpace.network.download
+          config.limits.RAM > currentFreeSpace.RAM ||
+          config.limits.CPU > currentFreeSpace.CPU ||
+          config.limits.disk > currentFreeSpace.disk ||
+          config.limits.network.upload > currentFreeSpace.network.upload ||
+          config.limits.network.download > currentFreeSpace.network.download
         ) {
           resolve(500);
         }
@@ -78,19 +76,19 @@ export default class projectSQL {
               "INSERT INTO projectsResourcesLimits (project_id, ram, cpu, disk, upload, download) VALUES (?,?,?,?,?,?)",
               [
                 projectId,
-                config.customLimits.RAM,
-                config.customLimits.CPU,
-                config.customLimits.disk,
-                config.customLimits.network.upload,
-                config.customLimits.network.download,
+                config.limits.RAM,
+                config.limits.CPU,
+                config.limits.disk,
+                config.limits.network.upload,
+                config.limits.network.download,
               ],
               (err, rows) => {
                 if (err) throw err;
                 resolve(
                   new CreateProjectJSONObj(
                     projectId,
-                    config.customLimits.RAM + "B",
-                    config.customLimits.disk + "B"
+                    config.limits.RAM + "B",
+                    config.limits.disk + "B"
                   )
                 );
               }
