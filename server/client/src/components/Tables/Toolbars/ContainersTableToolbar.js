@@ -59,7 +59,6 @@ function ContainersTableToolbar(props) {
       createInstanceConfigData
    } = props;
    const [dialogOpen, setDialogOpen] = React.useState(false);
-   console.log(project);
    const createdContainer = React.useRef(containerCreateBaseState(project.id, createInstanceConfigData.templates[0]))
 
    const openDialogHandler = () => {

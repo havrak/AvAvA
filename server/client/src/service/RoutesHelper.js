@@ -1,6 +1,7 @@
 import routes from "routes.js";
 import _ from "lodash";
 
+//get parts of path that can be usedfor further work (copy is returned)
 function removeEndSlashPathEndAndSplit(requestedPath = location.pathname) {
    let path = _.cloneDeep(requestedPath);
    if (path.endsWith("/")) {
@@ -27,6 +28,7 @@ export function removePathParts(pathPartsToRemove) {
    return splitted.join("/");
 }
 
+//returns route from routes.js that is currently active or -1 if none is found
 export function getValidRoute(path = location.pathname) {
    let splittedPath = removeEndSlashPathEndAndSplit(path);
    let splittedRoutes = [];
@@ -62,11 +64,16 @@ export function getValidRoute(path = location.pathname) {
 
 function currentProjectId() {
    const splitted = removeEndSlashPathEndAndSplit();
-   return {
-      projectId: parseInt(splitted[3]),
+   const result = {
+      projectId: null,
    };
+   for (let i = 0; i < splitted.length; i++) {
+      if (splitted[i] === "projects" && i + 1 < splitted.length) {
+         result.projectId = parseInt(splitted[i + 1]);
+         return result;
+      }
+   }
 }
-
 export function getCurrentProject(projects) {
    const { projectId } = currentProjectId();
    for (const project of projects) {
@@ -80,12 +87,12 @@ function currentProjectAndContainerId() {
    const splitted = removeEndSlashPathEndAndSplit();
    const result = {
       projectId: null,
-      containerId: null
-   }
-   for(let i = 0; i < splitted.length; i++){
-      if(splitted[i] === "projects" && i + 1 < splitted.length){
+      containerId: null,
+   };
+   for (let i = 0; i < splitted.length; i++) {
+      if (splitted[i] === "projects" && i + 1 < splitted.length) {
          result.projectId = parseInt(splitted[i + 1]);
-      } else if(splitted[i] === "containers" && i + 1 < splitted.length){
+      } else if (splitted[i] === "containers" && i + 1 < splitted.length) {
          result.containerId = parseInt(splitted[i + 1]);
       }
    }
@@ -97,7 +104,7 @@ export function getCurrentProjectAndContainer(projects) {
    for (const project of projects) {
       if (project.id === projectId) {
          for (const container of project.containers) {
-            if(container.id === containerId){
+            if (container.id === containerId) {
                return {
                   currentProject: project,
                   currentContainer: container,
@@ -129,6 +136,6 @@ export function isActive(path) {
    }
 }
 
-export function shouldOpenBasedOnLocation(path){
+export function shouldOpenBasedOnLocation(path) {
    return location.pathname.startsWith(path) && !isActive(path);
 }

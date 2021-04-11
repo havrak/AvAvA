@@ -28,9 +28,9 @@ import UserLayout from "./layouts/User.js";
 import UserSetup from "./components/UserSetup.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import NotificationAlert from "react-notification-alert";
-
+//component that combines all different layouts - admin will be added in the future
 function App(props) {
-
+   //notifier available in all children
    const notificationAlertRef = React.useRef();
    const notify = (message, type = "danger", autoDismiss = 4) => {
       const options = {

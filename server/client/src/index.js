@@ -44,6 +44,7 @@ export const store = createStore(
    composeEnhancers(applyMiddleware(thunk))
 );
 
+//in order to make the redux state persistent between page refreshes, we need to store it in local storage
 store.subscribe(() => {
    return saveToLocalStorage(store.getState());
 });
