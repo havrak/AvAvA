@@ -4,6 +4,7 @@ export const connections = new Map();
 wss.on("connection", (clientWS, req) => {
 	if (req.url.startsWith("/websockets/terminals/")) {
 		let lxd = connections.get(req.url.substring(22));
+
 		if (lxd && lxd.ws) {
 			let lxdWS = lxd.ws;
 			lxd.cws = clientWS;

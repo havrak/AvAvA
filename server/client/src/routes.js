@@ -34,9 +34,7 @@ import ContainerSettings from "views/Containers/Settings.js";
 import PatchContainer from "components/RouteComponents/PatchContainer";
 import PatchProject from "components/RouteComponents/PatchProject";
 import { getCurrentProjectAndContainer } from "service/RoutesHelper";
-import { store } from "index.js";
-import { getCurrentProject } from "service/RoutesHelper";
-import ReactDOM from 'react-dom';
+
 const projectsNavLinks = [
    {
       name: "Info",
@@ -84,11 +82,7 @@ const containerNavLinks = [
    {
       name: "Console",
       link: "console",
-      component: (name, link, notify, otherData) => {
-         const {projects} = otherData;
-         const { currentProject, currentContainer } = getCurrentProjectAndContainer(
-            projects
-         );
+      component: (name, link, notify) => {
          // return (
          //    <Link
          //       to={`/user/projects/${currentProject.id}/containers/${currentContainer.id}`}

@@ -100,7 +100,7 @@ function Header({ logout, user, brand, notify, combinedUserData }) {
                              return (
                                 <li className={isActive(item.link) ? "nav-active" : ""}>
                                    <Nav.Item className={"navbar-link"}>
-                                      {item.component(item.name, item.link, notify, {projects: combinedUserData.userProjects.projects})}
+                                      {item.component(item.name, item.link, notify)}
                                    </Nav.Item>
                                 </li>
                              );

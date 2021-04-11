@@ -12,7 +12,6 @@
  */
 
 import ApiClient from '../ApiClient';
-import ApplicationToInstall from './ApplicationToInstall';
 import Limits from './Limits';
 
 /**
@@ -26,21 +25,21 @@ export default class Body {
     * @alias module:model/Body
     * @class
     * @param name {String} 
+    * @param rootPassword {String} password of the root user in container
     * @param projectId {Number} Id of project where container should be created
     * @param templateId {Number} 
-    * @param applicationsToInstall {Array.<module:model/ApplicationToInstall>} 
-    * @param connectToInternet {Boolean} 
+    * @param applicationsToInstall {Array.<Number>} Ids of apps that should be installed
     * @param limits {module:model/Limits} 
     */
 
-    constructor(name, projectId, templateId, applicationsToInstall, connectToInternet, limits) {
+    constructor(name, rootPassword, projectId, templateId, applicationsToInstall, limits) {
         
         
         this['name'] = name;
+        this['rootPassword'] = rootPassword;
         this['projectId'] = projectId;
         this['templateId'] = templateId;
         this['applicationsToInstall'] = applicationsToInstall;
-        this['connectToInternet'] = connectToInternet;
         this['limits'] = limits;
         
     }
@@ -60,6 +59,9 @@ export default class Body {
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
+            if (data.hasOwnProperty('rootPassword')) {
+                obj['rootPassword'] = ApiClient.convertToType(data['rootPassword'], 'String');
+            }
             if (data.hasOwnProperty('projectId')) {
                 obj['projectId'] = ApiClient.convertToType(data['projectId'], 'Number');
             }
@@ -67,10 +69,7 @@ export default class Body {
                 obj['templateId'] = ApiClient.convertToType(data['templateId'], 'Number');
             }
             if (data.hasOwnProperty('applicationsToInstall')) {
-                obj['applicationsToInstall'] = ApiClient.convertToType(data['applicationsToInstall'], [ApplicationToInstall]);
-            }
-            if (data.hasOwnProperty('connectToInternet')) {
-                obj['connectToInternet'] = ApiClient.convertToType(data['connectToInternet'], 'Boolean');
+                obj['applicationsToInstall'] = ApiClient.convertToType(data['applicationsToInstall'], ['Number']);
             }
             if (data.hasOwnProperty('limits')) {
                 obj['limits'] = Limits.constructFromObject(data['limits']);
@@ -84,6 +83,11 @@ export default class Body {
     */
     'name' = undefined;
     /**
+    * password of the root user in container
+    * @member {String} rootPassword
+    */
+    'rootPassword' = undefined;
+    /**
     * Id of project where container should be created
     * @member {Number} projectId
     */
@@ -93,13 +97,10 @@ export default class Body {
     */
     'templateId' = undefined;
     /**
-    * @member {Array.<module:model/ApplicationToInstall>} applicationsToInstall
+    * Ids of apps that should be installed
+    * @member {Array.<Number>} applicationsToInstall
     */
     'applicationsToInstall' = undefined;
-    /**
-    * @member {Boolean} connectToInternet
-    */
-    'connectToInternet' = undefined;
     /**
     * @member {module:model/Limits} limits
     */

@@ -12,7 +12,6 @@
  */
 
 import ApiClient from '../ApiClient';
-import ApplicationToInstall from './ApplicationToInstall';
 import Limits from './Limits';
 
 /**
@@ -25,19 +24,11 @@ export default class Body1 {
     * Constructs a new <code>Body1</code>.
     * @alias module:model/Body1
     * @class
-    * @param name {String} 
-    * @param applicationsToInstall {Array.<module:model/ApplicationToInstall>} 
-    * @param connectToInternet {Boolean} 
-    * @param limits {module:model/Limits} 
     */
 
-    constructor(name, applicationsToInstall, connectToInternet, limits) {
+    constructor() {
         
         
-        this['name'] = name;
-        this['applicationsToInstall'] = applicationsToInstall;
-        this['connectToInternet'] = connectToInternet;
-        this['limits'] = limits;
         
     }
 
@@ -56,8 +47,8 @@ export default class Body1 {
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
-            if (data.hasOwnProperty('applicationsToInstall')) {
-                obj['applicationsToInstall'] = ApiClient.convertToType(data['applicationsToInstall'], [ApplicationToInstall]);
+            if (data.hasOwnProperty('rootPassword')) {
+                obj['rootPassword'] = ApiClient.convertToType(data['rootPassword'], 'String');
             }
             if (data.hasOwnProperty('connectToInternet')) {
                 obj['connectToInternet'] = ApiClient.convertToType(data['connectToInternet'], 'Boolean');
@@ -74,9 +65,10 @@ export default class Body1 {
     */
     'name' = undefined;
     /**
-    * @member {Array.<module:model/ApplicationToInstall>} applicationsToInstall
+    * password of the root user in container. If this item is null, it means that it has not been changed
+    * @member {String} rootPassword
     */
-    'applicationsToInstall' = undefined;
+    'rootPassword' = undefined;
     /**
     * @member {Boolean} connectToInternet
     */

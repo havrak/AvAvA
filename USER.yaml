@@ -171,12 +171,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /instances/{id}/console: #TODO
+  /projects/{projectId}/instances/{instanceId}/console: #TODO
     get:
       parameters:
         - in: path
           required: true
-          name: id
+          name: projectId
+          schema:
+            type: integer
+          description: ID of the project where the container is
+        - in: path
+          required: true
+          name: instanceId
           schema:
             type: integer
           description: ID of the container for which we start the console
@@ -186,14 +192,15 @@ paths:
           content:
             application/json:
               schema:
-                type: integer
-                description: TODO
+                type: string
+                description: socket identifier that clients uses to access terminal - ws:/instances/{id}/console/{consoleId}
         "400":
           description: Error 
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+    # ws:/console/{descriptor}: used to connect to the terminal. 
   #/instances/{id}/files: TODO
   #  get:
   #    parameters:
@@ -649,6 +656,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /logout:
+    get:
+      responses:
+        "200":
+          description: OK
 components:
   schemas:
     ErrorResponse:

@@ -156,42 +156,6 @@ export default class DefaultApi {
       );
     }
     /**
-     * Callback function to receive the result of the instancesIdConsoleGet operation.
-     * @callback module:api/DefaultApi~instancesIdConsoleGetCallback
-     * @param {String} error Error message, if any.
-     * @param {'Number'} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * @param {module:api/DefaultApi~instancesIdConsoleGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link 'Number'}
-     */
-    instancesIdConsoleGet(id, callback) {
-      let postBody = null;
-
-      let pathParams = {
-        'id': id
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = [];
-      let accepts = ['application/json'];
-      let returnType = 'Number';
-
-      return this.apiClient.callApi(
-        '/instances/{id}/console', 'GET',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
      * Callback function to receive the result of the instancesIdDelete operation.
      * @callback module:api/DefaultApi~instancesIdDeleteCallback
      * @param {String} error Error message, if any.
@@ -697,6 +661,40 @@ export default class DefaultApi {
       );
     }
     /**
+     * Callback function to receive the result of the logoutGet operation.
+     * @callback module:api/DefaultApi~logoutGetCallback
+     * @param {String} error Error message, if any.
+     * @param data This operation does not return a value.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {module:api/DefaultApi~logoutGetCallback} callback The callback function, accepting three arguments: error, data, response
+     */
+    logoutGet(callback) {
+      let postBody = null;
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = [];
+      let accepts = [];
+      let returnType = null;
+
+      return this.apiClient.callApi(
+        '/logout', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
      * Callback function to receive the result of the projectsGet operation.
      * @callback module:api/DefaultApi~projectsGetCallback
      * @param {String} error Error message, if any.
@@ -907,6 +905,43 @@ export default class DefaultApi {
 
       return this.apiClient.callApi(
         '/projects', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
+     * Callback function to receive the result of the projectsProjectIdInstancesInstanceIdConsoleGet operation.
+     * @callback module:api/DefaultApi~projectsProjectIdInstancesInstanceIdConsoleGetCallback
+     * @param {String} error Error message, if any.
+     * @param {'String'} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {module:api/DefaultApi~projectsProjectIdInstancesInstanceIdConsoleGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link 'String'}
+     */
+    projectsProjectIdInstancesInstanceIdConsoleGet(projectId, instanceId, callback) {
+      let postBody = null;
+
+      let pathParams = {
+        'projectId': projectId,
+        'instanceId': instanceId
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = [];
+      let accepts = ['application/json'];
+      let returnType = 'String';
+
+      return this.apiClient.callApi(
+        '/projects/{projectId}/instances/{instanceId}/console', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );

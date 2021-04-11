@@ -21,7 +21,6 @@ import ApiClient from '../ApiClient';
 export default class ErrorResponse {
     /**
     * Constructs a new <code>ErrorResponse</code>.
-    * Message that explains what went wrong
     * @alias module:model/ErrorResponse
     * @class
     */
@@ -44,10 +43,18 @@ export default class ErrorResponse {
             obj = obj || new ErrorResponse();
                         
             
+            if (data.hasOwnProperty('message')) {
+                obj['message'] = ApiClient.convertToType(data['message'], 'String');
+            }
         }
         return obj;
     }
 
+    /**
+    * Message that explains what went wrong
+    * @member {String} message
+    */
+    'message' = undefined;
 
 
 

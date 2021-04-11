@@ -12,7 +12,7 @@
  */
 
 import ApiClient from '../ApiClient';
-import ErrorResponse from './ErrorResponse';
+import Limits from './Limits';
 
 /**
 * The Body4 model module.
@@ -50,7 +50,7 @@ export default class Body4 {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
             }
             if (data.hasOwnProperty('limits')) {
-                obj['limits'] = ErrorResponse.constructFromObject(data['limits']);
+                obj['limits'] = Limits.constructFromObject(data['limits']);
             }
         }
         return obj;
@@ -61,7 +61,7 @@ export default class Body4 {
     */
     'name' = undefined;
     /**
-    * @member {module:model/ErrorResponse} limits
+    * @member {module:model/Limits} limits
     */
     'limits' = undefined;
 

@@ -2,81 +2,81 @@ import React, { Component } from "react";
 import "xterm/css/xterm.css";
 import { Terminal } from "xterm";
 // import * as attach from "xterm/lib/addons/attach/attach";
-import NewWindow from "react-new-window";
-import ReactDOM from "react-dom";
 import { ResizeObserver } from "resize-observer";
-import MyWindowPortal from "components/WindowPortal.js";
-import {terminalSocket} from 'api/WebSockets';
+import { connect } from "react-redux";
+import { createTerminalSocket } from "api/WebSockets";
+import { getCurrentProjectAndContainer } from "service/RoutesHelper";
 // Terminal.applyAddon(attach);
+import * as UserApi from "api/index";
+
+const api = new UserApi.DefaultApi();
 
 class Console extends Component {
+   constructor({ projectId, instanceId }) {
+      super();
+      projectId = 18;
+      instanceId = 142;
+      this.projectId = projectId;
+      this.instanceId = instanceId;
+   }
+
    async componentDidMount() {
-      const instanceId = 142;
-      const projectId = 18;
-      const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-      let socketURL =
-         protocol +
-         window.location.hostname +
-         (window.location.port ? ":" + window.location.port : "") +
-         "/websockets/terminals/" + projectId + "/" + instanceId + "/";
       const term = new Terminal(this.dimensions());
       term.open(this.termElm);
-      const res = await fetch("/projects/" + projectId + "/instances/" + instanceId + "/console", {
-         method: "GET",
-      });
-      // const res = await fetch("/instnces/1/console?project=1", {
-      //    method: "POST",
-      // });
-      const data = JSON.parse(await res.text());
-      console.log(data);
+      const successConsoleCreationCallback = (error, data, response) => {
+         data = response.body;
 
-      let shouldOutput = true;
-      let firstTime = true;
-      const ro = new ResizeObserver(async () => {
-         // const res = await fetch(
-         //    "/terminals/" + processId + "/size?cols=" + term.rows + "&rows=" + term.cols,
-         //    {
-         //       method: "POST",
-         //    }
-         // );
-         const dimensions = this.dimensions();
-         console.log(dimensions, 'resized');
-         term.resize(dimensions.cols, dimensions.rows);
-         if(!firstTime){
-            shouldOutput = false;
-         }
-         firstTime = false;
-      });
-      ro.observe(this.termElm);
+         let shouldOutput = true;
+         let firstTime = true;
 
-      // const pid = processId;
-      console.log(socketURL + data.terminal)
-      const terminalSocket = new WebSocket(socketURL + data.terminal);
-      terminalSocket.onopen = () => {
-         console.log('f');
-         // term.attach(socket);
-         term.onData((data) => {
-            terminalSocket.send(data);
-         });
-         terminalSocket.onmessage = (data) => {
-            if (shouldOutput) {
-               term.write(data.data);
-            } else {
-               shouldOutput = true;
-            }
+         const terminalSocket = createTerminalSocket(data.terminal);
+         terminalSocket.onopen = () => {
+            console.log("f");
+            // term.attach(socket);
+            term.onData((data) => {
+               terminalSocket.send(data);
+            });
+            terminalSocket.onmessage = (data) => {
+               if (shouldOutput) {
+                  term.write(data.data);
+               } else {
+                  shouldOutput = true;
+               }
+            };
+            term._initialized = true;
          };
-         term._initialized = true;
-      };
-      const controlSocket = new WebSocket(socketURL + data.control);
 
-      controlSocket.onopen = () => {
-         // term.attach(socket);
-         controlSocket.onmessage = (data) => {
-            console.log(data);
+         const controlSocket = createTerminalSocket(data.control);
+         controlSocket.onopen = () => {
+            // term.attach(socket);
+            controlSocket.onmessage = (data) => {
+               console.log(data);
+            };
+            const ro = new ResizeObserver(async () => {
+               const dimensions = this.dimensions();
+               console.log(dimensions, "resized");
+               controlSocket.send({
+                  command: "window-resize",
+                  args: {
+                     width: dimensions.cols,
+                     height: dimensions.rows,
+                  },
+               });
+               term.resize(dimensions.cols, dimensions.rows);
+               if (!firstTime) {
+                  shouldOutput = false;
+               }
+               firstTime = false;
+            });
+            ro.observe(this.termElm);
          };
-         term._initialized = true;
+         this.term = term;
       };
-      this.term = term;
+      api.projectsProjectIdInstancesInstanceIdConsoleGet(
+         this.projectId,
+         this.instanceId,
+         successConsoleCreationCallback
+      );
    }
 
    dimensions() {
@@ -110,4 +110,14 @@ class Console extends Component {
    }
 }
 
-export default Console;
+const mapStateToProps = (state) => {
+   const { currentProject, currentContainer } = getCurrentProjectAndContainer(
+      state.combinedUserData.userProjects.projects
+   );
+   return {
+      projectId: currentProject.id,
+      instanceId: currentContainer.id,
+   };
+};
+
+export default connect(mapStateToProps, null)(Console);
