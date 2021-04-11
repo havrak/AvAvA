@@ -50,7 +50,7 @@ export default class templateSQL {
       const con = mysql.createConnection(sqlconfig);
       con.query("SELECT * FROM templates", (err, rows) => {
         if (err) throw err;
-        let toReturn = [rows.length];
+        let toReturn = new Array(rows.length);
         rows.forEach((row, index) => {
           toReturn[index] = new Template(
             row.id,

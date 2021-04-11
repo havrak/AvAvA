@@ -53,6 +53,20 @@ export default class userSQL {
       );
     });
   }
+
+  static getAllUsersProjects(email) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query(
+        "SELECT GROUP_CONCAT(id) AS ids FROM projects WHERE owner_email=?",
+        [email],
+        (err, rows) => {
+          resolve(rows[0].ids.split(","));
+        }
+      );
+    });
+  }
+
   static getAllUsersWorkingOnAProject(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);

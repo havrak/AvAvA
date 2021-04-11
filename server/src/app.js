@@ -2,14 +2,16 @@ import express from "express";
 const app = express();
 // import cors from "cors";
 import { keys } from "../config/keys.js";
+import hostmaschine from "../config/hostmaschine.js";
 import cookieSession from "cookie-session";
 import passport from "passport";
+import UserData from "./models/UserData.js";
 const PORT = process.env.PORT || 5000;
 import "./models/User.js";
 import "./services/passport.js";
 import "./models/Limits.js";
 import projectSQL from "./services/sql/projectSQL.js";
-
+import os from "os";
 //import * as bodyParser from "body-parser";
 import * as lxd from "./routes/lxdquery.js";
 
@@ -96,10 +98,39 @@ const server = app.listen(PORT, () =>
 
 import * as WebSocket from "./services/websocket.js";
 import { resolve } from "node:dns";
+import userSQL from "./services/sql/userSQL.js";
 server.on("upgrade", (req, socket, head) => {
   WebSocket.wss.handleUpgrade(req, socket, head, (socket) =>
     WebSocket.wss.emit("connection", socket, req)
   );
+});
+
+app.get("/api/combinedData", isLoggedIn, (req, res) => {
+  //
+  let toReturn = new UserData();
+  userSQL.getUserByEmail(email).then((result) => {
+    toReturn.user = result;
+    toReturn.hostInformation.CPU.model = os.cpus()[0].model; // this works, however as developnet isn't done on server one gets model nad frequency of his own cpu
+    toReturn.hostInformation.CPU.frequency = hostmaschine.frequency;
+    containerSQL.createCreateContainerData(email).then((result) => {
+      toReturn.createInstanceConfigData = result;
+      userSQL.getAllUsersProjects(email).then((result) => {
+        //
+        toReturn.userProjects = new Array(result.length);
+        let counter = 0;
+        result.forEach((id) => {
+          console.log(id);
+          getProjectObject(id).then((result) => {
+            toReturn.userProjects[counter] = result;
+            counter++;
+            console.log(counter + " " + toReturn.userProjects.length);
+            console.log(result);
+            if (counter == toReturn.userProjects.length) res.send(toReturn);
+          });
+        });
+      });
+    });
+  });
 });
 
 app.get("/api/project/createConfigData", isLoggedIn, (req, res) => {
@@ -122,26 +153,19 @@ app.post("/api/project", isLoggedIn, (req, res) => {
 });
 
 app.get("/api/projects/:projectId", isProjectUsers, isLoggedIn, (req, res) => {
-  console.log(req.params.projectId);
-  getProjectObject(req.params.projectId).then((project) => {
-    console.log(project);
-    lxd.getInstances(project.containers).then((result) => {
-      project.containers = result;
-      res.send(project);
-    });
+  getProjectObject(req.params.projectId).then((result) => {
+    res.send(result);
   });
 });
 
 app.get(
-  "/api/projects/:projectId/createInstanceConfigData",
+  "/api/instances/createInstanceConfigData",
   isLoggedIn,
   isProjectUsers,
   (req, res) => {
-    containerSQL
-      .createCreateContainerData(req.params.projectId, email)
-      .then((result) => {
-        res.send(result);
-      });
+    containerSQL.createCreateContainerData(email).then((result) => {
+      res.send(result);
+    });
   }
 );
 
@@ -155,14 +179,14 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
     let projectId = result.project;
     console.log(id);
     lxd.createInstance(result, result.appsToInstall).then((result) => {
+      console.log(result);
       if (result.statusCode != 200) containerSQL.removeContainer(id);
-      console.log("not deteled");
       // upload sshd_config
       lxd
         .postFileToInstance(
           id,
           projectId,
-          ".../.../config/serverconfiguartions/ssh_config",
+          "../../config/serverconfiguartions/ssh_config",
           "/etc/ssh"
         )
         .then((result) => {
@@ -175,6 +199,7 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
         });
       //
       if (!haproxyConfigIsBeingCreated) {
+        console.log("");
         // TODO: come up with better solution to prevent concurrent creating of haproxy config but make it still create it, add listener for another variable that will create new config if container was added when another one was being created
         // this solution just makes sure that the config won't be corrupted
         haproxyConfigIsBeingCreated = true;
@@ -183,7 +208,7 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
             .postFileToInstance(
               "haproxy",
               "default",
-              "../../config/serverconfiguartions/ssh_config",
+              "../../config/serverconfiguartions/haproxy.cfg",
               "/etc/ssh"
             )
             .then((result) => {
@@ -248,7 +273,6 @@ function getContainerObject(id) {
 function getContainerState(containerId, projectId) {
   return new Promise((resolve) => {
     containerSQL.createContainerStateObject(containerId).then((result) => {
-      console.log(result);
       lxd.getState(containerId, projectId, result).then((result) => {
         resolve(result);
         //
@@ -259,9 +283,11 @@ function getContainerState(containerId, projectId) {
 
 function getProjectObject(projectId) {
   return new Promise((resolve) => {
-    //
-    projectSQL.createProjectObject(projectId).then((result) => {
-      resolve(result);
+    projectSQL.createProjectObject(projectId).then((project) => {
+      lxd.getInstances(project.containers).then((result) => {
+        project.containers = result;
+        resolve(project);
+      });
     });
   });
 }

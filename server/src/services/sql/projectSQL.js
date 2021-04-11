@@ -66,21 +66,14 @@ export default class projectSQL {
         ) {
           resolve(500);
         }
-        console.log(email);
         const con = mysql.createConnection(sqlconfig);
-        con.query("SELECT * FROM users", (err, rows) => {
-          if (err) throw err;
-          console.log(rows);
-        });
 
         con.query(
           "INSERT INTO projects (name, owner_email) VALUES (?,?)",
           [config.name, email],
           (err, rows) => {
             if (err) throw err;
-            console.log(rows.insertId);
             let projectId = rows.insertId;
-            console.log(projectId);
             con.query(
               "INSERT INTO projectsResourcesLimits (project_id, ram, cpu, disk, upload, download) VALUES (?,?,?,?,?,?)",
               [
@@ -141,7 +134,6 @@ export default class projectSQL {
           );
           containerSQL.getAllContainersInProject(id).then((result) => {
             toReturn.containers = result;
-            console.log(toReturn);
             userSQL.getAllUsersWorkingOnAProject(id).then((result) => {
               toReturn.coworkers = result;
               resolve(toReturn);

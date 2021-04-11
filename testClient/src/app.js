@@ -3,9 +3,9 @@ const https = require("http");
 const route = "/api/instances";
 
 const data = JSON.stringify({
-  name: "rudolf2",
+  name: "bimbac",
   rootPassword: "string",
-  projectId: 18,
+  projectId: 19,
   templateId: 2,
   applicationsToInstall: [6, 7, 10],
   limits: {
