@@ -1,10 +1,10 @@
 CREATE TABLE `projectsResourcesLimits` (
   `project_id` int(11) NOT NULL,
-  `ram` double NOT NULL,
-  `cpu` double NOT NULL,
-  `disk` double NOT NULL,
-  `upload` double NOT NULL,
-  `download` double NOT NULL
+  `ram` double DEFAULT NULL,
+  `cpu` double DEFAULT NULL,
+  `disk` double DEFAULT NULL,
+  `upload` double DEFAULT NULL,
+  `download` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 ALTER TABLE `projectsResourcesLimits`

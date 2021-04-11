@@ -124,7 +124,7 @@ CREATE TABLE `users` (
   `family_name` varchar(16) COLLATE utf8_czech_ci NOT NULL,
   `icon` text COLLATE utf8_czech_ci,
   `role` int(11) NOT NULL,
-  `coins` double NOT NULL
+  `coins` int(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
@@ -299,6 +299,3 @@ ALTER TABLE `usersResourcesLimits`
   ADD CONSTRAINT `usersResourcesLimits_ibfk_1` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

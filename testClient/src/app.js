@@ -1,34 +1,35 @@
 const https = require("http");
 
-const route = "/api/instances";
-// const data = JSON.stringify({
-//   name: "string",
-//   limits: {
-//     RAM: 0,
-//     CPU: 0,
-//     disk: 0,
-//     internet: {
-//       download: 0,
-//       upload: 0,
-//     },
-//   },
-// });
+const route = "/api/project";
 const data = JSON.stringify({
-  name: "dindu",
-  rootPassword: "string",
-  projectId: 19,
-  templateId: 2,
-  applicationsToInstall: [],
+  name: "string",
   limits: {
-    RAM: 1073741824,
-    CPU: 10,
-    disk: 8368709120,
+    RAM: 0,
+    CPU: 0,
+    disk: 0,
     internet: {
-      download: 10000,
-      upload: 10000,
+      download: 0,
+      upload: 0,
     },
   },
 });
+// const route = "/api/instances";
+// const data = JSON.stringify({
+//   name: "dindu",
+//   rootPassword: "string",
+//   projectId: 19,
+//   templateId: 2,
+//   applicationsToInstall: [],
+//   limits: {
+//     RAM: 1073741824,
+//     CPU: 10,
+//     disk: 8368709120,
+//     internet: {
+//       download: 10000,
+//       upload: 10000,
+//     },
+//   },
+// });
 
 const options = {
   hostname: "localhost",

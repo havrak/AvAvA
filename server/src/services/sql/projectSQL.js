@@ -6,6 +6,7 @@ import CreateProjectJSONObj from "../../models/CreateProjectJSONObj.js";
 import Project from "../../models/Project.js";
 import containerSQL from "./containerSQL.js";
 import userSQL from "./userSQL.js";
+import OperationState from "../../models/OperationState.js";
 
 export default class projectSQL {
   static createCreateProjectData(email) {
@@ -25,7 +26,6 @@ export default class projectSQL {
             rows[0].upload,
             rows[0].download
           );
-          console.log(userLimits);
           con.query(
             "SELECT * FROM projects LEFT JOIN projectsResourcesLimits ON projects.id = projectsResourcesLimits.project_id LEFT JOIN users ON projects.owner_email=users.email WHERE users.email=?",
             [email], // by default user is standart user
@@ -59,10 +59,12 @@ export default class projectSQL {
           config.limits.RAM > currentFreeSpace.RAM ||
           config.limits.CPU > currentFreeSpace.CPU ||
           config.limits.disk > currentFreeSpace.disk ||
-          config.limits.network.upload > currentFreeSpace.network.upload ||
-          config.limits.network.download > currentFreeSpace.network.download
+          config.limits.internet.upload > currentFreeSpace.network.upload ||
+          config.limits.internet.download > currentFreeSpace.network.download
         ) {
-          resolve(500);
+          resolve(
+            new OperationState("projects limit exceeds current free space", 500)
+          );
         }
         const con = mysql.createConnection(sqlconfig);
 
@@ -79,11 +81,15 @@ export default class projectSQL {
                 config.limits.RAM,
                 config.limits.CPU,
                 config.limits.disk,
-                config.limits.network.upload,
-                config.limits.network.download,
+                config.limits.internet.upload,
+                config.limits.internet.download,
               ],
               (err, rows) => {
                 if (err) throw err;
+                if (config.limits.RAM == null) {
+                  con.end();
+                  resolve(new CreateProjectJSONObj(projectId, null, null));
+                }
                 resolve(
                   new CreateProjectJSONObj(
                     projectId,
@@ -134,6 +140,7 @@ export default class projectSQL {
             toReturn.containers = result;
             userSQL.getAllUsersWorkingOnAProject(id).then((result) => {
               toReturn.coworkers = result;
+              con.end();
               resolve(toReturn);
             });
           });
@@ -144,13 +151,14 @@ export default class projectSQL {
 
   // it is only necessary to remove project, containers will remove automatically thanks to cascade dependency
   static removeProject(id) {
-    return new Promise((resove) => {
+    return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
-        "DELETE FROM projects WHERE project.id=?",
+        "DELETE FROM projects WHERE projects.id=?",
         [id],
         (err, rows) => {
           if (err) throw err;
+          con.end();
           resolve(1);
         }
       );
@@ -165,6 +173,7 @@ export default class projectSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
+          con.end();
           resolve(rows);
         }
       );

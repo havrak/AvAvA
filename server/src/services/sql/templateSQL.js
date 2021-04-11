@@ -20,6 +20,7 @@ export default class templateSQL {
         }
       );
       resolve(null);
+      con.end();
     });
   }
 
@@ -41,6 +42,7 @@ export default class templateSQL {
           rows[0].min_disk_size
         );
         resolve(toReturn);
+        con.end();
       });
     });
   }
@@ -61,6 +63,7 @@ export default class templateSQL {
             row.min_disk_size
           );
         });
+        con.end();
         resolve(toReturn);
       });
     });
@@ -86,6 +89,7 @@ export default class templateSQL {
             throw err;
           }
           resolve("done");
+          con.end();
         }
       );
     });
@@ -105,6 +109,7 @@ export default class templateSQL {
           );
         });
         resolve(toReturn);
+        con.end();
       });
     });
   }

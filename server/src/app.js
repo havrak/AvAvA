@@ -7,6 +7,7 @@ import cookieSession from "cookie-session";
 import passport from "passport";
 import UserData from "./models/UserData.js";
 const PORT = process.env.PORT || 7000;
+import UserProjects from "./models/UserProjects.js";
 
 import "./models/User.js";
 import "./services/passport.js";
@@ -115,18 +116,22 @@ app.get("/api/combinedData", isLoggedIn, (req, res) => {
     toReturn.hostInformation.CPU.frequency = hostmaschine.frequency;
     containerSQL.createCreateContainerData(email).then((result) => {
       toReturn.createInstanceConfigData = result;
-      userSQL.getAllUsersProjects(email).then((result) => {
-        //
-        toReturn.userProjects = new Array(result.length);
-        let counter = 0;
-        result.forEach((id) => {
-          console.log(id);
-          getProjectObject(id).then((result) => {
-            toReturn.userProjects[counter] = result;
-            counter++;
-            console.log(counter + " " + toReturn.userProjects.length);
-            console.log(result);
-            if (counter == toReturn.userProjects.length) res.send(toReturn);
+      userSQL.getUsersLimits(email).then((result) => {
+        toReturn.userProjects = new UserProjects();
+        toReturn.userProjects.limits = result;
+        userSQL.getAllUsersProjects(email).then((result) => {
+          toReturn.userProjects.projects = new Array(result.length);
+          let counter = 0;
+          result.forEach((id) => {
+            getProjectObject(id).then((result) => {
+              toReturn.userProjects.projects[counter] = result;
+              counter++;
+              console.log(
+                counter + " " + toReturn.userProjects.projects.length
+              );
+              if (counter == toReturn.userProjects.projects.length)
+                res.send(toReturn);
+            });
           });
         });
       });
@@ -141,18 +146,21 @@ app.get("/api/project/createConfigData", isLoggedIn, (req, res) => {
 });
 
 app.post("/api/project", isLoggedIn, (req, res) => {
-  projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
-    lxd.createProject(result).then((result) => {
-      if (result.err_code != 200) {
-        projectSQL.removeProject(id);
+  projectSQL.createCreateProjectJSON(email, req.body).then((project) => {
+    console.log(project);
+    lxd.createProject(project).then((result) => {
+      console.log("container created");
+      console.log(result);
+      if (result.error_code != 200) {
+        projectSQL.removeProject(project.name);
       } else {
+        console.log("got here");
         getProjectObject(result.name).then((result) => {
           res.send(result);
         });
       }
       //
     });
-    console.log(result);
   });
 });
 

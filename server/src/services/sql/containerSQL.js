@@ -106,12 +106,13 @@ export default class containerSQL {
   }
 
   static getProjectIdOfContainer(id) {
-    return new Promis((resolve) => {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
       con.query(
         "SELECT project_id FROM containers WHERE id=?",
         [id],
         (err, rows) => {
-          if (err) throw err;
+          if (err) throw errz;
           resolve(rows[0].project_id);
         }
       );
@@ -184,7 +185,7 @@ export default class containerSQL {
       );
     });
   }
-
+  // check if it wordks
   static getFreeSpaceForContainer(projectId, ownerEmail) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -234,6 +235,7 @@ export default class containerSQL {
                           userLimits.network.upload -= rows[i].upload;
                           userLimits.network.download -= rows[i].download;
                         });
+                        con.end();
                         resolve(userLimits);
                       }
                     );
@@ -262,6 +264,7 @@ export default class containerSQL {
                 });
               }
             );
+            con.end();
             resolve(limits);
           }
         }
@@ -289,6 +292,7 @@ export default class containerSQL {
                 toReturn[index].template = template;
                 counter++;
                 if (counter == toReturn.length) {
+                  con.end();
                   resolve(toReturn);
                 }
               });
@@ -307,6 +311,7 @@ export default class containerSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
+          con.end();
           resolve(new OperationState("Container removed from database", 500));
         }
       );
@@ -345,6 +350,7 @@ export default class containerSQL {
               toReturn.name = rows[0].name;
               toReturn.url = rows[0].url;
               toReturn.template = result;
+              con.end();
               resolve(toReturn);
             });
           }
@@ -367,6 +373,7 @@ export default class containerSQL {
           toReturn.internet = new NetworkState(); //
           toReturn.internet.limits.download = rows[0].download;
           toReturn.internet.limits.upload = rows[0].upload;
+          con.end();
           resolve(toReturn);
         }
       );
