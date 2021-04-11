@@ -16,10 +16,10 @@ import * as lxd from "./routes/lxdquery.js";
 lxd.test();
 
 app.use(
-	cookieSession({
-		maxAge: 30 * 24 * 60 * 60 * 1000,
-		keys: [keys.cookieKey],
-	})
+  cookieSession({
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    keys: [keys.cookieKey],
+  })
 );
 
 app.use(passport.initialize());
@@ -46,137 +46,174 @@ app.use(express.json());
 // SQLInterface.test();
 
 export const isLoggedIn = (req, res, next) => {
-	next();
-	//if (req.user) { // due to testing purposes authentifikation is removed.
-	//  next();
-	//} else {
-	//  res.sendStatus(401);
-	//}
+  next();
+  //if (req.user) { // due to testing purposes authentifikation is removed.
+  //  next();
+  //} else {
+  //  res.sendStatus(401);
+  //}
 };
 
 //NOTE: replace with: let email = req.user.email;
 const email = "krystof.havranek@student.gyarab.cz";
 
 const server = app.listen(PORT, () =>
-	console.log(`Example app listening on port ${PORT}!`)
+  console.log(`Example app listening on port ${PORT}!`)
 );
 
 import * as WebSocket from "./services/websocket.js";
 import { resolve } from "node:dns";
 server.on("upgrade", (req, socket, head) => {
-	WebSocket.wss.handleUpgrade(req, socket, head, (socket) =>
-		WebSocket.wss.emit("connection", socket, req)
-	);
+  WebSocket.wss.handleUpgrade(req, socket, head, (socket) =>
+    WebSocket.wss.emit("connection", socket, req)
+  );
 });
 
 app.get("/project/createConfigData", isLoggedIn, (req, res) => {
-	projectSQL.createCreateProjectData(email).then((result) => {
-		res.send(result);
-	});
+  projectSQL.createCreateProjectData(email).then((result) => {
+    res.send(result);
+  });
 });
 
 app.post("/project", isLoggedIn, (req, res) => {
-	projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
-		let id = result.name.substr(1, result.name.length);
-		lxd.createProject(result).then((result) => {
-			if (result.err_code != 200) {
-				projectSQL.removeProject(id);
-				res.send(result);
-			}
-			//
-		});
-		console.log(result);
-	});
+  projectSQL.createCreateProjectJSON(email, req.body).then((result) => {
+    let id = result.name.substr(1, result.name.length);
+    lxd.createProject(result).then((result) => {
+      if (result.err_code != 200) {
+        projectSQL.removeProject(id);
+        res.send(result);
+      }
+      //
+    });
+    console.log(result);
+  });
 });
 
 app.get("/projects/:projectId", isLoggedIn, (req, res) => {
-	console.log(req.params.projectId);
-	getProjectObject(req.params.projectId).then((result) => {
-		res.send(result);
-	});
+  console.log(req.params.projectId);
+  getProjectObject(req.params.projectId).then((project) => {
+    lxd.getInstances(project.containers).then((result) => {
+      project.container = result;
+      res.send(result);
+    });
+  });
 });
 
 app.get(
-	"/projects/:projectId/createInstanceConfigData",
-	isLoggedIn,
-	(req, res) => {
-		containerSQL
-			.createCreateContainerData(req.params.projectId, email)
-			.then((result) => {
-				res.send(result);
-			});
-	}
+  "/projects/:projectId/createInstanceConfigData",
+  isLoggedIn,
+  (req, res) => {
+    containerSQL
+      .createCreateContainerData(req.params.projectId, email)
+      .then((result) => {
+        res.send(result);
+      });
+  }
 );
+
+let haproxyConfigIsBeingCreated = false;
 app.post("/instances", isLoggedIn, (req, res) => {
-	//let email = req.user.email;
-	// email -> havranek.krystof@student.gyarab.cz
-	containerSQL.createCreateContainerJSON(email, req.body).then((result) => {
-		console.log(result);
-		let id = result.name.substr(1, result.name.length);
-		console.log(id);
-		lxd.createInstance(result, result.appsToInstall).then((result) => {
-			if (result.statusCode != 200) containerSQL.removeContainer(id);
-			console.log("not deteled");
-			// upload sshd_config
-			containerSQL.generateHaProxyConfigurationFile().then((result) => {
-				// upload new haproxy config
-				// reload haproxy
-			});
-			getContainerObject(id).then((result) => {
-				res.send(result);
-			});
-		});
-		//
-	});
+  //let email = req.user.email;
+  // email -> havranek.krystof@student.gyarab.cz
+  containerSQL.createCreateContainerJSON(email, req.body).then((result) => {
+    console.log(result);
+    let id = result.name;
+    let projectId = result.project;
+    console.log(id);
+    lxd.createInstance(result, result.appsToInstall).then((result) => {
+      if (result.statusCode != 200) containerSQL.removeContainer(id);
+      console.log("not deteled");
+      // upload sshd_config
+      lxd
+        .postFileToInstance(
+          id,
+          projectId,
+          "config/serverconfiguartions/ssh_config",
+          "/etc/ssh"
+        )
+        .then((result) => {
+          let commands = new Array();
+          commands.push("systemctl enable haproxy.service");
+          lxd.execInstance(id, projectId, commands, false, false);
+        });
+      if (!haproxyConfigIsBeingCreated) {
+        // TODO: come up with better solution to prevent concurrent creating of haproxy config but make it still create it, add listener for another variable that will create new config if container was added when another one was being created
+        // this solution just makes sure that the config won't be corrupted
+        haproxyConfigIsBeingCreated = true;
+        containerSQL.generateHaProxyConfigurationFile().then((result) => {
+          lxd
+            .postFileToInstance(
+              "haproxy",
+              "default",
+              "config/serverconfiguartions/ssh_config",
+              "/etc/ssh"
+            )
+            .then((result) => {
+              let commands = new Array();
+              commands.push("systemctl reload haproxy.service");
+              lxd.execInstance("haproxy", "default", commands, false, true);
+            });
+          haproxyConfigIsBeingCreated = false;
+        });
+      }
+      getContainerObject(id).then((result) => {
+        res.send(result);
+      });
+    });
+    //
+  });
 });
 
 app.get("/instances/:instanceId/console", isLoggedIn, (req, res) => {
-	//some verification to be done beforehand...then:
-	lxd.getConsole(req.params.instanceId, req.query.project).then((result) => {
-		//{ terminal: "terminalSecret", control: "controlSecret"}
-		if (result.control) res.status(200).send(result);
-		else res.status(400).send(result); //result -> OperationState
-	});
+  //some verification to be done beforehand...then:
+  lxd.getConsole(req.params.instanceId, req.query.project).then((result) => {
+    //{ terminal: "terminalSecret", control: "controlSecret"}
+    if (result.control) res.status(200).send(result);
+    else res.status(400).send(result); //result -> OperationState
+  });
 });
 
 app.get("/instances/:instanceId", isLoggedIn, (req, res) => {
-	getContainerObject(req.params.instanceId).then((result) => {
-		res.send(result);
-	});
+  getContainerObject(req.params.instanceId).then((result) => {
+    res.send(result);
+  });
 });
 
 function getContainerObject(id) {
-	return new Promise((resolve) => {
-		containerSQL.createContainerObject(id).then((result) => {
-			console.log(result);
-			console.log(result.projectId);
-			lxd.getInstance(result, result.projectId).then((result) => {
-				console.log(result);
-				getContainerState(result.id, result.projectId).then((result2) => {
-					result.state = result2;
-					resolve(result);
-				});
-			});
-		});
-	});
+  return new Promise((resolve) => {
+    containerSQL.createContainerObject(id).then((container) => {
+      containerSQL.createContainerStateObject(id).then((result) => {
+        container.state = result;
+        lxd.getInstance(container).then((result) => {
+          containerSQL.updateContainerStateObject(
+            id,
+            false,
+            result.state.OperationState.statusCode
+          );
+          resolve(result);
+        });
+      });
+    });
+  });
 }
 
 function getContainerState(containerId, projectId) {
-	return new Promise((resolve) => {
-		containerSQL.createContainerStateObject(containerId).then((result) => {
-			lxd.getState(result, containerId, projectId).then((result) => {
-				resolve(result);
-				//
-			});
-		});
-	});
+  return new Promise((resolve) => {
+    containerSQL.createContainerStateObject(containerId).then((result) => {
+      console.log(result);
+      lxd.getState(containerId, projectId, result).then((result) => {
+        resolve(result);
+        //
+      });
+    });
+  });
 }
 
 function getProjectObject(projectId) {
-	return new Promise((resolve) => {
-		//
-		projectSQL.createProjectObject(projectId).then((result) => {
-			resolve(result);
-		});
-	});
+  return new Promise((resolve) => {
+    //
+    projectSQL.createProjectObject(projectId).then((result) => {
+      resolve(result);
+    });
+  });
 }

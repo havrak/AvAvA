@@ -44,10 +44,10 @@ export default class containerSQL {
               fs.readFile(path, "utf-8", (err, data) => {
                 template = JSON.parse(data);
                 let createContainerJSON = new CreateInstanceJSONObj(
-                  "c" + result,
+                  result,
                   template.profiles,
                   template.source,
-                  "p" + config.projectId
+                  config.projectId
                 );
                 // NOTE: as things stand now lxd has unfixed error which leads to contianer failing to start and throwing error related to some broken change of ownership thus limit of disk size is disabled
                 // createContainerJSON.devices.root.size =
@@ -318,6 +318,7 @@ export default class containerSQL {
         "SELECT * FROM containers WHERE containers.id=?",
         [id],
         (err, rows) => {
+          if (err) throw err;
           templateSQL.getTemplate(rows[0].template_id).then((result) => {
             let toReturn = new Container();
             toReturn.id = id;
@@ -351,6 +352,28 @@ export default class containerSQL {
       );
     });
   }
+
+  static updateContainerStateObject(id, started, statusCode) {
+    const con = mysql.createConnection(sqlconfig);
+    if (started) {
+      con.query(
+        "UPDATE containers SET state=?, time_started=CURRENT_TIMESTAMP WHERE id=?",
+        [statusCode, id],
+        (err, rows) => {
+          if (err) throw err;
+        }
+      );
+    } else {
+      con.query(
+        "UPDATE containers SET state=? WHERE id=?",
+        [statusCode, id],
+        (err, rows) => {
+          if (err) throw err;
+        }
+      );
+    }
+  }
+
   static generateHaProxyConfigurationFile() {
     return new Promise((result) => {
       fs.readFile(
