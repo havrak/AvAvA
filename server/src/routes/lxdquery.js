@@ -7,7 +7,12 @@ let mdb;
 new mongodb.MongoClient("mongodb://localhost:27017/lxd", {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
-}).connect((err, db) => (mdb = db));
+}).connect((err, db) => {
+	if (err) {
+		console.log(err);
+		process.exit(1);
+	} else mdb = db;
+});
 import WebSocket from "ws";
 import { connections } from "../services/websocket.js";
 // import ContainerResourceState from "../models/ContainerResourceState.js";
@@ -194,23 +199,21 @@ export async function createInstance(data, commands) {
 		mdb.db("lxd")
 			.collection(`p${data.project}`)
 			.insertOne({ _id: data.name, data: null }, () => {});
-		let errcmd = 0;
-		for (let i = 0; i < commands.length; i++) {
-			let stat = await execInstance(id, data.project, commands[i], false);
-			if (stat.statusCode != 200) errcmd++;
-			if (debug || stat.statusCode != 200)
-				console.log({
-					createCmd: commands[i],
-					status: stat.statusCode,
-					desc: stat.status,
-				});
-		}
-		if (errcmd > 0)
-			res.status =
-				`Unable to execute ${errcmd} initial command` +
-				(errcmd > 1 ? "s." : ".");
+		execCommands(id, data.project, commands);
 	}
 	return res;
+}
+
+export async function execCommands(id, project, commands) {
+	for (let i = 0; i < commands.length; i++) {
+		let stat = await execInstance(id, data.project, commands[i], false);
+		if (debug || stat.statusCode != 200)
+			console.log({
+				createCmd: commands[i],
+				status: stat.statusCode,
+				desc: stat.status,
+			});
+	}
 }
 
 // Fills in the given instance: Template.image,
@@ -391,7 +394,7 @@ function postToInstance(id, project, piper, dstPath, headers, fullName) {
 
 export function postFileToInstance(id, project, srcPath, dstPath, fullName) {
 	let stream = fs.createReadStream(
-		srcPath.startWith(".") ? path.resolve(__dirname, srcPath) : srcPath
+		srcPath.startsWith(".") ? path.resolve(__dirname, srcPath) : srcPath
 	);
 	return postToInstance(
 		id,
