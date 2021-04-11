@@ -163,9 +163,7 @@ export async function test() {
 		)
 	);*/
 	// console.log(await createSnapshot(1, 1, "snap2", false));
-	/*console.log(
-		await postFileToInstance(1, 1, "../app.js", "/root/test.js")
-	);*/
+	// console.log(await postFileToInstance("", 1, "/home/kepis/Downloads/haproxy.cfg", "/etc/haproxy/haproxy.cfg"));
 }
 
 export function getInstances(instances) {
@@ -319,9 +317,11 @@ export function getConsole(id, project) {
 }
 
 // Returns the result of the given command, if not opt out, always inside OperationState
-export function execInstance(id, project, command, getOutput, fullName) {
-	let path = `/1.0/instances/c${id}/exec?project=p${project}`;
-	if (fullName) path = `/1.0/instances/${id}/exec?project=${project}`;
+export function execInstance(id, project, command, getOutput) {
+	let path =
+		typeof id === String
+			? `/1.0/instances/${id}/exec?project=${project}`
+			: `/1.0/instances/c${id}/exec?project=p${project}`;
 	return mkRequest(path, "POST", {
 		// command: Array.isArray(command) ? command : command.split(" "),
 		command: ["sh", "-c", command],
@@ -368,10 +368,11 @@ export function execInstance(id, project, command, getOutput, fullName) {
 }
 
 //uses piper to write a file to given path inside specified instance
-function postToInstance(id, project, piper, dstPath, headers, fullName) {
-	let path = fullname
-		? `/1.0/instances/${id}/files?project=${project}&path=${dstPath}`
-		: `/1.0/instances/c${id}/files?project=p${project}&path=${dstPath}`;
+function postToInstance(id, project, piper, dstPath, headers) {
+	let path =
+		typeof id === String
+			? `/1.0/instances/${id}/files?project=${project}&path=${dstPath}`
+			: `/1.0/instances/c${id}/files?project=p${project}&path=${dstPath}`;
 	let opts = mkOpts(path, "POST");
 	opts.headers = headers;
 	opts.headers["Content-Type"] = "application/octet-stream";
@@ -382,7 +383,7 @@ function postToInstance(id, project, piper, dstPath, headers, fullName) {
 			res.on("data", (d) => (body += d));
 			res.on("end", () => {
 				body = JSON.parse(body);
-				if (!body.status_code)
+				if (!body.status_code || debug)
 					console.log({
 						container: `c${id} in p${project}`,
 						dstPath: dstPath,

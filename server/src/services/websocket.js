@@ -2,12 +2,9 @@ import WebSocket from "ws";
 export const wss = new WebSocket.Server({ noServer: true });
 export const connections = new Map();
 wss.on("connection", (clientWS, req) => {
-	const splittedRoute = req.url.split("/");
-	splittedRoute.splice(0, 1);
-	console.log(splittedRoute);
-	if (splittedRoute[0] === "websockets" && splittedRoute[1] === "terminals") {
-		splittedRoute.splice(0, 2);
-		let path = "/" + splittedRoute.join("/");
+	if (req.url.startsWith("/websockets/terminal/")) {
+		let path = req.url.substring(20);
+		console.log(path);
 		let lxd = connections.get(path);
 		if (lxd && lxd.ws) {
 			let lxdWS = lxd.ws;
