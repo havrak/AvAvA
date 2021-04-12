@@ -241,7 +241,7 @@ export function patchInstance(id, project, data) {
 		`/1.0/instances/${id}?project=${project}`,
 		"PATCH",
 		data
-	).then((re) => getOperation(res));
+	).then((res) => getOperation(res));
 }
 
 export async function execCommands(id, project, commands) {

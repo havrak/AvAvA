@@ -381,7 +381,7 @@ app.get(
 	}
 );
 
-api.get(
+app.get(
 	"/api/projects/:projectId/instances/:instanceId/export",
 	isLoggedIn,
 	isContainerUsers,
