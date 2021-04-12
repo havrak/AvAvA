@@ -1,2 +1,5 @@
 node_modules
 nodejs-server-server-generated
+package-lock.json
+./server/node_modules
+./server/package-lock.json
