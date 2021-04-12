@@ -11,7 +11,7 @@ import {
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
 
-export function HistoryStateCard({headding, unit}) {
+export function HistoryStateCard({title, unit}) {
    return (
       <Card className="">
          <Card.Body className="p-0">
@@ -35,7 +35,7 @@ export function HistoryStateCard({headding, unit}) {
                   ["21:16", 1030],
                ]}
                options={{
-                  title: "Company Performance",
+                  title: title,
                   vAxis: { minValue: 0 },
                   // For the legend to fit, we make the chart area smaller
                   // chartArea: { width: "50%", height: "70%" },

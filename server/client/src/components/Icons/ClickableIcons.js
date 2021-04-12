@@ -7,6 +7,7 @@ import StopIcon from "@material-ui/icons/Stop";
 import AcUnitIcon from "@material-ui/icons/AcUnit";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import PublishIcon from '@material-ui/icons/Publish';
+import WhatshotIcon from '@material-ui/icons/Whatshot';
 
 function Icon({ iconName, iconComponent, handler }) {
    return (
@@ -70,15 +71,15 @@ export function FreezeClickableIcon({ handler }) {
    );
 }
 
-// export function FreezeClickableIcon({ handler }) {
-//    return (
-//       <Icon
-//          iconName={"Freeze"}
-//          iconComponent={<AcUnitIcon className={"frozen"} />}
-//          handler={handler}
-//       />
-//    );
-// }
+export function UnfreezeClickableIcon({ handler }) {
+   return (
+      <Icon
+         iconName={"Unfreeze"}
+         iconComponent={<WhatshotIcon className={"unfreeze"} />}
+         handler={handler}
+      />
+   );
+}
 
 //question mark with tooltip
 export function HelpIcon({ tooltipText }) {

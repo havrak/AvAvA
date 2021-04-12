@@ -24,6 +24,7 @@ import {
 import { removePathParts, getCurrentProject } from "service/RoutesHelper";
 import { ContainerCounter, ProjectCounter } from "components/Cards/Counters.js";
 import { connect } from "react-redux";
+import { isPending } from "service/StateCalculator";
 
 function Info({
    currentProject,

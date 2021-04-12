@@ -557,13 +557,13 @@ export default class DefaultApi {
      * Callback function to receive the result of the instancesIdUnfreezePatch operation.
      * @callback module:api/DefaultApi~instancesIdUnfreezePatchCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/Project} data The data returned by the service call.
+     * @param {module:model/Container} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * @param {module:api/DefaultApi~instancesIdUnfreezePatchCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/Project}
+     * data is of type: {@link module:model/Container}
      */
     instancesIdUnfreezePatch(id, callback) {
       let postBody = null;
@@ -581,7 +581,7 @@ export default class DefaultApi {
       let authNames = [];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = Project;
+      let returnType = Container;
 
       return this.apiClient.callApi(
         '/instances/{id}/unfreeze', 'PATCH',

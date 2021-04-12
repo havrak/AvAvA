@@ -193,7 +193,6 @@ export const containerIdUnfreeze = (projectId, containerId, notify) => {
             dispatch(containerStateChangeFail(projectId, containerId));
             notify(`Error occured: ${response.body.message}`);
          } else {
-            console.log(data);
             dispatch(containerStateChangeSuccess(projectId, data));
          }
       };
