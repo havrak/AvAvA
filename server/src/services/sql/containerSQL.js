@@ -73,13 +73,13 @@ export default class containerSQL {
                   config.projectId
                 );
                 // NOTE: as things stand now lxd has unfixed error which leads to contianer failing to start and throwing error related to some broken change of ownership thus limit of disk size is disabled
-                // createContainerJSON.devices.root.size =
-                //   "" + config.limits.disk + "";
+                createContainerJSON.devices.root.size =
+                  "" + config.limits.disk + "";
                 createContainerJSON.config["limits.memory"] =
                   "" + config.limits.RAM + ""; // by default in bites
                 createContainerJSON.config["limits.cpu.allowance"] =
                   "" + (config.limits.CPU / hostmachine.frequency) * 100 + "%";
-                console.log(createContainerJSON.cong["limits.cpu.allowance"]);
+                console.log(createContainerJSON.config["limits.cpu.allowance"]);
                 createContainerJSON.devices.eth0["limits.ingress"] =
                   "" + config.limits.internet.upload + "";
                 createContainerJSON.devices.eth0["limits.egress"] =
@@ -117,6 +117,7 @@ export default class containerSQL {
                     resolve(createContainerJSON);
                   });
                 } else {
+                  console.log(createContainerJSON);
                   resolve(createContainerJSON);
                 }
               });
@@ -149,6 +150,10 @@ export default class containerSQL {
         "SELECT * FROM projects WHERE id = ?", // as url of container contain projects name it is necessary to make request to get the name
         [config.projectId],
         (err, rows) => {
+          if (rows[0] == undefined) {
+            resolve(new OperationState("Project doesn't exist", 400));
+            return;
+          }
           if (err) throw err;
           con.query(
             "INSERT INTO containers (project_id, name, url, template_id, state) VALUES (?,?,?,?,?)",
@@ -167,10 +172,12 @@ export default class containerSQL {
             ],
             (err, rows) => {
               if (err && err.code == "ER_DUP_ENTRY") {
-                console.log(
-                  "There already is container with the same name in the database"
+                resolve(
+                  new OperationState(
+                    "There already is container with the same name in the database",
+                    500
+                  )
                 );
-                resolve(500);
                 return;
               } else if (err) throw err;
               con.query(
@@ -424,9 +431,13 @@ export default class containerSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
-          if (!rows) {
-            // TODO: check if this works otherwise repeat elsewhere
-            resolve("500, asdad");
+          if (rows[0] == undefined) {
+            resolve(
+              new OperationState(
+                "contianer couldn't have been found in the database",
+                400
+              )
+            );
             return;
           } else {
             templateSQL.getTemplate(rows[0].template_id).then((result) => {
@@ -452,6 +463,16 @@ export default class containerSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
+          if (rows[0] == undefined) {
+            con.end();
+            resolve(
+              new OperationState(
+                "Container either doesn't exist, or his limits aren't set in the database"
+              ),
+              400
+            );
+            return;
+          }
           let toReturn = new ContainerResourceState();
           toReturn.CPU.limit = rows[0].cpu;
           toReturn.RAM.limit = rows[0].ram;

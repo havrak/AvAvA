@@ -110,8 +110,6 @@ server.on("upgrade", (req, socket, head) => {
   );
 });
 
-lxd.deleteImagesInProject(18);
-
 app.get("/api/user", isLoggedIn, (req, res) => {
   console.log("user");
   userSQL.getUserByEmail(email).then((result) => {
@@ -235,6 +233,7 @@ let haproxyConfigIsBeingCreated = false;
 app.post("/api/instances", isLoggedIn, (req, res) => {
   //let email = req.user.email;
   // email -> havranek.krystof@student.gyarab.cz
+  // TODO: check if user owns project in which he is trying to create new container
   containerSQL.createCreateContainerJSON(email, req.body).then((result) => {
     if (result.statusCode == 400) {
       console.log(result);
@@ -246,62 +245,66 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
     console.log(id);
     lxd.createInstance(result, result.appsToInstall).then((result) => {
       console.log(result);
-      if (result.statusCode != 200) containerSQL.removeContainer(id);
-      console.log("container created");
-      // upload sshd_config
-      lxd
-        .postFileToInstance(
-          id,
-          projectId,
-          "../../config/serverconfiguartions/sshd_config",
-          "/etc/ssh/sshd_config"
-        )
-        .then((result) => {
-          console.log("file uploaded");
-          lxd.execInstance(
+      if (result.statusCode != 200) {
+        containerSQL.removeContainer(id);
+        res.statusCode = result.statusCode;
+        res.send = result.status;
+      } else {
+        // upload sshd_config
+        lxd
+          .postFileToInstance(
             id,
             projectId,
-            "systemctl enable ssh.service",
-            false,
-            false
-          );
-          lxd.execInstance(
-            id,
-            projectId,
-            "passwd " + req.body.rootPassword,
-            false,
-            false
-          );
-        });
-      //
-      if (!haproxyConfigIsBeingCreated) {
-        console.log("cretating haproxy");
-        // TODO: come up with better solution to prevent concurrent creating of haproxy config but make it still create it, add listener for another variable that will create new config if container was added when another one was being created
-        // this solution just makes sure that the config won't be corrupted
-        haproxyConfigIsBeingCreated = true;
-        containerSQL.generateHaProxyConfigurationFile().then((result) => {
-          lxd
-            .postFileToInstance(
-              "haproxy",
-              "default",
-              "../../config/serverconfiguartions/haproxy.cfg",
-              "/etc/haproxy/haproxy.cfg"
-            )
-            .then((result) => {
-              console.log("file uploaded");
-              lxd.execInstance(
+            "../../config/serverconfiguartions/sshd_config",
+            "/etc/ssh/sshd_config"
+          )
+          .then((result) => {
+            console.log("file uploaded");
+            lxd.execInstance(
+              id,
+              projectId,
+              "systemctl enable ssh.service",
+              false,
+              false
+            );
+            lxd.execInstance(
+              id,
+              projectId,
+              "passwd " + req.body.rootPassword,
+              false,
+              false
+            );
+          });
+        //
+        if (!haproxyConfigIsBeingCreated) {
+          console.log("cretating haproxy");
+          // TODO: come up with better solution to prevent concurrent creating of haproxy config but make it still create it, add listener for another variable that will create new config if container was added when another one was being created
+          // this solution just makes sure that the config won't be corrupted
+          haproxyConfigIsBeingCreated = true;
+          containerSQL.generateHaProxyConfigurationFile().then((result) => {
+            lxd
+              .postFileToInstance(
                 "haproxy",
                 "default",
-                "sleep 5; systemctl reload haproxy.service", // it takes a little bit of time for new contianer to react
-                false
-              );
-            });
-          haproxyConfigIsBeingCreated = false;
+                "../../config/serverconfiguartions/haproxy.cfg",
+                "/etc/haproxy/haproxy.cfg"
+              )
+              .then((result) => {
+                console.log("file uploaded");
+                lxd.execInstance(
+                  "haproxy",
+                  "default",
+                  "sleep 5; systemctl reload haproxy.service", // it takes a little bit of time for new contianer to react
+                  false
+                );
+              });
+            haproxyConfigIsBeingCreated = false;
+          });
+        }
+        getContainerObject(id).then((result) => {
+          res.send(result);
         });
       }
-      getContainerObject(id).then((result) => {
-        res.send(result);
-      });
     });
     //
   });
