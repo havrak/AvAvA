@@ -76,7 +76,76 @@ export default class projectSQL {
       );
     });
   }
-
+  static updateProjectLimits(newLimits, id) {
+    return new Promise((resolve) => {
+      //TODO Enable limits to be also decreased
+      const con = mysql.createConnection(sqlconfig);
+      let nameChange = false; // haproxy will need to be regenerate after name change
+      con.query(
+        "SELECT * FROM projects LEFT JOIN projectsResourcesLimits ON projectsResourcesLimits.project_id=projects.id WHERE project_id=?",
+        [id],
+        (err, rows) => {
+          if (err) throw err;
+          if (rows[0] == undefined) {
+            con.end();
+            resolve(new OperationState("Project doesn't exist", 400));
+            return;
+          }
+          if (rows[0].name != newLimits.name) {
+            let nameChange = true;
+            con.query(
+              "UPDATE projects SET name=? WHERE projects.id=?",
+              [newLimits.name, id],
+              (err, rows) => {
+                if (err) throw err;
+              }
+            );
+          }
+          let ramChange = limits.RAM - rows[0].ram;
+          let cpuChange = limits.CPU - rows[0].cpu;
+          let diskChange = limits.disk - rows[0].disk;
+          let uploadChange = limits.internet.upload - rows[0].upload;
+          let downloadChange = limits.internet.download - rows[0].download;
+          if (
+            ramChange >= 0 &&
+            cpuChange >= 0 &&
+            diskChange >= 0 &&
+            uploadChange >= 0 &&
+            downloadChange >= 0
+          ) {
+            this.createCreateProjectData().then((result) => {
+              if (
+                ramChange <= result.RAM &&
+                cpuChange <= result.CPU &&
+                diskChange <= result.disk &&
+                uploadChange <= result.internet.upload &&
+                downloadChange <= result.internet.download
+              ) {
+                con.query(
+                  "UPDATE containersResourcesLimits SET ram=?, cpu=?, disk=?, upload=?, download=? WHERE container_id=?",
+                  [
+                    limits.RAM,
+                    limits.CPU,
+                    limits.disk,
+                    limits.internet.upload,
+                    limits.internet.download,
+                  ],
+                  (err, rows) => {
+                    if (err) throw err;
+                    resolve({
+                      status: "limits sucesfully updated",
+                      statusCode: 200,
+                      haproxy: nameChange,
+                    });
+                  }
+                );
+              }
+            });
+          }
+        }
+      );
+    });
+  }
   /* creates JSON that will be send to lxd in oder to create new project
    * params: 	email - email of owner of new project
    *   				config - configuration of new container
