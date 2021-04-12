@@ -5,6 +5,8 @@ import { keys } from "../config/keys.js";
 import hostmaschine from "../config/hostmaschine.js";
 import cookieSession from "cookie-session";
 import passport from "passport";
+import schedule from "node-schedule";
+
 import UserData from "./models/UserData.js";
 
 const PORT = process.env.PORT || 5000;
@@ -17,7 +19,6 @@ import projectSQL from "./services/sql/projectSQL.js";
 import os from "os";
 //import * as bodyParser from "body-parser";
 import * as lxd from "./routes/lxdquery.js";
-
 lxd.test();
 
 app.use(
@@ -275,6 +276,26 @@ app.get(
     });
   }
 );
+
+app.delete(
+  "/api/instances/:instanceId",
+  isLoggedIn,
+  isContainerUsers,
+  (req, res) => {
+    containerSQL
+      .getProjectIdOfContainer(req.params.instanceId)
+      .then((result) => {
+        lxd.deleteInstance(req.params.instanceId, result).then((result) => {
+          if (result.statusCode != 200) {
+            res.send(new OperationState("couldn't been deleted", 400));
+          } else {
+            containerSQL.removeContainer(id);
+            res.send(new OperationState("container deleted", 200));
+          }
+        });
+      });
+  }
+);
 app.patch(
   "/api/instances/:instanceId/start",
   isLoggedIn,
@@ -424,3 +445,18 @@ function getProjectObject(projectId) {
     });
   });
 }
+
+schedule.scheduleJob("*/10 * * * *", () => {
+  console.log("cron job active");
+  containerSQL.getAllContainers().then((result) => {
+    console.log(result);
+    result.forEach((cont) => {
+      containerSQL.createContainerStateObject(cont.id).then((result) => {
+        console.log(cont);
+        lxd.getState(cont.id, cont.project_id, result).then((result) => {
+          containerSQL.updateLogsForContainer(cont.id, result);
+        });
+      });
+    });
+  });
+});

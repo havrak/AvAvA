@@ -1,3 +1,3 @@
 export default {
-  frequency: 2800000,
+  frequency: 5600000, // frequency of cpu in Hz * number of cores
 };

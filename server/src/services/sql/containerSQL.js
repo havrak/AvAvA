@@ -175,7 +175,7 @@ export default class containerSQL {
                 "INSERT INTO containersResourcesLog (container_id, ram, cpu, number_of_processes, upload, download) VALUES (?,?,?,?,?,?)",
                 [
                   rows.insertId,
-                  "0,0,0,0,0,0,0,0,0,0,0,0",
+                  "0,0,0,0,0,0,0,0,0,0,0,0", // logs are stored as an array in one filed, TODO: make number of logs configurable in config file
                   "0,0,0,0,0,0,0,0,0,0,0,0",
                   "0,0,0,0,0,0,0,0,0,0,0,0",
                   "0,0,0,0,0,0,0,0,0,0,0,0",
@@ -278,6 +278,67 @@ export default class containerSQL {
       );
     });
   }
+
+  static updateLogsForContainer(id, state) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query(
+        "SELECT * FROM containersResourcesLog WHERE containersResourcesLog.container_id=?",
+        [id],
+        (err, rows) => {
+          if (err) throw err;
+          let ram = rows[0].ram.split(",");
+          ram.push(state.RAM.usage == undefined ? 0 : state.RAM.usage);
+          let cpu = rows[0].cpu.split(",");
+          cpu.push(state.CPU.usage == undefined ? 0 : state.CPU.usage);
+          let upload = rows[0].upload.split(",");
+          upload.push(
+            state.internet.counters.upload.usedSpeed == undefined
+              ? 0
+              : state.internet.counters.upload.usedSpeed
+          );
+          let download = rows[0].download.split(",");
+          download.push(
+            state.internet.counters.download.usedSpeed == undefined
+              ? 0
+              : state.internet.counters.download.usedSpeed
+          );
+          let nop = rows[0].number_of_processes.split(",");
+          nop.push(
+            state.numberOfProcesses == undefined ? 0 : state.numberOfProcesses
+          );
+          console.log(ram + " " + cpu + "  " + upload);
+          con.query(
+            "UPDATE containersResourcesLog SET ram=?, cpu=?, number_of_processes=?,upload=?, download=?, timestamp=CURRENT_TIMESTAMP WHERE container_id=?",
+            [
+              `${ram.slice(1)}`,
+              `${cpu.slice(1)}`,
+              `${nop.slice(1)}`,
+              `${upload.slice(1)}`,
+              `${download.slice(1)}`,
+              id,
+            ],
+            (err, rows) => {
+              if (err) throw err;
+              resolve(new OperationState("database updated", 200));
+            }
+          );
+        }
+      );
+    });
+  }
+
+  static getAllContainers() {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query("SELECT id, project_id FROM containers", (err, rows) => {
+        if (err) throw err;
+        con.end();
+        resolve(rows);
+      });
+    });
+  }
+
   static getAllContainersInProject(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -314,7 +375,7 @@ export default class containerSQL {
   }
 
   static removeContainer(id) {
-    return new Promise((resove) => {
+    return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
         "DELETE FROM containers WHERE containers.id=?",
