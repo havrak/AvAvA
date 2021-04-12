@@ -24,7 +24,7 @@ function UserSetup({ combinedDataGet, userData }) {
       // console.log(userData);
    } else {
       return (
-         <div id="pageLoader">
+         <div class="pageLoader">
             <BeatLoader color={"#212529"} loading={true} size={50} />
          </div>
       );

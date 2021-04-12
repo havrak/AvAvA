@@ -5,9 +5,14 @@ import { setCustomizableBrandText } from "actions/FrontendActions";
 import { Card, Container, Row, Col } from "react-bootstrap";
 import { HistoryStateCard } from "components/Cards/HistoryState/HistoryStateChard";
 import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
 import { removePathParts, getCurrentProjectAndContainer } from "service/RoutesHelper";
+import BeatLoader from "react-spinners/BeatLoader";
 
-function Dashboard({ currentProject, currentContainer, setCustomizableBrandText }) {
+function StateHistory({ currentProject, currentContainer, setCustomizableBrandText, instancesIdStateWithHistoryGet, notify }) {
+   if(!currentProject){
+      return <Redirect to={removePathParts(2)} />;
+   }
    const brand = [
       {
          text: currentProject.name,
@@ -26,8 +31,11 @@ function Dashboard({ currentProject, currentContainer, setCustomizableBrandText 
       setCustomizableBrandText(brand);
    });
    useEffect(() => {
-      instancesIdStateWithHistoryGet();
+      instancesIdStateWithHistoryGet(currentProject.id, currentContainer.id, notify);
    }, []);
+   if(currentContainer.stateHistory){
+      return <div style={{width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}><BeatLoader color={"#212529"} loading={true} size={50} /></div>
+   }
    return (
       <>
          <Container fluid>
@@ -69,10 +77,10 @@ const mapDispathToProps = (dispatch) => {
       setCustomizableBrandText: (text) => {
          dispatch(setCustomizableBrandText(text));
       },
-      instancesIdStateWithHistoryGet: (projectId, containerId) => {
-         dispatch(combinedDatainstancesIdStateWithHistoryGetGet(projectId, containerId));
+      instancesIdStateWithHistoryGet: (projectId, containerId, notify) => {
+         dispatch(instancesIdStateWithHistoryGet(projectId, containerId, notify));
       },
    };
 };
 
-export default connect(mapStateToProps, mapDispathToProps)(Dashboard);
+export default connect(mapStateToProps, mapDispathToProps)(StateHistory);

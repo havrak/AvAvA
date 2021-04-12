@@ -232,29 +232,39 @@ const instancesCreateInstanceConfigDataGetSuccess = (createinstanceConfigData) =
       type: "CREATE_INSTANCE_CONFIG_DATA_GET",
       payload: createinstanceConfigData,
    };
-}
+};
 
-export const instancesIdStateWithHistoryGet = (projectId, containerId) => {
+export const instancesIdStateWithHistoryGet = (projectId, containerId, notify) => {
    return (dispatch) => {
       const callback = function (error, data, response) {
          // console.log(response, 'container id delete');
-         if (!error) {
-            dispatch(instancesIdStateWithHistoryGetSuccess(data));
+         if (error) {
+            notify(response.body.message);
          } else {
-
+            dispatch(
+               instancesIdStateWithHistoryGetSuccess(
+                  projectId,
+                  containerId,
+                  data.stateHistory
+               )
+            );
          }
       };
       api.instancesIdStateWithHistoryGet(containerId, callback);
    };
-}
+};
 
-const instancesIdStateWithHistoryGetSuccess = (projectId, containerId, stateHistory) => {
+const instancesIdStateWithHistoryGetSuccess = (
+   projectId,
+   containerId,
+   stateHistory
+) => {
    return {
       type: "INSTANCES_ID_STATE_WITH_HISTORY_GET_SUCCESS",
       payload: {
          projectId: projectId,
          containerId: containerId,
-         stateHistory: stateHistory
-      }
-   }
-}
+         stateHistory: stateHistory,
+      },
+   };
+};

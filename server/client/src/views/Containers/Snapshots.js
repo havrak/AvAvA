@@ -55,7 +55,6 @@ function Snapshots(props) {
       "Basic info": "Basic info",
    };
    const [view, setView] = useState(views["Basic info"]);
-   console.log(currentSnapshots)
    const columns = React.useMemo(
       () => [
          {
@@ -116,6 +115,7 @@ function Snapshots(props) {
    return (
       <>
          <Container fluid>
+            TODO - NO REAL FUNCTIONALITY PRESENT, only DISPLAYING IS IMPLEMENTED
             <Row>
                <Col md="12">
                   <Card>

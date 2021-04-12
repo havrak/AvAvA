@@ -254,6 +254,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                      const container = projects[i].containers[j];
                      container.state = stateHistory[stateHistory.length - 1];
                      container.stateHistory = stateHistory;
+                     return newState;
                   }
                }
             }
