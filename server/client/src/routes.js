@@ -23,17 +23,17 @@ import Projects from "views/User/Projects.js";
 import Project from "views/Projects/Project.js";
 import ProjectContainers from "views/Projects/Containers.js";
 import ProjectInfo from "views/Projects/Info.js";
-import ProjectSettings from "views/Projects/Settings.js";
 import Container from "views/Containers/Container.js";
 import ContainerInfo from "views/Containers/Info.js";
 import ContainerConsole from "views/Containers/Console.js";
 import ContainerSnapshots from "views/Containers/Snapshots.js";
-import ContainerBackup from "views/Containers/Backup.js";
-import ContainerSettings from "views/Containers/Settings.js";
 // import Upgrade from "views/Upgrade.js";
 import PatchContainer from "components/RouteComponents/PatchContainer";
 import PatchProject from "components/RouteComponents/PatchProject";
-import { getCurrentProjectAndContainer } from "service/RoutesHelper";
+import UserHistoryState from "views/User/StateHistory";
+import ProjectHistoryState from "views/Projects/StateHistory";
+import ContainerHistoryState from "views/Containers/StateHistory";
+import DownloadBackup from "components/RouteComponents/DownloadBackup";
 
 const projectsNavLinks = [
    {
@@ -111,12 +111,13 @@ const containerNavLinks = [
    {
       name: "Backup",
       link: "backup",
-      component: (name, link) => {
-         return (
-            <Link to={link}>
-               <span className="no-icon">{name}</span>
-            </Link>
-         );
+      component: (name, link, notify) => {
+         // return (
+         //    <Link to={link}>
+         //       <span className="no-icon">{name}</span>
+         //    </Link>
+         // );
+         return <DownloadBackup name={name} link={link} notify={notify}/>
       },
    },
    // {
@@ -155,6 +156,13 @@ const routes = [
       layout: "/user",
    },
    {
+      path: "/history",
+      name: "Projects",
+      icon: "nc-icon nc-notes",
+      view: UserHistoryState,
+      layout: "/user",
+   },
+   {
       path: "/projects/:projectId",
       name: "Project",
       layout: "/user",
@@ -176,10 +184,10 @@ const routes = [
       layout: "/user",
    },
    {
-      path: "/projects/:projectId/settings",
-      name: "Settings",
+      path: "/projects/:projectId/history",
+      name: "Containers",
       navLinks: projectsNavLinks,
-      view: ProjectSettings,
+      view: ProjectHistoryState,
       layout: "/user",
    },
    {
@@ -200,7 +208,7 @@ const routes = [
       path: "/projects/:projectId/containers/:containerId/console",
       name: "Console",
       navLinks: containerNavLinks,
-      view: (ContainerConsole),
+      view: ContainerConsole,
       layout: "/user",
    },
    {
@@ -211,17 +219,10 @@ const routes = [
       layout: "/user",
    },
    {
-      path: "/projects/:projectId/containers/:containerId/backup",
+      path: "/projects/:projectId/containers/:containerId/history",
       name: "Backup",
       navLinks: containerNavLinks,
-      view: ContainerBackup,
-      layout: "/user",
-   },
-   {
-      path: "/projects/:projectId/containers/:containerId/settings",
-      name: "Settings",
-      navLinks: containerNavLinks,
-      view: ContainerSettings,
+      view: ContainerHistoryState,
       layout: "/user",
    },
    {

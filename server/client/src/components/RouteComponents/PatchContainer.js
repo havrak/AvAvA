@@ -1,7 +1,7 @@
 import React from "react";
 import PatchContainerDialog from "components/Dialogs/PatchContainerDialog";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { getCurrentProjectAndContainer } from "service/RoutesHelper";
 import {
    ramToMB,
@@ -9,9 +9,13 @@ import {
    CPUToMHz,
    networkSpeedToMbits,
 } from "service/UnitsConvertor.js";
+import {removePathParts} from 'service/RoutesHelper'
 
 function PatchContainer({ name, link, currentProject, currentContainer, notify }) {
    const [openDialog, setDialogOpen] = React.useState(false);
+   if(!currentContainer){
+      return <Redirect to={removePathParts(2)} />;
+   }
    const baseState = () => {
       return {
          id: currentContainer.id,

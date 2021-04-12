@@ -285,7 +285,6 @@ app.get(
 	}
 );
 
-let haproxyConfigIsBeingCreated = false;
 app.post("/api/instances", isLoggedIn, (req, res) => {
 	//let email = req.user.email;
 	// email -> havranek.krystof@student.gyarab.cz
@@ -331,31 +330,7 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
 					);
 				});
 				//
-				if (!haproxyConfigIsBeingCreated) {
-					console.log("cretating haproxy");
-					// TODO: come up with better solution to prevent concurrent creating of haproxy config but make it still create it, add listener for another variable that will create new config if container was added when another one was being created
-					// this solution just makes sure that the config won't be corrupted
-					haproxyConfigIsBeingCreated = true;
-					containerSQL
-						.generateHaProxyConfigurationFile()
-						.then((result) => {
-							lxd.postFileToInstance(
-								"haproxy",
-								"default",
-								"../../config/serverconfiguartions/haproxy.cfg",
-								"/etc/haproxy/haproxy.cfg"
-							).then((result) => {
-								console.log("file uploaded");
-								lxd.execInstance(
-									"haproxy",
-									"default",
-									"sleep 5; systemctl reload haproxy.service", // it takes a little bit of time for new contianer to react
-									false
-								);
-							});
-							haproxyConfigIsBeingCreated = false;
-						});
-				}
+				reloadHaproxy(); // TODO: move to sperate function, that will make sure proxy gets reloaded
 				getContainerObject(id).then((result) => {
 					res.send(result);
 				});
@@ -404,6 +379,10 @@ app.get(
 	isContainerUsers,
 	(req, res) => {
 		getContainerObject(req.params.instanceId).then((result) => {
+			if (result.statusCode == 400) {
+				res.statusCode = 400;
+				res.send({ message: result.status });
+			}
 			res.send(result);
 		});
 	}
@@ -421,7 +400,34 @@ app.delete(
 	}
 );
 
-app.get("/api");
+app.patch(
+	"/api/projects/:projectId",
+	isLoggedIn,
+	isProjectUsers,
+	(req, res) => {
+		projectSQL
+			.updateProjectLimits(req.body, req.params.projectId, email)
+			.then((result) => {
+				console.log(result);
+				if (result.haproxy) {
+					reloadHaproxy().then((result) => {
+						if (result.statusCode == 400) {
+							while (!haproxyConfigIsBeingCreated) sleep(1);
+							reloadHaproxy();
+						}
+					});
+				}
+				getProjectObject(req.params.projectId).then((result) => {
+					if (result.statusCode == 400) {
+						res.statusCode = 400;
+						res.send({ message: result.status });
+					}
+					res.send(result);
+				});
+			});
+	}
+);
+
 app.patch(
 	"/api/instances/:instanceId/start",
 	isLoggedIn,
@@ -626,6 +632,36 @@ function getContainerStateWithHistory(id) {
 				});
 			}
 		});
+	});
+}
+
+let haproxyConfigIsBeingCreated = false;
+function reloadHaproxy() {
+	return new Promise((resolve) => {
+		if (!haproxyConfigIsBeingCreated) {
+			haproxyConfigIsBeingCreated = true;
+			containerSQL.generateHaProxyConfigurationFile().then((result) => {
+				lxd.postFileToInstance(
+					"haproxy",
+					"default",
+					"../../config/serverconfiguartions/haproxy.cfg",
+					"/etc/haproxy/haproxy.cfg"
+				).then((result) => {
+					lxd.execInstance(
+						"haproxy",
+						"default",
+						"sleep 5; systemctl reload haproxy.service", // it takes a little bit of time for new container to react
+						false
+					);
+				});
+				haproxyConfigIsBeingCreated = false;
+				resolve(
+					new OperationState("Proxy has been successfully created", 200)
+				);
+			});
+		} else {
+			resolve(new OperationState("Proxy is currently being created", 400));
+		}
 	});
 }
 

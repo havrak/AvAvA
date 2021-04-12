@@ -116,7 +116,7 @@ export const combinedUserDataReducer = (state = null, action) => {
       case "CONTAINER_POST_SUCCESS": {
          const newState = _.cloneDeep(state);
          const projects = newState.userProjects.projects;
-         console.log(action.pa);
+         console.log(action.payload);
          for (let i = 0; i < projects.length; i++) {
             if (projects[i].id === action.payload.projectId) {
                for (let j = 0; j < projects[i].containers.length; j++) {
@@ -242,6 +242,22 @@ export const combinedUserDataReducer = (state = null, action) => {
          //    newState.userProjects.projects[action.payload.projectId].containers
          // );
          return newState;
+      }
+      case "INSTANCES_ID_STATE_WITH_HISTORY_GET_SUCCESS": {
+         const newState = _.cloneDeep(state);
+         const projects = newState.userProjects.projects;
+         const {containerId, projectId, stateHistory} = action.payload;
+         for (let i = 0; i < projects.length; i++) {
+            if (projects[i].id === projectId) {
+               for (let j = 0; j < projects[i].containers.length; j++) {
+                  if (projects[i].containers[j].id === containerId) {
+                     const container = projects[i].containers[j];
+                     container.state = stateHistory[stateHistory.length - 1];
+                     container.stateHistory = stateHistory;
+                  }
+               }
+            }
+         }
       }
       case "CREATE_INSTANCE_CONFIG_DATA_GET":
          const newState = _.cloneDeep(state);

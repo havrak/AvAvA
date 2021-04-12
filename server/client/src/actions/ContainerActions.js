@@ -227,9 +227,34 @@ export const instancesCreateInstanceConfigDataGet = () => {
    };
 };
 
-function instancesCreateInstanceConfigDataGetSuccess(createinstanceConfigData) {
+const instancesCreateInstanceConfigDataGetSuccess = (createinstanceConfigData) => {
    return {
       type: "CREATE_INSTANCE_CONFIG_DATA_GET",
       payload: createinstanceConfigData,
    };
+}
+
+export const instancesIdStateWithHistoryGet = (projectId, containerId) => {
+   return (dispatch) => {
+      const callback = function (error, data, response) {
+         // console.log(response, 'container id delete');
+         if (!error) {
+            dispatch(instancesIdStateWithHistoryGetSuccess(data));
+         } else {
+
+         }
+      };
+      api.instancesIdStateWithHistoryGet(containerId, callback);
+   };
+}
+
+const instancesIdStateWithHistoryGetSuccess = (projectId, containerId, stateHistory) => {
+   return {
+      type: "INSTANCES_ID_STATE_WITH_HISTORY_GET_SUCCESS",
+      payload: {
+         projectId: projectId,
+         containerId: containerId,
+         stateHistory: stateHistory
+      }
+   }
 }

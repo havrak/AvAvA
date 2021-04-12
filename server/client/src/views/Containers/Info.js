@@ -17,6 +17,7 @@ import {
    StartClickableIcon,
    StopClickableIcon,
    FreezeClickableIcon,
+   UnfreezeClickableIcon,
 } from "components/Icons/ClickableIcons.js";
 import { removePathParts, getCurrentProjectAndContainer } from "service/RoutesHelper";
 import { connect } from "react-redux";
@@ -29,6 +30,7 @@ import {
 } from "actions/ContainerActions";
 import AreYouSureDialog from "components/Dialogs/AreYouSureDialog";
 import ClipLoader from "react-spinners/ClipLoader";
+import { isPending } from "service/StateCalculator";
 
 function Info({
    currentProject,
@@ -69,11 +71,7 @@ function Info({
    const [dialogOpen, setDialogOpen] = useState(false);
 
    const startContainersHandler = () => {
-      if (currentContainer.state.operationState.status === "Stopped") {
-         containerIdStart(currentProject.id, currentContainer.id, notify);
-      } else if (container.state.operationState.status === "Frozen") {
-         containerIdUnfreeze(currentProject.id, currentContainer.id, notify);
-      }
+      containerIdStart(currentProject.id, currentContainer.id, notify);
    };
 
    const stopContainersHandler = () => {
@@ -83,6 +81,10 @@ function Info({
    const freezeContainersHandler = () => {
       containerIdFreeze(currentProject.id, currentContainer.id, notify);
    };
+
+   const unfreezeContainerHandler = () => {
+      containerIdUnfreeze(currentProject.id, currentContainer.id, notify);
+   }
 
    const deleteContainersHandler = () => {
       setDialogOpen(true);
@@ -127,7 +129,8 @@ function Info({
                   <Card className="card-dashboard action-card">
                      <Card.Header>
                         <Card.Title as="h4">State</Card.Title>
-                        {currentContainer.pendingState ? (
+                        {currentContainer.pendingState ||
+                        isPending(currentContainer.state.operationState.statusCode) ? (
                            <>
                               <ClipLoader color={"#212529"} loading={true} size={30} />
                            </>
@@ -149,15 +152,13 @@ function Info({
                                 "Stopped" ? (
                                  <StartClickableIcon
                                     key={"StartClickableIcon"}
-                                    f={"dashboard-action-icon"}
                                     handler={startContainersHandler}
-                                    style={{ padding: "0px" }}
                                  />
                               ) : currentContainer.state.operationState.status ===
                                 "Frozen" ? (
-                                 <StopClickableIcon
-                                    key={"StopClickableIcon"}
-                                    handler={stopContainersHandler}
+                                 <UnfreezeClickableIcon
+                                    key={"StartClickableIcon"}
+                                    handler={unfreezeContainerHandler}
                                  />
                               ) : null}
                            </>
@@ -179,9 +180,15 @@ function Info({
                               <b>Status: </b>
                               {
                                  <span
-                                    className={currentContainer.pendingState ? null : currentContainer.state.operationState.status.toLowerCase()}
+                                    className={
+                                       currentContainer.pendingState
+                                          ? null
+                                          : currentContainer.state.operationState.status.toLowerCase()
+                                    }
                                  >
-                                    {currentContainer.pendingState ? currentContainer.pendingState : currentContainer.state.operationState.status}
+                                    {currentContainer.pendingState
+                                       ? currentContainer.pendingState
+                                       : currentContainer.state.operationState.status}
                                  </span>
                               }
                            </div>
@@ -249,7 +256,7 @@ function Info({
                      </Card.Header>
                      <Card.Body className="p-0">
                         <Container fluid>
-                           <Link to="/user" className="card-link">
+                           <Link to="history" className="card-link">
                               <span className="to-underline">
                                  Click here to see state logs
                               </span>

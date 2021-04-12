@@ -53,6 +53,9 @@ export default class Snapshot {
             if (data.hasOwnProperty('stateful')) {
                 obj['stateful'] = ApiClient.convertToType(data['stateful'], 'Boolean');
             }
+            if (data.hasOwnProperty('description')) {
+                obj['description'] = ApiClient.convertToType(data['description'], 'String');
+            }
             if (data.hasOwnProperty('limits')) {
                 obj['limits'] = Limits.constructFromObject(data['limits']);
             }
@@ -75,6 +78,10 @@ export default class Snapshot {
     * @member {Boolean} stateful
     */
     'stateful' = undefined;
+    /**
+    * @member {String} description
+    */
+    'description' = undefined;
     /**
     * @member {module:model/Limits} limits
     */
