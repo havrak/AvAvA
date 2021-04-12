@@ -2,7 +2,7 @@ import mysql from "mysql";
 import User from "./../../models/User.js";
 import Limits from "./../../models/Limits.js";
 import sqlconfig from "./../../../config/sqlconfig.js";
-import hostmachine from "./../../../config/hostmachine.js";
+import systemconfig from "./../../../config/systemconfig.js";
 import https from "https";
 import fs from "fs";
 
@@ -223,7 +223,7 @@ export default class userSQL {
               [
                 user.emails[0].value,
                 2147483648,
-                hostmaschine.frequency / 2,
+                systemconfig.frequency / 2,
                 10737418240,
                 1000000,
                 1000000,

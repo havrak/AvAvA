@@ -2,7 +2,7 @@ import express from "express";
 const app = express();
 // import cors from "cors";
 import { keys } from "../config/keys.js";
-import hostmachine from "../config/hostmachine.js";
+import systemconfig from "../config/systemconfig.js";
 import cookieSession from "cookie-session";
 import passport from "passport";
 import schedule from "node-schedule";
@@ -11,7 +11,8 @@ import UserData from "./models/UserData.js";
 
 const PORT = process.env.PORT || 5000;
 import UserProjects from "./models/UserProjects.js";
-
+import ProjectStateWithHistory from "./models/ProjectStateWithHistory.js";
+import UserStateWithHistory from "./models/UserStateWithHistory.js";
 import "./models/User.js";
 import "./services/passport.js";
 import "./models/Limits.js";
@@ -116,7 +117,7 @@ app.get("/api/combinedData", isLoggedIn, (req, res) => {
   userSQL.getUserByEmail(email).then((result) => {
     toReturn.user = result;
     toReturn.hostInformation.CPU.model = os.cpus()[0].model; // this works, however as developnet isn't done on server one gets model nad frequency of his own cpu
-    toReturn.hostInformation.CPU.frequency = hostmachine.frequency;
+    toReturn.hostInformation.CPU.frequency = systemconfig.frequency;
     containerSQL.createCreateContainerData(email).then((result) => {
       toReturn.createInstanceConfigData = result;
       userSQL.getUsersLimits(email).then((result) => {
@@ -138,6 +139,66 @@ app.get("/api/combinedData", isLoggedIn, (req, res) => {
     });
   });
 });
+
+app.get(
+  "/api/projects/stateWithHistory",
+  isLoggedIn,
+  isProjectUsers,
+  (req, res) => {
+    userSQL.getAllUsersProjects(email).then((projectIds) => {
+      let counter = 0;
+      let toReturn = new UserStateWithHistory(new Array());
+      projectIds.forEach((id) => {
+        getProjectStateWithHistory(id).then((result) => {
+          if (result.statusCode == 400) {
+            res.statusCode = 400;
+            res.send({ message: result.status });
+          }
+          toReturn.projectStatesHistory.push(result);
+          counter++;
+          if (counter == projectIds.length) {
+            res.send(toReturn);
+          }
+        });
+      });
+      if (projectIds.length == 0) {
+        res.send(toReturn);
+      }
+    });
+  }
+);
+
+app.get(
+  "/api/projects/:projectId/stateWithHistory",
+  isLoggedIn,
+  isContainerUsers,
+  (req, res) => {
+    getProjectStateWithHistory(req.params.projectId).then((result) => {
+      if (result.statusCode == 400) {
+        res.statusCode(400);
+        res.send({ message: result.status });
+      } else {
+        res.send(result);
+      }
+    });
+  }
+);
+
+app.get(
+  "/api/instances/:instanceId/stateWithHistory",
+  isLoggedIn,
+  isContainerUsers,
+  (req, res) => {
+    getContainerStateWithHistory(req.params.instanceId).then((result) => {
+      if (result.statusCode == 400) {
+        res.statusCode(400);
+        res.send({ message: result.status });
+      } else {
+        res.send(result);
+      }
+    });
+  }
+);
 
 app.get("/api/projects/createConfigData", isLoggedIn, (req, res) => {
   projectSQL.createCreateProjectData(email).then((result) => {
@@ -340,6 +401,8 @@ app.delete(
     });
   }
 );
+
+app.get("/api");
 app.patch(
   "/api/instances/:instanceId/start",
   isLoggedIn,
@@ -479,6 +542,48 @@ app.get(
   }
 );
 
+function getProjectStateWithHistory(id) {
+  return new Promise((resolve) => {
+    projectSQL.getIdOfContainersInProject(id).then((containerIds) => {
+      let counter = 0;
+      let toReturn = new ProjectStateWithHistory(id, new Array());
+      containerIds.forEach((containerId) => {
+        getContainerStateWithHistory(containerId).then((result) => {
+          if (result.statusCode == 400) {
+            resolve(result);
+          }
+          toReturn.containerStateHistory.push(result);
+          counter++;
+          if (counter == containerIds.length) {
+            resolve(toReturn);
+          }
+        });
+      });
+      if (containerIds.length == 0) {
+        toReturn = new ProjectStateWithHistory(id, new Array());
+      }
+    });
+  });
+}
+
+function getContainerStateWithHistory(id) {
+  return new Promise((resolve) => {
+    containerSQL.getProjectIdOfContainer(id).then((result) => {
+      if (result.statusCode != 200 && result.statusCode != undefined) {
+        resolve(result);
+      } else {
+        getContainerState(id, result).then((result) => {
+          containerSQL.getContainerHistory(id).then((history) => {
+            // this will be pushed into list result;
+            history.push(result);
+            resolve({ id: id, containerStateHistory: history });
+          });
+        });
+      }
+    });
+  });
+}
+
 function deleteContainer(id) {
   return new Promise((resolve) => {
     containerSQL.getProjectIdOfContainer(id).then((project) => {
@@ -548,6 +653,7 @@ function getContainerObject(id) {
 function getContainerState(containerId, projectId) {
   return new Promise((resolve) => {
     containerSQL.createContainerStateObject(containerId).then((result) => {
+      console.log(result);
       lxd.getState(containerId, projectId, result).then((result) => {
         resolve(result);
         //

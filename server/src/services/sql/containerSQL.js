@@ -2,7 +2,7 @@ import mysql from "mysql";
 import { resolve } from "node:dns";
 import sqlconfig from "./../../../config/sqlconfig.js";
 import proxyconfig from "./../../../config/proxyconfig.js";
-import hostmachine from "./../../../config/hostmachine.js";
+import systemconfig from "./../../../config/systemconfig.js";
 import CreateInstanceConfigData from "../../models/CreateInstanceConfigData.js";
 import CreateInstanceJSONObj from "../../models/CreateInstanceJSONObj.js";
 import Container from "../../models/Container.js";
@@ -82,7 +82,7 @@ export default class containerSQL {
                   "" + config.limits.RAM + ""; // by default in bites
                 createContainerJSON.config["limits.cpu.allowance"] =
                   "" +
-                  parseInt((config.limits.CPU / hostmachine.frequency) * 100) +
+                  parseInt((config.limits.CPU / systemconfig.frequency) * 100) +
                   "%";
                 console.log(createContainerJSON.config["limits.cpu.allowance"]);
                 createContainerJSON.devices.eth0["limits.ingress"] =
@@ -148,6 +148,54 @@ export default class containerSQL {
             return;
           }
           resolve(rows[0].project_id);
+        }
+      );
+    });
+  }
+
+  static getContainerHistory(id) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query(
+        "SELECT containersResourcesLog.ram AS loram, containersResourcesLog.cpu AS locpu, containersResourcesLog.number_of_processes AS lonop, containersResourcesLog.upload AS loup, containersResourcesLog.download AS lodow, containersResourcesLimits.ram AS liram, containersResourcesLimits.cpu AS licpu, containersResourcesLimits.upload AS liup, containersResourcesLimits.download AS lidow, timestamp FROM containersResourcesLog LEFT JOIN containersResourcesLimits ON containersResourcesLog.container_id=containersResourcesLimits.container_id WHERE containersResourcesLog.container_id=?",
+        [id],
+        (err, rows) => {
+          if (err) throw err;
+          if (rows[0] == undefined) {
+            con.end();
+            resolve(
+              new OperationState(
+                "Container either doesn't exist or doesn't have logs",
+                400
+              )
+            );
+            return;
+          }
+          let ram = rows[0].loram.split(",");
+          let cpu = rows[0].locpu.split(",");
+          let nop = rows[0].lonop.split(",");
+          let upload = rows[0].loup.split(",");
+          let download = rows[0].lodow.split(",");
+          let toReturn = new Array(systemconfig.logCount);
+          for (let i = ram.length - 1; i >= 0; i--) {
+            toReturn[i] = new ContainerResourceState();
+            toReturn[i].RAM.usage = ram[i];
+            toReturn[i].RAM.limit = rows[0].liram;
+            toReturn[i].CPU.usage = cpu[i];
+            toReturn[i].CPU.limit = rows[0].licpu;
+            toReturn[i].numberOfProcesses = nop[i];
+            toReturn[i].internet = new NetworkState();
+            toReturn[i].internet.counters.upload.usedSpeed = upload[i];
+            toReturn[i].internet.limits.download = rows[0].lidow;
+            toReturn[i].internet.limits.upload = rows[0].liup;
+            toReturn[i].internet.counters.download.usedSpeed = download[i];
+            toReturn[i].measureOn = new Date(rows[0].timestamp);
+            toReturn[i].measureOn.setMinutes(
+              toReturn[i].measureOn.getMinutes() - (ram.length - i - 1) * 10
+            );
+          }
+          con.end();
+          resolve(toReturn);
         }
       );
     });
@@ -560,7 +608,7 @@ export default class containerSQL {
             stream.write("\n");
 
             stream.write(
-              "\tuse_backend bac_web_hostmachine if { hdr(host) -i " +
+              "\tuse_backend bac_web_systemconfig if { hdr(host) -i " +
                 proxyconfig.domain +
                 " }\n"
             );
@@ -582,7 +630,7 @@ export default class containerSQL {
             stream.write("\ttimeout client 50000\n");
             stream.write("\n");
             stream.write(
-              "\tuse_backend bac_web_hostmachine if { hdr(host) -i " +
+              "\tuse_backend bac_web_systemconfig if { hdr(host) -i " +
                 proxyconfig.domain +
                 " }\n"
             );
@@ -613,7 +661,7 @@ export default class containerSQL {
             stream.write("\n");
 
             stream.write(
-              "\tuse_backend bac_rest_hostmachine if { hdr(host) -i " +
+              "\tuse_backend bac_rest_systemconfig if { hdr(host) -i " +
                 proxyconfig.domain +
                 " }\n"
             );
@@ -646,7 +694,7 @@ export default class containerSQL {
             stream.write("\n");
 
             // stream.write(
-            //   "\tuse_backend bac_ssh_hostmachine if { var(sess.dst) -i " +
+            //   "\tuse_backend bac_ssh_systemconfig if { var(sess.dst) -i " +
             //     proxyconfig.domain +
             //     " }\n"
             // );
@@ -663,11 +711,11 @@ export default class containerSQL {
             // web backend
             stream.write("\n");
             stream.write("\n");
-            stream.write("backend bac_web_hostmachine\n");
+            stream.write("backend bac_web_systemconfig\n");
             stream.write("\thttp-request set-header X-Client-IP %[src]\n");
             stream.write("\tredirect scheme https if !{ ssl_fc }\n");
             stream.write(
-              "\tserver hostmachine " +
+              "\tserver systemconfig " +
                 proxyconfig.ipAdressOfHostOnLxdbr0 +
                 ":81 check\n"
             );
@@ -683,11 +731,11 @@ export default class containerSQL {
             // ssh backend
             stream.write("\n");
             stream.write("\n");
-            stream.write("backend bac_rest_hostmachine\n");
+            stream.write("backend bac_rest_systemconfig\n");
             stream.write("\thttp-request set-header X-Client-IP %[src]\n");
             stream.write("\tredirect scheme https if !{ ssl_fc }\n");
             stream.write(
-              "\tserver hostmachine " +
+              "\tserver systemconfig " +
                 proxyconfig.ipAdressOfHostOnLxdbr0 +
                 ":3001 check\n"
             );
