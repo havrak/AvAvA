@@ -131,7 +131,7 @@ function ContainersTableToolbar(props) {
             actionCallback={proceedWithDeletionHandler}
             whatToDo={`Do you want to delete there containers?`}
             smallText={selectedData.map(selectedContainer => {
-               return <div className="small-text-item">{selectedContainer.name}</div>
+               return <div key={selectedContainer.id} className="small-text-item">{selectedContainer.name}</div>
             })}
          />
          <TableToolbar
@@ -162,20 +162,20 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
    return {
-      containerIdDelete: (id, containerDeleteFailNotification) => {
-         dispatch(containerIdDelete(id, containerDeleteFailNotification));
+      containerIdDelete: (id, containerDeleteFailNotification, notify) => {
+         dispatch(containerIdDelete(id, containerDeleteFailNotification, notify));
       },
-      containerIdStart: (id, containerDeleteFailNotification) => {
-         dispatch(containerIdStart(id, containerDeleteFailNotification));
+      containerIdStart: (id, containerDeleteFailNotification, notify) => {
+         dispatch(containerIdStart(id, containerDeleteFailNotification, notify));
       },
-      containerIdStop: (id, containerDeleteFailNotification) => {
-         dispatch(containerIdStop(id, containerDeleteFailNotification));
+      containerIdStop: (id, containerDeleteFailNotification, notify) => {
+         dispatch(containerIdStop(id, containerDeleteFailNotification, notify));
       },
-      containerIdFreeze: (id, containerDeleteFailNotification) => {
-         dispatch(containerIdFreeze(id, containerDeleteFailNotification));
+      containerIdFreeze: (id, containerDeleteFailNotification, notify) => {
+         dispatch(containerIdFreeze(id, containerDeleteFailNotification, notify));
       },
-      containerIdUnfreeze: (id, containerDeleteFailNotification) => {
-         dispatch(containerIdUnfreeze(id, containerDeleteFailNotification));
+      containerIdUnfreeze: (id, containerDeleteFailNotification, notify) => {
+         dispatch(containerIdUnfreeze(id, containerDeleteFailNotification, notify));
       },
       instancesCreateInstanceConfigDataGet: () => {
          dispatch(instancesCreateInstanceConfigDataGet());
