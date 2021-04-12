@@ -18,8 +18,8 @@ export default class CreateInstanceJSONObj {
     root: {
       path: "/",
       pool: "default",
-      size: undefined, // as things stand now, lxd has unfixed error, which causes problems with creation if disk size is limited
       type: "disk",
+      //size: undefined, // as things stand now, lxd has unfixed error, which causes problems with creation if disk size is limited
     },
     eth0: {
       name: "eth0",

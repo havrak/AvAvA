@@ -5,7 +5,7 @@ const data = JSON.stringify({
   name: "LiMIty NesMeji bYt nuLa",
   limits: {
     RAM: 1610612736,
-    CPU: 2100000,
+    CPU: 2100000000,
     disk: 8589934592,
     internet: {
       download: 800000,

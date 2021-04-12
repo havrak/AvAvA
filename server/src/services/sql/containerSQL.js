@@ -26,7 +26,10 @@ export default class containerSQL {
       const con = mysql.createConnection(sqlconfig);
       this.getFreeSpaceForContainer(config.projectId, email).then((result) => {
         console.log("available limits: ");
-        console.log(result);
+        if (result.statusCode == 400) {
+          resolve(result);
+          return;
+        }
         if (typeof result == String) resolve(result);
         if (
           config.limits.RAM > result.RAM ||
@@ -44,7 +47,7 @@ export default class containerSQL {
           "SELECT * FROM templates WHERE id=?",
           [config.templateId],
           (err, rows) => {
-            if (rows.length == 0) {
+            if (rows[0] == undefined) {
               con.end();
               resolve(new OperationState("Templates doesn't exists", 400));
               return;
@@ -53,7 +56,7 @@ export default class containerSQL {
               con.end();
               resolve(
                 new OperationState(
-                  "Not enough free space to create desired contianer",
+                  "Not enough free space to create desired container",
                   400
                 )
               );
@@ -73,12 +76,14 @@ export default class containerSQL {
                   config.projectId
                 );
                 // NOTE: as things stand now lxd has unfixed error which leads to contianer failing to start and throwing error related to some broken change of ownership thus limit of disk size is disabled
-                createContainerJSON.devices.root.size =
-                  "" + config.limits.disk + "";
+                //createContainerJSON.devices.root.size =
+                //  "" + config.limits.disk + "";
                 createContainerJSON.config["limits.memory"] =
                   "" + config.limits.RAM + ""; // by default in bites
                 createContainerJSON.config["limits.cpu.allowance"] =
-                  "" + (config.limits.CPU / hostmachine.frequency) * 100 + "%";
+                  "" +
+                  parseInt((config.limits.CPU / hostmachine.frequency) * 100) +
+                  "%";
                 console.log(createContainerJSON.config["limits.cpu.allowance"]);
                 createContainerJSON.devices.eth0["limits.ingress"] =
                   "" + config.limits.internet.upload + "";
@@ -137,6 +142,11 @@ export default class containerSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
+          if (rows[0] == undefined) {
+            con.end();
+            resolve(new OperationState("Container doesn't exist"), 400);
+            return;
+          }
           resolve(rows[0].project_id);
         }
       );
@@ -160,13 +170,15 @@ export default class containerSQL {
             [
               config.projectId,
               config.name,
-              config.name +
+              (
+                config.name +
                 "." +
                 rows[0].name +
                 "." +
                 email.substr(0, email.indexOf("@")) +
                 "." +
-                proxyconfig.domain,
+                proxyconfig.domain
+              ).replace(/\s/g, ""),
               config.templateId,
               1,
             ],
@@ -226,7 +238,12 @@ export default class containerSQL {
         (err, rows) => {
           if (err) throw err;
           if (rows[0] == undefined) {
-            resolve("500, project doesn't exists or doesn't have limits;");
+            resolve(
+              new OperationState(
+                "project doesn't exists or doesn't have limits",
+                400
+              )
+            );
             return;
           }
           // project either has its limit or not, so there is no need to check all variables
@@ -397,6 +414,7 @@ export default class containerSQL {
   }
 
   static removeContainer(id) {
+    console.log("deleting");
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(

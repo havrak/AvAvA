@@ -4,12 +4,12 @@ const route = "/api/instances";
 const data = JSON.stringify({
   name: "otesanek",
   rootPassword: "string",
-  projectId: 59,
+  projectId: 69,
   templateId: 2,
   applicationsToInstall: [],
   limits: {
     RAM: 1409286144,
-    CPU: 1837500,
+    CPU: 1837500000,
     disk: 4294967296,
     internet: {
       download: 400000,

@@ -806,7 +806,7 @@ export function deleteImagesInProject(id) {
         res.forEach((image) => {
           mkRequest(`${image}?project=p${id}`, "DELETE");
           counter++;
-          if (counter == res.length - 1) {
+          if (counter == res.length) {
             resolve(new OperationState("successfully deleted all images"), 200);
           }
         });
@@ -829,7 +829,7 @@ export function deleteProfilesInProject(id) {
         res.forEach((profile) => {
           mkRequest(`${profile}`, "DELETE");
           counter++;
-          if (counter == res.length - 1) {
+          if (counter == res.length) {
             resolve(
               new OperationState("successfully deleted all profiles"),
               200

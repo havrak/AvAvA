@@ -127,7 +127,7 @@ export default class projectSQL {
                     new CreateProjectJSONObj(
                       projectId,
                       config.limits.RAM + "B",
-                      config.limits.disk + "B"
+                      config.limits.disk + "B" // lxd is broken and no container can be created when this limit is set. All attempt to create one will result in error with disk size bein
                     )
                   );
                 }

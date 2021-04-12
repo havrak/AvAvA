@@ -110,13 +110,6 @@ server.on("upgrade", (req, socket, head) => {
   );
 });
 
-app.get("/api/user", isLoggedIn, (req, res) => {
-  console.log("user");
-  userSQL.getUserByEmail(email).then((result) => {
-    res.send(result);
-  });
-});
-
 app.get("/api/combinedData", isLoggedIn, (req, res) => {
   //
   let toReturn = new UserData();
@@ -186,9 +179,7 @@ app.delete("/api/projects/:projectId", isLoggedIn, (req, res) => {
               id,
           });
         } else {
-          console.log("counter " + counter);
-          console.log(result.length - 1);
-          if (counter == result.length - 1) {
+          if (counter == result.length) {
             lxd.deleteProject(req.params.projectId).then((result) => {
               if (result.statusCode == 200) {
                 projectSQL.removeProject(req.params.projectId);
@@ -246,6 +237,7 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
     lxd.createInstance(result, result.appsToInstall).then((result) => {
       console.log(result);
       if (result.statusCode != 200) {
+        console.log(id);
         containerSQL.removeContainer(id);
         res.statusCode = result.statusCode;
         res.send = result.status;
