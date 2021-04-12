@@ -35,10 +35,10 @@ export class NetworkState {
 }
 export class Address {
 	constructor(family, address, netmask, scope) {
-		this.family;
-		this.address;
-		this.netmask;
-		this.scope;
+		this.family = family;
+		this.address = address;
+		this.netmask = netmask;
+		this.scope = scope;
 	}
 	family;
 	address;

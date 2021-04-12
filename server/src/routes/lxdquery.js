@@ -15,11 +15,10 @@ new mongodb.MongoClient("mongodb://localhost:27017/lxd", {
 });
 import WebSocket from "ws";
 import { connections } from "../services/websocket.js";
-// import ContainerResourceState from "../models/ContainerResourceState.js";
+import ContainerResourceState from "../models/ContainerResourceState.js";
 import * as NS from "../models/NetworkState.js";
-// import Container from "../models/Container.js";
-// import Template from "../models/Template.js";
-// import Image from "../models/Image.js";
+import Container from "../models/Container.js";
+import Template from "../models/Template.js";
 import OperationState from "../models/OperationState.js";
 import Snapshot from "../models/Snapshot.js";
 const key = fs.readFileSync(
@@ -105,7 +104,8 @@ export async function test() {
 	i.template = new Template();
 	i.state = new ContainerResourceState();
 	i.state.internet = new NS.NetworkState();
-	console.log(await getInstance(i));*/
+	// console.log(await getInstance(i));
+	console.log((await getState(1, 1, i.state)).internet);*/
 	// console.log(await deleteInstance("73", "1"));
 	/*(await mkRequest(`/1.0/instances/test/backups`)).forEach((b) =>
 		deleteBackup("test", "default", b)
@@ -497,6 +497,34 @@ export async function getState(id, project, rs) {
 			`/1.0/instances/c${id}/state?project=p${project}`
 		);
 		rs.CPU.usage = (dataNew.cpu.usage - data.cpu.usage) / 10 / 2800; // ~2800MHz is the processor speed
+		if (data.network)
+			Object.keys(data.network).forEach((key) => {
+				let lxdc = data.network[key].counters;
+				let counters;
+				switch (key) {
+					case "eth0":
+						counters = rs.internet.counters;
+						break;
+					case "lo":
+						counters = rs.loopback.counters;
+						break;
+					default:
+						for (let i = 0; i < rs.networks.length; i++)
+							if (rs.networks[i].name == key) {
+								counters = rs.networks[i].counters;
+								break;
+							}
+				}
+				// speed is in b/s, because we measure with 1s delay
+				counters.download.usedSpeed =
+					lxdc.bytes_received - counters.download.bytesRecieved;
+				counters.download.bytesRecieved = lxdc.bytes_received;
+				counters.upload.usedSpeed =
+					lxdc.bytes_sent - counters.upload.bytesSent;
+				counters.upload.bytesSent = lxdc.bytes_sent;
+				counters.download.packetsRecieved = lxdc.packets_received;
+				counters.upload.packetsSent = lxdc.packets_sent;
+			});
 		return rs;
 	} else
 		return new Promise((resolve) =>
@@ -678,6 +706,8 @@ export function stopInstance(id, project) {
 								lxdn.state,
 								lxdn.type
 							);
+							network.counters.download.usedSpeed = 0;
+							network.counters.upload.usedSpeed = 0;
 							network.counters.download.bytesRecieved =
 								lxdn.counters.bytes_received;
 							network.counters.upload.bytesSent =
