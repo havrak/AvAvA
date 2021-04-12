@@ -116,7 +116,7 @@ export const combinedUserDataReducer = (state = null, action) => {
       case "CONTAINER_POST_SUCCESS": {
          const newState = _.cloneDeep(state);
          const projects = newState.userProjects.projects;
-         console.log(action.pa);
+         console.log(action.payload);
          for (let i = 0; i < projects.length; i++) {
             if (projects[i].id === action.payload.projectId) {
                for (let j = 0; j < projects[i].containers.length; j++) {

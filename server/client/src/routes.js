@@ -23,13 +23,11 @@ import Projects from "views/User/Projects.js";
 import Project from "views/Projects/Project.js";
 import ProjectContainers from "views/Projects/Containers.js";
 import ProjectInfo from "views/Projects/Info.js";
-import ProjectSettings from "views/Projects/Settings.js";
 import Container from "views/Containers/Container.js";
 import ContainerInfo from "views/Containers/Info.js";
 import ContainerConsole from "views/Containers/Console.js";
 import ContainerSnapshots from "views/Containers/Snapshots.js";
 import ContainerBackup from "views/Containers/Backup.js";
-import ContainerSettings from "views/Containers/Settings.js";
 // import Upgrade from "views/Upgrade.js";
 import PatchContainer from "components/RouteComponents/PatchContainer";
 import PatchProject from "components/RouteComponents/PatchProject";
@@ -176,13 +174,6 @@ const routes = [
       layout: "/user",
    },
    {
-      path: "/projects/:projectId/settings",
-      name: "Settings",
-      navLinks: projectsNavLinks,
-      view: ProjectSettings,
-      layout: "/user",
-   },
-   {
       path: "/projects/:projectId/containers/:containerId",
       name: "Project",
       layout: "/user",
@@ -215,13 +206,6 @@ const routes = [
       name: "Backup",
       navLinks: containerNavLinks,
       view: ContainerBackup,
-      layout: "/user",
-   },
-   {
-      path: "/projects/:projectId/containers/:containerId/settings",
-      name: "Settings",
-      navLinks: containerNavLinks,
-      view: ContainerSettings,
       layout: "/user",
    },
    {

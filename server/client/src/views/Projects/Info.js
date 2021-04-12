@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
-import { projectIdGet } from "actions/ProjectActions";
+import React, { useEffect, useState } from "react";
+import { projectIdGet, projectIdDelete } from "actions/ProjectActions";
 import { setCustomizableBrandText } from "actions/FrontendActions";
 // react-bootstrap components
 import { Card, Container, Row, Col } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Link, Redirect } from "react-router-dom";
+import { DeleteClickableIcon } from "components/Icons/ClickableIcons.js";
+import AreYouSureDialog from "components/Dialogs/AreYouSureDialog";
 import {
    CPUCircularStateChartCard,
    RAMCircularStateChartCard,
@@ -28,7 +30,9 @@ function Info({
    userState,
    userLimits,
    projectIdGet,
+   projectIdDelete,
    setCustomizableBrandText,
+   notify,
 }) {
    if (!currentProject) {
       return <Redirect to={removePathParts(2)} />;
@@ -44,6 +48,16 @@ function Info({
    useEffect(() => {
       projectIdGet(currentProject.id);
    }, []);
+
+   const [dialogOpen, setDialogOpen] = useState(false);
+
+   const deleteContainersHandler = () => {
+      setDialogOpen(true);
+   };
+
+   const proceedWithDeletionHandler = () => {
+      projectIdDelete(currentProject.id, notify);
+   };
    return (
       <>
          <Container fluid>
@@ -57,6 +71,16 @@ function Info({
                               <ClipLoader color={"#212529"} loading={true} size={30} />
                            </>
                         ) : null}
+                        <DeleteClickableIcon
+                           key={"DeleteIconButton"}
+                           handler={deleteContainersHandler}
+                        />
+                        <AreYouSureDialog
+                           open={dialogOpen}
+                           setOpen={setDialogOpen}
+                           actionCallback={proceedWithDeletionHandler}
+                           whatToDo={`Do you want to delete this container?`}
+                        />
                      </Card.Header>
                      <Card.Body className="p-0">
                         <Container fluid className="information-container">
@@ -106,78 +130,78 @@ function Info({
                </Col>
             </Row>
             <Row>
-               {currentProject.limits ? (
-                  <>
-                     <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
+               <>
+                  <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                     {currentProject?.limits?.disk ? (
                         <DiskCircularStateChartCard
                            disk={currentProject.state.disk}
                            max={currentProject.limits.disk}
                         />
-                     </Col>
-                     <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
-                        <CPUCircularStateChartCard
-                           CPU={currentProject.state.CPU}
-                           max={currentProject.limits.CPU}
-                        />
-                     </Col>
-                     <Col sm="12" md="4" lg="4" xl="4" className="col-xxl-5-group">
-                        <RAMCircularStateChartCard
-                           RAM={currentProject.state.RAM}
-                           max={currentProject.limits.RAM}
-                        />
-                     </Col>
-                     <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
-                        <DownloadCircularStateChartCard
-                           download={currentProject.state.internet.download}
-                           max={currentProject.limits.internet.download}
-                        />
-                     </Col>
-                     <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
-                        <UploadCircularStateChartCard
-                           upload={currentProject.state.internet.upload}
-                           max={currentProject.limits.internet.upload}
-                        />
-                     </Col>
-                  </>
-               ) : (
-                  <>
-                     <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                     ) : (
                         <DiskCircularStateChartCardWithoutLimits
                            parentDiskState={userState.disk}
                            diskState={currentProject.state.disk}
                            max={userLimits.disk}
                         />
-                     </Col>
-                     <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                     )}
+                  </Col>
+                  <Col sm="6" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                     {currentProject?.limits?.CPU ? (
+                        <CPUCircularStateChartCard
+                           CPU={currentProject.state.CPU}
+                           max={currentProject.limits.CPU}
+                        />
+                     ) : (
                         <CPUCircularStateChartCardWithoutLimits
                            parentCPUState={userState.CPU}
                            CPUState={currentProject.state.CPU}
                            max={userLimits.CPU}
                         />
-                     </Col>
-                     <Col sm="12" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                     )}
+                  </Col>
+                  <Col sm="12" md="4" lg="4" xl="4" className="col-xxl-5-group">
+                     {currentProject?.limits?.RAM ? (
+                        <RAMCircularStateChartCard
+                           RAM={currentProject.state.RAM}
+                           max={currentProject.limits.RAM}
+                        />
+                     ) : (
                         <RAMCircularStateChartCardWithoutLimits
                            parentRAMState={userState.RAM}
                            RAMState={currentProject.state.RAM}
                            max={userLimits.RAM}
                         />
-                     </Col>
-                     <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
+                     )}
+                  </Col>
+                  <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
+                     {currentProject?.limits?.internet.download ? (
+                        <DownloadCircularStateChartCard
+                           download={currentProject.state.internet.download}
+                           max={currentProject.limits.internet.download}
+                        />
+                     ) : (
                         <DownloadCircularStateChartCardWithoutLimits
                            parentDownloadState={userState.internet.download}
                            downloadState={currentProject.state.internet.download}
                            max={userLimits.internet.download}
                         />
-                     </Col>
-                     <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
+                     )}
+                  </Col>
+                  <Col sm="6" md="6" lg="6" xl="6" className="col-xxl-5-group">
+                     {currentProject?.limits?.internet.upload ? (
+                        <UploadCircularStateChartCard
+                           upload={currentProject.state.internet.upload}
+                           max={currentProject.limits.internet.upload}
+                        />
+                     ) : (
                         <UploadCircularStateChartCardWithoutLimits
                            parentUploadState={userState.internet.upload}
                            uploadState={currentProject.state.internet.upload}
                            max={userLimits.internet.upload}
                         />
-                     </Col>
-                  </>
-               )}
+                     )}
+                  </Col>
+               </>
                {/* <Col sm="12" md="4" lg="4" xl="4">
                      <NumberOfProcessesCard numberOfProcesses={1}/>
                   </Col> */}
@@ -218,6 +242,9 @@ const mapDispathToProps = (dispatch) => {
       },
       projectIdGet: (projectId) => {
          dispatch(projectIdGet(projectId));
+      },
+      projectIdDelete: (projectId) => {
+         dispatch(projectIdDelete(projectId));
       },
    };
 };

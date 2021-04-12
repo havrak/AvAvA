@@ -191,7 +191,7 @@ export const addStateToProject = (project) => {
       CPU.allocatedPercent = calculatePercent(CPU.allocated, project.limits.CPU);
    }
    disk.allocated -= disk.usage;
-   if (project.limits?.disk !== null && project.limits?.disk !== null) {
+   if (project.limits?.disk !== null && project.limits?.disk !== undefined) {
       disk.free = project.limits.disk - disk.allocated - disk.usage;
       disk.freePercent = calculatePercent(disk.free, project.limits.disk);
       disk.usedPercent = calculatePercent(disk.usage, project.limits.disk);
@@ -310,7 +310,7 @@ export const addStateToContainer = (container) => {
       }
    }
    if(container.snapshots === null || container.snapshots === undefined){
-      container.snapshots = {};
+      container.snapshots = [];
    }
    return container;
 };

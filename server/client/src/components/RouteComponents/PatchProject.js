@@ -1,8 +1,8 @@
 import React from "react";
 import PatchProjectDialog from "components/Dialogs/PatchProjectDialog";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
-import { getCurrentProject } from "service/RoutesHelper";
+import { Link, Redirect } from "react-router-dom";
+import { getCurrentProject, removePathParts } from "service/RoutesHelper";
 import {
    ramToMB,
    diskToGB,
@@ -11,6 +11,9 @@ import {
 } from "service/UnitsConvertor.js";
 
 function PatchProject({ name, link, currentProject, notify }) {
+   if (!currentProject) {
+      return <Redirect to={removePathParts(2)} />;
+   }
    const [openDialog, setDialogOpen] = React.useState(false);
    const baseState = () => {
       return {
