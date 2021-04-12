@@ -1,6 +1,6 @@
 import { DataUsage } from "@material-ui/icons";
 import { create } from "lodash";
-
+//basic project and user state
 const createEmptyState = () => {
    return {
       RAM: {
@@ -33,6 +33,7 @@ const createEmptyState = () => {
    };
 };
 
+//add state to userDataObject passed
 export const addStateToUserData = (userData) => {
    const { user, userProjects } = userData;
    const state = (userProjects.state = createEmptyState());
@@ -176,28 +177,28 @@ export const addStateToProject = (project) => {
       }
    }
    RAM.allocated -= RAM.usage;
-   if (project.limits?.RAM) {
+   if (project.limits?.RAM !== null && project.limits?.RAM !== undefined) {
       RAM.free = project.limits.RAM - RAM.allocated - RAM.usage;
       RAM.freePercent = calculatePercent(RAM.free, project.limits.RAM);
       RAM.usedPercent = calculatePercent(RAM.usage, project.limits.RAM);
       RAM.allocatedPercent = calculatePercent(RAM.allocated, project.limits.RAM);
    }
    CPU.allocated -= CPU.usage;
-   if (project.limits?.CPU) {
+   if (project.limits?.CPU !== null && project.limits?.CPU !== undefined) {
       CPU.free = project.limits.CPU - CPU.allocated - CPU.usage;
       CPU.freePercent = calculatePercent(CPU.free, project.limits.CPU);
       CPU.usedPercent = calculatePercent(CPU.usage, project.limits.CPU);
       CPU.allocatedPercent = calculatePercent(CPU.allocated, project.limits.CPU);
    }
    disk.allocated -= disk.usage;
-   if (project.limits?.disk) {
+   if (project.limits?.disk !== null && project.limits?.disk !== null) {
       disk.free = project.limits.disk - disk.allocated - disk.usage;
       disk.freePercent = calculatePercent(disk.free, project.limits.disk);
       disk.usedPercent = calculatePercent(disk.usage, project.limits.disk);
       disk.allocatedPercent = calculatePercent(disk.allocated, project.limits.disk);
    }
    internet.download.allocated -= internet.download.usage;
-   if (project.limits?.internet?.download) {
+   if (project.limits?.internet?.download !== null && project.limits?.internet?.download !== undefined) {
       internet.download.free =
          project.limits.internet.download -
          internet.download.allocated -
@@ -216,7 +217,7 @@ export const addStateToProject = (project) => {
       );
    }
    internet.upload.allocated -= internet.upload.usage;
-   if (project.limits?.internet?.download) {
+   if (project.limits?.internet?.upload !== null && project.limits?.internet?.upload !== undefined) {
       internet.upload.free =
          project.limits.internet.upload -
          internet.upload.allocated -
@@ -308,6 +309,9 @@ export const addStateToContainer = (container) => {
          }
       }
    }
+   if(container.snapshots === null || container.snapshots === undefined){
+      container.snapshots = {};
+   }
    return container;
 };
 
@@ -315,6 +319,7 @@ export function calculatePercent(value, max) {
    return Math.round((value / max) * 10_000.0) / 100.0;
 }
 
+//these states are in between states (Starting, Freezing, ...)
 export function isPending(statusCode) {
    return statusCode >= 104 && statusCode <= 109
 }

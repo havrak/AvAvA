@@ -14,8 +14,8 @@ const api = new UserApi.DefaultApi();
 class Console extends Component {
    constructor({ projectId, instanceId }) {
       super();
-      projectId = 18;
-      instanceId = 142;
+      // projectId = 18;
+      // instanceId = 142;
       this.projectId = projectId;
       this.instanceId = instanceId;
    }

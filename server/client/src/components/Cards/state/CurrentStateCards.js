@@ -25,6 +25,7 @@ export function CircularStateChartCard({
       allocatedPercent,
       freePercent,
    } = stateData;
+   console.log(stateData);
    let usageMessage = convertorCallback(usage).getMessage();
    let allocatedMessage = convertorCallback(allocated).getMessage();
    let freeMessage = convertorCallback(free).getMessage();

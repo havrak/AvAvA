@@ -101,7 +101,7 @@ function Info({
                      to={`/user/projects/${currentProject.id}/containers`}
                      className="card-link"
                   >
-                     <ContainerCounter containers={userState.containers} />
+                     <ContainerCounter containers={currentProject.state.containers} />
                   </Link>
                </Col>
             </Row>

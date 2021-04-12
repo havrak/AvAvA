@@ -107,6 +107,10 @@ function Info({
                               {currentContainer.name}
                            </div>
                            <div className="information-item">
+                              <b>URL: </b>
+                              {currentContainer.url}
+                           </div>
+                           <div className="information-item">
                               <b>Created on: </b>
                               {currentContainer.createdOn}
                            </div>
