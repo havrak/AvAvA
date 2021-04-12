@@ -7,10 +7,11 @@ import https from "https";
 import fs from "fs";
 
 export default class userSQL {
-  /* looks up user by his email
-   * params: email - email of user for which object will be created
+  /**
+   * looks up user by his email
+   * @params email - email of user for which object will be created
    *
-   * returns: User
+   * @returns User
    */
   static getUserByEmail(email) {
     console.log(email);
@@ -37,11 +38,11 @@ export default class userSQL {
       );
     });
   }
-
-  /* looks up limits of user given in arguments
-   * params: email - email of user to which limits object corresponds
+  /**
+   * looks up limits of user given in arguments
+   * @param email - email of user to which limits object corresponds
    *
-   * returns: Limits - limits of given user
+   * @return Limits - limits of given user
    */
   static getUsersLimits(email) {
     return new Promise((resolve) => {
@@ -67,11 +68,11 @@ export default class userSQL {
       );
     });
   }
-
-  /* looks up user by his id
-   * params: id - id of user to which User object corresponds
+  /**
+   * looks up user by his id
+   * @param id - id of user to which User object corresponds
    *
-   * returns: User
+   * @return User
    */
   static getUserByID(id) {
     return new Promise((resolve) => {
@@ -93,11 +94,11 @@ export default class userSQL {
       });
     });
   }
-
-  /* finds in what project user is listed as owner
-   * params: email - email of user which projects this methods looks for
+  /**
+   * finds in what project user is listed as owner
+   * @param email - email of user which projects this methods looks for
    *
-   * returns: array - contains ids of projects
+   * @return array - contains ids of projects
    */
   static getAllUsersProjects(email) {
     return new Promise((resolve) => {
@@ -112,11 +113,11 @@ export default class userSQL {
       );
     });
   }
-
-  /* find what User are listed as coworkers on give project
-   * params: id - id of project
+  /**
+   * find what User are listed as coworkers on give project
+   * @params id - id of project
    *
-   * returns: array of Users - coworkers on project
+   * @return array of Users - coworkers on project
    */
   static getAllUsersWorkingOnAProject(id) {
     return new Promise((resolve) => {
@@ -144,12 +145,12 @@ export default class userSQL {
       );
     });
   }
-
-  /* return true if given user is owner or coworker on given container
-   * params:	email - email of user
-   *					id - id of container
+  /**
+   * checks whether user is owner or coworker on given container
+   * @param	email - email of user
+   * @param	id - id of container
    *
-   * returns: boolean - true of owner has permission to the container
+   * @return boolean - true of owner has permission to the container
    */
   static doesUserOwnGivenContainer(email, id) {
     return new Promise((resolve) => {
@@ -169,12 +170,12 @@ export default class userSQL {
       );
     });
   }
-
-  /* return true if given user is owner or coworker on given project
-   * params:	email - email of user
-   *					id - id of project
+  /**
+   * return true if given user is owner or coworker on given project
+   * @param	email - email of user
+   * @param id - id of project
    *
-   * returns: boolean - true of owner has permission to the project
+   * @return boolean - true of owner has permission to the project
    */
   static doesUserOwnGivenProject(email, id) {
     return new Promise((resolve) => {
@@ -194,9 +195,9 @@ export default class userSQL {
 
   /*
    * adds new user do database
-   * params user - object User containg information about user which will be added to database
+   * @param User - user from google auth
    *
-   * returns: User - object of user just added into the database
+   * @return User - object of user just added into the database
    */
   static addNewUserToDatabaseAndReturnIt(user) {
     return new Promise((resolve) => {

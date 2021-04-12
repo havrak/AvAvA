@@ -7,10 +7,11 @@ import Image from "../../models/Image.js";
 import OperationState from "../../models/OperationState.js";
 
 export default class templateSQL {
-  /* looks up path of profile
-   * params: id - id of profile
+  /**
+   * looks up path of profile
+   * @param {id} id of profile
    *
-   * returns: String - path to profile
+   * @return String path to profile
    */
   static getProfilePath(id) {
     return new Promise((resolve) => {
@@ -28,10 +29,11 @@ export default class templateSQL {
     });
   }
 
-  /* looks up template by his id
-   * params: id - id of template
+  /**
+   * looks up template by his id
+   * @params {id} id of template
    *
-   * returns: Templates
+   * @returns Template
    */
   static getTemplate(id) {
     return new Promise((resolve) => {
@@ -55,10 +57,10 @@ export default class templateSQL {
       });
     });
   }
-
-  /* searches database for all templates that can be used to create container with
+  /**
+   * searches database for all templates that can be used to create container with
    *
-   * returns: array of Templates
+   * @return Template
    */
   static getAllTemplates() {
     return new Promise((resolve) => {
@@ -81,10 +83,10 @@ export default class templateSQL {
       });
     });
   }
-
-  /* adds new template to database
-   * params: 	template - template object corresponding to new templates
-   *  				templatePath - path to new template
+  /*
+   * adds new template to database
+   * @param template - template object corresponding to new templates
+   * @param templatePath - path to new template
    */
   static addNewTemplate(template, templatePath) {
     return new Promise((resolve) => {
@@ -111,10 +113,10 @@ export default class templateSQL {
       );
     });
   }
-
-  /* searches databse for all apps available to be installed on new machine
+  /**
+   * searches databse for all apps available to be installed on new machine
    *
-   * returns: array of ApplicationToInstall
+   * @return array of ApplicationToInstall
    */
   static getAllAppsToInstall() {
     return new Promise((resolve) => {

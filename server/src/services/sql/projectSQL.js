@@ -9,10 +9,11 @@ import userSQL from "./userSQL.js";
 import OperationState from "../../models/OperationState.js";
 
 export default class projectSQL {
-  /* returns Limits object with free space available for new project
-   * params: email - email of user to whom limit is calculated
+  /**
+   * looks up free space in user account
+   * @param email - email of user to whom limit is calculated
    *
-   * returns: Limits - free space available for project
+   * @return Limits - free space available for project
    */
   static createCreateProjectData(email) {
     return new Promise((resolve) => {
@@ -83,6 +84,13 @@ export default class projectSQL {
       );
     });
   }
+  /**
+   * check whether limits increased and if it is possilbe updates them, same also applyes for name
+   * @param newLimits - object got from api route
+   * @param id - id of container
+   * @params email - email of user
+   *
+   */
   static updateProjectLimits(newLimits, id, email) {
     return new Promise((resolve) => {
       //TODO Enable limits to be also decreased
@@ -169,11 +177,12 @@ export default class projectSQL {
       );
     });
   }
-  /* creates JSON that will be send to lxd in oder to create new project
-   * params: 	email - email of owner of new project
-   *   				config - configuration of new container
+  /**
+   * creates JSON that will be send to lxd in oder to create new project, new project is also stored in database
+   * @param	email - email of owner of new project
+   * @param	config - configuration of new container
    *
-   * result: CreateProjectJSONObj
+   * @return CreateProjectJSONObj
    */
   static createCreateProjectJSON(email, config) {
     return new Promise((resolve) => {
@@ -230,10 +239,11 @@ export default class projectSQL {
       });
     });
   }
-  /* creates Project object with data about given project
-   * params: id - id of project in question
+  /**
+   * creates Project object with data about given project
+   * @param id - id of project in question
    *
-   * returns: Project - project object with all data available from databse about it, rest is filled in by lxd
+   * @return Project - project object with all data available from databse about it, rest is filled in by lxd
    */
   static createProjectObject(id) {
     console.log(id);
@@ -281,8 +291,9 @@ export default class projectSQL {
     });
   }
 
-  /* removes project form databe
-   * params: id - id of project in question
+  /**
+   * removes project form databse
+   * @param id - id of project in question
    */
   static removeProject(id) {
     return new Promise((resolve) => {
@@ -293,16 +304,17 @@ export default class projectSQL {
         (err, rows) => {
           if (err) throw err;
           con.end();
-          resolve(1);
+          resolve(new OperationState("container successfully deleted", 200));
         }
       );
     });
   }
 
-  /* return array of id of containers in give project
-   * params: id - id of project in question
+  /**
+   * return array of id of containers in give project
+   * @param id - id of project in question
    *
-   * returns: array - filled with ids of containers
+   * @return array - filled with ids of containers
    */
   static getIdOfContainersInProject(id) {
     return new Promise((resolve) => {

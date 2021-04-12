@@ -15,11 +15,11 @@ import OperationState from "../../models/OperationState.js";
 
 export default class containerSQL {
   // TODO: get rid of email
-  /* creates JSON which will be send to lxd in oder to create new container
-   * params: 	email - email of user who is creating the container
+  /* creates JSON which will be send to lxd in oder to create new container, contaienr will also be added into databse via function call
+   * @param 	email - email of user who is creating the container
    * 					config - configuration of new container, submitted by user
    *
-   * returns: CreateInstanceJSONObj
+   * @return CreateInstanceJSONObj
    */
   static createCreateContainerJSON(email, config) {
     return new Promise((resolve) => {
@@ -133,6 +133,12 @@ export default class containerSQL {
     });
   }
 
+  /**
+   * get id of project to which container belongs
+   * @param id - id of container
+   *
+   * @return id - id of project
+   */
   static getProjectIdOfContainer(id) {
     console.log(id);
     return new Promise((resolve) => {
@@ -153,6 +159,12 @@ export default class containerSQL {
     });
   }
 
+  /**
+   * create stateHistory of given container, fills in what is stored in logs and current limits
+   * @param id - id of container
+   *
+   * @return ContainerResourceState[] - on last position is lastest read
+   */
   static getContainerHistory(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -189,9 +201,9 @@ export default class containerSQL {
             toReturn[i].internet.limits.download = rows[0].lidow;
             toReturn[i].internet.limits.upload = rows[0].liup;
             toReturn[i].internet.counters.download.usedSpeed = download[i];
-            toReturn[i].measureOn = new Date(rows[0].timestamp);
-            toReturn[i].measureOn.setMinutes(
-              toReturn[i].measureOn.getMinutes() - (ram.length - i - 1) * 10
+            toReturn[i].measuredOn = new Date(rows[0].timestamp);
+            toReturn[i].measuredOn.setMinutes(
+              toReturn[i].measuredOn.getMinutes() - (ram.length - i - 1) * 10
             );
           }
           con.end();
@@ -201,6 +213,13 @@ export default class containerSQL {
     });
   }
 
+  /**
+   * adds new container to database
+   * @param config - config given by user in API route
+   * @param email - email of user
+   *
+   * @return id - id in database of new container
+   */
   static addNewContainerToDatabase(config, email) {
     const con = mysql.createConnection(sqlconfig);
     return new Promise((resolve) => {
@@ -275,8 +294,13 @@ export default class containerSQL {
       );
     });
   }
-  // check if it wordks
-  // TODO: validation won't work whne the
+  /**
+   * check how big limits for container can be
+   * @param projectId - id of project in which container in question is
+   * @param email - email of user
+   *
+   * @return Limits - free resources
+   */
   static getFreeSpaceForContainer(projectId, ownerEmail) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -367,6 +391,11 @@ export default class containerSQL {
     });
   }
 
+  /**
+   * updates containersResourcesLog with new log
+   * @param id - id of container
+   * @param state - ContainerResourceState with current state
+   */
   static updateLogsForContainer(id, state) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -415,6 +444,11 @@ export default class containerSQL {
     });
   }
 
+  /**
+   * checks all containers in database
+   *
+   * @return array of id and project_id
+   */
   static getAllContainers() {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -426,6 +460,12 @@ export default class containerSQL {
     });
   }
 
+  /**
+   * checks all container in give project
+   * @param id - id of project in which containers in question are
+   *
+   * @return array of Container objects
+   */
   static getAllContainersInProject(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -461,8 +501,13 @@ export default class containerSQL {
     });
   }
 
+  /**
+   * removes container form databse
+   * @param id - id of container to be deleted
+   *
+   * @return OperationState
+   */
   static removeContainer(id) {
-    console.log("deleting");
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
@@ -471,12 +516,18 @@ export default class containerSQL {
         (err, rows) => {
           if (err) throw err;
           con.end();
-          resolve(new OperationState("Container removed from database", 500));
+          resolve(new OperationState("Container removed from database", 200));
         }
       );
     });
   }
 
+  /**
+   * creates object with all data necessary to create new container
+   * @param email - email of user
+   *
+   * @return CreateInstanceConfigData
+   */
   static createCreateContainerData(ownerEmail) {
     return new Promise((resolve) => {
       let toReturn = new CreateInstanceConfigData();
@@ -489,6 +540,12 @@ export default class containerSQL {
       });
     });
   }
+  /**
+   * creates Object Container, field state is also filled
+   * @param id - id of container
+   *
+   * @return Container object
+   */
   static createContainerObject(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -521,6 +578,12 @@ export default class containerSQL {
       );
     });
   }
+  /**
+   * creates ContainerResourceState object for given container
+   * @param id - id of contianer
+   *
+   * @return ContainerResourceState
+   */
   static createContainerStateObject(id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -553,6 +616,14 @@ export default class containerSQL {
     });
   }
 
+  /**
+   * updates state of container in database
+   * @param id - id of container
+   * @param started - boolean whether container has started
+   * @param statusCode - statusCode of container
+   *
+   * @return OperationState
+   */
   static updateContainerStateObject(id, started, statusCode) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
@@ -578,6 +649,11 @@ export default class containerSQL {
     });
   }
 
+  /**
+   * generates new configuration file for haproxy
+   *
+   * @return OperationState - always 200
+   */
   static generateHaProxyConfigurationFile() {
     return new Promise((resolve) => {
       fs.readFile(
