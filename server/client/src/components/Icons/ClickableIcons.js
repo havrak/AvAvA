@@ -8,6 +8,7 @@ import AcUnitIcon from "@material-ui/icons/AcUnit";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import PublishIcon from '@material-ui/icons/Publish';
 import WhatshotIcon from '@material-ui/icons/Whatshot';
+import GetAppIcon from '@material-ui/icons/GetApp';
 
 function Icon({ iconName, iconComponent, handler }) {
    return (
@@ -76,6 +77,16 @@ export function UnfreezeClickableIcon({ handler }) {
       <Icon
          iconName={"Unfreeze"}
          iconComponent={<WhatshotIcon className={"unfreeze"} />}
+         handler={handler}
+      />
+   );
+}
+
+export function DownloadBackupIcon({ handler }) {
+   return (
+      <Icon
+         iconName={"Download backup as tar"}
+         iconComponent={<GetAppIcon className={"download"} />}
          handler={handler}
       />
    );

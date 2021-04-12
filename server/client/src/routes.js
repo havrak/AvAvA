@@ -27,14 +27,13 @@ import Container from "views/Containers/Container.js";
 import ContainerInfo from "views/Containers/Info.js";
 import ContainerConsole from "views/Containers/Console.js";
 import ContainerSnapshots from "views/Containers/Snapshots.js";
-import ContainerBackup from "views/Containers/Backup.js";
 // import Upgrade from "views/Upgrade.js";
 import PatchContainer from "components/RouteComponents/PatchContainer";
 import PatchProject from "components/RouteComponents/PatchProject";
 import UserHistoryState from "views/User/StateHistory";
 import ProjectHistoryState from "views/Projects/StateHistory";
 import ContainerHistoryState from "views/Containers/StateHistory";
-import { getCurrentProjectAndContainer } from "service/RoutesHelper";
+import DownloadBackup from "components/RouteComponents/DownloadBackup";
 
 const projectsNavLinks = [
    {
@@ -112,12 +111,13 @@ const containerNavLinks = [
    {
       name: "Backup",
       link: "backup",
-      component: (name, link) => {
-         return (
-            <Link to={link}>
-               <span className="no-icon">{name}</span>
-            </Link>
-         );
+      component: (name, link, notify) => {
+         // return (
+         //    <Link to={link}>
+         //       <span className="no-icon">{name}</span>
+         //    </Link>
+         // );
+         return <DownloadBackup name={name} link={link} notify={notify}/>
       },
    },
    // {
@@ -216,13 +216,6 @@ const routes = [
       name: "Snapshots",
       navLinks: containerNavLinks,
       view: ContainerSnapshots,
-      layout: "/user",
-   },
-   {
-      path: "/projects/:projectId/containers/:containerId/backup",
-      name: "Backup",
-      navLinks: containerNavLinks,
-      view: ContainerBackup,
       layout: "/user",
    },
    {

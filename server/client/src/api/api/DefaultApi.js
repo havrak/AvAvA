@@ -191,42 +191,6 @@ export default class DefaultApi {
       );
     }
     /**
-     * Callback function to receive the result of the instancesIdExportGet operation.
-     * @callback module:api/DefaultApi~instancesIdExportGetCallback
-     * @param {String} error Error message, if any.
-     * @param {'String'} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * @param {module:api/DefaultApi~instancesIdExportGetCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link 'String'}
-     */
-    instancesIdExportGet(id, callback) {
-      let postBody = null;
-
-      let pathParams = {
-        'id': id
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = [];
-      let accepts = ['application/json'];
-      let returnType = 'String';
-
-      return this.apiClient.callApi(
-        '/instances/{id}/export', 'GET',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-    /**
      * Callback function to receive the result of the instancesIdFreezePatch operation.
      * @callback module:api/DefaultApi~instancesIdFreezePatchCallback
      * @param {String} error Error message, if any.
@@ -942,6 +906,43 @@ export default class DefaultApi {
 
       return this.apiClient.callApi(
         '/projects/{projectId}/instances/{instanceId}/console', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
+     * Callback function to receive the result of the projectsProjectIdInstancesInstanceIdExportGet operation.
+     * @callback module:api/DefaultApi~projectsProjectIdInstancesInstanceIdExportGetCallback
+     * @param {String} error Error message, if any.
+     * @param {'String'} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {module:api/DefaultApi~projectsProjectIdInstancesInstanceIdExportGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link 'String'}
+     */
+    projectsProjectIdInstancesInstanceIdExportGet(projectId, instanceId, callback) {
+      let postBody = null;
+
+      let pathParams = {
+        'projectId': projectId,
+        'instanceId': instanceId
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = [];
+      let accepts = ['application/json'];
+      let returnType = 'String';
+
+      return this.apiClient.callApi(
+        '/projects/{projectId}/instances/{instanceId}/export', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
