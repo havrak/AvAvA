@@ -95,9 +95,9 @@ export default class projectSQL {
           config.limits.internet.upload > currentFreeSpace.internet.upload ||
           config.limits.internet.download > currentFreeSpace.internet.download
         ) {
-          resolve(
-            new OperationState("projects limit exceeds current free space", 500)
-          );
+          console.log(currentFreeSpace);
+          resolve(new OperationState("Project limit exceeds current max", 400));
+          return;
         }
         const con = mysql.createConnection(sqlconfig);
 
@@ -122,14 +122,15 @@ export default class projectSQL {
                 if (config.limits.RAM == null) {
                   con.end();
                   resolve(new CreateProjectJSONObj(projectId, null, null));
+                } else {
+                  resolve(
+                    new CreateProjectJSONObj(
+                      projectId,
+                      config.limits.RAM + "B",
+                      config.limits.disk + "B"
+                    )
+                  );
                 }
-                resolve(
-                  new CreateProjectJSONObj(
-                    projectId,
-                    config.limits.RAM + "B",
-                    config.limits.disk + "B"
-                  )
-                );
               }
             );
           }
@@ -212,15 +213,15 @@ export default class projectSQL {
    * returns: array - filled with ids of containers
    */
   static getIdOfContainersInProject(id) {
-    return new Promise((resove) => {
+    return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
-        "SELECT container.id FROM projects LEFT JOIN containers ON container.project_id = project.id WHERE project.id =?",
+        "SELECT GROUP_CONCAT(id) AS ids FROM containers WHERE project_id=?",
         [id],
         (err, rows) => {
           if (err) throw err;
-          con.end();
-          resolve(rows);
+          console.log(rows);
+          resolve(rows[0].ids == null ? new Array() : rows[0].ids.split(","));
         }
       );
     });

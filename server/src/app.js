@@ -2,7 +2,7 @@ import express from "express";
 const app = express();
 // import cors from "cors";
 import { keys } from "../config/keys.js";
-import hostmaschine from "../config/hostmaschine.js";
+import hostmachine from "../config/hostmachine.js";
 import cookieSession from "cookie-session";
 import passport from "passport";
 import schedule from "node-schedule";
@@ -110,13 +110,22 @@ server.on("upgrade", (req, socket, head) => {
   );
 });
 
+lxd.deleteImagesInProject(18);
+
+app.get("/api/user", isLoggedIn, (req, res) => {
+  console.log("user");
+  userSQL.getUserByEmail(email).then((result) => {
+    res.send(result);
+  });
+});
+
 app.get("/api/combinedData", isLoggedIn, (req, res) => {
   //
   let toReturn = new UserData();
   userSQL.getUserByEmail(email).then((result) => {
     toReturn.user = result;
     toReturn.hostInformation.CPU.model = os.cpus()[0].model; // this works, however as developnet isn't done on server one gets model nad frequency of his own cpu
-    toReturn.hostInformation.CPU.frequency = hostmaschine.frequency;
+    toReturn.hostInformation.CPU.frequency = hostmachine.frequency;
     containerSQL.createCreateContainerData(email).then((result) => {
       toReturn.createInstanceConfigData = result;
       userSQL.getUsersLimits(email).then((result) => {
@@ -139,14 +148,18 @@ app.get("/api/combinedData", isLoggedIn, (req, res) => {
   });
 });
 
-app.get("/api/project/createConfigData", isLoggedIn, (req, res) => {
+app.get("/api/projects/createConfigData", isLoggedIn, (req, res) => {
   projectSQL.createCreateProjectData(email).then((result) => {
     res.send(result);
   });
 });
 
-app.post("/api/project", isLoggedIn, (req, res) => {
+app.post("/api/projects", isLoggedIn, (req, res) => {
   projectSQL.createCreateProjectJSON(email, req.body).then((project) => {
+    if (project.statusCode == 400) {
+      res.statusCode = 400;
+      res.send(project.status);
+    }
     let id = project.name; // createProject will rewrite name variable thus it is easyest to store it in variable
     lxd.createProject(project).then((result) => {
       if (result.statusCode != 200) {
@@ -158,6 +171,46 @@ app.post("/api/project", isLoggedIn, (req, res) => {
       }
       //
     });
+  });
+});
+
+app.delete("/api/projects/:projectId", isLoggedIn, (req, res) => {
+  projectSQL.getIdOfContainersInProject(req.params.projectId).then((result) => {
+    let counter = 0;
+    result.forEach((id) => {
+      deleteContainer(id).then((result) => {
+        counter++;
+        if (result.statusCode != 200) {
+          res.statusCode = 400;
+          res.send({
+            message:
+              "Project couldn't have been deleted, problem with container: " +
+              id,
+          });
+        } else {
+          console.log("counter " + counter);
+          console.log(result.length - 1);
+          if (counter == result.length - 1) {
+            lxd.deleteProject(req.params.projectId).then((result) => {
+              if (result.statusCode == 200) {
+                projectSQL.removeProject(req.params.projectId);
+                res.statusCode = 200;
+                res.send({ message: "Project was successfully deleted'" });
+              }
+            });
+          }
+        }
+      });
+    });
+    if (result.length == 0) {
+      lxd.deleteProject(req.params.projectId).then((result) => {
+        if (result.statusCode == 200) {
+          projectSQL.removeProject(req.params.projectId);
+          res.statusCode = 200;
+          res.send({ message: "Project was successfully deleted'" });
+        }
+      });
+    }
   });
 });
 
@@ -183,7 +236,11 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
   //let email = req.user.email;
   // email -> havranek.krystof@student.gyarab.cz
   containerSQL.createCreateContainerJSON(email, req.body).then((result) => {
-    console.log(result);
+    if (result.statusCode == 400) {
+      console.log(result);
+      res.statusCode = 400;
+      res.send(result.status);
+    }
     let id = result.name;
     let projectId = result.project;
     console.log(id);
@@ -282,18 +339,10 @@ app.delete(
   isLoggedIn,
   isContainerUsers,
   (req, res) => {
-    containerSQL
-      .getProjectIdOfContainer(req.params.instanceId)
-      .then((result) => {
-        lxd.deleteInstance(req.params.instanceId, result).then((result) => {
-          if (result.statusCode != 200) {
-            res.send(new OperationState("couldn't been deleted", 400));
-          } else {
-            containerSQL.removeContainer(id);
-            res.send(new OperationState("container deleted", 200));
-          }
-        });
-      });
+    deleteContainer(req.params.instanceId).then((result) => {
+      res.statusCode = result.statusCode;
+      res.send(result.status);
+    });
   }
 );
 app.patch(
@@ -305,17 +354,22 @@ app.patch(
       .getProjectIdOfContainer(req.params.instanceId)
       .then((result) => {
         lxd.startInstance(req.params.instanceId, result).then((result) => {
-          console.log(result);
-          console.log("started");
           if (result.statusCode != 200) {
-            res.send(new OperationState("failed to start the container", 500));
+            res.statusCode = 400;
+            res.send({
+              message:
+                "Container c" +
+                req.params.instanceId +
+                " couldn't have been started: " +
+                result.status,
+            });
           } else {
             containerSQL
               .updateContainerStateObject(req.params.instanceId, true, 103)
               .then((result) => {
-                console.log("resutlino");
                 console.log(result);
                 getContainerObject(req.params.instanceId).then((result) => {
+                  console.log(" " + result);
                   res.send(result);
                 });
               });
@@ -335,13 +389,20 @@ app.patch(
       .then((result) => {
         lxd.stopInstance(req.params.instanceId, result).then((result) => {
           if (result.statusCode != 200) {
-            res.send(new OperationState("failed to stop the container", 500));
+            res.statusCode = 400;
+            res.send({
+              message:
+                "Container c" +
+                req.params.instanceId +
+                " couldn't have been stopped: " +
+                result.status,
+            });
           } else {
-            console.log("got here");
             containerSQL
               .updateContainerStateObject(req.params.instanceId, false, 102)
               .then((result) => {
                 getContainerObject(req.params.instanceId).then((result) => {
+                  console.log(result);
                   res.send(result);
                 });
               });
@@ -360,7 +421,14 @@ app.patch(
       .then((result) => {
         lxd.freezeInstance(req.params.instanceId, result).then((result) => {
           if (result.statusCode != 200) {
-            res.send(new OperationState("failed to freeze the container", 500));
+            res.statusCode = 400;
+            res.send({
+              message:
+                "Container c" +
+                req.params.instanceId +
+                " couldn't have been frozen: " +
+                result.status,
+            });
           } else {
             containerSQL
               .updateContainerStateObject(req.params.instanceId, false, 110)
@@ -385,11 +453,15 @@ app.patch(
       .then((result) => {
         lxd.unfreezeInstance(req.params.instanceId, result).then((result) => {
           if (result.statusCode != 200) {
-            res.send(
-              new OperationState("failed to unfreeze the container", 500)
-            );
+            res.statusCode = 400;
+            res.send({
+              message:
+                "Container c" +
+                req.params.instanceId +
+                " couldn't have been unfrozen: " +
+                result.status,
+            });
           } else {
-            //
             containerSQL
               .updateContainerStateObject(req.params.instanceId, false, 103)
               .then((result) => {
@@ -412,13 +484,59 @@ app.get(
   }
 );
 
+function deleteContainer(id) {
+  return new Promise((resolve) => {
+    containerSQL.getProjectIdOfContainer(id).then((project) => {
+      lxd.stopInstance(id, project).then((result) => {
+        if (result.statusCode != 200) {
+          resolve(
+            new OperationState(
+              {
+                message:
+                  "Container c" +
+                  id +
+                  " Could have been deleted: " +
+                  result.status,
+              },
+              400
+            )
+          );
+        } else {
+          lxd.deleteInstance(id, project).then((result) => {
+            if (result.statusCode != 200) {
+              resolve(
+                new OperationState(
+                  {
+                    message:
+                      "Container c" +
+                      id +
+                      " Could have been deleted: " +
+                      result.status,
+                  },
+                  400
+                )
+              );
+            } else {
+              containerSQL.removeContainer(id);
+              resolve(
+                new OperationState(
+                  { message: "Successfully deleted container" },
+                  200
+                )
+              );
+            }
+          });
+        }
+      });
+    });
+  });
+}
+
 function getContainerObject(id) {
   return new Promise((resolve) => {
-    console.log("getting contianer obejct");
     containerSQL.createContainerObject(id).then((container) => {
       containerSQL.createContainerStateObject(id).then((result) => {
         container.state = result;
-        console.log(container);
         lxd.getInstance(container).then((result) => {
           containerSQL.updateContainerStateObject(
             id,
@@ -455,12 +573,9 @@ function getProjectObject(projectId) {
 }
 
 schedule.scheduleJob("*/10 * * * *", () => {
-  console.log("cron job active");
   containerSQL.getAllContainers().then((result) => {
-    console.log(result);
     result.forEach((cont) => {
       containerSQL.createContainerStateObject(cont.id).then((result) => {
-        console.log(cont);
         lxd.getState(cont.id, cont.project_id, result).then((result) => {
           containerSQL.updateLogsForContainer(cont.id, result);
         });

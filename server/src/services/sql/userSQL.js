@@ -2,6 +2,7 @@ import mysql from "mysql";
 import User from "./../../models/User.js";
 import Limits from "./../../models/Limits.js";
 import sqlconfig from "./../../../config/sqlconfig.js";
+import hostmachine from "./../../../config/hostmachine.js";
 import https from "https";
 import fs from "fs";
 
@@ -200,7 +201,6 @@ export default class userSQL {
   static addNewUserToDatabaseAndReturnIt(user) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
-      console.log("Added new user");
       con.query(
         "INSERT INTO users (id, email, given_name, family_name, icon, role, coins) VALUES (NULL,?,?,?,?,0,0);",
         [
@@ -210,37 +210,40 @@ export default class userSQL {
           user.photos[0].value,
         ],
         (err, rows) => {
-          console.log(err);
           if (err && err.code == "ER_DUP_ENTRY") {
             console.log("User is already stored in DB");
+            this.getUserByEmail(user.email[0].value).then((result) => {
+              resolve(result);
+            });
           } else if (err) {
             throw err;
-          } else
+          } else {
             con.query(
               "INSERT INTO usersResourcesLimits (user_email, ram, cpu, disk, upload, download) VALUES (?,?,?,?,?,?)",
               [
                 user.emails[0].value,
                 2147483648,
-                10,
+                hostmaschine.frequency / 2,
                 10737418240,
-                100000000,
-                100000000,
+                1000000,
+                1000000,
               ],
               (err, rows) => {
                 if (err) throw err;
               }
             );
-          resolve(
-            new User(
-              rows.insertId,
-              rows[0].email,
-              rows[0].given_name,
-              rows[0].family_name,
-              rows[0].role,
-              rows[0].icon,
-              rows[0].coins
-            )
-          );
+            resolve(
+              new User(
+                rows.insertId,
+                rows[0].email,
+                rows[0].given_name,
+                rows[0].family_name,
+                rows[0].role,
+                rows[0].icon,
+                rows[0].coins
+              )
+            );
+          }
         }
       );
     });

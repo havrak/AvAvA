@@ -2,6 +2,7 @@ import mysql from "mysql";
 import { resolve } from "node:dns";
 import sqlconfig from "./../../../config/sqlconfig.js";
 import proxyconfig from "./../../../config/proxyconfig.js";
+import hostmachine from "./../../../config/hostmachine.js";
 import CreateInstanceConfigData from "../../models/CreateInstanceConfigData.js";
 import CreateInstanceJSONObj from "../../models/CreateInstanceJSONObj.js";
 import Container from "../../models/Container.js";
@@ -24,6 +25,8 @@ export default class containerSQL {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       this.getFreeSpaceForContainer(config.projectId, email).then((result) => {
+        console.log("available limits: ");
+        console.log(result);
         if (typeof result == String) resolve(result);
         if (
           config.limits.RAM > result.RAM ||
@@ -32,7 +35,7 @@ export default class containerSQL {
           config.limits.upload > result.upload ||
           config.limits.download > result.download
         ) {
-          resolve("500, limits are over current maximum");
+          resolve(new OperationState("Limits are over current max", 400));
           return;
         }
         // create JSON, call function to add container to database (for once can be synchronous)
@@ -41,9 +44,20 @@ export default class containerSQL {
           "SELECT * FROM templates WHERE id=?",
           [config.templateId],
           (err, rows) => {
-            if (rows.length == 0) resolve("500, teplates doesn't exists");
+            if (rows.length == 0) {
+              con.end();
+              resolve(new OperationState("Templates doesn't exists", 400));
+              return;
+            }
             if (config.limits.disk < rows[0].min_disk_size) {
-              resolve("500, not enough space for desired image");
+              con.end();
+              resolve(
+                new OperationState(
+                  "Not enough free space to create desired contianer",
+                  400
+                )
+              );
+              return;
             }
             this.addNewContainerToDatabase(config, email).then((result) => {
               // self
@@ -64,7 +78,8 @@ export default class containerSQL {
                 createContainerJSON.config["limits.memory"] =
                   "" + config.limits.RAM + ""; // by default in bites
                 createContainerJSON.config["limits.cpu.allowance"] =
-                  "" + config.limits.CPU + "%";
+                  "" + (config.limits.CPU / hostmachine.frequency) * 100 + "%";
+                console.log(createContainerJSON.cong["limits.cpu.allowance"]);
                 createContainerJSON.devices.eth0["limits.ingress"] =
                   "" + config.limits.internet.upload + "";
                 createContainerJSON.devices.eth0["limits.egress"] =
@@ -113,13 +128,14 @@ export default class containerSQL {
   }
 
   static getProjectIdOfContainer(id) {
+    console.log(id);
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
         "SELECT project_id FROM containers WHERE id=?",
         [id],
         (err, rows) => {
-          if (err) throw errz;
+          if (err) throw err;
           resolve(rows[0].project_id);
         }
       );
@@ -307,7 +323,6 @@ export default class containerSQL {
           nop.push(
             state.numberOfProcesses == undefined ? 0 : state.numberOfProcesses
           );
-          console.log(ram + " " + cpu + "  " + upload);
           con.query(
             "UPDATE containersResourcesLog SET ram=?, cpu=?, number_of_processes=?,upload=?, download=?, timestamp=CURRENT_TIMESTAMP WHERE container_id=?",
             [
