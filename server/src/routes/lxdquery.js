@@ -227,13 +227,13 @@ export function getInstance(instance) {
     instance.createdOn = new Date(res.created_at);
     instance.lastStartedOn = new Date(res.last_used_at);
     instance.stateful = res.stateful;
-    if (res.config["image.os"]) {
-      instance.template.image = new Image(
-        res.config["image.os"],
-        res.config["image.version"],
-        res.config["image.description"]
-      );
-    }
+    // if (res.config["image.os"]) {
+    //   instance.template.image = new Image(
+    //     res.config["image.os"],
+    //     res.config["image.version"],
+    //     res.config["image.description"]
+    //   );
+    // }
     return getSnapshots(instance.id, instance.projectId).then((snap) => {
       instance.snapshots = snap;
       //console.log(instance);
@@ -318,8 +318,8 @@ export function getConsole(id, project) {
 
 // Returns the result of the given command, if not opt out, always inside OperationState
 export function execInstance(id, project, command, getOutput) {
-  if (typeof id == "number") id = `c${id}`;
-  if (typeof project == "number") project = `p${project}`;
+  if (!isNaN(parseFloat(project))) id = `c${id}`;
+  if (!isNaN(parseFloat(project))) project = `p${project}`;
   return mkRequest(`/1.0/instances/${id}/exec?project=${project}`, "POST", {
     // command: Array.isArray(command) ? command : command.split(" "),
     command: ["sh", "-c", command],
@@ -362,8 +362,8 @@ export function execInstance(id, project, command, getOutput) {
 
 //uses piper to write a file to given path inside specified instance
 function postToInstance(id, project, piper, dstPath, headers) {
-  if (typeof id == "number") id = `c${id}`;
-  if (typeof project == "number") project = `p${project}`;
+  if (!isNaN(parseFloat(project))) id = `c${id}`;
+  if (!isNaN(parseFloat(project))) project = `p${project}`;
   let opts = mkOpts(
     `/1.0/instances/${id}/files?project=${project}&path=${dstPath}`,
     "POST"

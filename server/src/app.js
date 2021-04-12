@@ -305,12 +305,16 @@ app.patch(
       .getProjectIdOfContainer(req.params.instanceId)
       .then((result) => {
         lxd.startInstance(req.params.instanceId, result).then((result) => {
+          console.log(result);
+          console.log("started");
           if (result.statusCode != 200) {
             res.send(new OperationState("failed to start the container", 500));
           } else {
             containerSQL
               .updateContainerStateObject(req.params.instanceId, true, 103)
               .then((result) => {
+                console.log("resutlino");
+                console.log(result);
                 getContainerObject(req.params.instanceId).then((result) => {
                   res.send(result);
                 });
@@ -325,6 +329,7 @@ app.patch(
   isLoggedIn,
   isContainerUsers,
   (req, res) => {
+    console.log(req.params);
     containerSQL
       .getProjectIdOfContainer(req.params.instanceId)
       .then((result) => {
@@ -332,6 +337,7 @@ app.patch(
           if (result.statusCode != 200) {
             res.send(new OperationState("failed to stop the container", 500));
           } else {
+            console.log("got here");
             containerSQL
               .updateContainerStateObject(req.params.instanceId, false, 102)
               .then((result) => {
@@ -408,14 +414,16 @@ app.get(
 
 function getContainerObject(id) {
   return new Promise((resolve) => {
+    console.log("getting contianer obejct");
     containerSQL.createContainerObject(id).then((container) => {
       containerSQL.createContainerStateObject(id).then((result) => {
         container.state = result;
+        console.log(container);
         lxd.getInstance(container).then((result) => {
           containerSQL.updateContainerStateObject(
             id,
             false,
-            result.state.OperationState.statusCode
+            result.state.operationState.statusCode
           );
           resolve(result);
         });

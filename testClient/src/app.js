@@ -1,18 +1,18 @@
 const https = require("http");
 
-const route = "/api/project";
-const data = JSON.stringify({
-  name: "string",
-  limits: {
-    RAM: 0,
-    CPU: 0,
-    disk: 0,
-    internet: {
-      download: 0,
-      upload: 0,
-    },
-  },
-});
+//const route = "/api/project";
+// const data = JSON.stringify({
+//   name: "string",
+//   limits: {
+//     RAM: 0,
+//     CPU: 0,
+//     disk: 0,
+//     internet: {
+//       download: 0,
+//       upload: 0,
+//     },
+//   },
+// });
 // const route = "/api/instances";
 // const data = JSON.stringify({
 //   name: "dindu",
@@ -31,28 +31,40 @@ const data = JSON.stringify({
 //   },
 // });
 
+// const options = {
+//   hostname: "localhost",
+//   port: 5000,
+//   path: route,
+//   method: "POST",
+//   headers: {
+//     "Content-Type": "application/json; charset=utf-8",
+//     "Content-Length": data.length,
+//   },
+// };
+const route = "/api/instances/142/start";
+
 const options = {
   hostname: "localhost",
-  port: 7000,
+  port: 5000,
   path: route,
-  method: "POST",
+  method: "PATCH",
   headers: {
     "Content-Type": "application/json; charset=utf-8",
-    "Content-Length": data.length,
+    // "Content-Length": data.length,
   },
 };
 
 const req = https.request(options, (res) => {
   console.log(`statusCode: ${res.statusCode}`);
 
-  res.on("data", (d) => {
-    process.stdout.write(d);
-  });
+  // res.on("data", (d) => {
+  //   process.stdout.write(d);
+  // });
 });
 
 req.on("error", (error) => {
   console.error(error);
 });
 
-req.write(data);
+// req.write(data);
 req.end();
