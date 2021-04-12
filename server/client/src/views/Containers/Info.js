@@ -249,7 +249,7 @@ function Info({
                      </Card.Header>
                      <Card.Body className="p-0">
                         <Container fluid>
-                           <Link to="/user" className="card-link">
+                           <Link to="history" className="card-link">
                               <span className="to-underline">
                                  Click here to see state logs
                               </span>

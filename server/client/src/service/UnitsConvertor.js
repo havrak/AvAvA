@@ -3,7 +3,7 @@ class Container {
       this.value = value;
       this.unit = unit;
    }
-   getMessage(){
+   getMessage() {
       return this.value + this.unit;
    }
 }
@@ -15,8 +15,8 @@ const prefixes = {
    K: 1_000,
    m: 0.001,
    µ: 0.000_001,
-   n: 0.000_000_001
-}
+   n: 0.000_000_001,
+};
 
 export function bytesToAdequateValue(bytes) {
    if (bytes > 1_000_000_000_000) {
@@ -64,7 +64,7 @@ export function HzToAdequateValue(Hz) {
    } else if (Hz > 1_000_000) {
       return new Container(Math.round(Hz / 10_000) / 100.0, "MHz");
    } else if (Hz > 1_000) {
-      return new Container(Math.round(Hz /10.0) / 100.0, "KHz");
+      return new Container(Math.round(Hz / 10.0) / 100.0, "KHz");
    } else {
       return new Container(Hz, "Hz");
    }
@@ -100,4 +100,13 @@ export function networkSpeedToMbits(bytes) {
 
 export function networkSpeedFromMBitsToBits(MBits) {
    return MBits * 1_000_000;
+}
+
+//https://www.codegrepper.com/code-examples/javascript/how+to+show+only+hours+and+minutes+from+javascript+date
+//creates hours:minutes date with 2 digits - 01:05
+export function prettyDate(date) {
+   return date.toLocaleTimeString(navigator.language, {
+      hour: "2-digit",
+      minute: "2-digit",
+   });
 }

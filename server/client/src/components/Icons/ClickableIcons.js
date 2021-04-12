@@ -6,6 +6,7 @@ import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import StopIcon from "@material-ui/icons/Stop";
 import AcUnitIcon from "@material-ui/icons/AcUnit";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
+import PublishIcon from '@material-ui/icons/Publish';
 
 function Icon({ iconName, iconComponent, handler }) {
    return (
@@ -69,6 +70,17 @@ export function FreezeClickableIcon({ handler }) {
    );
 }
 
+// export function FreezeClickableIcon({ handler }) {
+//    return (
+//       <Icon
+//          iconName={"Freeze"}
+//          iconComponent={<AcUnitIcon className={"frozen"} />}
+//          handler={handler}
+//       />
+//    );
+// }
+
+//question mark with tooltip
 export function HelpIcon({ tooltipText }) {
    return (
       <Tooltip title={tooltipText}>

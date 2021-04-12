@@ -31,6 +31,9 @@ import ContainerBackup from "views/Containers/Backup.js";
 // import Upgrade from "views/Upgrade.js";
 import PatchContainer from "components/RouteComponents/PatchContainer";
 import PatchProject from "components/RouteComponents/PatchProject";
+import UserHistoryState from "views/User/StateHistory";
+import ProjectHistoryState from "views/Projects/StateHistory";
+import ContainerHistoryState from "views/Containers/StateHistory";
 import { getCurrentProjectAndContainer } from "service/RoutesHelper";
 
 const projectsNavLinks = [
@@ -153,6 +156,13 @@ const routes = [
       layout: "/user",
    },
    {
+      path: "/history",
+      name: "Projects",
+      icon: "nc-icon nc-notes",
+      view: UserHistoryState,
+      layout: "/user",
+   },
+   {
       path: "/projects/:projectId",
       name: "Project",
       layout: "/user",
@@ -174,6 +184,13 @@ const routes = [
       layout: "/user",
    },
    {
+      path: "/projects/:projectId/history",
+      name: "Containers",
+      navLinks: projectsNavLinks,
+      view: ProjectHistoryState,
+      layout: "/user",
+   },
+   {
       path: "/projects/:projectId/containers/:containerId",
       name: "Project",
       layout: "/user",
@@ -191,7 +208,7 @@ const routes = [
       path: "/projects/:projectId/containers/:containerId/console",
       name: "Console",
       navLinks: containerNavLinks,
-      view: (ContainerConsole),
+      view: ContainerConsole,
       layout: "/user",
    },
    {
@@ -206,6 +223,13 @@ const routes = [
       name: "Backup",
       navLinks: containerNavLinks,
       view: ContainerBackup,
+      layout: "/user",
+   },
+   {
+      path: "/projects/:projectId/containers/:containerId/history",
+      name: "Backup",
+      navLinks: containerNavLinks,
+      view: ContainerHistoryState,
       layout: "/user",
    },
    {

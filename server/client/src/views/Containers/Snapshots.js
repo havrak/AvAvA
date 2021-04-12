@@ -19,7 +19,7 @@ import {
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
 import SnapshotsTableToolbar from "components/Tables/Toolbars/SnapshotsTableToolbar";
-
+//TODO (just view done, but no real functionality has been implemented yet)
 function Snapshots(props) {
    const {
       currentProject,
