@@ -28,7 +28,7 @@ const crt = fs.readFileSync(
 	path.resolve(__dirname, "../../config/lxcclient.crt")
 );
 
-const debug = false;
+const debug = true;
 
 function mkOpts(path, method = "GET") {
 	return {
@@ -618,15 +618,15 @@ export async function exportInstance(id, project, streamHandler) {
 	let res = await mkRequest(
 		`/1.0/instances/c${id}/backups?project=p${project}`
 	);
+	if (res.error_code) return getOperation(res);
 	let bid =
-		"b" +
-		(res.length == 0
+		res.length == 0
 			? 1
 			: parseInt(
 					res[res.length - 1].substring(
 						`/1.0/instances/c${id}/backups/b`.length
 					)
-			  ) + 1);
+			  ) + 1;
 	let expiry = new Date();
 	expiry.setHours(expiry.getHours() + 5);
 	res = await mkRequest(
@@ -648,7 +648,7 @@ export async function exportInstance(id, project, streamHandler) {
 			),
 			(res) => {
 				streamHandler(res);
-				res.on("close", () => deleteBackup(id, bid, project));
+				res.on("close", () => deleteBackup(id, project, bid));
 			}
 		);
 		req.end();

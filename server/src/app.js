@@ -375,7 +375,7 @@ app.get(
 			(result) => {
 				//{ terminal: "terminalSecret", control: "controlSecret"}
 				if (result.control) res.status(200).send(result);
-				else res.status(400).send(result); //result -> OperationState
+				else res.status(400).send({ message: result.status }); //result -> OperationState
 			}
 		);
 	}
@@ -386,11 +386,16 @@ app.get(
 	isLoggedIn,
 	isContainerUsers,
 	(req, res) =>
-		lxd.exportInstance(
-			req.params.instanceId,
-			req.params.projectId,
-			(stream) => stream.pipe(res)
-		)
+		lxd
+			.exportInstance(
+				req.params.instanceId,
+				req.params.projectId,
+				(stream) => stream.pipe(res)
+			)
+			.then((result) => {
+				if (result.statusCode && result.statusCode != 200)
+					res.status(400).send({ message: result.status });
+			})
 );
 
 app.get(
