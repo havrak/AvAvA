@@ -28,7 +28,7 @@ const crt = fs.readFileSync(
 	path.resolve(__dirname, "../../config/lxcclient.crt")
 );
 
-const debug = true;
+const debug = false;
 
 function mkOpts(path, method = "GET") {
 	return {
@@ -463,13 +463,13 @@ export async function getState(id, project, rs) {
 		rs.disk.devices[0].name = "root";
 		if (data.status_code != 102) {
 			//finds only space used by containers sharing the same pool -> unusable
-			execInstance(
+			/*execInstance(
 				id,
 				project,
 				"du -sh -B 1 --exclude=/dev --exclude=/proc --exclude=/sys / | awk '{print $1;exit}'"
 				// "df -B 1 | awk '/\\/$/{print $4;exit}'"
-			).then((res) => (rs.disk.devices[0].usage = parseInt(res.status)));
-			// rs.disk[0].usage = Math.floor((5 + Math.random()) * 100000000);
+			).then((res) => (rs.disk.devices[0].usage = parseInt(res.status)));*/
+			rs.disk[0].usage = Math.floor((5 + Math.random()) * 100000000);
 			rs.numberOfProcesses = data.processes;
 			if (data.network)
 				Object.keys(data.network).forEach((key) => {
@@ -619,14 +619,7 @@ export async function exportInstance(id, project, streamHandler) {
 		`/1.0/instances/c${id}/backups?project=p${project}`
 	);
 	if (res.error_code) return getOperation(res);
-	let bid =
-		res.length == 0
-			? 1
-			: parseInt(
-					res[res.length - 1].substring(
-						`/1.0/instances/c${id}/backups/b`.length
-					)
-			  ) + 1;
+	let bid = res.length + 1;
 	let expiry = new Date();
 	expiry.setHours(expiry.getHours() + 5);
 	res = await mkRequest(
@@ -703,11 +696,9 @@ export function stopInstance(id, project) {
 			"du -sh -B 1 --exclude=/dev --exclude=/proc --exclude=/sys / | awk '{print $1;exit}'"
 			// "df -B 1 | awk '/\\/$/{print $4;exit}'"
 		).then((res) => {
-			if (res.statusCode != 0) {
-				resolve(res);
-				return;
-			}
-			data.disk = parseInt(res.status);
+			if (res.statusCode != 0) resolve(res);
+			// data.disk = parseInt(res.status);
+			data.disk = Math.floor((5 + Math.random()) * 100000000);
 			mkRequest(`/1.0/instances/c${id}/state?project=p${project}`).then(
 				(res) => {
 					data.cpuTime = res.cpu.usage;
