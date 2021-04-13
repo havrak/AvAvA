@@ -33,7 +33,8 @@ import PatchProject from "components/RouteComponents/PatchProject";
 import UserHistoryState from "views/User/StateHistory";
 import ProjectHistoryState from "views/Projects/StateHistory";
 import ContainerHistoryState from "views/Containers/StateHistory";
-import DownloadBackup from "components/RouteComponents/DownloadBackup";
+// import DownloadBackup from "components/RouteComponents/DownloadBackup";
+import ContainerBackup from 'views/Containers/Backup';
 
 const projectsNavLinks = [
    {
@@ -112,12 +113,12 @@ const containerNavLinks = [
       name: "Backup",
       link: "backup",
       component: (name, link, notify) => {
-         // return (
-         //    <Link to={link}>
-         //       <span className="no-icon">{name}</span>
-         //    </Link>
-         // );
-         return <DownloadBackup name={name} link={link} notify={notify}/>
+         return (
+            <Link to={link}>
+               <span className="no-icon">{name}</span>
+            </Link>
+         );
+         // return <DownloadBackup name={name} link={link} notify={notify}/>
       },
    },
    // {
@@ -216,6 +217,13 @@ const routes = [
       name: "Snapshots",
       navLinks: containerNavLinks,
       view: ContainerSnapshots,
+      layout: "/user",
+   },
+   {
+      path: "/projects/:projectId/containers/:containerId/backup",
+      name: "Backup",
+      navLinks: containerNavLinks,
+      view: ContainerBackup,
       layout: "/user",
    },
    {

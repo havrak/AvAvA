@@ -16,6 +16,7 @@ export function CircularStateChartCard({
    stateName,
    convertorCallback,
    baseUnit,
+   headdingTypeLeft
 }) {
    const {
       usage,
@@ -83,11 +84,23 @@ export function CircularStateChartCard({
                }}
                rootProps={{ "data-testid": "1" }}
             />
-            <div className="resource-chart-headding">
-               <p className="stat-name">{stateName}</p>
-               <p className="used-size">{freeMessage}</p>
-               <p className="max-size">{`of ${convertorCallback(max).getMessage()} left`}</p>
-            </div>
+            {headdingTypeLeft ? (
+               <div className="resource-chart-headding">
+                  <p className="stat-name">{stateName}</p>
+                  <p className="used-size">{freeMessage}</p>
+                  <p className="max-size">{`of ${convertorCallback(
+                     max
+                  ).getMessage()} left`}</p>
+               </div>
+            ) : (
+               <div className="resource-chart-headding">
+                  <p className="stat-name">{stateName}</p>
+                  <p className="used-size">{usedPercent}%</p>
+                  <p className="max-size">{`of ${convertorCallback(
+                     max
+                  ).getMessage()} used`}</p>
+               </div>
+            )}
          </Card.Body>
       </Card>
    );
@@ -101,6 +114,7 @@ export function DiskCircularStateChartCard({ disk, max }) {
          stateName={"Disk"}
          convertorCallback={bytesToAdequateValue}
          baseUnit={"B"}
+         headdingTypeLeft={true}
       />
    );
 }
@@ -113,6 +127,7 @@ export function CPUCircularStateChartCard({ CPU, max }) {
          stateName={"CPU"}
          convertorCallback={HzToAdequateValue}
          baseUnit={"Hz"}
+         headdingTypeLeft={false}
       />
    );
 }
@@ -125,6 +140,7 @@ export function RAMCircularStateChartCard({ RAM, max }) {
          stateName={"RAM"}
          convertorCallback={bytesToAdequateValue}
          baseUnit={"B"}
+         headdingTypeLeft={false}
       />
    );
 }
@@ -137,6 +153,7 @@ export function DownloadCircularStateChartCard({ download, max }) {
          stateName={"Download"}
          convertorCallback={bytesPerSecondToAdequateValue}
          baseUnit={"b/s"}
+         headdingTypeLeft={false}
       />
    );
 }
@@ -149,6 +166,7 @@ export function UploadCircularStateChartCard({ upload, max }) {
          stateName={"Upload"}
          convertorCallback={bytesPerSecondToAdequateValue}
          baseUnit={"b/s"}
+         headdingTypeLeft={false}
       />
    );
 }
