@@ -805,9 +805,9 @@ export function createProject(data) {
 
 export function deleteProject(id) {
 	return new Promise((resolve) => {
-		deleteImagesInProject(id).then((res) => {
+		deleteImagesOf(id).then((res) => {
 			if (res.statusCode != 200) resolve(res);
-			deleteProfilesInProject(id).then((res) => {
+			deleteProfilesOf(id).then((res) => {
 				if (res.statusCode != 200) resolve(res);
 				mkRequest(`/1.0/projects/p${id}`, "DELETE").then((res) => {
 					if (!res || !res.error)
@@ -837,7 +837,8 @@ export function deleteImagesOf(projectId) {
 					mkRequest(`${image}?project=p${projectId}`, "DELETE").then(
 						(res) => {
 							if (res.status_code != 200) error = getOperation(res);
-							if (++done == images.length)
+							done++;
+							if (done == images.length)
 								resolve(error || getOperation(res));
 						}
 					)
@@ -860,7 +861,8 @@ export function deleteProfilesOf(projectId) {
 						mkRequest(`${profile}?project=p${projectId}`, "DELETE").then(
 							(res) => {
 								if (res.status_code != 200) error = getOperation(res);
-								if (++done == profiles.length)
+								done++;
+								if (done == profiles.length)
 									resolve(error || getOperation(res));
 							}
 						);

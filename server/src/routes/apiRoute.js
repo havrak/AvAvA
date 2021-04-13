@@ -307,11 +307,14 @@ app.post("/api/projects", isLoggedIn, (req, res) => {
 	projectSQL.createCreateProjectJSON(email, req.body).then((project) => {
 		if (project.statusCode == 400) {
 			res.status(400).send(project.status);
+			return;
 		}
 		let id = project.name; // createProject will rewrite name variable thus it is easiest to store it in variable
 		lxd.createProject(project).then((result) => {
-			if (result.statusCode != 200) projectSQL.removeProject(id);
-			else getProjectObject(id).then((result) => res.send(result));
+			if (result.statusCode != 200) {
+				projectSQL.removeProject(id);
+				res.status(400).send({ message: result.status });
+			} else getProjectObject(id).then((result) => res.send(result));
 		});
 	});
 });
