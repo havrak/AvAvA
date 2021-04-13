@@ -2,7 +2,7 @@ const https = require("http");
 
 const route = "/api/instances";
 const data = JSON.stringify({
-  name: "otesanek",
+  name: "otesanek2",
   rootPassword: "string",
   projectId: 69,
   templateId: 2,

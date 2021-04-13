@@ -15,10 +15,10 @@ import * as lxd from "./routes/lxdRoute.js";
 import { resolve } from "node:dns";
 
 app.use(
-	cookieSession({
-		maxAge: 30 * 24 * 60 * 60 * 1000,
-		keys: [keys.cookieKey],
-	})
+  cookieSession({
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    keys: [keys.cookieKey],
+  })
 );
 
 app.use(passport.initialize());
@@ -41,25 +41,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 import * as WebSocket from "./services/websocket.js";
-app.listen(PORT, () => console.log(`App on port ${PORT}!`)).on(
-	"upgrade",
-	(req, socket, head) => {
-		WebSocket.wss.handleUpgrade(req, socket, head, (socket) =>
-			WebSocket.wss.emit("connection", socket, req)
-		);
-	}
-);
+app
+  .listen(PORT, () => console.log(`App on port ${PORT}!`))
+  .on("upgrade", (req, socket, head) => {
+    WebSocket.wss.handleUpgrade(req, socket, head, (socket) =>
+      WebSocket.wss.emit("connection", socket, req)
+    );
+  });
 
 import("./routes/apiRoute.js");
 
 schedule.scheduleJob("*/10 * * * *", () => {
-	containerSQL.getAllContainers().then((result) => {
-		result.forEach((cont) => {
-			containerSQL.createContainerStateObject(cont.id).then((result) => {
-				lxd.getState(cont.id, cont.project_id, result).then((result) => {
-					containerSQL.updateLogsForContainer(cont.id, result);
-				});
-			});
-		});
-	});
+  containerSQL.getAllContainers().then((result) => {
+    result.forEach((cont) => {
+      containerSQL.createContainerStateObject(cont.id).then((result) => {
+        lxd.getState(cont.id, cont.project_id, result).then((result) => {
+          containerSQL.updateLogsForContainer(cont.id, result);
+        });
+      });
+    });
+  });
 });

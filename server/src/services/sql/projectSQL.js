@@ -27,7 +27,7 @@ export default class projectSQL {
           if (rows[0] == undefined) {
             resolve(
               new OperationState(
-                "User doesn't exist or doesn't have limtis",
+                "User doesn't exist or doesn't have limits",
                 400
               )
             );
@@ -160,7 +160,8 @@ export default class projectSQL {
                 );
               } else {
                 resolve({
-                  status: "Not enoug free space",
+                  // essentially OperationState, but with haproxy added
+                  status: "Not enough free space",
                   statusCode: 400,
                   haproxy: nameChange,
                 });
@@ -188,6 +189,10 @@ export default class projectSQL {
     return new Promise((resolve) => {
       let currentFreeSpace;
       this.createCreateProjectData(email).then((result) => {
+        if (result.statusCode == 400) {
+          resolve(result);
+          return;
+        }
         currentFreeSpace = result;
         if (
           config.limits.RAM > currentFreeSpace.RAM ||
@@ -202,6 +207,30 @@ export default class projectSQL {
         }
         const con = mysql.createConnection(sqlconfig);
 
+        if (
+          config.limits.RAM == null ||
+          config.limits.CPU == null ||
+          config.limits.disk == null ||
+          config.limits.internet.upload == null ||
+          config.limits.internet.download == null
+        ) {
+          if (
+            config.limits.RAM != null ||
+            config.limits.CPU != null ||
+            config.limits.disk != null ||
+            config.limits.internet.upload != null ||
+            config.limits.internet.download != null
+          ) {
+            con.end();
+            resolve(
+              new OperationState(
+                "Either all limits are null or none of them is null",
+                400
+              )
+            );
+            return;
+          }
+        }
         con.query(
           "INSERT INTO projects (name, owner_email) VALUES (?,?)",
           [config.name, email],
@@ -254,6 +283,12 @@ export default class projectSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
+          if (rows[0] == undefined) {
+            resolve(
+              new OperationState("Project: " + id + " doesn't exist", 400)
+            );
+            return;
+          }
           // query for coworkers
           let toReturn = new Project(
             id,

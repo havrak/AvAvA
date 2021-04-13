@@ -25,7 +25,8 @@ export default class containerSQL {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       this.getFreeSpaceForContainer(config.projectId, email).then((result) => {
-        console.log("available limits: ");
+        console.log("result");
+        console.log(result);
         if (result.statusCode == 400) {
           resolve(result);
           return;
@@ -63,6 +64,11 @@ export default class containerSQL {
               return;
             }
             this.addNewContainerToDatabase(config, email).then((result) => {
+              if (result.statusCode == 400) {
+                con.end();
+                resolve(result);
+                return;
+              }
               // self
               // as contianer name is in fact his id we first need to save it to database
               let template;
@@ -102,21 +108,16 @@ export default class containerSQL {
                       createContainerJSON.appsToInstall +=
                         "apt-get update && apt-get -yyq install ";
                       break;
+                    case "CentOS":
+                      createContainerJSON.appsToInstall +=
+                        "yum clean all && yum install ";
+                      break;
                   }
                   con.query("SELECT * FROM appsToInstall", (err, apps) => {
                     if (err) throw err;
                     apps.forEach((app, index) => {
                       if (config.applicationsToInstall.includes(app.id)) {
-                        switch (rows[0].image_name) {
-                          case "Ubuntu":
-                            config.applicationsToInstall +=
-                              app.package_name + " ";
-                            break;
-                          case "Debian":
-                            config.applicationsToInstall +=
-                              app.package_name + " ";
-                            break;
-                        }
+                        config.applicationsToInstall += app.package_name + " ";
                       }
                     });
                     resolve(createContainerJSON);
@@ -150,7 +151,9 @@ export default class containerSQL {
           if (err) throw err;
           if (rows[0] == undefined) {
             con.end();
-            resolve(new OperationState("Container doesn't exist"), 400);
+            resolve(
+              new OperationState("Container: " + id + " doesn't exist", 400)
+            );
             return;
           }
           resolve(rows[0].project_id);
@@ -228,6 +231,7 @@ export default class containerSQL {
         [config.projectId],
         (err, rows) => {
           if (rows[0] == undefined) {
+            con.end();
             resolve(new OperationState("Project doesn't exist", 400));
             return;
           }
@@ -251,10 +255,11 @@ export default class containerSQL {
             ],
             (err, rows) => {
               if (err && err.code == "ER_DUP_ENTRY") {
+                con.end();
                 resolve(
                   new OperationState(
                     "There already is container with the same name in the database",
-                    500
+                    400
                   )
                 );
                 return;
@@ -381,10 +386,10 @@ export default class containerSQL {
                   limits.internet.upload -= rows[index].upload;
                   limits.internet.download -= rows[index].download;
                 });
+                con.end();
+                resolve(limits);
               }
             );
-            con.end();
-            resolve(limits);
           }
         }
       );
@@ -403,6 +408,17 @@ export default class containerSQL {
         "SELECT * FROM containersResourcesLog WHERE containersResourcesLog.container_id=?",
         [id],
         (err, rows) => {
+          if (rows[0] == undefined) {
+            con.end();
+            resolve(
+              new OperationState(
+                "Container: " +
+                  id +
+                  " doesn't exist, or does not have log in logs "
+              )
+            );
+            return;
+          }
           if (err) throw err;
           let ram = rows[0].ram.split(",");
           ram.push(state.RAM.usage == undefined ? 0 : state.RAM.usage);
@@ -473,6 +489,11 @@ export default class containerSQL {
         "SELECT * FROM containers WHERE containers.project_id=?",
         [id],
         (err, rows) => {
+          if (rows[0] == undefined) {
+            con.end();
+            resolve(new Array());
+            return;
+          }
           let toReturn = new Array(rows.length);
           let counter = 0;
           rows.forEach((row, index) => {
@@ -541,7 +562,7 @@ export default class containerSQL {
     });
   }
   /**
-   * creates Object Container, field state is also filled
+   * creates Object Container with data from containers table
    * @param id - id of container
    *
    * @return Container object
@@ -554,12 +575,10 @@ export default class containerSQL {
         [id],
         (err, rows) => {
           if (err) throw err;
-          if (rows[0] == undefined) {
+          if (rows[0] == undefined || rows.length == 0) {
+            con.end();
             resolve(
-              new OperationState(
-                "contianer couldn't have been found in the database",
-                400
-              )
+              new OperationState("Container: " + id + " doesn't exits", 400)
             );
             return;
           } else {
@@ -569,7 +588,7 @@ export default class containerSQL {
               toReturn.projectId = rows[0].project_id;
               toReturn.name = rows[0].name;
               toReturn.url = rows[0].url;
-              toReturn.template = result;
+              toReturn.template = result.statusCode == 400 ? "unknown" : result;
               con.end();
               resolve(toReturn);
             });
@@ -596,9 +615,11 @@ export default class containerSQL {
             con.end();
             resolve(
               new OperationState(
-                "Container either doesn't exist, or his limits aren't set in the database"
-              ),
-              400
+                "Container: " +
+                  id +
+                  " either doesn't exist, or his limits aren't set in the database",
+                400
+              )
             );
             return;
           }
