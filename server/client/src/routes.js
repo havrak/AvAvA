@@ -84,13 +84,6 @@ const containerNavLinks = [
       name: "Console",
       link: "console",
       component: (name, link, notify) => {
-         // return (
-         //    <Link
-         //       to={`/user/projects/${currentProject.id}/containers/${currentContainer.id}`}
-         //    >
-         //       <span className="no-icon">{name}</span>
-         //    </Link>
-         // );
          return (
             <Link to={link}>
                <span className="no-icon">{name}</span>

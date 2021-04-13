@@ -3,7 +3,7 @@ import { Dropdown, DropdownButton } from "react-bootstrap";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
-import { logout as logoutFunction } from "actions/UserActions";
+import { logout } from "actions/UserActions";
 import { textualRepresentationOfRole } from "service/UserService";
 
 function UserCard({ Nav, logout, user }) {
@@ -42,7 +42,13 @@ function UserCard({ Nav, logout, user }) {
                Settings
             </Dropdown.Item> */}
             <div className="divider"></div>
-            <Dropdown.Item href="/user/dashboard" onClick={(e) => logout()}>
+            <Dropdown.Item
+               href="/user/dashboard"
+               onClick={(e) => {
+                  e.preventDefault();
+                  logout();
+               }}
+            >
                Logout{" "}
             </Dropdown.Item>
          </Dropdown.Menu>
@@ -53,7 +59,8 @@ function UserCard({ Nav, logout, user }) {
 const mapDispatchToProps = (dispatch) => {
    return {
       logout: () => {
-         dispatch(logoutFunction());
+         console.log("loggin out");
+         dispatch(logout());
       },
    };
 };

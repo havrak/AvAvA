@@ -31,7 +31,6 @@ class Console extends Component {
 
          const terminalSocket = createTerminalSocket(data.terminal);
          terminalSocket.onopen = () => {
-            console.log("f");
             // term.attach(socket);
             term.onData((data) => {
                terminalSocket.send(data);
@@ -54,7 +53,7 @@ class Console extends Component {
             };
             const ro = new ResizeObserver(async () => {
                const dimensions = this.dimensions();
-               console.log(dimensions, "resized");
+               // console.log(dimensions, "resized");
                controlSocket.send(JSON.stringify({
                   command: "window-resize",
                   args: {
@@ -72,8 +71,8 @@ class Console extends Component {
          };
          this.term = term;
       };
-      api.projectsProjectIdInstancesInstanceIdConsoleGet(
-         this.projectId,
+      api.instancesInstanceIdConsoleGet(
+         this.instanceId,
          successConsoleCreationCallback
       );
    }

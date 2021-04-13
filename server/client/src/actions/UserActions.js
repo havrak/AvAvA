@@ -28,8 +28,9 @@ export const userProjectsGet = () => {
 
 export const logout = () => {
    return (dispatch) => {
-      apilogout.then((res) => {
-         dispatch({ type: "LOGOUT", payload: res.data });
-      });
+      const callback = function (error, data, response) {
+         dispatch({ type: "LOGOUT", payload: {} });
+      };
+      api.logoutGet(callback);
    };
 };

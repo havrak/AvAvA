@@ -123,7 +123,7 @@ const PatchProjectDialog = ({
                <h3 className={"limits-headding"}>Limits</h3>
                <InputSliderWithSwitch
                   headding={"Disk"}
-                  min={diskToGB(currentProject.state.disk.usage)}
+                  min={diskToGB(currentProject.state.disk.allocated)}
                   setValueToParentElement={(value) => {
                      patchedProject.current.limits.disk = value;
                   }}
@@ -133,7 +133,7 @@ const PatchProjectDialog = ({
                />
                <InputSliderWithSwitch
                   headding={"CPU"}
-                  min={0}
+                  min={CPUToMHz(currentProject?.state.CPU.allocated)}
                   setValueToParentElement={(value) => {
                      patchedProject.current.limits.CPU = value;
                   }}
@@ -146,7 +146,7 @@ const PatchProjectDialog = ({
                   setValueToParentElement={(value) => {
                      patchedProject.current.limits.RAM = value;
                   }}
-                  min={0}
+                  min={ramToMB(currentProject.state.RAM.allocated)}
                   initialValue={ramToMB(currentProject?.limits?.RAM)}
                   max={convertedRAM}
                   unit={"MB"}
@@ -154,21 +154,21 @@ const PatchProjectDialog = ({
                />
                <InputSliderWithSwitch
                   headding={"Download"}
-                  min={0}
+                  min={networkSpeedToMbits(currentProject.state.internet.download.allocated)}
                   setValueToParentElement={(value) => {
-                     patchedProject.current.limits.internet.upload = value;
+                     patchedProject.current.limits.internet.download = value;
                   }}
-                  initialValue={networkSpeedToMbits(currentProject?.limits?.internet.upload)}
+                  initialValue={networkSpeedToMbits(currentProject?.limits?.internet.download)}
                   max={convertedDownload}
                   unit={"Mbit/s"}
                />
                <InputSliderWithSwitch
                   headding={"Upload"}
-                  min={0}
+                  min={networkSpeedToMbits(currentProject.state.internet.download.allocated)}
                   setValueToParentElement={(value) => {
-                     patchedProject.current.limits.internet.download = value;
+                     patchedProject.current.limits.internet.upload = value;
                   }}
-                  initialValue={networkSpeedToMbits(currentProject?.limits?.internet.download)}
+                  initialValue={networkSpeedToMbits(currentProject?.limits?.internet.upload)}
                   max={convertedUpload}
                   unit={"Mbit/s"}
                />

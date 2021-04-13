@@ -69,7 +69,7 @@ export const projectIdDelete = (projectId, notify) => {
          // console.log(response, 'project id delete');
          if (error) {
             dispatch(projectStateChangeFail(projectId));
-            notify(`Error occured: ${response.body.message}`);
+            notify(`Error occured: ${response?.body?.message}`);
          } else {
             dispatch(projectDeleteSuccess(projectId));
          }

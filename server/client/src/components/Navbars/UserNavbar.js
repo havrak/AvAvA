@@ -17,7 +17,7 @@ import { relativeLocation, getValidRoute, isActive } from "service/RoutesHelper.
 import { connect } from "react-redux";
 import _ from "lodash";
 
-function Header({ logout, user, brand, notify, combinedUserData }) {
+function Header({ user, brand, notify, combinedUserData }) {
    const location = useLocation();
    const mobileSidebarToggle = (e) => {
       e.preventDefault();

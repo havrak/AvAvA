@@ -28,7 +28,7 @@ const crt = fs.readFileSync(
 	path.resolve(__dirname, "../../config/lxcclient.crt")
 );
 
-const debug = false;
+const debug = true;
 
 function mkOpts(path, method = "GET") {
 	return {

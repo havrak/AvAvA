@@ -1,6 +1,7 @@
 node_modules
 nodejs-server-server-generated
 package-lock.json
+<<<<<<< HEAD
 server/node_modules
 server/package-lock.json
 documentation/prace/literatura.aux
@@ -21,3 +22,10 @@ documentation/prace/titulka.blg
 documentation/prace/titulka.log
 documentation/prace/uvod.bbl
 documentation/prace/uvod.blg
+=======
+./server/node_modules
+./server/package-lock.json
+./server/client/.eslintcache
+./server/client/.gitignore
+
+>>>>>>> 89dd340... Commit to pull

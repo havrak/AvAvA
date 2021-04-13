@@ -29,6 +29,7 @@ function User({notify}) {
    const [color, setColor] = React.useState("black");
    const location = useLocation();
    const mainPanel = React.useRef(null);
+   //this is responsible for propper routing
    const getRoutes = (routes) => {
       return routes.map((prop, key) => {
          if (prop.layout === "/user") {
@@ -52,6 +53,8 @@ function User({notify}) {
          }
       });
    };
+
+   //legacy code
    React.useEffect(() => {
       document.documentElement.scrollTop = 0;
       document.scrollingElement.scrollTop = 0;

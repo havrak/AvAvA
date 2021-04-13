@@ -210,7 +210,7 @@ const CreateContainerDialog = ({
                            return (
                               <CheckboxDiv
                                  tooltipText={app.name}
-                                 inputText={app.description}
+                                 inputText={`${app.name} - ${app.description}`}
                                  iconSource={app.icon}
                                  handler={(shouldAdd) => {
                                     if (shouldAdd) {
