@@ -82,19 +82,19 @@ export function getProjectStateWithHistory(id) {
 }
 
 export function getContainerObject(id) {
-  return containerSQL.createContainerObject(id).then((container) => {
-    if (container.statusCode == 400) return container;
-    containerSQL.createContainerStateObject(id).then((result) => {
-      container.state = result;
-      return lxd.getInstance(container).then((result) => {
-        if (!result.state) return result;
-        return containerSQL
-          .updateContainerStateObject(
+  return new Promise((resolve) => {
+    containerSQL.createContainerObject(id).then((container) => {
+      if (container.statusCode == 400) resolve(container);
+      containerSQL.createContainerStateObject(id).then((result) => {
+        container.state = result;
+        return lxd.getInstance(container).then((result) => {
+          resolve(result);
+          containerSQL.updateContainerStateObject(
             id,
             false,
             result.state.operationState.statusCode
-          )
-          .then(() => result);
+          );
+        });
       });
     });
   });

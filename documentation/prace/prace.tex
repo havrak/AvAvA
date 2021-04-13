@@ -163,6 +163,13 @@ Das System sollte sich zusichern, damit die Serverressourcen gerecht auf die ind
 
 \chapter{Architektura}
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=9.5cm]{../img/architecture.png}
+	\caption[Strukura projektu, vlastní tvorba]{Struktura projektu}
+	\label{fig:architecture}
+\end{figure}
+
 Jádro práce stojí na lxd, což je kontejnerizační systém zabudovaný přímo do linuxového kernelu.
 Jedná se tak o nejvíce efektivní řešení, protože jednotlivé kontejnery mohou sdílet společný kernel.
 Jsou tak menší a rychlejší, než kdyby se jednalo o VPS.
@@ -174,132 +181,259 @@ Většinu informací ukládá do mySQL databáze, kvůli komplikacím s LXD byla
 Frontend je psán v ReactJS a s backendem komunikuje prostřednictvím vlastního REST API (jehož podrobná specifikace je uvedena v dokumentaci).
 Na frontendu může uživatel v pohodlném prostředí vytvářet nové kontejnery, projekty, či získat informace o jejich aktuálním stavu a mnohé další.
 
+\section{Sytém kontejnerů}
 
-\section{LXD}
+
+\section{Specifikace vlastního API}
+
+
+\subsubsection{\color{apiblue}{GET -- /api/combinedData}}
+
+Routa GET /api/combinedData vrací objekt UserData.
+Odpověď obsahuje informace o uživateli, informace potřebné k vytvoření nového kontejneru (Dostupné šablony a aplikace, které je možno nainstalovat.)
+Mimo to je v odpovědi objekt UserProjects, který v sobě má uložené limity uživatele a informace o všech jeho projektech.
+Jedná se o jeden z prvních požadavků co frontend zavolá.
+
+\subsubsection{\color{apiblue}{POST -- /api/instances}}
+
+Routa POST /api/instances umožňuje uživateli vytvořit nový kontejner.
+Překročil li uživatel aktuální maximální limity, či vytvoření kontejneru selhalo vrátí se uživateli chybová hláška s kódem 400.
+Kontejner se pochopitelně smaže z databáze, kam je nutné ho provní uložit.
+
+Požadavek také umožňuje nechat na kontejner nainstalovat aplikace, selže li jejich instalace uživatel se o tom nedozví.
+Kontejner se však nesmaže.
+
+Vytvoří li se dobře kontejner vrátí se uživateli Container objekt obsahující informace o právě vytvořeném kontejneru.
+Na backendu se zároveň vygeneruje nový konfigurační soubory proxy (viz. Backend$\Rightarrow$ Networking $\Rightarrow$ Proxy).
+
+
+\subsubsection{\color{apiblue}{GET -- /api/instances/createInstanceConfigData}}
+
+Routa GET /api/instances/createInstanceConfigData slouží vrací objekt createInstanceConfigData.
+Je volána vždy před vytvořením nového kontejneru, aby uživatel měl na výběr mezi aktuální nabídkou šablon a aplikací, které je možno nainstalovat.
+
+\subsubsection{\color{apiblue}{GET -- /api/instances/\{id\}}}
+
+Routa GET /api/instances/\{id\} vrací objekt Container.
+V něm jsou uložené informace o dotazovaném kontejneru, jako jsou jeho limity, či aktuální stav.
+Jak bylo zmíněno v autorizaci, uživatel se může zeptat pouze na kontejnery, které vlastní, či je na nich uveden jako spolupracovník.
+
+\subsubsection{\color{apicyan}{PATCH -- /api/instances/\{id\}}}
+
+Routa PATCH /api/instances/\{id\} slouží k změně limitů kontejnerů.
+Aktuálně není změna limitů na backendu implementována.
+Po změně limitů by se měla vrátit objekt Container s novými limity a všechny záznamy v containersResourcesLog by byly vymazány.
+Změna limitů jde provádět pouze na vypnutém kontejneru, o to by se routa postarala.
+
+\subsubsection{\color{apired}{DELETE -- /api/instances/\{id\}}}
+
+Routa DELETE /api/instances/\{id\} slouží k smazání vybraného kontejneru.
+Operace nejde nijak revertnou, neudělal li si uživatel backup.
+Kontejner se jednoduše smaže z databáze a z lxd systému.
+
+\subsubsection{\color{apiblue}{GET -- /api/instances/\{id\}/stateWithHistory}}
+
+Routa GET /api/instances/\{id\}/stateWithHistory vrací pole objektů ContainerStateWithHistory.
+V něm je uloženo id kontejneru a logy stavu kontejneru (prostřednictvím ContainerResourceState).
+S aktuální konfigurací je stav zaznamenává co deset minut dvě hodiny nejstarší stav byl zaznamenám před 2 hodinami.
+
+V objektech jsou vyplněna pouze pole, které jsou uloženy v databázi, tedy informace o stavu ram, cpu, počtu procesů, rychlosti uploadu, rychlosti downloadu a limity.
+Výjimku představuje poslední ContainerResourceState v poli, kde je uložen aktuální stav, který se získá přes volání do lxd.
+
+\subsubsection{\color{apiblue}{GET -- /api/instances/\{id\}/console}}
+
+Routa GET /api/instances/\{id\}/console slouží realizaci konzole ve webovém prostředí.
+Na serveru se vytvoří websocket s konzolí a přihlašovací údaje na něj se zašlou uživateli.
+
+\subsubsection{\color{apiblue}{GET -- /api/instances/\{id\}/snapshots}}
+
+Routa GET /api/instances/\{id\}/snapshots má sloužit k získání snapshotů kontejnerů.
+V aktuální verzi není routa implementována, obnovení snapshotu se totiž objevilo jako velmi problematické.
+Podobně jako u backupu se i u snapshotu musí řešit limity, zde jsou však uložené ve snapshotu.
+Uživatel by měl možnost vybrat si jaký snapshots chce obnovit a jaké jeho limity se mají dodržet.
+Logika obnovení byla příliš složitá a její realizace se nestihla včas udělat.
+
+
+\subsubsection{\color{apigreen}{POST -- /api/instances/\{id\}/snapshots}}
+
+Routa POST /api/instances/\{id\}/snapshots by měla vyvolat vytvoření snapshotu kontejneru.
+Stejně jako další routy týkající se logiky snapshotů ani tato nebyla implementována.
+
+\subsubsection{\color{apired}{DELETE -- /api/instances/\{id\}/snapshots/\{snapshotsid\}}}
+
+Routa DELETE /api/instances/\{id\}/restore/\{snapshotsid\} by měla smazat snapshots
+Stejně jako další routy týkající se logiky snapshotů ani tato nebyla implementována.
+
+\subsubsection{\color{apicyan}{PATCH -- /api/instances/\{id\}/restore/\{snapshotsid\}}}
+
+Routa PATCH /api/instances/\{id\}/restore/\{snapshotsid\}
+
+\subsubsection{\color{apiblue}{GET -- /api/instances/\{id\}/export}}
+
+Routa GET /api/instances/\{id\}/export slouží k exportování backupu.
+Po jejím zavolání se na serveru vytvoří backup kontejneru a přes data stream se pošle uživateli.
+Aktuálně je kompresován ve formátu .tar.gz.
+
+\subsubsection{\color{apiyellow}{PUT -- /api/instances/import}}
+
+Routa PUT /api/instances/import má sloužit k importu backupu kontejneru.
+V aktuální verzi není routa implementována, je totiž problematické zjistit stav limitů z backup.
+Routa by měla kontejner deplounout v sandboxu a zjistit si jeho limity.
+Poté ověřit zda uživatel má volné zdroje na jeho vytvoření, pokud ano kontejner by se vytvořil a zapsal do databáze.
+
+
+\subsubsection{\color{apicyan}{PATCH -- /api/instances/\{id\}/start}}
+
+Routa PATCH  /api/instances/\{id\}/start slouží k nastartování kontejneru.
+Pokud se kontejner nastartuje jeho aktuální stav se uloží do databáze a vygeneruje se objekt Container.
+Ten se pošle jako odpověď na požadavek.
+
+\subsubsection{\color{apicyan}{PATCH -- /api/instances/\{id\}/stop}}
+
+Routa PATCH  /api/instances/\{id\}/stop slouží k stopnutí kontejneru.
+Před zastavením se uloží jeho stav, se změněnými hodnotami (status bude stopped, využití ram nula, atd.), do mongoDB.
+Není totiž možné získat stav kontejneru je li stopnutý.
+Pokud se kontejner pozastaví jeho aktuální stav se uloží do mySQL databáze a vygeneruje se objekt Container.
+Ten se pošle jako odpověď na požadavek.
+
+
+\subsubsection{\color{apicyan}{PATCH -- /api/instances/\{id\}/freeze}}
+
+Routa PATCH  /api/instances/\{id\}/freeze slouží k zmražení kontejneru.
+Pokud se kontejner zmrazí jeho aktuální stav se uloží do databáze a vygeneruje se objekt Container.
+Ten se pošle jako odpověď na požadavek.
+
+
+\subsubsection{\color{apicyan}{PATCH -- /api/instances/\{id\}/unfreeze}}
+
+Routa PATCH  /api/instances/\{id\}/unfreeze slouží k rozmražení kontejneru.
+Pokud se kontejner rozmrazí jeho aktuální stav se uloží do databáze a vygeneruje se objekt Container.
+Ten se pošle jako odpověď na požadavek.
+
+
+\subsubsection{\color{apiblue}{GET -- /api/projects}}
+
+Routa GET /api/projects vrací objekt UserProjects.
+V něm jsou uložené limity uživatele a pole objektů Project s inforamcemi o jeho projektech a kontejnerech v nich.
+
+\subsubsection{\color{apigreen}{POST -- /api/projects}}
+
+Routa POST /api/projects slouží k vytvoření nové projektu.
+Prvně se zkontroluje, zda uživatel má místo na jeho vytvoření.
+Pokud ano, tak se vygeneruje JSON, jenž se odešle do lxd.
+U projektu lze limitovat pouze využití ram a využití disku.
+Oba limity se v praxi ukázali problematické a v projektu s nastavenými limity nešel vytvořit žádný kontejner.
+
+Systém podporuje projekt s nulovými (null, ne nula) limity, aktuálně je však nejde mixovat.
+
+Odpovědí na request je objekt Projekt, který se vygeneruje je li vytvoření projektu úspěšné.
+
+\subsubsection{\color{apiblue}{GET -- /api/projects/stateWithHistory}}
+
+Routa GET /api/projects/stateWithHistory vrací objekt UserStateWithHistory.
+V něm je uložená historie všech projektů uživatele, které obsahuje historii jeho všech kontejnerů.
+
+\subsubsection{\color{apiblue}{GET -- /api/projects/\{id\}}}
+
+Routa GET /api/projects/\{id\} vrací objekt Project s informacemi o projektu.
+Ten si mimo jiné pamatuje limity, název, spolupracovníky a pole Container objektů.
+
+\subsubsection{\color{apicyan}{PATCH -- /api/projects/\{id\}}}
+
+Routa PATCH /api/projects/\{id\} slouží k úpravě limitů projektu.
+V aktuální verzi je možno limity pouze zvýšit a projekt přejmenovat.
+Je li projekt přejmenován vygeneruje se nová konfigurace proxy.
+Odpovědí na request je objekt Project s novými limity projektu.
+
+\subsubsection{\color{apired}{DELETE -- /api/projects/\{id\}}}
+
+Routa DELETE /api/projects/\{id\} slouží k smazání projektu.
+Stejně jako  smazání kontejneru ani smazání projektu nejde vrátit zpět.
+Metoda prvně smaže veškeré kontejnery nacházející se v projektu a poté projekt samotný.
+
+\subsubsection{\color{apiblue}{GET -- /api/projects/\{id\}/stateWithHistory}}
+
+Routa GET /api/projects/\{id\}/stateWithHistory vrací objekt ProjectStateWithHistory.
+V něm je uložená historie všech kontejnerů projektu, která využívá stejnou metodu jako GET /api/instances/stateWithHistory.
+
+\subsubsection{\color{apiblue}{GET -- /api/user}}
+
+Routa GET /api/user vrací objekt User.
+Jedná se o právě přihlášeného uživatele.
+
+\subsubsection{\color{apiblue}{GET -- /api/logout}}
+
+Routa GET /api/logout uživatel odhlásí ze systému.
+
 
 \section{Autentifikace}
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=9.5cm]{../img/authentication.png}
+	\caption[Autentifikace přes googleAuth 2.0, vlastní tvorba]{Autentifikace přes googleAuth 2.0}
+	\label{fig:architecture}
+\end{figure}
 
-\section{Sytém kontejnerů}
+Za způsob autentifikace uživatelů byl zvolen Google Auth, jelikož všichni studenti gymnázia Arabská mají svůj vlastní školní Google účet. Díky tomu si každý student bude moci vytvořit vlastní server bez nutnosti registrace.
 
-// limity
+Pro zprovoznění autentifikace je nejprve nutné si v Google Console vytvořit nový projekt.
+Aktuálně je tento projekt hoštěn na studentském Google účtu \url{vladimir.vavra@student.gyarab.cz.} % easyest way to force linebreak
+Je nastavené, že pouze uživatelé v rámci domény .gyarab se mohou do systému přihlásit.
+Poté, co se nastaví všechna potřebná data je vygenerován clientId a clientSecret, což jsou kódy, pomocí nichž se bude AvAvA autorizovat
+
+\subsection{Princip fungování}
+
+Na obrázku výše můžete vidět průběh autentifikačního procesu.
+Nejprve uživatel musí autentifikaci zahájit, což udělá pokusem o získání nějakého chráněného obsahu.
+Po odeslání žádosti z klienta na backend přesměruje uživatele na přihlašovací stránku Google.
+V případě, že se student přihlásí poprvé, musí odsouhlasit, že povoluje programu využívat některé služby.
+Při dalších návštěvách se už jen přihlásí.
+
+Tím je proces autentifikace hotov a začíná proces autorizace programu u Googlu.
+AvAvA tedy bude Google žádat, aby jí předal data o uživateli, která potřebuje.
+To dělá v obdélníku “odelsat request s kódem do google”.
+Pokud google vyhoví, zavolá callback, který mu byl nastaven při vytváření projektu v Google Console a odešle na něj chtěná data.
+V případě, že se uživatel přihlásil poprvé, je o něm uložen záznam do databáze, se kterým poté backend bude párovat kontejnery a projekty.
+Následně je vytvořena session mezi frontendem a backendem. Každá zpráva odteď bude v hlavičce obsahovat cookie soubor s ID uživatele.
+
+Po získání dat je uživatel přihlášen a může systém používat. Při odhlášení je session ukončena a už se dále user ID neposílá.
+
+\subsection{Implementace}
+
+
+Při implementaci byla hlavním zdrojem informací videa, ze kterých jsme získali část kódu\footnote{\bibentry{googleAuth}}.
+Jelikož celý proces autentifikace probíhal na backendu, je uživatel odkázán na frontendovou cestu /userSetup. To je signál, že se uživatel přihlásil a frontend tedy pošle žádost na /api/combinedData.
+
+Pro implementaci tohoto procesu na backendu bylo využito knihovny passport.js, která celý proces usnadňuje. Jediné, co je potřeba udělat je implementovat metody serializeUser a deserializeUser, které se budou volat po pořadě při zapisování ID do sessioncookie a při získávání uživatele z databáze za pomoci ID získané ze sessioncookie.
+
+Je také nutné zapsat kód, který se zavolá hned po přihlášení, tedy uložení do databáze - passport.use(...) a předat passportu clientId a secretId.
+
+Pro zjištění, zda je uživatel přihlášen je možné na kterékoliv z request objektů získat property req.user, ve které bude uložen výsledek posledního volání metody deserializeUser. V případě, že žádný uživatel není přihlášen, jeho hodnota je null. K tomuto účelu slouží metoda isLoggedIn
+
+
+\subsection{Autorizace}
+
+Pro každý request do API se zkontroluje, zda je uživatel přihlášen.
+Není li přihlášen vrátí se mu kód 401 se zprávou, že není autentifikován.
+Jelikož metody počítají s emailem, který do requestů přidává googleAuth, tak není možné vykonat pro nepřihlášeného uživatele ani get requesty.
+Navíc není, žádoucí aby uživatel viděl stav ostatních uživatelů.
+
+Routy, které obsahují id kontejneru, či projektu si ověřují zda je odesílatel requestu má právo upravovat kontejneru.
+U kontejneru, k tomu slouží metoda userSQL.doesUser\linebreak OwnGivenContainer(email,id).
+Ta interně zavolá metod userSQL.doesUserOwnGiven\linebreak Project(email, id), poté co zjistí id projektu z databáze.
+Činý tak jelikož pokud má uživatel právo na projektu, má zároveň právo na jeho kontejneru.
+
+V aktuálním podobě se ověřuje zda je uživatel uveden buďto jako vlastník, nebo spolupracovník na projektu.
+Eventuálně by měl superadmin a admin mýt právo cizí kontejnery do určité míry ovlivňovat.
+Konkrétně admin na ně pouze nahlížet a superadmin s nimi volně zacházet a měnit je.
+
+Ověření pomocí metody userSQL.doesUserOwnGivenProject(email, id) používá ještě routa /api/instances\#POST.
+Zde je třeba ověřit zda uživatel vlastní projekt, do kterého se snaží vytvořit nový kontejner.
 
 \chapter{Frontend}
 
 \chapter{Backend}
-
-\section{Specifikace vlastního API}
-
-\section{API routy}
-
-\subsubsection{\color{apiblue}{GET -- /combindeDataGET}}
-
-a
-
-
-\subsubsection{\color{apiblue}{GET -- /instances}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /instances/createInstanceConfigData}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /instaces/\{id\}}}
-
-a
-
-\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}}}
-
-a
-
-\subsubsection{\color{apired}{DELETE -- /instaces/\{id\}}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /instaces/\{id\}/stateWithHistory}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /instaces/\{id\}/console}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /instaces/\{id\}/snapshots}}
-
-a
-
-\subsubsection{\color{apigreen}{POST -- /instaces/\{id\}/snapshots}}
-
-a
-
-\subsubsection{\color{apired}{DELETE -- /instaces/\{id\}/snapshots/\{snapshotsid\}}}
-
-a
-
-\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}/restore/\{snapshotsid\}}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /instaces/\{id\}/export}}
-
-a
-
-\subsubsection{\color{apiyellow}{PUT -- /instaces/import}}
-
-a
-
-\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}/start}}
-
-a
-
-\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}/stop}}
-
-a
-
-\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}/freeze}}
-
-a
-
-\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}/unfreeze}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /projects}}
-
-a
-
-\subsubsection{\color{apigreen}{POST -- /projects}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /projects/stateWithHistory}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /projects/\{id\}}}
-
-a
-
-\subsubsection{\color{apicyan}{PATCH -- /projects/\{id\}}}
-
-a
-
-\subsubsection{\color{apired}{DELETE -- /projects/\{id\}}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /projects/\{id\}/stateWithHistory}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /projects/user}}
-
-a
-
-\subsubsection{\color{apiblue}{GET -- /logout}}
-
-a
 
 
 \section{Databáze}
@@ -322,7 +456,7 @@ Následující sekce se zabývá strukturou mySQL databáze a metodami, které s
 .4 templateSQL.js.
 .4 userSQL.js.
 }
-\caption{soubory s programem týkající se mysql databáze}
+\caption[Soubory s programem týkající se mysql databáze, vlastni tvorba]{Soubory s programem týkající se mysql databáze}
 \label{fig:sqlClasses}
 \end{figure}
 
@@ -414,7 +548,7 @@ Eventuálně by měl uživatel možnost vytvářet si vlastní profily, které b
 \textbf{users} | id | email | given\_name | family\_name | icon | role | coins |
 
 Tabulka users slouží k uložení uživatelů.
-Svoje data dostává z dat, které zasílá google auth 2.0.
+Svoje data dostává z dat, které zasílá googleAuth 2.0.
 Sloupce role a coins aktuálně nemají význam, role bude dělit uživatele mezi standardního uživatel, admina a superadmin.
 Admin a superadmin by měli právo zasahovat do kontejnerů jiných uživatelů.
 Coins měl být sloupec sloužící u ekonomiky systému, k její implementaci však nedošlo.
@@ -432,14 +566,14 @@ Aktuálně má uživatel k dispozici 2.8 GHz\footnote{server kde byl program vyv
 
 \section{LXD}
 
-\section{Proxy}
+\section{Networking}
 
 Následující sekce se zabývá networkingem kontejnerů a proxy, které umožňuje přístup na ně z venčí.
 
 \subsection{Konfigurace networků}
 
 Pomineme li loopback (standardní \textit{lo}), tak každý kontejner má v aktuální verzi právě jeden networkový interface.
-Tím je \textit{eth0}, který je na hostovacím stroji napojen na bridge \textit{lxdbr0}.
+Tím je \textit{eth0}, který je na hostovi napojen na bridge \textit{lxdbr0}.
 Přes něj mají kontejnery přístup na internet.
 Zároveň jsou všechny na stejné síti (prostřednictvím \textit{lxdbr0})
 
@@ -459,7 +593,7 @@ Standartě se nemůžou nijak ovlivňovat.
 
 Pro proxy využívá projekt volně dostupnou haproxy, jejíž instance běží ve stejnojmenném kontejneru.
 Hostovací stroj totiž standardně nemůže přistupovat na kontejnery prostřednictvím .lxd domény.
-Bylo by možné sice mít proxy na hostovacím stroji, ale z bezpečnostních důvodů tak nebylo učiněno.
+Bylo by možné sice mít proxy na hostovi serveru, ale z bezpečnostních důvodů tak nebylo učiněno.
 
 Do kontejneru haproxy je aktuálně přesměrována traffic ze čtyř portů -- 80, 443, 2222 a 3000.
 Port 80 pochopitelně slouží na webové stránky pomocí protokolu http.
@@ -483,10 +617,10 @@ To by se týkalo i ssh, příkaz ssh však podporuje nastavit pomocí flagu -o P
 \begin{lstlisting}[breaklines]
 ssh -o ProxyCommand="openssl s_client -connect $SERVERURL:2222 -servername $CONTAINERURL" blank -l $USERNAME
 \end{lstlisting}
-\caption{příkaz k připojení na server\protect\footnotemark}
+\caption[Příkaz k připojení na server, vlastní tvorba]{Příkaz k připojení na server\protect\footnotemark}
 \label{fig:sshcom}
 \end{figure}
-\footnotetext{\$SERVERURL je url hostovacího server, \$CONTAINERURL je url kontejneru, \$USERNAME je jméno uživatel, argument dummy je ingnorován, je však potřeba}
+\footnotetext{\$SERVERURL je url serveru kde běží kontejnerizační systém, \$CONTAINERURL je url kontejneru, \$USERNAME je jméno uživatel, argument dummy je ignorován, je však potřeba}
 
 Porty jako 8443 aktuálně forwardovány nejsou, pokud uživatel potřebuje přistupovat do datáze běžící na kontejneru je možno použít ssh local port forwarding.
 Tento princip je i bezpečnější.
@@ -496,7 +630,7 @@ Po jeho vygenerování se prostřednictvím lxd.postFileToInstance pošle nová 
 Restartování proxy je téměř instantní operace i s velkým konfiguračním souborem obsahujícím desítky kontejnerů.
 Downtime je tak minimální.
 Podoba konfigurace byla realizována za pomocí dokumentace HAProxy\footnote{\bibentry{HaproxyDocs}}.
-Aktuálně má však formát configu jisté rezervy, do jeho délka.
+Aktuálně má formát konfiguračního souboru jisté rezervy, specificky co se týče jeho délky.
 Je však o trochu rychlejší než, kdyby byly použity pokročilé metody mapování, které HAProxy podporuje.
 
 

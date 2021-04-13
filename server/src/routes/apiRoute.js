@@ -34,7 +34,7 @@ app.get("/api/combinedData", isLoggedIn, (req, res) => {
   let toReturn = new UserData();
   userSQL.getUserByEmail(email).then((result) => {
     if (result.statusCode == 400) {
-      res.statusCode = 400;
+      res.statusCode = 401;
       res.send({ message: result.status });
     }
     toReturn.user = result;
@@ -69,46 +69,55 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
   //let email = req.user.email;
   // email -> havranek.krystof@student.gyarab.cz
   // TODO: check if user owns project in which he is trying to create new container
-  containerSQL.createCreateContainerJSON(email, req.body).then((result) => {
-    if (result.statusCode && result.statusCode != 200) {
-      res.status(400).send(result.status);
-      return;
-    }
-    let id = result.name;
-    let projectId = result.project;
-    lxd.createInstance(result, result.appsToInstall).then((result) => {
-      if (result.statusCode != 200) {
-        containerSQL.removeContainer(id);
-        res.status(400).send({ message: result.status });
-        return;
-      }
-      // upload sshd_config
-      lxd
-        .postFileToInstance(
-          id,
-          projectId,
-          "../../config/serverconfiguartions/sshd_config",
-          "/etc/ssh/sshd_config"
-        )
-        .then((result) => {
-          lxd.execInstance(
-            id,
-            projectId,
-            ["systemctl enable ssh.service"],
-            false,
-            false
-          );
-          lxd.execInstance(
-            id,
-            projectId,
-            [`passwd  ${req.body.rootPassword}`],
-            false,
-            false
-          );
+  userSQL.doesUserOwnGivenProject(email, req.body.projectId).then((result) => {
+    if (result) {
+      containerSQL.createCreateContainerJSON(email, req.body).then((result) => {
+        if (result.statusCode && result.statusCode != 200) {
+          res.status(400).send(result.status);
+          return;
+        }
+        let id = result.name;
+        let projectId = result.project;
+        lxd.createInstance(result, result.appsToInstall).then((result) => {
+          if (result.statusCode != 200) {
+            containerSQL.removeContainer(id);
+            res.status(400).send({ message: result.status });
+            return;
+          }
+          // upload sshd_config
+          lxd
+            .postFileToInstance(
+              id,
+              projectId,
+              "../../config/serverconfiguartions/sshd_config",
+              "/etc/ssh/sshd_config"
+            )
+            .then((result) => {
+              lxd.execInstance(
+                id,
+                projectId,
+                ["systemctl enable ssh.service"],
+                false,
+                false
+              );
+              lxd.execInstance(
+                id,
+                projectId,
+                [`passwd  ${req.body.rootPassword}`],
+                false,
+                false
+              );
+            });
+          reloadHaproxy();
+          getContainerObject(id).then((result) => res.send(result));
         });
-      reloadHaproxy();
-      getContainerObject(id).then((result) => res.send(result));
-    });
+      });
+    } else {
+      res.statusCode = 400;
+      res.send(
+        "You are trying to create new contianer in project to which you don't have permission"
+      );
+    }
   });
 });
 
