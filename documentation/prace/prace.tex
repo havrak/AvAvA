@@ -53,6 +53,11 @@
 \definecolor{pgreen}{rgb}{0,0.5,0}
 \definecolor{pred}{rgb}{0.9,0,0}
 \definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+\definecolor{apiblue}{HTML}{61AFFE}
+\definecolor{apigreen}{HTML}{49CC90}
+\definecolor{apicyan}{HTML}{50E3C2} % vím, že cyan je jiná barva % vím, že cyan je jiná barva
+\definecolor{apired}{HTML}{F93E3E}
+\definecolor{apiyellow}{HTML}{FCA130}
 \renewcommand{\baselinestretch}{1.5}
 %%% Údaje o práci
 
@@ -90,7 +95,7 @@
 \def\Abstrakt{%
 Cílem práce je vytvořit kontejnerizační systém pro operační systém GNU/Linux.
 Ten by měl v jednoduchém a přehledném uživatelském prostředí umožnit žákům vytvořit si vlastný linuxový server.
-Na které si poté mohou hostovat svoje aplikace, webové stránky, či videohry.
+Na kterém si poté mohou hostovat svoje aplikace, webové stránky, či videohry.
 Systém by se měl postarat o to, aby zdroje serveru byly spravedlivě rozdělené mezi jednotlivé uživatele.
 }
 
@@ -98,10 +103,13 @@ Systém by se měl postarat o to, aby zdroje serveru byly spravedlivě rozdělen
 Goal of the work is to create containerization system for GNU/Linux operating system.
 With its help students should be able to create their own private server in a easy to use webUI.
 On such server they will be able to host their applications, websites or video games.
-System should aslo garantee fair redistribution of server resources.
+System should also guarantee fair redistribution of server resources.
 }
 \def\AbstraktDE{%
-Ich spreche Deutsch nicht sehr gut.
+Ziel des Werk ist ein Containerisierungssystem für das Betriebssystem GNU / Linux zu erstellen.
+Es sollte den Schülern ihren eigenen Linux-Server in einer einfachen und übersichtlichen Benutzeroberfläche möglicher zu bilden.
+Auf den Server können sie dann ihre Anwendungen, Websites oder Videospiele hosten, ich mag ein Brot.
+Das System sollte sich zusichern, damit die Serverressourcen gerecht auf die individuellen Benutzer verteilt würden.
 }
 % 3 až 5 klíčových slov (doporučeno), každé uzavřeno ve složených závorkách
 \def\KlicovaSlova{%
@@ -153,309 +161,344 @@ Ich spreche Deutsch nicht sehr gut.
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
-\chapter{Základní informace}
+\chapter{Architektura}
 
-Tato kapitola spěšně projde hardware, na kterém je program vybudován, knihovny, které byly použity.
-Dále projde technologie, či protokoly, a na závěr čtenáře seznámí se strukturou souborů.
+Jádro práce stojí na lxd, což je kontejnerizační systém zabudovaný přímo do linuxového kernelu.
+Jedná se tak o nejvíce efektivní řešení, protože jednotlivé kontejnery mohou sdílet společný kernel.
+Jsou tak menší a rychlejší, než kdyby se jednalo o VPS.
+Backend s lxd komunikuje prostřednictvím REST API, které lxd přímo podporuje.
 
-\section{Hardware}
+Samotný backend je napsán v nodejs a ke svému fungování využívá dva databázové systémy.
+Většinu informací ukládá do mySQL databáze, kvůli komplikacím s LXD byla později zavedena mongoDB.
 
-Projekt je postaven na modulární platformě M5Stack, který je postaven na základě platformy ESP32 (velice podobné Arduinu, ale má zabudovaný wifi modul).
-Tyto jednotky obsahuje projekt 5 -- voda, GPS, vytápění podlahy/stav baterie, kola a na záver samotná centrála.
-Další hardwarové prvky jsou rozepsány níže ve seznamu, a jsou přiřazeny k jednotlivým jednotkám.
-Nákresy s obvody nejsou součástí práce, neb připojení je zřetelné z kódu (jsou zapsané GPIO piny).
-\begin{itemize}
-	\item Centrální jednotka
-		\begin{itemize}
-			\item NEXTION display intelligent series model NX8048P070-011C, kód kompatibilní i s Enchanted sérií (stačí vypnout videa pro počasí)
-			\item LAN M5Stack modul
-			\item Switch od firmy Mikrotik
-	\end{itemize}
-	\item Jednotka pro vodu
-		\begin{itemize}
-			\item 2 * tepelný senzor DS18B20 -- jeden umístění zvenčí, druhý ponořený do vody. (Jsou zapojeny na busu paralelně)
-			\item průtokoměr -- umístění u odtoku z nádrže s vodou
-			\item 2 * relé -- jedno ovládá tepelný okruh v nádrži, druhé ventil pro napouštění nádrže
-			\item analogový podvodní senzor tlaku -- umístěn v přípojce na vodu, zjišťuje zda je umístěna přípojka
-			\item 2 * vodotěsný spínač -- umístěn dole a nahoře v nádrži, určuje zda voda klesla pod kritickou úroveň a zda je nádrž plná
-		\end{itemize}
-	\item Jednotka pro GPS -- M5Stack GPS module
-	\item Jednotka pro vytápění podlahy, stav baterie (Není realizována)
-		\begin{itemize}
-			\item 8 * tepelný senzor DS18B20 -- v každém okruhu dva senzory
-			\item 4 solid state relé -- ovládání okruhů
-			\item eventuálně Bezdrátový stejnosměrný wattmetr VAC1030A, není ani zmíněn v kódu
-			\item hall sensory
-		\end{itemize}
-\end{itemize}
-
-\section{Použité knihovny}
-
-\begin{itemize}
-	\item M5Stack -- ovládání displaye na M5Stack -- Dostupné z URL: \url{https://github.com/m5stack/M5Stack}
-	\item WiFi -- WiFi, nutné pro protokol ESP-NOW -- Dostupné z URL: \url{https://dl.espressif.com/dl/package_esp32_index.json}
-	\item esp\_now -- ESP-NOW -- Dostupné z URL: \url{https://dl.espressif.com/dl/package_esp32_index.json}
-	\item EEPROM -- zprovoznění EEPROM -- Dostupné z URL: \url{https://dl.espressif.com/dl/package_esp32_index.json}
-	\item TinyGPS++ -- zpracování dat z GPS -- Dostupné z URL: \url{http://arduiniana.org/libraries/tinygpsplus/}
-	\item Time -- trackování času -- součást standardní knihovny
-	\item Timezone -- práci s časovými pásmy, použita jen pro středoevropské -- Dostupné z URL: \url{https://github.com/JChristensen/Timezone}
-	\item NTPClient -- zajištění protokolu NTP -- Dostupné z URL: \url{https://github.com/taranais/NTPClient/})
-	\item Ethernet2 -- LAN modul k M5Stack -- Dostupné z URL: \url{https://github.com/m5stack/M5Stack/blob/master/examples/Modules/W5500/Ethernet2.zip}
-	\item Ethernet2Udp -- zajištění UDP protokolu -- součást Ethernet2
-	\item WebServer -- web server -- součást Ethernet2
-	\item Nextion -- práci s displayem Nextion -- Dostupné z URL: \url{https://github.com/itead/ITEADLIB_Arduino_Nextion}
-	\item espsoftwareserial -- potřebný k knihovně Nextion -- Dostupné z URL: \url{https://github.com/plerup/espsoftwareserial}
-	\item OneWire -- knihovna potřebná k DallasTemperature
-	\item DallasTemerature -- tepelné čidla -- Dostupné z URL: \url{https://github.com/milesburton/Arduino-Temperature-Control-Library}
-	\item PCA9554 a ClosedCube\_TCA9548A -- pro IO extender na jednotce vytápění
-	\item ArduinoJson -- parsování jsonu -- Dostupné z URL: \url{https://github.com/bblanchon/ArduinoJson}
-\end{itemize}
-
-\section{Použité programy}
-
-Celý kód byl napsán v textovém editoru Vim a v Arduino IDE.
-Gui interface na Nextion display byl vytvořen v Nextion editoru.
-
-Vývoj nejvíce komplikovalo právě Arduino IDE.
-Prostředí nemá automatické doplnění, ani žádné možnosti rychle přecházet mezi metodami.
-Samozřejmě nejsou k dispozici ani debugovací nástroje, takže přehledné výpisy na sériovou liknu jsou nutností.
-Tyto debug zprávy jsou v kódu ponechané a většina z nich má následující formát: ZKRATKA NÁZVU TŘÍDY | název metody | samotná správa.
-
-\section{Požité technologie}
-
-Bezdrátovou komunikaci mezi jednotlivými jednotkami zprostředkovává proprietární protokol ESP-NOW, který je vlastní čipu ESP32.
-K získání aktuálního počasí centrála používá standardní http protokol, jedná se však o pouhý jeden GET request.
-Komunikace se switchem je zprostředkována za pomocí telnetu.
-Čas je aktualizován prostřednictvím NTP, v případě potřeby je však možnost použít data z GPS.
-Ke zbylé komunikaci slouží sériová linka a GPIO piny.
-
-Většina práce je napsaná v programovacím jazyce C++, přesněji jeho verzi pro Ardunio.
-Některý kód je napsán v programovacím jazyce pro Nextion, ten je uložen v .HMI souboru.
-Jedná však o několik málo primitivních funkcí, jako třeba přičtení dne.
+Frontend je psán v ReactJS a s backendem komunikuje prostřednictvím vlastního REST API (jehož podrobná specifikace je uvedena v dokumentaci).
+Na frontendu může uživatel v pohodlném prostředí vytvářet nové kontejnery, projekty, či získat informace o jejich aktuálním stavu a mnohé další.
 
 
-\section{Struktura souborů práce}
+\section{LXD}
 
+\section{Autentifikace}
+
+
+\section{Sytém kontejnerů}
+
+// limity
+
+\chapter{Frontend}
+
+\chapter{Backend}
+
+\section{Specifikace vlastního API}
+
+\section{API routy}
+
+\subsubsection{\color{apiblue}{GET -- /combindeDataGET}}
+
+a
+
+
+\subsubsection{\color{apiblue}{GET -- /instances}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /instances/createInstanceConfigData}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /instaces/\{id\}}}
+
+a
+
+\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}}}
+
+a
+
+\subsubsection{\color{apired}{DELETE -- /instaces/\{id\}}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /instaces/\{id\}/stateWithHistory}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /instaces/\{id\}/console}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /instaces/\{id\}/snapshots}}
+
+a
+
+\subsubsection{\color{apigreen}{POST -- /instaces/\{id\}/snapshots}}
+
+a
+
+\subsubsection{\color{apired}{DELETE -- /instaces/\{id\}/snapshots/\{snapshotsid\}}}
+
+a
+
+\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}/restore/\{snapshotsid\}}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /instaces/\{id\}/export}}
+
+a
+
+\subsubsection{\color{apiyellow}{PUT -- /instaces/import}}
+
+a
+
+\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}/start}}
+
+a
+
+\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}/stop}}
+
+a
+
+\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}/freeze}}
+
+a
+
+\subsubsection{\color{apicyan}{PATCH -- /instaces/\{id\}/unfreeze}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /projects}}
+
+a
+
+\subsubsection{\color{apigreen}{POST -- /projects}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /projects/stateWithHistory}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /projects/\{id\}}}
+
+a
+
+\subsubsection{\color{apicyan}{PATCH -- /projects/\{id\}}}
+
+a
+
+\subsubsection{\color{apired}{DELETE -- /projects/\{id\}}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /projects/\{id\}/stateWithHistory}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /projects/user}}
+
+a
+
+\subsubsection{\color{apiblue}{GET -- /logout}}
+
+a
+
+
+\section{Databáze}
+
+Sytém používá dva databázové systémy -- mySQL (mariaDB) a mongoDB.
+Dle původních představ měl používat pouze mySQL.
+Kvůli komplikacím s lxd, kde nejde zjistit stav zastaveného/vypnutého kontejneru, byla později zavedena mongoDB.
+
+\subsection{mySQL}
+Následující sekce se zabývá strukturou mySQL databáze a metodami, které s databází zacházejí.
+
+
+\begin{figure}[h]
 \dirtree{%
-.1 Karavan.
-.2 CentralUnit -- složka obsahující kód centrální jednotky.
-.3 CentralUnit.ino -- hlavní třída.
-.3 Connection.h -- zajišťuje ovládání switche MikroTik pomocí \linebreak[4]telentu.
-.3 PowerAndHeating.h -- reprezentuje jednotku zajišťující vytápění\linebreak[4] podlahy a kontrolu stavu baterie.
-.3 Security.h -- reprezentuje jednotku zajišťující GPS.
-.3 UnitAbstract.h -- abstraktní třída, slouží jako šablona pro\linebreak[4] všechny třídy, které reprezentují fyzickou jednotku.
-.3 Water.h -- reprezentuje jednotku u vody.
-.3 Weather -- spravuje informace o počasí.
-.3 Wheels -- reprezentuje možnou jednotku u kol, nebyla vůbec\linebreak[4] provedena instalace do čidel do kol karavanu.
-.2 ESPNowSlaveTemplate -- složka obsahující šablonu pro jednotku.
-.3 ESPNowSlaveTemplate.ino -- šablona s implementací ESP-NOW.
-.2 HeatingUnit -- složka obsahující kód jednotky pro vytápění.
-.3 HeatingUnit.ino  -- kód pro jednotku na vytápění.
-.2 WaterUnit -- složka obsahující kód jednotky pro vodu.
-.3 WaterUnit.ino -- kód pro jednotku pro vodu.
-.2 WheelsUnit -- složka obsahující kód jednotky pro kola.
-.3 WheelsUnit.ino -- kód pro jednotku pro kola.
-.2 NextionFiles -- soubory pro display Nextion.
-.3 Backgrounds -- složka s pozadími.
-.3 Fonts -- složka s fonty.
-.3 Icons -- složka s ikonkami pro Nextion.
-.4 UI -- ikonky pro UI, vlastní tvorba.
-.4 Weather icons -- ikonky pro počasí, jak obrázky, tak videa\footnotemark.
-.3 Caravan.HMI -- soubor s rozložením displaye.
-.3 Caraven.tft -- vyexportované rozložení displaye.
+.1 src.
+.2 services.
+.3 sql.
+.4 containerSQL.js.
+.4 projectSQL.js.
+.4 templateSQL.js.
+.4 userSQL.js.
 }
-\footnotetext{Obrázky pochází z \url{https://dribbble.com/shots/1669480-Weather-Icons/attachments/263247}, ikona tornáda z \url{https://www.flaticon.com/free-icons/tornado}, obrázky, které na těchto stránkách, nenajdete vznikli editací. Zakoupeny z \url{https://videohive.net/item/animated-weather-icons/19199689}}
+\caption{soubory s programem týkající se mysql databáze}
+\label{fig:sqlClasses}
+\end{figure}
 
-\chapter{Vybrané části programu}
+Valnou většinu dat projekt ukládá do mySQL databáze, kde je na tento účel vytvořeno aktuálně 10 tabulek.
+S databází pracují 4 soubory (viz. \ref{fig:sqlClasses}) \textit{containerSQL} zpracovává věci týkající se uživatelů, \textit{projectSQL} věci týkající se projektů, \textit{templateSQL} věci týkající se šablon a aplikací, v neposlední řadě \textit{userSQL} věci týkající se uživatele.
 
-Vzhledem k délce programu a jeho různorodosti, není možné s limitem délky této dokumentace projít všechny funkce programu.
-Proto se tato dokumentace zaměří jen na několik vybraných částí.
+\subsubsection{Tabulky}
 
-\section{ESP-NOW}
+Tato sekce spěšně popíše obsah jednotlivých tabulek. A jejich vztah k ostatním. Kaskádové dependence jsou vždy stejné -- při smazání se smažou, při update se nic neděje.
 
-Jak už bylo zmíněno, bezdrátový přenos dat mezi jednotkami je zprostředkována pomocí protokolu ESP-NOW.
-Tento protokol je relativně jednoduché používat, stačí přidat jednotku mezi peery a poté lze jednoduše posílat na danou mac adresu.
-Data jsou posílána ve formě struktury, která je stejná jak na centrále, tak na jednotce.
-Po přijmutí dat se jednoduše pomocí memcpy překopírují do instance struktury.
+\vspace{0.3cm}
+\noindent
+\textbf{appsToInstall} | id | name | description | icon\_path | package\_name |
 
-Samozřejmě je nutné při spuštění vytvořit síť s centrálou ve středu a k ní připojenými jednotlivými jednotkami.
-Centrála musí vědět od jaké jednotky data přichází a musí být schopna poslat data, či konfiguraci (Zatím není použito, bude nutné u podlahy.).
+Tabulka appsToInstall slouží k uložení aplikací, které je možno nainstalovat na kontejner při jeho vytváření.
+Nemá žádnou vazbu na další tabulky a s jejími daty zachází třída templateSQL.
+Sloupec name obsahuje jméno jaké se má zobrazit uživateli, package\_name je jméno balíčku v repositářích.
 
-Původně systém fungoval následovně.
-Všechny jednotky měli viditelné SSID centrála je postupně všechny kontaktovala.
-Jakmile nalezla jednotku bylo jí zasláno číslo 92 (Není v tom žádný význam) a jednotka odpověděla svým kódem -- 101 pro GPS, 102 pro vodu.
-Tento systém měl však několik nevýhod.
-Zaprvé nahrál li se nový kód do centrály, tak se museli zresetovat všechny jednotky, protože centrála se v nich se smaže až po 5 minutách nečinnosti.
-A zadruhé SSID jednotek byly pořád viditelné a systém neumožňoval je schovat.
+\vspace{0.3cm}
+\noindent
+\textbf{containers} | id | project\_id | name | url | template\_id | state | timestamp \linebreak[4] | time\_started |
 
-Proto byl nakonec tento systém obrácen.
-Místo toho aby centrála vyhledávala jednotky nyní jednotky vyhledávají centrálu.
-Té poté pošlou svůj kód a centrála opět odpoví číslem 92.
-Zároveň si jednotky uloží mac centrály do své EEPROM (stejně tak činní i centrála, kdy ukládá mac jednotek do své EEPROM).
-Při dalším spuštění nemusí tak mít centrála viditelné SSID a síť se stejně postaví.
-Viditelnost SSID se ovládá pomocí tlačítka na M5Stacku, s tím že na rozdíl od předchozí implementace pouze centrála má své SSID viditelné.
+Tabulka container ukládá všechny kontejnery, které spravujeme.
+Obsahuje dva cizí klíče a to project\_id, které určuje do jakého projektu kontejner patří, a template\_id to určuje s jakou šablonou byl kontejner vytvořen.
 
-Centrála pravidelně posílá všem jednotkám ping, aby si jednotky centrálu nevzali jako neaktivní a nesmazali jí.
-Stejně tak centrála si pamatuje poslední čas, kdy přišla zpráva od jednotky a v případě nečinnosti ji smaže.
 
-Jediný problém při vývoji, který stojí za zmínku, je chybová hláška, již vyvolávala knihovní funkce esp\_now\_add\_peer().
-Ta z neznámých důvodů vyhazovala hlášku invalid peer, ovšem někdy se stejným vstupním parametrem funkce proběhla v pořádku.
-Tento problém vyřešilo až přesunutí instance struktury toAdd na globální proměnou.
-Naštěstí tento problém byl vyřešen již na fóru\footnote{\bibentry{CoolForum}}.
+\vspace{0.3cm}
+\noindent
+\textbf{containersResourcesLimits} | container\_id | ram | cpu | disk | upload | download |
 
-\section{Telnet}
+Tabulka containersResourcesLimits ukládá limity kontejneru, stejně jako u dalších .*ResourcesLimits tabulek byla v rámci normalizačních forem oddělena od tabulky containers.
+Tabulka obsahuje jeden cizí klíč, který zároveň funguje i jako primární klíč.
+Veškeré limity jsou uloženy v základních jednotkách, cpu je v abstraktní jednotce herz.
 
-Jednou z funkcí projektu je možnost přepínat zdroj internetu -- mezi WiFi access pointem a LTE modemem.
-Tuto funkci zajišťuje switch, ke kterému je centrála připojená přes ethernetový kabel.
+\vspace{0.3cm}
+\noindent
+\textbf{containersResourcesLog} | container\_id | ram | cpu | number\_of\_processes | upload | download | timestamp |
 
-Původně bylo v plánu napsat celou implementaci protokolu telnet.
-Bohužel logika z neznámých důvodů nefungovala.
-Pomocí programu wire shark byly proto odposlechnuty jaké příkazy si mezi sebou client a server posílají během párovaní.
-Ty poté byly napevno dané do programu.
-Program tak jen čeká na určitou posloupnost a jí odpoví určitou posloupností.
+Tabulka containersResourcesLog slouží k logování stavu kontejnerů.
+Container\_id je cizím klíčem odkazující na kontejner, ke kterému log patří.
+V aktuální verzi jsou data uložen v poli, které uložené ve sloupci s typem text.
+Timestamp odkazuje na datum posledního zapsání, kdy byl zalogován předchozí stav není problém zjistit, jelikož se do tabulky zapisuje v pravidelných intervalech.
 
-Samotné posílání příkazů již nečiní žádné problémy a celý systém funguje.
+Metoda na updateování stavu (updateLogsForContainer(id, state)) si jednoduše data rozdělí dle znaku: \textbf{,}.
+Do pole se přidají nové hodnoty a odebere se první prvek, nový stav se pak uloží do databáze.
 
-\section{Čas}
+Data se aktuálně do databáze uloží každých 10 minut, o což se stará cronjob (potažmo schedule) definovaný v app.js.
+Aktuálně si databáze pamatuje dvanáct záznamů, takže dvě hodiny do minulosti.
+Fakt, že log časový rozdíl mezi zápisy nemusí být přesně 10 minut, příliš nevadí, grafy, které se z těchto dat vykreslují jsou spíše orientační.
 
-Uživatel má celkem 3 možnosti jak nastavit čas.
 
-Standardně je čas řešen pomocí protokolu NTP pomocí knihovny NTPClient.
-Tento způsob samozřejmě vyžaduje internetové připojení, ale to je téměř vždy dostupné.
-Navíc po jednom dotazu si čas centrála udržuje.
+\vspace{0.3cm}
+\noindent
+\textbf{projects} | id | name | owner\_email | timestamp |
 
-Případě nedostupnosti sítě lze použít GPS, samozřejmě pouze za předpokladu, že je připojená GPS jednotka.
-Čas z GPS není tak tak přesný jako u NTP, protože po přečtení se musí poslat přes EPS-NOW (Třeba na několikátý pokus.), na centrále se musí zpracovat callback (ESP32 má jen jedno vlákno, takže než se zpracuje uběhne nějaký čas.).
-Každopádně se jedná o možnou variantu.
+Tabulka projects si pamatuje všechny projekty, které spravuje náš systém.
+Cizím klíčem je owner\_email, což je email vlastníka projektu, tedy člověka, který ho vytvořil.
+Timestamp je čas vytvoření projektu.
 
-V poslední řadě lze čas nastavit manuálně.
-Uživatel na stránce s nastavením času zmáčkne tlačítko nastavit, dále nastaví čas a poté zmáčkne tlačítko znovu.
-V callbacku, který tato akce na centrále vyvolá se zkontroluje stav tlačítek NTP a GPS a jsou li obě vypnuté čas se nastaví ze zadaného.
-V jiném případě bude uživatelem zadaný čas ignorován.
-Na Nextionu jsou samozřejmě přidány různé omezení, aby uživatel nemohl zadat třeba 13. měsíc.
-Lze však i tak zadat neplatné datum a to tím, že člověk změní měsíc po nastavení dne.
-Bohužel programovací jazyk Nextionu je velmi primitivní a nepodporuje ani základní věci jako je tvorba proměnných (Všechny proměnné jsou součástí objektu na display).
-Už jen kód na přidání dne má 57 řádků a není možné třeba při změně měsíce udělat aby vyskočila uživateli chybová hláška.
-Nebo minimálně by nebyl takový kód zrovna elegantní.
+\vspace{0.3cm}
+\noindent
+\textbf{projectsCoworkers} | project\_id | user\_email |
 
-Střídání času je funguje pouze na středoevropské pásmo, jinak si uživatel musí měnit střídání času a časové zóny sám.
-Logika všech pravidel na úpravu času je relativně složitá a jsou na ní potřeba stovky souborů.
-Ty sice lze mít uložené na SD kartě (Kterou M5Stack podporuje.), ale nejedná se o příliš efektivní řešení, protože parsování souborů je relativně složitý proces na něčem nevýkoném jako je ESP32.
-Uživatel si proto na druhé stránce Nextionu může zvolit manuální nastavení posunu času, to je dě pomocí hodinových inkrementů.
+Tabulka projectsCoworkers zporstředkovává M:N vazbu mezi users a projects.
+Slouží k uložení lidí, kteří jsou spolupracovnící na jednom projektu.
+K datu odevzdání práce, nejsou spolupracovnící implementované, takže tabulka je aktuálně zbytečná.
+Řada metoda nepočítá s existencí spolupracovníků.
 
-\section{Nextion display}
+\vspace{0.3cm}
+\noindent
+\textbf{projectsResourcesLimits} | project\_id | ram | cpu | disk | upload | download |
 
-Ovládacím prvkem celého systému je dispaly od Nextionu.
-Na něm jsou aktuálně tři stránky -- hlavní, nastavení času a nastevení vytápění.
-Stránka na vytápění však aktuálně neplní žádnou funkci.
+Tabulka projectsResourcesLimits slouží k uložení limitů projektu.
+Nerozdíl od containersResourcesLimits můžou zde mít limity hodnotu null.
+V takovém případě je kontejnerům dostupný vešerý volný prostor, který uživatel má.
 
-Posílání dat display je relativně jednoduché.
-Pro čtení dat a používání callbacků je nutná knihovna Nextion.
-Pomocí ní vytvoříme instance objektů, které odpovídají těm na obrazovce.
-U callbacků je ještě nutné přidat instanci do pole nex\_listen\_list a manuálně přiřadit jaká metoda bude zavolána.
+\vspace{0.3cm}
+\noindent
+\textbf{templates} | code | id | profile\_name | image\_name | version | profile\_description | image\_description | profile\_path | min\_disk\_size |
 
-Nutno upozornit, že stejně všechny akce na centrále obstarává jen jedno vlákno.
-Takže ne vždy uživatelova akce na obrazovce vyvolá okamžitou reakci v programu.
-Někdy se může jedna až o sekundy, než bude callback zpracován.
-Z tohoto důvodu se malé akce jako přičtení čísla řeší přímo na Nextionu.
+Tabulka templates slouží k uložení šablon, lde kterých se má vytvořit kontejner.
+Šablona je koncept, který se nenachází přímo v lxd, ale integruje dvě věci -- profily a image.
+Image je distribuce jaká se na systém má nainstalovat.
+Profile je koncept z lxd, který obsahuje konfiguraci kontejneru.
+Eventuálně by měl uživatel možnost vytvářet si vlastní profily, které by obsahovali například konfiguraci networků.
 
-Syntaxe jazyku na Nextionu je velmi podobná ostaním mainstreamovým jazykům.
-Ale, jak už bylo zmíněno, nedovoluje vytvářet vlastní proměnné.
-Z tohoto důvodu jsou například na stránce s nastavení času tři čísla, které mají barvu textu stejnou jako barvu pozadí.
-Jedná se o krkolomné řešení, ale jiné neexistuje.
-Také jazyk nepodporuje základní věci jako složené podmínky, či možnost provádět operace v podmínkách.
+\vspace{0.3cm}
+\noindent
+\textbf{users} | id | email | given\_name | family\_name | icon | role | coins |
 
-Jediným problémem je, že přes sériovou linku nelze poslat charaktery s diakritikou.
-Z tohoto důvodu není v aktuální době sladěný jazyk, kde ovládací prvky na Nextionu jsou v češtině, zatímco data přicházející z centrály v angličtině.
+Tabulka users slouží k uložení uživatelů.
+Svoje data dostává z dat, které zasílá google auth 2.0.
+Sloupce role a coins aktuálně nemají význam, role bude dělit uživatele mezi standardního uživatel, admina a superadmin.
+Admin a superadmin by měli právo zasahovat do kontejnerů jiných uživatelů.
+Coins měl být sloupec sloužící u ekonomiky systému, k její implementaci však nedošlo.
 
-% \begin{figure}[h]
-% 	\centering
-% 		\includegraphics[height=7.5cm]{../img/mainScreen.png}
-% 		\caption[Hlavní obrzovka]{
-% 		Hlavní obrazovka
-% 	}
-% \end{figure}
 
-% \begin{figure}[h]
-% 	\centering
-% 		\includegraphics[height=7.5cm]{../img/timeSettingScreen.png}
-% 		\caption[Obrazovka s nastavením času]{
-% 		Obrazovka s nastavením času
-% 	}
-% \end{figure}
-\section{Paměť}
+\vspace{0.3cm}
+\noindent
+\textbf{usersResourcesLimits} | user\_id | ram | cpu | disk | upload | download |
 
-Některé informace si sytém přenáší do svého dalšího spuštění.
-K tomu slouží integrovaná EEPROM v ESP-32.
-Jedná se o velmi primitivní typ paměti a konstrukce jako soubory nejsou možné.
-Všechna data se dokonce musí zapisovat ručně po bytech.
-To činní nutným mít paměť rozkouskovanou a vědět jaké bloky patří jaké proměnné.
-Zároveň má EEPROM relativně malý počet možných zapsání.
-Z tohoto důvodu se při zápisu čte paměť a data se porovnávají, aby nedocházelo k zbytečným zápisům.
+Tabulka usersResourcesLimits ukládá limity uživatelů.
+Aktuálně má uživatel k dispozici 2.8 GHz\footnote{server kde byl program vyvíjen měl 2 jádra o 2.8 GHz, jedná se tak o polovinu výkonu}, 1 GB ram, 8GB volného místa na disku, a download a upload 800kb/s.
 
-\section{Počasí}
+\subsection{mongoDB}
 
-Počasí je získáno pomocí API z open weather map.
-Odpovědí na http request je json, který se zprasuje pomocí knihovny ArduinoJson.
-Zobrazení počasí může být uděláno jak formou videa, tak formou obrázku.
-Video je však možné jen pro Enchated Series display.
-Mezi styly je možné vybírat si pouze v kódu, a změna vyžaduje flashnutí centrály novým kódem.
-Jaké ikona se zobrazí se řídí ID daného počasí, kompletní seznam je dostupný na stránkách open weather map\footnote{\bibentry{CoolCodes}}.
 
-\chapter{Budoucí části programu}
+\section{LXD}
 
-Bohužel nebylo možné kompletně práci dokončit.
-Nebyl realizován systém pro kola, z důvodu chybějící instalace, a nutnosti ji prakticky otestovat.
-Také nebyla realizována část podlahy a stavu baterie.
-Technicky jsou však tyto části již vymyšlené a na GitHubu, kde je práce publikována, budou časem dostupné.
-Tato kapitola projde alespoň jejich algoritmickou stránku, i když samotný kód ještě nebyl naspán.
+\section{Proxy}
 
-\section{Senzoru u pneumatik}
+Následující sekce se zabývá networkingem kontejnerů a proxy, které umožňuje přístup na ně z venčí.
 
-Je plánované do kol karavanu vložit senzory tlaku a teploty.
-Podobný systém je jíž instalovaný v multivanu, které karavan tahá.
-Informace ze senzorů se budou stejně jako další zobrazovat na Nextionu, ale zároveň budou posílány i do jednotky v autě, aby byly dostupné pro řidiče i za jízdy.
-Bude se jednat o senzory vybavené technologií bluetooth, kterou M5Stick podporuje.
+\subsection{Konfigurace networků}
 
-Prakticky je implementace relativně jednoduchá, s tím, že valnou většinu práce řeší knihovna.
-Jedinou problémovou stránku je identifikace jednotlivých kol.
-Zatím je kód napsaný s napevno danými ID senzorů a kola musí být dána vždy ve stejném pořadí.
-Na vysvětlenou mám zjištěný ID předního levého kola a to kolo musí být vždy levé přední, nelze ho dát jinam a pokud by bylo potřeba kolo vyměnit za nové, tak by se musel předělávat kód.
-Toto je nadmíru nepraktické.
-Teoreticky by nová implementace měla pracovat se sílou signálu.
-M5Stick by se nenacházel ve středu auta, ale byl by výrazně blíž jedné pneumatice (Jeho pozice by byla napevno daná.).
-Identifikace čidel by poté probíhala pomocí síly signálu.
-Bohužel implementace vyžaduje zkušení a ruční dolaďování, neboť vzdálenost čidel se mění (Jsou v kolech, která se otáčí.), navíc některé části auta můžou bránit signálu.
-To je potřeba řešit přímo u karavanu, z tohoto důvodu nebyla udělána implementace.
+Pomineme li loopback (standardní \textit{lo}), tak každý kontejner má v aktuální verzi právě jeden networkový interface.
+Tím je \textit{eth0}, který je na hostovacím stroji napojen na bridge \textit{lxdbr0}.
+Přes něj mají kontejnery přístup na internet.
+Zároveň jsou všechny na stejné síti (prostřednictvím \textit{lxdbr0})
 
-\section{Vytápění podlahy a stav baterie}
+Jelikož jsou veškeré kontejnery na stejné síti, tak mezi sebou mohou komunikovat.
+Lxd pro tento účel samo nastavuje jejich interní doménu, ta je ve tvaru \textit{c\{id\}.lxd}.
+Pochopitelně však nejsou dostupné z internetu, doména je pouze interní a veřejnou ip adresu nemají.
+Aby bylo možno na kontejner přistupovat bylo nutné nastavit proxy, které mu databáze bude přeposílat.
 
-Implementace podlahy a stavu baterie nebyla zprovozněna ze stejných důvodů jako pneumatiky -- psaní naslepo bez možnosti některé části testovat je velmi komplikované a prakticky zbytečné.
+Nutno podotknout, že i traffic mezi kontejnery je aktuálně omezen limitem.
+V budoucno se tedy nabízí možnost implementovat možnost vytvářet další bridge a kontejnery si propojovat.
+Ty by se mohly ukládat do profilů, uživatel by si tak rovnou mohl vytvořit kontejnerů izolovaný od ostatních.
 
-\subsection{Elektřina}
+Fakt, že kontejnery jsou na stejné síti není rizikové ani problematické.
+Standartě se nemůžou nijak ovlivňovat.
 
-Implementace elektřiny je relativně jednoduchá.
-Původně měla probíhat komunikace s wattmetrem pomocí bezdrátové technologie, bohužel protokol není otevřený veřejnosti a data jsou zašifrovaná.
-Komunikace aktuálně funguje pomocí sériové linky přes USB.
-Bohužel se také nepodařilo sehnat chtěné hall senzory, z tohoto důvodu je dokončení této části pozastaveno na neurčito.
-Nutno podotknou, že jak wattmetrem, tak hall senzory se zabýval hlavně strýc.
-Sám jsem se v této části projektu příliš neangažoval.
-Z tohoto důvodu nejsou v kódu jednotky vytápění žádné reference na elektřinu a je zmíněna pouze na Nextionu a centrále (Nemá smysl schovávat ).
+\subsection{Proxy}
 
-\subsection{Vytápění podlahy}
+Pro proxy využívá projekt volně dostupnou haproxy, jejíž instance běží ve stejnojmenném kontejneru.
+Hostovací stroj totiž standardně nemůže přistupovat na kontejnery prostřednictvím .lxd domény.
+Bylo by možné sice mít proxy na hostovacím stroji, ale z bezpečnostních důvodů tak nebylo učiněno.
 
-U vytápění podlahy se řeší podobný problém jako u kol -- je potřeba identifikovat tepelné senzory, které jsou při každém zapnutí indexované v jiném pořadí.
-Ze senzorů lze získat 8 bytové unikátní číslo, které bylo senzoru přiřazeno při výrobě.
-Identifikace bude probíhat podobně jako probíhá u vody, kde byl takový systém v mnohem menším měřítku již implementován a odzkoušen.
-Vytápěcích okruhů bude 4 až 5 a na každý připadnou právě dvě čidla DS.
+Do kontejneru haproxy je aktuálně přesměrována traffic ze čtyř portů -- 80, 443, 2222 a 3000.
+Port 80 pochopitelně slouží na webové stránky pomocí protokolu http.
+443 je pro https, proxy má nastavený ssl certifikát.
+Ten stačí jeden pro celý systém, musí se však jednat o certifikát typu wildcard\footnote{certifikát, který zahrnuje i subdomény}.
+Systém byl testován na standardním certifikátu, čily připojení sice bylo zabezpečené, ale prohlížeč hlásil podezření z fishningu, jelikož se doména a doména na certifikátu neschodovali.
+Port 2222 slouží na připojení přes ssh, port 22 používá hostovací stroj a z pochopitelných důvodů není přesměrován do proxy.
+Port 3000 je dostupný pro REST API aplikací, které na serveru budou běžet.
 
-Při identifikaci, kterou člověk spustí z Nextionu, se postupně budou zapínat okruhy a bude se měřit $\Delta t$, vždy které senzory přesáhnou 3 (asi 3) stupně, tak se přidají k danému okruhu.
-Na rozdíl od vody, je však potřeba více testovaní, protože podlaha se bude zahřívat i tam, kde se zrovna netopí a mohly by tak vzniknout třeba 3 senzory pro jeden okruh atd.
-Také je nutné řešit, že některé čidla přestanou fungovat a jejich rychlá výměna je nemožná.
-Program vyžaduje nalezení celé řady konstant, navíc velmi záleží na rozmístění čidel, a proto jsem implementaci řešil pouze algoritmicky.
+Kotejnerům je automaticky přirazena doména v následujícím tvaru \textit{\{jméno kotejneru\}.\{jméno projekty\}.\{část emailu uživatel, před @\}.\{doména serveru\}}.
+Například kontejner pojmenovaný \textit{rumburak} v projektu \textit{web} uživatele \textit{belzebub@email.com} na serveru s doménou \textit{avava.cz} bude mít doménu {rumburak.web.belzebub.avava.cz}.
+Mezery ve jméně kontejneru, či projektu se domény odstraní.
+Pokud by měl nový kontejner stejné jméno, jako jiný systém vyhodí výjimku.
+Tak je zaručena unikátnost domén, u mailu není takový problém nutno řešit, jelikož se jedná o školní emaily, které jsou vždy unikátní.
 
-Na vysvětlenou čidla teploty podlahy jsou nutné, aby se podlaha nezahřála nad limitní teplotu.
-Nehledě na to, že je praktické mít možnost nastavit si teplotu podlahy a ne pouze teplotu vzduchu.
+Bohužel je možno elegantně forwardovat pouze http protokol.
+Většina TCP protokolů totiž neoperuje s SNI a řídí se pouze doménu.
+Z packetu tak nejde zjistit na jakou doménu se uživatel snaží dostat a tedy jakému kontejneru mý být protokol přiřazen.
+To by se týkalo i ssh, příkaz ssh však podporuje nastavit pomocí flagu -o ProxyCommand (viz. \ref{fig:sshcom}), packety poté sni v hlavičce mají a je možno poznat jakému kontejneru patří.
+\begin{figure}[h]
+\begin{lstlisting}[breaklines]
+ssh -o ProxyCommand="openssl s_client -connect $SERVERURL:2222 -servername $CONTAINERURL" blank -l $USERNAME
+\end{lstlisting}
+\caption{příkaz k připojení na server\protect\footnotemark}
+\label{fig:sshcom}
+\end{figure}
+\footnotetext{\$SERVERURL je url hostovacího server, \$CONTAINERURL je url kontejneru, \$USERNAME je jméno uživatel, argument dummy je ingnorován, je však potřeba}
+
+Porty jako 8443 aktuálně forwardovány nejsou, pokud uživatel potřebuje přistupovat do datáze běžící na kontejneru je možno použít ssh local port forwarding.
+Tento princip je i bezpečnější.
+
+Konfigurační soubor HAProxy je generován v containerSQL.js.
+Po jeho vygenerování se prostřednictvím lxd.postFileToInstance pošle nová konfigurace to HAProxy kontejneru.
+Restartování proxy je téměř instantní operace i s velkým konfiguračním souborem obsahujícím desítky kontejnerů.
+Downtime je tak minimální.
+Podoba konfigurace byla realizována za pomocí dokumentace HAProxy\footnote{\bibentry{HaproxyDocs}}.
+Aktuálně má však formát configu jisté rezervy, do jeho délka.
+Je však o trochu rychlejší než, kdyby byly použity pokročilé metody mapování, které HAProxy podporuje.
+
 
 % \chapter{Obrázky systému}
 % \begin{figure}[h]
