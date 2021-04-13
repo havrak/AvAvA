@@ -469,7 +469,7 @@ export async function getState(id, project, rs) {
 				"du -sh -B 1 --exclude=/dev --exclude=/proc --exclude=/sys / | awk '{print $1;exit}'"
 				// "df -B 1 | awk '/\\/$/{print $4;exit}'"
 			).then((res) => (rs.disk.devices[0].usage = parseInt(res.status)));*/
-			rs.disk[0].usage = Math.floor((5 + Math.random()) * 100000000);
+			rs.disk.devices[0].usage = Math.floor((5 + Math.random()) * 100000000);
 			rs.numberOfProcesses = data.processes;
 			if (data.network)
 				Object.keys(data.network).forEach((key) => {
@@ -613,13 +613,18 @@ export function deleteSnapshot(instanceId, projectId, snapshotId) {
 	).then((res) => getOperation(res));
 }
 
-// the streamHandler is used to handle the response containing the backup file .tar.gz.
-export async function exportInstance(id, project, streamHandler) {
+// the writable stream is used to handle the response containing the backup file .tar.gz.
+export async function exportInstance(id, project, stream) {
 	let res = await mkRequest(
 		`/1.0/instances/c${id}/backups?project=p${project}`
 	);
 	if (res.error_code) return getOperation(res);
-	let bid = res.length + 1;
+	let bid = res.length;
+	for (let i = 0; i < res.length; i++) {
+		let num = parseInt(res[i].substring(`/1.0/instances/c${id}/backups/b`));
+		if (num > bid) bid = num;
+	}
+	bid++;
 	let expiry = new Date();
 	expiry.setHours(expiry.getHours() + 5);
 	res = await mkRequest(
@@ -640,7 +645,10 @@ export async function exportInstance(id, project, streamHandler) {
 				`/1.0/instances/c${id}/backups/b${bid}/export?project=p${project}`
 			),
 			(res) => {
-				streamHandler(res);
+				res.pipe(stream);
+				stream.on("finish", () => deleteBackup(id, project, bid));
+				stream.on("close", () => deleteBackup(id, project, bid));
+				stream.on("end", () => deleteBackup(id, project, bid));
 				res.on("close", () => deleteBackup(id, project, bid));
 			}
 		);
