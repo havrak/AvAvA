@@ -25,7 +25,6 @@ import userSQL from "../services/sql/userSQL.js";
 import projectSQL from "../services/sql/projectSQL.js";
 import containerSQL from "../services/sql/containerSQL.js";
 import * as lxd from "./lxdRoute.js";
-import OperationState from "../models/OperationState.js";
 
 //NOTE: replace with: let email = req.user.email;
 const email = "krystof.havranek@student.gyarab.cz";
@@ -92,7 +91,6 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
           "/etc/ssh/sshd_config"
         )
         .then((result) => {
-          console.log("file uploaded");
           lxd.execInstance(
             id,
             projectId,
@@ -130,7 +128,6 @@ app.get(
   isContainerUsers,
   (req, res) =>
     getContainerObject(req.params.instanceId).then((result) => {
-      console.log("got here");
       if (!result.state) res.status(400).send({ message: result.status });
       else res.send(result);
     })
@@ -329,7 +326,6 @@ app.post("/api/projects", isLoggedIn, (req, res) => {
   projectSQL.createCreateProjectJSON(email, req.body).then((project) => {
     if (project.statusCode == 400) {
       res.status(400).send(project.status);
-      return;
     }
     let id = project.name; // createProject will rewrite name variable thus it is easiest to store it in variable
     lxd.createProject(project).then((result) => {
@@ -364,11 +360,7 @@ app.get(
 );
 
 app.get("/api/projects/:projectId", isProjectUsers, isLoggedIn, (req, res) => {
-  console.log("called");
   getProjectObject(req.params.projectId).then((result) => {
-    console.log("returned");
-    console.log(result);
-    console.log("returned");
     res.send(result);
   });
 });
@@ -383,7 +375,6 @@ app.patch(
       .then((result) => {
         if (result.haproxy) reloadHaproxy();
         getProjectObject(req.params.projectId).then((result) => {
-          console.log(result);
           if (result.statusCode && result.statusCode != 200)
             res.status(400).send({ message: result.status });
           res.send(result);
