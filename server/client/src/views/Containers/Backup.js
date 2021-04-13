@@ -35,9 +35,9 @@ function DownloadBackup({ currentProject, currentContainer, notify }) {
       //       currentContainer.id,
       //       callback
       //    );
-
+      console.log(`http://localhost:3000/api/instances/${currentContainer.id}/export`)
       let opts = {
-         url: `http://localhost:3000/api/projects/${currentProject.id}/instances/${currentContainer.id}/export`,
+         url: `http://localhost:3000/api/instances/${currentContainer.id}/export`,
          method: "GET",
          responseType: "blob", // Important
       };

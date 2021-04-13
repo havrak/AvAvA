@@ -82,7 +82,7 @@ export const projectIdGet = (projectId, notify) => {
    return (dispatch) => {
       const callback = function (error, data, response) {
          if (error) {
-            notify(`Error occured: ${response.body.message}`);
+            notify(`Error occured: ${response?.body?.message}`);
          } else {
             dispatch(projectGetSuccess(data));
          }

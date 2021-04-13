@@ -268,3 +268,22 @@ const instancesIdStateWithHistoryGetSuccess = (
       },
    };
 };
+
+const createInstanceBackup = (projectId, instanceId) => {
+   return (dispatch) => {
+      dispatch(displayBackupText(projectId, intsanceId, 'Creating backup'));
+      const callback = function (error, data, response) {
+         // console.log(response, 'container id delete');
+         if (error) {
+            notify(response.body.message);
+         } else {
+            dispatch(displayBackupText(projectId, intsanceId, 'Downloading backup'));
+         }
+      };
+      api.instancesIdStateWithHistoryGet(containerId, callback);
+   };
+}
+
+const displayBackupText = (projectId, instanceId) => {
+
+}

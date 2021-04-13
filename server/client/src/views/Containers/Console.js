@@ -74,7 +74,6 @@ class Console extends Component {
       };
       api.projectsProjectIdInstancesInstanceIdConsoleGet(
          this.projectId,
-         this.instanceId,
          successConsoleCreationCallback
       );
    }
