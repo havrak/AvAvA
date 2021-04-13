@@ -16,8 +16,8 @@ import OperationState from "../../models/OperationState.js";
 export default class containerSQL {
   // TODO: get rid of email
   /* creates JSON which will be send to lxd in oder to create new container, contaienr will also be added into databse via function call
-   * @param 	email - email of user who is creating the container
-   * 					config - configuration of new container, submitted by user
+   * @param email - email of user who is creating the container
+   * @param	config - configuration of new container, submitted by user
    *
    * @return CreateInstanceJSONObj
    */
