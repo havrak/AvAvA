@@ -59,6 +59,8 @@ schedule.scheduleJob("*/10 * * * *", () => {
   containerSQL.getAllContainers().then((result) => {
     result.forEach((cont) => {
       containerSQL.createContainerStateObject(cont.id).then((result) => {
+        console.log(cont.id);
+        console.log(result);
         lxd.getState(cont.id, cont.project_id, result).then((result) => {
           containerSQL.updateLogsForContainer(cont.id, result);
         });

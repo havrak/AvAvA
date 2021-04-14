@@ -189,6 +189,10 @@ Na frontendu může uživatel v pohodlném prostředí vytvářet nové kontejne
 
 \section{Specifikace vlastního API}
 
+Následující sekce prochází jednotlivé routy.
+API bylo vytvořeno za pomocí nástroje \url{editor.swagger.io}.
+Jeho technická specifikace se nachází v souboru USER.yaml.
+
 
 \subsubsection{\color{apiblue}{GET -- /api/combinedData}}
 
@@ -648,27 +652,6 @@ Ve složce Other se poté nacházejí stránky z templatu pro případ, kdy by b
 \newpage
 \section{API}
 
-Veškerý kód, který má něco společného s komunikaci s backendem či jinými externími zdroji sídlí ve složce api.
-Obsah této složky kromě WebSockets.js je generován pomocí programu swagger-codegen v již zmíněném Swagger editoru.
-
-Ve složce api/api se poté nachází soubor, kde jsou vygenerované metody odpovídající cestám na REST API, těmto metodám stačí předat specifikované parametry a na server se odešlou požadovaná data.
-Po získání odpovědi je zavolán předaný callback.
-
-Swagger codegen vygeneroval soubory, které jako API klienta používají knihovnu superagent.
-Jeho chování je specifikováno pomocí vygenerovaného souboru ApiClient.
-Vygenerovaný kód ovšem nestačí, např. pokud by vrácená odpověď byla 401, tak bylo nutné do souboru přidat příkaz na spuštění autentifikace.
-
-Ve složce models se nachází soubory odpovídající objektům z Open API specifikace.
-Na frontendu je ovšem vůbec nevyužívám, slouží tedy pouze samotnému fungování API.
-
-Vše je poté přehledně dostupné v souboru index.js, ze kterého jsou exportovány všechny objekty z model složky a cesty z api/api/DefaultAPI.js
-
-Posledním souborem je WebSockets.js, ve kterém se nachází metody vytvářející WebSocket spojení na backend.
-Momentálně se WebSockety využívají pouze pro vytvoření spojení pro terminál do kontejnerů, ale v budoucnosti je očekávané, že se jejich využití rozšíří.
-V případě, že bude spolu na jednom projektu spolupracovat více uživatelů, bude nutné pro vytvoření real-time systému updatovat změny pomocí duplexního spojení, kterým je právě WebSocket.
-
-Jelikož při developmentu nejsou backend a frontend na jednom portu, dochází ke CORS erroru.
-Na jeho vyřešení byla implementována http proxy (soubor setupProxy.js), která veškeré specifikované requesty přesouvá na port 5000 se stejnou adresou.
 
 \section{Redux}
 

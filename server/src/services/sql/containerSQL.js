@@ -404,6 +404,10 @@ export default class containerSQL {
    */
   static updateLogsForContainer(id, state) {
     return new Promise((resolve) => {
+      if (state == undefined) {
+        resolve(new OperationState("State is undefined", 200)); // can happen when container was just being created, thus is in the databse but his state cannot be read
+        return;
+      }
       const con = mysql.createConnection(sqlconfig);
       con.query(
         "SELECT * FROM containersResourcesLog WHERE containersResourcesLog.container_id=?",
@@ -421,7 +425,7 @@ export default class containerSQL {
             return;
           }
           if (err) throw err;
-          // logs are stored in arrays, works good enough for presicion we are seeking
+          // logs are stored in arrays, works good enough for pression we are seeking
           let ram = rows[0].ram.split(",");
           ram.push(state.RAM.usage == undefined ? 0 : state.RAM.usage);
           let cpu = rows[0].cpu.split(",");
