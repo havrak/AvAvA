@@ -53,11 +53,16 @@
 \definecolor{pgreen}{rgb}{0,0.5,0}
 \definecolor{pred}{rgb}{0.9,0,0}
 \definecolor{pgrey}{rgb}{0.46,0.45,0.48}
-\definecolor{apiblue}{HTML}{61AFFE}
-\definecolor{apigreen}{HTML}{49CC90}
-\definecolor{apicyan}{HTML}{50E3C2} % vím, že cyan je jiná barva % vím, že cyan je jiná barva
-\definecolor{apired}{HTML}{F93E3E}
-\definecolor{apiyellow}{HTML}{FCA130}
+\definecolor{apiblue}{HTML}{000000}
+\definecolor{apigreen}{HTML}{000000}
+\definecolor{apicyan}{HTML}{000000} % vím, že cyan je jiná barva % vím, že cyan je jiná barva
+\definecolor{apired}{HTML}{000000}
+\definecolor{apiyellow}{HTML}{000000}
+% \definecolor{apiblue}{HTML}{61AFFE}
+% \definecolor{apigreen}{HTML}{49CC90}
+% \definecolor{apicyan}{HTML}{50E3C2} % vím, že cyan je jiná barva % vím, že cyan je jiná barva
+% \definecolor{apired}{HTML}{F93E3E}
+% \definecolor{apiyellow}{HTML}{FCA130}
 \renewcommand{\baselinestretch}{1.5}
 %%% Údaje o práci
 
@@ -351,7 +356,7 @@ Metoda prvně smaže veškeré kontejnery nacházející se v projektu a poté p
 
 \subsubsection{\color{apiblue}{GET -- /api/projects/\{id\}/stateWithHistory}}
 
-Routa GET /api/projects/\{id\}/stateWithHistory vrací objekt ProjectStateWithHistory.
+Routa GET /api/projects/\{id\}/stateWithHistory vrací objekt ProjectStateWith History.
 V něm je uložená historie všech kontejnerů projektu, která využívá stejnou metodu jako GET /api/instances/stateWithHistory.
 
 \subsubsection{\color{apiblue}{GET -- /api/user}}
@@ -1004,7 +1009,7 @@ Port 80 pochopitelně slouží na webové stránky pomocí protokolu http.
 443 je pro https, proxy má nastavený ssl certifikát.
 Ten stačí jeden pro celý systém, musí se však jednat o certifikát typu wildcard\footnote{certifikát, který zahrnuje i subdomény}.
 Systém byl testován na standardním certifikátu, čily připojení sice bylo zabezpečené, ale prohlížeč hlásil podezření z fishningu, jelikož se doména a doména na certifikátu neschodovali.
-Port 2222 slouží na připojení přes ssh, port 22 používá hostovací stroj a z pochopitelných důvodů není přesměrován do proxy.
+Port 2222 slouží na připojení přes ssh, port 22 používá hošťovací počítač a z pochopitelných důvodů není přesměrován do proxy.
 Port 3000 je dostupný pro REST API aplikací, které na serveru budou běžet.
 
 Kotejnerům je automaticky přirazena doména v následujícím tvaru \textit{\{jméno kotejneru\}.\{jméno projekty\}.\{část emailu uživatel, před @\}.\{doména serveru\}}.

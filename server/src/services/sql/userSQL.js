@@ -109,7 +109,8 @@ export default class userSQL {
         [email],
         (err, rows) => {
           con.end();
-          resolve(rows[0].ids.split(","));
+          if (rows[0].ids == undefined) resolve(new Array());
+          else resolve(rows[0].ids.split(","));
         }
       );
     });
