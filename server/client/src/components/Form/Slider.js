@@ -36,7 +36,7 @@ export function InputSlider({
          ? [
               {
                  value: initialValue,
-                 label: `${initialValue}${unit}`,
+                 label: `${initialValue}`,
               },
            ]
          : null;
@@ -134,11 +134,10 @@ export function InputSliderWithSwitch({
          ? [
               {
                  value: initialValue,
-                 label: `${initialValue}${unit}`,
+                 label: `${initialValue}`,
               },
            ]
          : null;
-   console.log(marks);
    const handleSliderChange = (event, newValue) => {
       setValue(newValue);
       setValueToParentElement(newValue);

@@ -131,9 +131,14 @@ const PatchProjectDialog = ({
       );
    }
    if (currentProject?.limits?.internet.upload) {
-   } else {
       convertedUpload = networkSpeedToMbits(
          state.internet.upload.free + currentProject?.limits?.internet.upload
+      );
+   } else {
+      convertedUpload = networkSpeedToMbits(
+         state.internet.upload.free +
+            currentProject.state.internet.upload.usage +
+            currentProject.state.internet.upload.allocated
       );
    }
    if (currentProject?.limits?.internet.download) {
