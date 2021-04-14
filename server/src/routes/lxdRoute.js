@@ -30,6 +30,12 @@ const crt = fs.readFileSync(
 
 const debug = true;
 
+/**
+ * Create basic options common for all lxd requests.
+ * @param {string} path - the route to connect to
+ * @param {string} method - method to be used in the https request
+ * @return {Object} - options for any lxd request
+ */
 function mkOpts(path, method = "GET") {
 	return {
 		method: method,
@@ -43,6 +49,13 @@ function mkOpts(path, method = "GET") {
 	};
 }
 
+/**
+ * Make a request on LXD.
+ * @param {string} path - the route to connect to
+ * @param {string} method - method to be used in the request
+ * @param {Object} data - body of the request if needed
+ * @return {Object} - object of the lxd response
+ */
 function mkRequest(path, method, data) {
 	let opts = mkOpts(path, method);
 	if (debug && !path.includes("operation"))
@@ -68,6 +81,11 @@ function mkRequest(path, method, data) {
 	});
 }
 
+/**
+ * Construct a result state from the given operation object.
+ * @param {Object} operation - an lxd operation response or error response
+ * @return {OperationState} - summary result of the given object
+ */
 async function getOperation(operation) {
 	if (!operation || (!operation.status_code && !operation.error_code))
 		return new OperationState("Success", 200);
@@ -96,6 +114,9 @@ async function getOperation(operation) {
 	return new OperationState(operation.status, operation.status_code);
 }
 
+/**
+ * Test the functionality of all present methods by uncommenting the required lines.
+ */
 export async function test() {
 	// console.log(await deleteProfilesInProject(1));
 	// console.log(await startInstance(1, 1));
@@ -174,6 +195,11 @@ export async function test() {
 	// console.log(await postFileToInstance("", 1, "/home/kepis/Downloads/haproxy.cfg", "/etc/haproxy/haproxy.cfg"));
 }
 
+/**
+ * Get information about all instances from the array.
+ * @param {Object} instances - instances to be completed
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function getInstances(instances) {
 	return new Promise((resolve) => {
 		let done = 0;
@@ -188,8 +214,12 @@ export function getInstances(instances) {
 	});
 }
 
-// The data for creation, including the parental project,
-// optional commands to execute after start
+/**
+ * Create a container.
+ * @param {Object} data - data for lxd to create a new container
+ * @param {Object} commands - array of the command strings to be executed after start
+ * @return {Object} - OperationStatus of the operaion
+ */
 export async function createInstance(data, commands) {
 	let id = data.name;
 	data.name = `c${id}`;
@@ -210,8 +240,11 @@ export async function createInstance(data, commands) {
 	return res;
 }
 
-// Fills in the given instance: Template.image,
-// id, persistent, timestamp, OperationState.
+/**
+ * Get information about the container.
+ * @param {Object} instance - object of the instance to be filled
+ * @return {Object} - the filled in object
+ */
 export function getInstance(instance) {
 	return mkRequest(
 		`/1.0/instances/c${instance.id}?project=p${instance.projectId}`
@@ -220,6 +253,7 @@ export function getInstance(instance) {
 		instance.createdOn = new Date(res.created_at);
 		instance.lastStartedOn = new Date(res.last_used_at);
 		instance.stateful = res.stateful;
+		// Is now managed by sql so no need to fill the data again.
 		/*if (res.config["image.os"]) {
 			instance.template.image = new Image(
 				res.config["image.os"],
@@ -236,6 +270,13 @@ export function getInstance(instance) {
 	});
 }
 
+/**
+ * Patch the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @param {Object} data - data to be patched
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function patchInstance(id, project, data) {
 	return mkRequest(
 		`/1.0/instances/${id}?project=${project}`,
@@ -244,6 +285,12 @@ export function patchInstance(id, project, data) {
 	).then((res) => getOperation(res));
 }
 
+/**
+ * Delete the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function deleteInstance(id, project) {
 	return new Promise((resolve) =>
 		mkRequest(`/1.0/instances/c${id}?project=p${project}`, "DELETE").then(
@@ -262,6 +309,12 @@ export function deleteInstance(id, project) {
 	);
 }
 
+/**
+ * Create a virtual terminal in the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @return {Object} - {terminal,control} id to the websockets, or OperationState if an error
+ */
 export function getConsole(id, project) {
 	return mkRequest(`/1.0/instances/c${id}/exec?project=p${project}`, "POST", {
 		command: ["login", "-f", "--", "root"],
@@ -318,7 +371,13 @@ export function getConsole(id, project) {
 	});
 }
 
-// Returns the result of the given command, if not opt out, always inside OperationState
+/**
+ * Execute a command in the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @param {string} command - command to be executed
+ * @return {Object} - OperationStatus of the operaion, where status contains the text output of the executed command
+ */
 export function execInstance(id, project, command, getOutput) {
 	if (!isNaN(parseFloat(project))) id = `c${id}`;
 	if (!isNaN(parseFloat(project))) project = `p${project}`;
@@ -367,6 +426,13 @@ export function execInstance(id, project, command, getOutput) {
 	});
 }
 
+/**
+ * Execute multiple commands in the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @param {Object} commands - array of the command strings to be executed
+ * @return {Object} - OperationStatus of the operaion
+ */
 export async function execCommands(id, project, commands) {
 	for (let i = 0; i < commands.length; i++) {
 		let stat = await execInstance(id, project, commands[i], false);
@@ -380,7 +446,15 @@ export async function execCommands(id, project, commands) {
 	}
 }
 
-//uses piper to write a file to given path inside specified instance
+/**
+ * Create a file in the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @param {Object} piper - handler to send the file to container
+ * @param {string} dstPath - destination path in the container
+ * @param {Object} headers - headers of the request
+ * @return {Object} - OperationStatus of the operaion
+ */
 function postToInstance(id, project, piper, dstPath, headers) {
 	if (!isNaN(parseFloat(project))) id = `c${id}`;
 	if (!isNaN(parseFloat(project))) project = `p${project}`;
@@ -410,6 +484,14 @@ function postToInstance(id, project, piper, dstPath, headers) {
 	});
 }
 
+/**
+ * Send the file to the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @param {string} srcPath - path to the file to be sent
+ * @param {string} dstPath - destination path in the container
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function postFileToInstance(id, project, srcPath, dstPath) {
 	let stream = fs.createReadStream(
 		srcPath.startsWith(".") ? path.resolve(__dirname, srcPath) : srcPath
@@ -430,6 +512,14 @@ export function postFileToInstance(id, project, srcPath, dstPath) {
 	);
 }
 
+/**
+ * Pipe a response to the container as a file.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @param {Object} response - http response of which the content should be redirected
+ * @param {string} dstPath - destination path in the container
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function postResponseToInstance(id, project, response, dstPath) {
 	return postToInstance(
 		id,
@@ -448,6 +538,13 @@ export function postResponseToInstance(id, project, response, dstPath) {
 	);
 }
 
+/**
+ * Get state of the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @param {Object} rs - State object to be filled in
+ * @return {Object} - the completed State object
+ */
 export async function getState(id, project, rs) {
 	let data = await mkRequest(
 		`/1.0/instances/c${id}/state?project=p${project}`
@@ -558,7 +655,12 @@ export async function getState(id, project, rs) {
 		);
 }
 
-// Returns array of snapshot objects for the given container.
+/**
+ * Get information about all snapshots in the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @return {Object} - Array of snapshots in the container.
+ */
 export function getSnapshots(id, project) {
 	return new Promise((resolve) =>
 		mkRequest(`/1.0/instances/c${id}/snapshots?project=p${project}`).then(
@@ -583,6 +685,13 @@ export function getSnapshots(id, project) {
 	);
 }
 
+/**
+ * Create a snapshot from the container.
+ * @param {number} instanceId - id of the container
+ * @param {number} projectId - id of the parent project
+ * @param {number} snapshotId - id of the snapshot
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function createSnapshot(instanceId, projectId, snapshotId, stateful) {
 	return mkRequest(
 		`/1.0/instances/c${instanceId}/snapshots?project=p${projectId}`,
@@ -600,12 +709,26 @@ export function createSnapshot(instanceId, projectId, snapshotId, stateful) {
 	);
 }
 
+/**
+ * Get information a snapshot from the container.
+ * @param {number} instanceId - id of the container
+ * @param {number} projectId - id of the parent project
+ * @param {number} snapshotId - id of the snapshot
+ * @return {Object} - Snapshot object representing the snapshot
+ */
 function getSnapshot(instanceId, projectId, snapshotId) {
 	return mkRequest(
 		`/1.0/instances/c${instanceId}/snapshots/s${snapshotId}?project=p${projectId}`
 	).then((data) => new Snapshot(snapshotId, data.created_at, data.stateful));
 }
 
+/**
+ * Delete a snapshot from the container.
+ * @param {number} instanceId - id of the container
+ * @param {number} projectId - id of the parent project
+ * @param {number} snapshotId - id of the snapshot
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function deleteSnapshot(instanceId, projectId, snapshotId) {
 	return mkRequest(
 		`/1.0/instances/c${instanceId}/snapshots/s${snapshotId}?project=p${projectId}`,
@@ -613,7 +736,13 @@ export function deleteSnapshot(instanceId, projectId, snapshotId) {
 	).then((res) => getOperation(res));
 }
 
-// the writable stream is used to handle the response containing the backup file .tar.gz.
+/**
+ * Export the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @param {Object} stream - writable stream for the exported instance.tar.gz file
+ * @return {Object} - OperationStatus of the operaion
+ */
 export async function exportInstance(id, project, stream) {
 	let res = await mkRequest(
 		`/1.0/instances/c${id}/backups?project=p${project}`
@@ -657,6 +786,13 @@ export async function exportInstance(id, project, stream) {
 	} else return res;
 }
 
+/**
+ * Delete backup of the container.
+ * @param {number} instanceId - id of the container
+ * @param {number} projectId - id of the parent project
+ * @param {number} backupId - id of the backup
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function deleteBackup(instanceId, projectId, backupId) {
 	return mkRequest(
 		backupId === undefined
@@ -666,7 +802,13 @@ export function deleteBackup(instanceId, projectId, backupId) {
 	).then((res) => getOperation(res));
 }
 
-// Returns backup restore operation id
+/**
+ * Import a local instance as {id} in the specified project.
+ * @param {number} id - id of the container to be created
+ * @param {number} project - id of the parent project
+ * @param {Object} stream - readable stream with the container file to be imported
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function importInstance(id, project, stream) {
 	let opts = mkOpts(`/1.0/instances?project=p${project}`, "POST");
 	opts.headers = {
@@ -688,6 +830,12 @@ export function importInstance(id, project, stream) {
 	}).then((res) => getOperation(res));
 }
 
+/**
+ * Start the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function startInstance(id, project) {
 	return mkRequest(`/1.0/instances/c${id}/state?project=p${project}`, "PUT", {
 		action: "start",
@@ -695,6 +843,12 @@ export function startInstance(id, project) {
 	}).then((res) => getOperation(res));
 }
 
+/**
+ * Stop the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function stopInstance(id, project) {
 	let data = { networks: { other: [] } };
 	return new Promise((resolve) =>
@@ -775,6 +929,12 @@ export function stopInstance(id, project) {
 	);
 }
 
+/**
+ * Freeze the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function freezeInstance(id, project) {
 	return mkRequest(`/1.0/instances/c${id}/state?project=p${project}`, "PUT", {
 		action: "freeze",
@@ -782,6 +942,12 @@ export function freezeInstance(id, project) {
 	}).then((res) => getOperation(res));
 }
 
+/**
+ * Unfreeze the container.
+ * @param {number} id - id of the container
+ * @param {number} project - id of the parent project
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function unfreezeInstance(id, project) {
 	return mkRequest(`/1.0/instances/c${id}/state?project=p${project}`, "PUT", {
 		action: "unfreeze",
@@ -789,6 +955,11 @@ export function unfreezeInstance(id, project) {
 	}).then((res) => getOperation(res));
 }
 
+/**
+ * Create a new project of the given specifications.
+ * @param {Object} data - all the data needed by lxd for a project creation
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function createProject(data) {
 	data.name = `p${data.name}`;
 	return new Promise((resolve) =>
@@ -803,6 +974,11 @@ export function createProject(data) {
 	);
 }
 
+/**
+ * Delete the specified project.
+ * @param {number} id - id of the project to be deleted
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function deleteProject(id) {
 	return new Promise((resolve) => {
 		deleteImagesOf(id).then((res) => {
@@ -825,7 +1001,11 @@ export function deleteProject(id) {
 	});
 }
 
-// deletes all images from specified project
+/**
+ * Delete all images of specified project.
+ * @param {number} projectId - id of the project to be cleaned of profiles
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function deleteImagesOf(projectId) {
 	return mkRequest(`/1.0/images?project=p${projectId}`).then((images) => {
 		if (images.error_code) return getOperation(images);
@@ -848,7 +1028,11 @@ export function deleteImagesOf(projectId) {
 	});
 }
 
-// deletes all profiles with exception of default from the specified project
+/**
+ * Delete all profiles of specified project except the default profile.
+ * @param {number} projectId - id of the project to be cleaned of profiles
+ * @return {Object} - OperationStatus of the operaion
+ */
 export function deleteProfilesOf(projectId) {
 	return mkRequest(`/1.0/profiles?project=p${projectId}`).then((profiles) => {
 		if (profiles.error_code) return getOperation(profiles);
