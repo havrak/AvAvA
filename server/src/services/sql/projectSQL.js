@@ -54,6 +54,7 @@ export default class projectSQL {
                   userLimits.internet.upload -= rows[i].upload;
                   userLimits.internet.download -= rows[i].download;
                   if (++counter == desiredCount) {
+                    console.log(resolve);
                     con.end();
                     resolve(userLimits);
                   }
@@ -63,7 +64,6 @@ export default class projectSQL {
                     [rows[i].project_id],
                     (err, rows) => {
                       if (err) throw err;
-                      counter++;
                       if (rows[0] != undefined) {
                         rows[0].forEach((row) => {
                           userLimits.RAM -= row.ram;
@@ -135,6 +135,7 @@ export default class projectSQL {
             downloadChange >= 0
           ) {
             this.createCreateProjectData(email).then((result) => {
+              console.log(result);
               if (
                 ramChange <= result.RAM &&
                 cpuChange <= result.CPU &&
@@ -142,7 +143,6 @@ export default class projectSQL {
                 uploadChange <= result.internet.upload &&
                 downloadChange <= result.internet.download
               ) {
-                console.log(id);
                 con.query(
                   "UPDATE projectsResourcesLimits SET ram=?, cpu=?, disk=?, upload=?, download=? WHERE project_id=?",
                   [
@@ -155,7 +155,7 @@ export default class projectSQL {
                   ],
                   (err, rows) => {
                     if (err) throw err;
-                    console.log("update sucessfull");
+                    console.log("update successful");
                     resolve({
                       status: "Limits successfully updated",
                       statusCode: 200,

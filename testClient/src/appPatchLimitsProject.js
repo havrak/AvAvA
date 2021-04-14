@@ -1,15 +1,15 @@
 const https = require("http");
 
-const route = "/api/projects/69";
+const route = "/api/projects/82";
 const data = JSON.stringify({
-  name: "LiMItY NeMuZOu bYT nUloVe",
+  name: "cool coo2l",
   limits: {
-    RAM: 1610612931,
-    CPU: 2200000000,
-    disk: 8589934692,
+    RAM: 2,
+    CPU: 2,
+    disk: 2,
     internet: {
-      download: 800020,
-      upload: 800020,
+      download: 20,
+      upload: 20,
     },
   },
 });

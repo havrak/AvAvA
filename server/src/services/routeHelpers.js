@@ -164,7 +164,7 @@ export function reloadHaproxy() {
               .execInstance(
                 "haproxy",
                 "default",
-                ["sleep 5; systemctl reload haproxy.service"], // it takes a little bit of time for new container to react
+                "sleep 5; systemctl reload haproxy.service", // it takes a little bit of time for new container to react
                 false
               )
               .then((result) => {

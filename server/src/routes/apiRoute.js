@@ -382,12 +382,17 @@ app.patch(
     projectSQL
       .updateProjectLimits(req.body, req.params.projectId, req.user.email)
       .then((result) => {
-        if (result.haproxy) reloadHaproxy();
-        getProjectObject(req.params.projectId).then((result) => {
-          if (result.statusCode && result.statusCode != 200)
-            res.status(400).send({ message: result.status });
-          res.send(result);
-        });
+        if (result.statusCode == 400) {
+          res.statusCode == 400;
+          res.send({ message: result.status });
+        } else {
+          if (result.haproxy) reloadHaproxy();
+          getProjectObject(req.params.projectId).then((result) => {
+            if (result.statusCode && result.statusCode != 200)
+              res.status(400).send({ message: result.status });
+            res.send(result);
+          });
+        }
       });
   }
 );
