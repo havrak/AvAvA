@@ -105,7 +105,7 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
 									lxd.execInstance(
 										id,
 										projectId,
-										`echo root:${req.body.rootPassword} | chpasswd`,
+										`echo root:'${req.body.rootPassword}' | chpasswd`,
 										false
 									);
 								});
