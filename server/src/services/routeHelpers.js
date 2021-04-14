@@ -6,7 +6,7 @@ import projectSQL from "./sql/projectSQL.js";
 import containerSQL from "./sql/containerSQL.js";
 import * as lxd from "../routes/lxdRoute.js";
 
-const googleAuthOverride = false;
+const googleAuthOverride = true;
 
 /* const to verify whether user is logged in via google auth
  *

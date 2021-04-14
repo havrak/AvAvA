@@ -146,7 +146,7 @@ app.delete(
   isContainerUsers,
   (req, res) =>
     deleteContainer(req.params.instanceId).then((result) =>
-      res.status(400).send(result.status)
+      res.status(result.statusCode).send(result.status)
     )
 );
 

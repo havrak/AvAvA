@@ -823,10 +823,17 @@ Nahoře se nachází dvě karty zobrazující počet projektů, které vlastní 
 Nachází se zde také zobrazení počtu projektů, ve kterých se pouze účastní.
 Zatím sice není implementována možnost spolupráce více uživatelů na jednom projektu, ovšem její vytvoření je plánované a jelikož Dashboard vypadá lépe s touto funkcí, tak je tato informace zobrazena již nyní.
 
-Ve druhé řadě se nachází 5 grafů zobrazující agregovaný stav všech projektů.
+Ve druhé řadě se nachází 5 grafů (viz Obrázek \ref{fig:tootip}) zobrazující agregovaný stav všech projektů.
 Na jejich implementaci byla použita knihovna react-google-charts - pie-chart.
 Červenou barvou se zobrazují zdroje, které jsou opravdu zkonzumovány jednotlivými kontejnery.
 Jedná se tedy o součet usage proměnných všech kontejnerů.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=4.3cm]{../img/tooltip.png}
+	\caption[Detail grafu, vlastní tvorba]{Detail grafu}
+	\label{fig:tootip}
+\end{figure}
 
 Oranžově jsou poté zobrazeny zdroje, které jsou přiděleny jednotlivým projektům či přimo jednotlivým kontejnerům v případě, že samotný projekt limit nemá pro daný zdroj.
 Tyto zdroje jsou zablokované a nejde je využít v jiném projektu či kontejneru než tam, kde jsou přiděleny.
@@ -841,6 +848,76 @@ Z toho plyne, že data z Redux storu již budou mít všechna potřebná data pr
 Komponenty grafů se nacházejí ve složce components/Cards/State.
 Podobný hlavní panel jako Dashboard pro uživatelskou kategorii se nachází i v projektové a kontejnerové kategorii.
 Tam ovšem fungují grafy odlišně, a tak se v této složce nacházejí ještě další dva soubory s odlišnými grafy.
+\newpage
+
+
+\section{Přehled projektů}
+
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=7.3cm]{../img/projectsOverview.png}
+	\caption[Přehled projektů, vlastní tvorba]{Přehled projektů}
+	\label{fig:projectOverview}
+\end{figure}
+
+
+Na této stránce má uživatel přehled o všech svých projektech pomocí tabulky.
+Ta využívá knihovny react-table a jedná o tabulku od material-ui\footnote{\bibentry{components}} .
+Přejatý kód umožňuje vybírat řádky na základě selectu, vyhledávat v tabulce pomocí globálního filtru vpravo nahoře (hledání ve všech sloupcích), řazení dle hodnot ve sloupci a také zajišťuje stránkování, kdy se na další stránku dá přejít pomocí tlačítek vpravo dole.
+
+Stránku reprezentuje soubor views/User/Projects.js a tabulku reprezentují komponenty ve složce components/Table.
+Tabulky se nyní vytváření pomocí instancování komponentu EnhancedTable, které je předán Toolbar pro danou tabulku (bar s funkcemi nad daty) a samotná data.
+Aby bylo zajištěno, že data jsou aktuální, tak při každém vykreslení stránky se pošle GET request na /api/projects.
+
+Vlastním přínosem do kódu bylo vytvoření SelectBoxu vlevo v Toolbaru, který dovoluje změnit pohled tabulky. Na obrázku níže (obrázek \ref{fig:ram}) můžete poté vidět seznam všech různých pohledů a také příklad jiného pohledu, konkrétně RAM.
+\newpage
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=3.8cm]{../img/ram.png}
+	\caption[Pohled na ram, vlastní tvorba]{Pohled na ram}
+	\label{fig:ram}
+\end{figure}
+
+Pohledy RAM, CPU, Disk, Upload, Download zobrazují podobné informace jako jednotlivé grafy v sekci Informace o projektu (kapitola 2.5.3).
+Je ovšem výhodné je vložit i do tabulky, jelikož lze kontejnery řadit podle volných, alokovaných či uložených zdrojů a díky tomu je při nedostatku místa snadné hledat projekty, ve kterých je možné ušetřit nějaké zdroje.
+Jestliže projekt nemá nastavené limity, nezobrazuje se progress bar ani procenta u žádné z hodnot, jelikož by to nemělo větší smysl. Zobrazují se ovšem stavy v daných jednotkách.
+
+Uživatel může smazat více projektů najednou.
+Stačí vybrat projekt pomocí tlačítka nalevo a Toolbar se změní - zfialoví a zobrazí se počet zobrazených projektů následovaný tlačítkem Delete (viz obrázek \ref{fig:projectSelect}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=3.6cm]{../img/project.png}
+	\caption[Výběr projektu, vlastní tvorba]{Výběr projektu}
+	\label{fig:projectSelect}
+\end{figure}
+
+Při kliknutí na ikonu delete se zobrazí dialog, kde se uživatele aplikace zeptá, zda chce smazat tento projekt.
+Při kliknutí na Yes se vyšle akce na server a zároveň se změní Redux store. Díky tomu se místo select boxu zobrazí spinner (viz obrázek \ref{fig:detelePro}) s aktuální akcí.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=0.35cm]{../img/deletingPro.png}
+	\caption[Smazání projektu, vlastní tvorba]{Smazání projektu}
+	\label{fig:detelePro}
+\end{figure}
+
+\newpage
+Jakmile přijde ze serveru zpráva o smazání, okamžitě se kontejner smaže.
+Vytvořit projekt je možné pomocí tlačítka + úplně nalevo Toolbaru. Po stisknutí se otevře následující
+
+Při vytváření projektu je nutné specifikovat jeho jméno, které nesmí být delší než 30 znaků a nesmí se v listu projektů opakovat. Zároveň je možné specifikovat také limity. V případě, že se stiskne switch, je nastaven limit projektu na specifikovanou hodnotu, v opačném případě projekt nebude mít daný zdroj limitován a bude při výpočtech použit limit uživatele daného zdroje. Maximální limity jsou určeny jako volné místo ve stavu uživatele.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=6.5cm]{../img/createPro.png}
+	\caption[Vytváření projekt, vlastní tvorba]{Vytváření projektu}
+	\label{fig:createPro}
+\end{figure}
+
+Po kliknutí na create se zobrazí stejný spinner jako u smazání, akorát s textem creating.
+
 
 \chapter{Backend}
 
