@@ -211,11 +211,7 @@ app.patch(
           if (result.statusCode == 400) {
             res.statusCode = 400;
             res.send({ message: result.status });
-          }
-
-          if (result.statusCode != 200)
-            res.status(400).send({ message: result.status });
-          else
+          } else
             containerSQL
               .updateContainerStateObject(req.params.instanceId, true, 103)
               .then((result) =>
@@ -238,20 +234,20 @@ app.patch(
         if (result.statusCode == 400) {
           res.statusCode = 400;
           res.send({ message: result.status });
+        } else {
+          lxd.stopInstance(req.params.instanceId, result).then((result) => {
+            if (result.statusCode != 200)
+              res.status(400).send({ message: result.status });
+            else
+              containerSQL
+                .updateContainerStateObject(req.params.instanceId, false, 102)
+                .then((result) =>
+                  getContainerObject(req.params.instanceId).then((result) =>
+                    res.send(result)
+                  )
+                );
+          });
         }
-
-        lxd.stopInstance(req.params.instanceId, result).then((result) => {
-          if (result.statusCode != 200)
-            res.status(400).send({ message: result.status });
-          else
-            containerSQL
-              .updateContainerStateObject(req.params.instanceId, false, 102)
-              .then((result) =>
-                getContainerObject(req.params.instanceId).then((result) =>
-                  res.send(result)
-                )
-              );
-        });
       })
 );
 
@@ -266,19 +262,20 @@ app.patch(
         if (result.statusCode == 400) {
           res.statusCode = 400;
           res.send({ message: result.status });
+        } else {
+          lxd.freezeInstance(req.params.instanceId, result).then((result) => {
+            if (result.statusCode != 200)
+              res.status(400).send({ message: result.status });
+            else
+              containerSQL
+                .updateContainerStateObject(req.params.instanceId, false, 110)
+                .then((result) =>
+                  getContainerObject(req.params.instanceId).then((result) =>
+                    res.send(result)
+                  )
+                );
+          });
         }
-        lxd.freezeInstance(req.params.instanceId, result).then((result) => {
-          if (result.statusCode != 200)
-            res.status(400).send({ message: result.status });
-          else
-            containerSQL
-              .updateContainerStateObject(req.params.instanceId, false, 110)
-              .then((result) =>
-                getContainerObject(req.params.instanceId).then((result) =>
-                  res.send(result)
-                )
-              );
-        });
       })
 );
 
@@ -293,19 +290,20 @@ app.patch(
         if (result.statusCode == 400) {
           res.statusCode = 400;
           res.send({ message: result.status });
+        } else {
+          lxd.unfreezeInstance(req.params.instanceId, result).then((result) => {
+            if (result.statusCode && result.statusCode != 200)
+              res.status(400).send({ message: result.status });
+            else
+              containerSQL
+                .updateContainerStateObject(req.params.instanceId, false, 103)
+                .then((result) => {
+                  getContainerObject(req.params.instanceId).then((result) =>
+                    res.send(result)
+                  );
+                });
+          });
         }
-        lxd.unfreezeInstance(req.params.instanceId, result).then((result) => {
-          if (result.statusCode && result.statusCode != 200)
-            res.status(400).send({ message: result.status });
-          else
-            containerSQL
-              .updateContainerStateObject(req.params.instanceId, false, 103)
-              .then((result) => {
-                getContainerObject(req.params.instanceId).then((result) =>
-                  res.send(result)
-                );
-              });
-        });
       });
   }
 );
@@ -334,15 +332,17 @@ app.get("/api/projects", isLoggedIn, (req, res) => {
 app.post("/api/projects", isLoggedIn, (req, res) => {
   projectSQL.createCreateProjectJSON(email, req.body).then((project) => {
     if (project.statusCode == 400) {
-      res.status(400).send(project.status);
+      res.statusCode = 400;
+      res.send(project.status);
+    } else {
+      let id = project.name; // createProject will rewrite name variable thus it is easiest to store it in variable
+      lxd.createProject(project).then((result) => {
+        if (result.statusCode != 200) {
+          projectSQL.removeProject(id);
+          res.status(400).send({ message: result.status });
+        } else getProjectObject(id).then((result) => res.send(result));
+      });
     }
-    let id = project.name; // createProject will rewrite name variable thus it is easiest to store it in variable
-    lxd.createProject(project).then((result) => {
-      if (result.statusCode != 200) {
-        projectSQL.removeProject(id);
-        res.status(400).send({ message: result.status });
-      } else getProjectObject(id).then((result) => res.send(result));
-    });
   });
 });
 

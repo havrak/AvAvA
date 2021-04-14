@@ -45,6 +45,7 @@ export default class projectSQL {
             (err, rows) => {
               if (err) throw err;
               for (let i = 0; i < rows.length; i++) {
+                let wait = false;
                 if (rows[i].ram != null) {
                   // project can be withou limits
                   userLimits.RAM -= rows[i].ram;
@@ -53,7 +54,7 @@ export default class projectSQL {
                   userLimits.internet.upload -= rows[i].upload;
                   userLimits.internet.download -= rows[i].download;
                 } else {
-                  let wait = true;
+                  wait = true;
                   con.query(
                     // find limits of all contnainers in project whose limits are null and substract them from userLimits
                     "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.project_id=?",
@@ -74,10 +75,15 @@ export default class projectSQL {
                       }
                     }
                   );
-                  while (wait) sleep(1);
+                }
+                if (i == rows.length - 1) {
+                  while (wait) let a =1; // wait till query finishes, TODO: come up with more elegant method, but this seems to work.
+                  resolve(userLimits);
                 }
               }
-              resolve(userLimits);
+              if (rows.length == 0) {
+                resolve(userLimits);
+              }
             }
           );
         }

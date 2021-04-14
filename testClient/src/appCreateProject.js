@@ -4,12 +4,12 @@ const route = "/api/projects";
 const data = JSON.stringify({
   name: "LiMIty NesMeji bYt nuLa",
   limits: {
-    RAM: 1610612736,
-    CPU: 2100000000,
-    disk: 8589934592,
+    RAM: 1610,
+    CPU: 2100,
+    disk: 8582,
     internet: {
-      download: 800000,
-      upload: 800000,
+      download: 80,
+      upload: 80,
     },
   },
 });

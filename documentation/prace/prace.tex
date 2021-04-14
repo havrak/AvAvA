@@ -433,6 +433,411 @@ Zde je třeba ověřit zda uživatel vlastní projekt, do kterého se snaží vy
 
 \chapter{Frontend}
 
+Základem pro frontend se stal dashboard template\footnote{viz. \bibentry{templates}}.
+ Požadavky aplikace ovšem tento template ani zdaleka nedokázal splnit. Jedinými částmi, které tedy přebrány je layout aplikace (soubor User), design Sidebaru a Navbaru, způsob strukturování složek včetně jejich mobilních verzí.
+ I tyto části ovšem musely být modifikovány, aby vyhovovaly všem nárokům aplikace.
+ Zároveň také z templatu zůstaly scss soubory.
+ Ty jsou ovšem využívány některými komponentami, takže zatím soubory nebyly z projektu vymazány.
+
+ Kód byl napsaný v Javascriptu, konkrétně ReactJS a preprocessoru SASS. Velice důležité jsou i knihovny react-bootstrap a material-ui, pomocí nichž byla napsána většina komponent.
+
+\section{Struktura souborů}
+
+Následující sekce popisuje strukturu souborů clienta.
+
+\begin{figure}[h]
+	\dirtree{%
+	.1 client.
+	.2 node\_modules.
+	.2 public.
+	.2 src.
+	.3 actions.
+	.3 api.
+	.3 assets.
+	.3 components.
+	.3 layouts.
+	.3 reducers.
+	.3 service.
+	.3 views.
+	.3 App.js.
+	.3 index.js.
+	.3 logo.svg.
+	.3 routes.js.
+	.3 setupProxy.js.
+	}
+	\caption[Struktura souborů frontendu, vlastní tvorba]{Struktura souborů frontend}
+	\label{fig:frontendStructure}
+\end{figure}
+
+
+%public
+\subsubsection{Public}
+\begin{figure}[h]
+	\dirtree{%
+	.1 client.
+	.2 public.
+	.3 favicon.ico.
+	.3 index.html.
+	}
+	\caption[Struktura souborů frontendu, vlastní tvorba]{Struktura souborů frontend}
+	\label{fig:frontendStructure}
+\end{figure}
+Ve složce public se nachází pouze jeden HTML soubor s root divem, do kterého React zapisuje.
+Favicon je poté LXD ikona, která se objeví jako ikona karty prohlížeče.
+
+Soubory .eslintcache, package=lock.json jsou automaticky generované a nejsou tedy důležité.
+Soubor gulpfile.js připne k HTML a CSS souborům hlavičku, kterou vyžaduje licence templatu.
+Soubor jsconfig.json poté dovolí importovat soubory pomocí absolutních cest vzhledem k src složce, což činí práci s importy mnohem pohodlnější
+
+\subsubsection{Src}
+\begin{figure}[h]
+	\dirtree{%
+	.1 client.
+	.2 src.
+	.3 actions.
+	.3 api.
+	.3 assets.
+	.3 components.
+	.3 layouts.
+	.3 redurcers.
+	.3 service.
+	.3 views.
+	.3 App.js.
+	.3 inedex.js.
+	.3 logo.svg.
+	.3 routes.js.
+	.3 setupProxy.js.
+	}
+	\caption[Struktura souborů frontendu, vlastní tvorba -- src]{Struktura souborů frontend -- src}
+	\label{fig:frontendStructureSrc}
+\end{figure}
+Zdaleka nejdůležitější je ovšem src složka, která obsahuje samotný kód.
+Půjdeme-li popořadě, tak první složkou je actions, kde se nacházejí akce manipulující s Redux storem (viz kapitola 2..).
+S ním také manipulují reducery ve složce redurcers.
+
+
+\newpage
+\subsubsection{Api}
+
+
+\begin{figure}[h]
+	\dirtree{%
+	.1 client.
+	.2 src.
+	.3 api.
+	.4 api.
+	.4 model.
+	.4 ApiClient.js.
+	.4 index.js.
+	.4 WebSockets.js.
+	}
+	\caption[Struktura souborů frontendu -- api, vlastní tvorba]{Struktura souborů frontend -- api}
+	\label{fig:frontendStructureApi}
+\end{figure}
+Ve složce api se nachází kód na získání a odesílání dat na backend (viz kapitola 2.2).
+
+\subsubsection{Assets}
+
+\begin{figure}[h]
+	\dirtree{%
+	.1 client.
+	.2 src.
+	.3 assets.
+	.4 css.
+	.4 fonts.
+	.4 img.
+	.4 scss.
+	.5 custom.
+	.5 lbd.
+	.5 lbdr.
+	}
+	\caption[Struktura souborů frontendu -- assets , vlastní tvorba]{Struktura souborů frontend -- assets}
+	\label{fig:frontendStructureAssets}
+\end{figure}
+Ve složce assets se nachází vše, co se týká stylů, obrázků a fontů potřebných pro projekt.
+Kód napsaný v assets/scss se díky preprocessoru zkompiluje do css souborů do složky assets/css, které se poté odesílají spolu s HTML souborem.
+Většina stylů byla zachována z templatu, jelikož jsou styly vcelku použitelné i na požadavky projektu. Například díky nim funguje responzivní navigace.
+
+V některých případech bylo ovšem nutné napsat vlastní styly.
+Ty jsou uloženy ve složce assets/scss/custom.
+Do souboru light-bootstrap-dashboard je poté přidán import každého z custom souborů.
+
+\newpage
+\subsubsection{Components}
+
+\begin{figure}[h]
+	\dirtree{%
+	.1 client.
+	.2 src.
+	.3 components.
+	.4 Cards.
+	.4 Dialogs.
+	.4 Footer.
+	.4 Form.
+	.4 Icons.
+	.4 Navbar.
+	.4 RouteComponents.
+	.4 Sidebar.
+	.4 Tables.
+	.4 Terminal.
+	.4 ProjtecedRoute.js.
+	.4 UserSetup.js.
+	}
+	\caption[Struktura souborů -- components, vlastní tvorba]{Struktura souborů -- components}
+	\label{fig:frontendStructureComponentes}
+\end{figure}
+
+Složka components obsahuje znovupoužitelné komponenty, ze kterých se poté skládají jednotlivé stránky.
+Na ní přímo navazuje složka views, v níž se nachází kód, který jednotlivé komponenty spojuje do stránek.
+Když tedy uživatel zadá do URL baru cestu, zobrazí se mu právě jedna stránka složená z několik komponent.
+Tyto stránky jsou poté obaleny ještě do tzv. layoutů nacházejících se ve složce layout.
+Stránky jsou v nich spojeny s navigacemi a zápatím.
+Momentálně existuje pouze jeden layout a to layout pro uživatele (User.js).
+V budoucnu je ovšem plánováno rozšířit také projekt pro administrátorský přístup, layouty tedy přibydou.
+
+
+
+\subsubsection{Service}
+
+
+Ve složce service se nacházejí služby, které mohou využívat jakékoliv další služby.
+Jedná se o různé druhy výpočtů, např. převádění jednotek, počítání stavů grafů atd...
+
+Soubor index.js je nejvyšším souborem, který do root divu v HTML vloží celý frontend.
+Zároveň obsahuje kód pro integraci reduxu.
+Soubor App.js obsahuje komponent, který seskupuje všechny layouty a dovoluje a podílí se na navigaci na frontendu (viz kapitola 2.4).
+Stejně tak si v kapitole probereme i soubor routes.js.
+
+\newpage
+\subsubsection{View}
+
+\begin{figure}[h]
+	\dirtree{%
+	.1 client.
+	.2 src.
+	.3 views.
+	.4 Containers.
+	.5 Console.js.
+	.5 Container.js.
+	.5 Info.js.
+	.5 Snapshots.js.
+	.5 StateHistory.js.
+	.4 Other.
+	.4 Projects.
+	.5 Container.js.
+	.5 Info.js.
+	.5 Project.js.
+	.4 User.
+	.5 Dashboard.js.
+	.5 Project.js.
+	.6 UserProfiel.js.
+	}
+	\caption[Struktura souborů -- view, vlastní tvorba]{Struktura souborů -- view}
+	\label{fig:frontendStructureView}
+\end{figure}
+
+Ve složce views sídlí jednotlivé stránky.
+Ty jsou v ní dále rozděleny podle toho, do jaké kategorie spadají.
+Zde jsou vidět všechny tři kategorie.
+Ve složce Other se poté nacházejí stránky z templatu pro případ, kdy by bylo možné někdy použít některé z template komponentů.
+
+\newpage
+\section{API}
+
+Veškerý kód, který má něco společného s komunikaci s backendem či jinými externími zdroji sídlí ve složce api.
+Obsah této složky kromě WebSockets.js je generován pomocí programu swagger-codegen v již zmíněném Swagger editoru.
+
+Ve složce api/api se poté nachází soubor, kde jsou vygenerované metody odpovídající cestám na REST API, těmto metodám stačí předat specifikované parametry a na server se odešlou požadovaná data.
+Po získání odpovědi je zavolán předaný callback.
+
+Swagger codegen vygeneroval soubory, které jako API klienta používají knihovnu superagent.
+Jeho chování je specifikováno pomocí vygenerovaného souboru ApiClient.
+Vygenerovaný kód ovšem nestačí, např. pokud by vrácená odpověď byla 401, tak bylo nutné do souboru přidat příkaz na spuštění autentifikace.
+
+Ve složce models se nachází soubory odpovídající objektům z Open API specifikace.
+Na frontendu je ovšem vůbec nevyužívám, slouží tedy pouze samotnému fungování API.
+
+Vše je poté přehledně dostupné v souboru index.js, ze kterého jsou exportovány všechny objekty z model složky a cesty z api/api/DefaultAPI.js
+
+Posledním souborem je WebSockets.js, ve kterém se nachází metody vytvářející WebSocket spojení na backend.
+Momentálně se WebSockety využívají pouze pro vytvoření spojení pro terminál do kontejnerů, ale v budoucnosti je očekávané, že se jejich využití rozšíří.
+V případě, že bude spolu na jednom projektu spolupracovat více uživatelů, bude nutné pro vytvoření real-time systému updatovat změny pomocí duplexního spojení, kterým je právě WebSocket.
+
+Jelikož při developmentu nejsou backend a frontend na jednom portu, dochází ke CORS erroru.
+Na jeho vyřešení byla implementována http proxy (soubor setupProxy.js), která veškeré specifikované requesty přesouvá na port 5000 se stejnou adresou.
+
+\section{Redux}
+
+Redux je framework, který dovoluje různým React komponentům sdílet stav pomocí tzv. Redux store.
+V případě, že nějaký komponent potřebuje přistoupit k nějaké části storu, tak se napíše metoda mapStateToProps a jednotlivé proměnné jsou poté předány jako properties jednotlivým komponentám.
+V případě, že dojde ke změně redux storu, dojde k překreslení daného komponentu.
+
+
+Základní chování Redux storu je, že se vynuluje při načtení stránky.
+Z tohoto důvodu se store ukládá do localstorage při každé jeho změně.
+Při načtení stránky se poté z localstorage načte zpět.
+O inicializaci a chování stavu se stará soubor index.js v src složce.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=6.9cm]{../img/Redux.png}
+	\caption[Graf stavu u reduxu, vlastní tvorba, vygenerováno pomocí redux dev tools ]{Graf stavu u Reduxu}
+	\label{fig:redux}
+\end{figure}
+
+
+Se storem je možné manipulovat pouze pomocí tzv. akcí.
+Jedná se o objekty, které obsahují jméno a payload.
+Tyto akce se nacházejí ve složce actions v odlišných souborech pro uživatelské akce, akce s projekty, akce s uživateli a frontendové akce.
+Tyto akce mohou být tzv. dispatchnuty, čímž se dostanou k reducerům.
+
+\begin{figure}[h]
+	\dirtree{%
+	.1 client.
+	.2 src.
+	.3 actions.
+	.4 ContainerAction.js.
+	.4 FrontendAction.js.
+	.4 ProjectAction.js.
+	.4 UserAction.js.
+	}
+	\caption[Struktura souborů frontendu -- actions, vlastní tvorba]{Struktura souborů frontend -- actions}
+	\label{fig:frontendStructureSrc}
+\end{figure}
+
+
+Reducer je metoda, která na základě jména a payloadu předané akce určí, co se má stát s Redux storem.
+Tento způsob změny stavu se může zdát zvláštní, každopádně zajišťuje vynikající škálovatelnost systému.
+V současnosti existují v projektu dva reducery, combinedUserData reducer, který se stará o veškeré akce související se změnou dat definovaných pomocí Open API a frontend reducer, který má pouze jediný účel na frontendu.
+V budoucnosti pravděpodobně nebude nutné mít více než jeden reducer, jelikož logika, kterou frontend reducer vykonává pravděpodobně bude změněna do podoby, kdy frontend reducer nebude potřeba.
+
+Akce mohou být i asynchronní, což se např. hodí pro případ, kdy chceme poslat request na API a jakmile získáme výsledek, tak udělat se získanými daty nějakou akci - např. akce containerIdDelete() ihned zobrazí u mazaného kontejneru v tabulce kontejnerů spinner a nápis deleting.
+Po smazání kontejneru se odešle na frontend odpověď a vykoná se akce smazání kontejneru z tabulky.
+
+Jednotlivým komponentům jsou akce předávány pomocí implementace metody mapDispatchToProps, která funguje stejně jako mapStateToProps.
+
+Hlavní účel využití Reduxu v projektu je tedy zpracování dat, které se získají z API do podoby, se kterou mohou komponenty pracovat a poskytnutí možnosti tato data měnit s okamžitými účinky na frontendu.
+
+
+\section{Navigace}
+
+O navigaci na frontendu se stará knihovna react-router.
+Každá cesta na frontendu zobrazující nějakou stránku začíná prefixem daného layoutu.
+V případě, že si tedy budeme chtít zobrazit hlavní panel, cesta na získání bude /user/dashboard.
+Tím se vždy odliší od volání do api, které má prefix /api.
+
+V projektu se momentálně nachází 1 + N BrowserRouterů.
+Jeden v app.js, který se stará o layouty a N v rámci jednotlivých layoutů (nyní N=1).
+V nich jsou vytvářeny Route objekty s adresami specifikovanými v routes.js souboru.
+V něm se u každé cesty nachází také jméno dané cesty, layout, do kterého patří, navigační linky a stránka, která se má zobrazit, když uživatel zadá danou cestu.
+
+V případě, že uživatel není přihlášen a pokusí se získat chráněný obsah, je okamžitě přesměrován na přihlašovací stránku.
+Chráněným obsahem jsou přitom na frontendu s výjimkou jedné cesty úplně všechny.
+V případě, že je v Redux storu proměnná combinedUserData.user null, či undefined, tak uživatel není přihlášen.
+React-router ovšem neobsahuje žádný komponent ProtectedRoute, takže bylo nutné ho vytvořit.
+Jedná se o klasický Route objekt kontrolující, zda je výše jmenovaná proměnná null či nikoliv.
+
+Pro snadný pohyb po stránce byly implementovány dva druhy navigace.
+Jak Navbar, tak i Sidebar jsou plně responzivní a přispůsobí se mobilnímu rozhraní, jak ve vidět na obrázcích \ref{fig:desktopRes},  \ref{fig:mobileResO} a \ref{fig:desktopRes}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=7.8cm]{../img/navbarNonResponsive.png}
+	\caption[Uživatelské rozhraní na počítači, vlastní tvorba]{Uživatelské rozhraní na počítači \linebreak}
+	\label{fig:desktopRes}
+\end{figure}
+
+\begin{figure}[!htb]
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\includegraphics[height=9cm]{../img/navbarResponsiveSiderbarClosed.png}
+		\caption[Responsivní interface na mobilu -- overview, vlastní tvorba]{Responsivní interface na mobilu -- overview}
+		\label{fig:mobileResO}
+
+	\end{minipage}\hfill
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\includegraphics[height=9cm]{../img/navbarResponsiveSiderbarOpened.png}
+		\caption[Responsivní interface na mobilu -- sidebar, vlastní tvorba]{Responsivní interface na mobilu -- sidebar\protect\footnotemark}
+		\label{fig:mobileResS}
+	\end{minipage}
+\end{figure}
+\footnotetext{kontent na obrazovce se posune doleva při otevření menu}
+
+\newpage
+
+Frontend je strukturován do 3 základních kategorií:
+\begin{itemize}
+	\item uživatelská - Dashboard, Projects
+	\item projektová - Info, Containers, Settings
+	\item kontejnerová - Info, Console, Snapshots, Backup, Settings
+\end{itemize}
+
+Sidebar - slouží převážně na přepínání mezi kategoriemi.
+Dovoluje tedy jednoduše navigovat mezi projektu a jejich kontejnery.
+Platí, že vždy je zvýrazněna světlým pozadím ta část sidebaru, která je momentálně zobrazovaná.
+Jednotlivé projekty či kontejnery v daném projektu je možné v sidebaru rozbalit či skrýt.
+Platí přitom, že nejde skrýt ta část, ve které je aktuálně zobrazený element.
+Když je zadána nějaká cesta, ale daný element je zabalený, tak se rodič automaticky rozbalí.
+
+Navbar naproti tomu má za účel navigovat převážně mezi funkcemi jedné kategorie.
+Například na výše uvedeném obrázku jsou vidět funkce pro kategorie kontejner - Info, Console, Snapshots, Backup, Settings.
+Zároveň se zde nachází i karta s aktuálním uživatelem, na kterou když uživatel klikne, tak mu dropdown nabídne možnost odhlásit se (viz. obrázek \ref{fig:logout}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=3.8cm]{../img/logout.png}
+	\caption[Odhlášení uživatele, vlastní tvorba]{Odhlášení uživatel \linebreak}
+	\label{fig:logout}
+\end{figure}
+
+Vlevo se poté nachází jméno dané stránky - u kontejneru je to jméno projektu/jméno kontejneru - jméno stránky.
+Zajímavostí je, že při kliknutí na jméno projektu je uživatel odkázán na Info stránku rodičovského projektu.
+
+U obou těchto navigací platí, že jsou implementovány pomocí linků, které odkážou na nějakou cestu, jež se vykreslí za pomoci react-routeru.
+Aby bylo jisté, že má uživatel vždy aktuální data, tak se při vykreslování jednotlivých cest vždy dispatchne nějaká akce, která pošle API request na server a po získání dat updatuje Redux store.
+Nejprve se tedy vykreslí stará data a jakmile přijde odpověď, tak se vykreslí nová.
+To dává pocit kontinuity a je to mnohem více uživatelsky přívětivé, než kdyby se čekalo na získání dat po každém kliknutí.
+V budoucnosti, když se bude řešit kooperace více uživatelů se tento systém pravděpodobně změní ve prospěch nějaké formy kontrolního WebSocketu.
+
+\section{Přehled funkcí}
+
+Tato kapitola je věnována detailnímu popisu jednotlivých stránek a komponentů, které potřebují pro své fungování.
+
+\subsection{Hlavní panel}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=7.3cm]{../img/dashboard.png}
+	\caption[Uživatelské rozhraní na počítači, vlastní tvorba]{Uživatelské rozhraní na počítači \linebreak}
+	\label{fig:desktopRes}
+\end{figure}
+
+Dashboard, neboli hlavní panel zobrazuje uživateli aktuální informace o stavu všech jeho kontejnerů a projektů.
+Jedná se o první stránku, kterou po přihlášení uvidí.
+Nahoře se nachází dvě karty zobrazující počet projektů, které vlastní a počet různých stavů všech jeho kontejnerů.
+Nachází se zde také zobrazení počtu projektů, ve kterých se pouze účastní.
+Zatím sice není implementována možnost spolupráce více uživatelů na jednom projektu, ovšem její vytvoření je plánované a jelikož Dashboard vypadá lépe s touto funkcí, tak je tato informace zobrazena již nyní.
+
+Ve druhé řadě se nachází 5 grafů zobrazující agregovaný stav všech projektů.
+Na jejich implementaci byla použita knihovna react-google-charts - pie-chart.
+Červenou barvou se zobrazují zdroje, které jsou opravdu zkonzumovány jednotlivými kontejnery.
+Jedná se tedy o součet usage proměnných všech kontejnerů.
+
+Oranžově jsou poté zobrazeny zdroje, které jsou přiděleny jednotlivým projektům či přimo jednotlivým kontejnerům v případě, že samotný projekt limit nemá pro daný zdroj.
+Tyto zdroje jsou zablokované a nejde je využít v jiném projektu či kontejneru než tam, kde jsou přiděleny.
+
+Šedivě je zobrazeno volné místo, které je možné alokovat pro další projekty či kontejnery.
+Toto volné místo je přitom zobrazeno uvnitř samotného grafu v adekvátních jednotkách.
+Potom při umístění textu na střed grafu sehrál příspěvěk na Stack Overflowm\footnote{\bibentry{piChart}}   Dashboard zobrazuje uživatel hlavně proto, aby měl přehled o zdrojích, které může projektům alokovat, dává tedy největší smysl zobrazit právě hodnotu volného místa.
+O převod ze základních jednotek se stará třída UnitsConvertor ve třídě service.
+Předtím se ještě spočítat všechna potřebná data - volné zdroje, alokované zdroje, procenta, ... O to se stará třída service/StateCalculator.js, jejíž metody modifikují v reducerech stav Redux storu.
+Z toho plyne, že data z Redux storu již budou mít všechna potřebná data pro zobrazení stavu k dispozici.
+
+Komponenty grafů se nacházejí ve složce components/Cards/State.
+Podobný hlavní panel jako Dashboard pro uživatelskou kategorii se nachází i v projektové a kontejnerové kategorii.
+Tam ovšem fungují grafy odlišně, a tak se v této složce nacházejí ještě další dva soubory s odlišnými grafy.
+
 \chapter{Backend}
 
 
@@ -447,17 +852,17 @@ Následující sekce se zabývá strukturou mySQL databáze a metodami, které s
 
 
 \begin{figure}[h]
-\dirtree{%
-.1 src.
-.2 services.
-.3 sql.
-.4 containerSQL.js.
-.4 projectSQL.js.
-.4 templateSQL.js.
-.4 userSQL.js.
-}
-\caption[Soubory s programem týkající se mysql databáze, vlastni tvorba]{Soubory s programem týkající se mysql databáze}
-\label{fig:sqlClasses}
+	\dirtree{%
+	.1 src.
+	.2 services.
+	.3 sql.
+	.4 containerSQL.js.
+	.4 projectSQL.js.
+	.4 templateSQL.js.
+	.4 userSQL.js.
+	}
+	\caption[Soubory s programem týkající se mysql databáze, vlastni tvorba]{Soubory s programem týkající se mysql databáze}
+	\label{fig:sqlClasses}
 \end{figure}
 
 Valnou většinu dat projekt ukládá do mySQL databáze, kde je na tento účel vytvořeno aktuálně 10 tabulek.
