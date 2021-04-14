@@ -51,6 +51,10 @@ app
 
 import("./routes/apiRoute.js");
 
+/**
+ * cronjob that every ten minutes logs current state of container
+ *
+ */
 schedule.scheduleJob("*/10 * * * *", () => {
   containerSQL.getAllContainers().then((result) => {
     result.forEach((cont) => {

@@ -1,4 +1,7 @@
-// generic class with limits
+/**
+ * generic class for storing limits
+ *
+ */
 export default class Limits {
   constructor(RAM, CPU, disk, upload, download) {
     this.RAM = RAM;

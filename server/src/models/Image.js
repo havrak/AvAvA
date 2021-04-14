@@ -1,3 +1,7 @@
+/**
+ * information about single image
+ *
+ */
 export default class Image {
   constructor(os, version, description) {
     this.os = os;

@@ -26,6 +26,12 @@ import projectSQL from "../services/sql/projectSQL.js";
 import containerSQL from "../services/sql/containerSQL.js";
 import * as lxd from "./lxdRoute.js";
 
+/**
+ * All API routes are described in file USER.yaml in root of this project
+ * thus they aren't documented here
+ *
+ */
+
 app.get("/api/combinedData", isLoggedIn, (req, res) => {
   //
   let toReturn = new UserData();
@@ -35,7 +41,7 @@ app.get("/api/combinedData", isLoggedIn, (req, res) => {
       res.send({ message: result.status });
     }
     toReturn.user = result;
-    toReturn.hostInformation.CPU.model = os.cpus()[0].model; // this works, however as developnet isn't done on server one gets model nad frequency of his own cpu
+    toReturn.hostInformation.CPU.model = os.cpus()[0].model; // this works, however as development isn't done on server, so tester gets model nad frequency of his own cpu
     toReturn.hostInformation.CPU.frequency = systemconfig.frequency;
     containerSQL.createCreateContainerData(req.user.email).then((result) => {
       toReturn.createInstanceConfigData = result;
@@ -82,7 +88,7 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
                 res.status(400).send({ message: result.status });
                 return;
               }
-              // upload sshd_config
+              // upload sshd_config as default has password loggin disabled
               lxd
                 .postFileToInstance(
                   id,

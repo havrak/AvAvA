@@ -1,3 +1,8 @@
+/**
+ * information necessary for creation of new container
+ *
+ */
+
 export default class CreateInstanceConfigData {
   constructor(templates, applicationsToInstall) {
     this.templates = templates;

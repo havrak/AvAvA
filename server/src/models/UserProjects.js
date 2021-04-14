@@ -1,3 +1,7 @@
+/**
+ * used to stored all users projects
+ *
+ */
 export default class UserProjects {
   constructor(limits, projects) {
     this.limits = limits;

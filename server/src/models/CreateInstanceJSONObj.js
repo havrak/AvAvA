@@ -1,3 +1,7 @@
+/**
+ * object given to lxd in oder to create new container
+ *
+ */
 export default class CreateInstanceJSONObj {
   constructor(name, profiles, source, project) {
     this.name = name;

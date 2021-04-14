@@ -185,7 +185,7 @@ export default class userSQL {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
-        "SELECT * FROM projects LEFT JOIN users ON projects.owner_email=users.email LEFT JOIN projectsCoworkers ON projectsCoworkers.project_id=projects.id WHERE owner_email=? OR user_email=? AND projects.id=?",
+        "SELECT * FROM projects LEFT JOIN users ON projects.owner_email=users.email LEFT JOIN projectsCoworkers ON projectsCoworkers.project_id=projects.id WHERE owner_email=? OR user_email=? AND projects.id=?", // SQL is rather strange looking however owner isn't stated in coworkers thus two different email field need to be checked
         [email, email, id],
         (err, rows) => {
           if (err) throw err;
@@ -216,6 +216,7 @@ export default class userSQL {
         ],
         (err, rows) => {
           if (err && err.code == "ER_DUP_ENTRY") {
+            // this method is called every time one user authenticates
             console.log("User is already stored in DB");
             this.getUserByEmail(user.emails[0].value).then((result) => {
               resolve(result);

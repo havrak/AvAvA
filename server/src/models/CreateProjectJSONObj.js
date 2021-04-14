@@ -1,3 +1,7 @@
+/**
+ * object given to lxd in oder to create new project
+ *
+ */
 export default class CreateProjectJSONObj {
   constructor(name, memory, disk) {
     this.name = name;

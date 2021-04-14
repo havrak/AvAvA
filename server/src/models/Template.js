@@ -1,3 +1,7 @@
+/**
+ * inforamtion about Templates
+ *
+ */
 export default class Template {
   constructor(id, name, createdOn, image, description, minDiskUsage) {
     this.id = id;

@@ -1,3 +1,7 @@
+/**
+ * information about state of container
+ *
+ */
 export default class ContainerResourceState {
   measuredOn;
   CPU = {

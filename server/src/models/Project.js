@@ -1,3 +1,7 @@
+/**
+ * information about single project
+ *
+ */
 export default class Project {
   constructor(id, name, owner, limits, createdOn, coworkers, containers) {
     this.id = id;

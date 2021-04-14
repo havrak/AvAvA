@@ -1,3 +1,7 @@
+/**
+ * information about single application
+ *
+ */
 export default class ApplicationToInstall {
   constructor(id, name, description, icon) {
     this.id = id;

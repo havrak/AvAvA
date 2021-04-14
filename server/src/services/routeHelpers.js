@@ -6,9 +6,9 @@ import projectSQL from "./sql/projectSQL.js";
 import containerSQL from "./sql/containerSQL.js";
 import * as lxd from "../routes/lxdRoute.js";
 
-const googleAuthOverride = true;
-
-/* const to verify whether user is logged in via google auth
+const googleAuthOverride = false; // disables googleAuth in oder to more easily test backend
+/**
+ * const to verify whether user is logged in via google auth
  *
  */
 export const isLoggedIn = (req, res, next) => {
@@ -25,8 +25,8 @@ export const isLoggedIn = (req, res, next) => {
     }
   }
 };
-
-/*  const to verify whether project which id was given in
+/**
+ *  const to verify whether project which id was given in
  *	request truly belongs to the user or whether user is
  *	coworker on it
  *
@@ -40,8 +40,8 @@ export const isProjectUsers = (req, res, next) => {
       else res.sendStatus(401);
     });
 };
-
-/*  const to verify whether container which id was given in
+/**
+ *  const to verify whether container which id was given in
  *	request truly belongs to the user or whether user is
  *	coworker on project which container is part of
  *
@@ -56,6 +56,12 @@ export const isContainerUsers = (req, res, next) => {
     });
 };
 
+/**
+ * get Project object for given project
+ * @param projectId - id of project
+ *
+ * @return Project
+ */
 export function getProjectObject(projectId) {
   return new Promise((resolve) => {
     projectSQL.createProjectObject(projectId).then((project) => {
@@ -71,7 +77,12 @@ export function getProjectObject(projectId) {
     });
   });
 }
-
+/**
+ * get history of given project
+ * @param projectId - id of project
+ *
+ * @return ProjectStateWithHistory
+ */
 export function getProjectStateWithHistory(id) {
   return new Promise((resolve) =>
     projectSQL.getIdOfContainersInProject(id).then((containerIds) => {
@@ -91,6 +102,12 @@ export function getProjectStateWithHistory(id) {
   );
 }
 
+/**
+ * get Container
+ * @param id - id of container
+ *
+ * @return Container
+ */
 export function getContainerObject(id) {
   return new Promise((resolve) => {
     containerSQL.createContainerObject(id).then((container) => {
@@ -109,6 +126,12 @@ export function getContainerObject(id) {
     });
   });
 }
+
+/**
+ * deletes container
+ * @param id - id of container
+ *
+ */
 export function deleteContainer(id) {
   return containerSQL.getProjectIdOfContainer(id).then((project) => {
     if (project.statusCode == 400) {
@@ -125,6 +148,12 @@ export function deleteContainer(id) {
   });
 }
 
+/**
+ * get ContainerState
+ * @param id - id of container
+ *
+ * @return ContainerState
+ */
 export function getContainerState(containerId, projectId) {
   return containerSQL
     .createContainerStateObject(containerId)
@@ -134,6 +163,12 @@ export function getContainerState(containerId, projectId) {
     });
 }
 
+/**
+ * get ContainerStateWithHistory
+ * @param id - id of container
+ *
+ * @return ContainerStateWithHistory
+ */
 export function getContainerStateWithHistory(id) {
   return containerSQL.getProjectIdOfContainer(id).then((result) => {
     if (result.statusCode == 400) return result;
@@ -147,6 +182,12 @@ export function getContainerStateWithHistory(id) {
   });
 }
 
+/**
+ * reloads proxy
+ * proxy will be reloaded as many times as function is called
+ * however only one process of generationg new configuration
+ * can run at the time
+ */
 let queue = new Array();
 export function reloadHaproxy() {
   return new Promise((resolve) => {

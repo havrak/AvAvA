@@ -1,3 +1,9 @@
+/**
+ * all information conserning single user:
+ * his User object, createInstanceConfigData
+ * and information about system
+ *
+ */
 export default class UserData {
   constructor(user, userProjects, createInstanceConfigData) {
     this.user = user;

@@ -44,7 +44,7 @@ export default class projectSQL {
             [email],
             (err, rows) => {
               if (err) throw err;
-              let counter = 0;
+              let counter = 0; // variable to make sure all projects of user are checked as con.query is synchronous
               let desiredCount = rows.length;
               for (let i = 0; i < rows.length; i++) {
                 if (rows[i].ram != null) {
@@ -59,6 +59,7 @@ export default class projectSQL {
                     resolve(userLimits);
                   }
                 } else {
+                  // for project that doesn't have  limits it is necessary to check all its container
                   con.query(
                     "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.project_id=?",
                     [rows[i].project_id],

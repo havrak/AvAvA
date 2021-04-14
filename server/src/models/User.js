@@ -1,3 +1,7 @@
+/**
+ * information about user
+ *
+ */
 export default class User {
   constructor(id, email, givenName, familyName, role, icon, coins) {
     this.id = id;

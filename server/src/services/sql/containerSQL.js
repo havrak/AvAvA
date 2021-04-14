@@ -63,14 +63,13 @@ export default class containerSQL {
               );
               return;
             }
+            // as container name is in fact his id we first need to save it to database
             this.addNewContainerToDatabase(config, email).then((result) => {
               if (result.statusCode == 400) {
                 con.end();
                 resolve(result);
                 return;
               }
-              // self
-              // as contianer name is in fact his id we first need to save it to database
               let template;
               let path = "config/templates/" + rows[0].profile_path + ".json";
               fs.readFile(path, "utf-8", (err, data) => {
@@ -81,7 +80,7 @@ export default class containerSQL {
                   template.source,
                   config.projectId
                 );
-                // NOTE: as things stand now lxd has unfixed error which leads to contianer failing to start and throwing error related to some broken change of ownership thus limit of disk size is disabled
+                // NOTE: as things stand now lxd has unfixed error which leads to container failing to start and throwing error related to some broken change of ownership thus limit of disk size is disabled
                 //createContainerJSON.devices.root.size =
                 //  "" + config.limits.disk + "";
                 createContainerJSON.config["limits.memory"] =
@@ -254,6 +253,7 @@ export default class containerSQL {
               1,
             ],
             (err, rows) => {
+              // done by having conflicting url which is set to be unique
               if (err && err.code == "ER_DUP_ENTRY") {
                 con.end();
                 resolve(
@@ -421,6 +421,7 @@ export default class containerSQL {
             return;
           }
           if (err) throw err;
+          // logs are stored in arrays, works good enough for presicion we are seeking
           let ram = rows[0].ram.split(",");
           ram.push(state.RAM.usage == undefined ? 0 : state.RAM.usage);
           let cpu = rows[0].cpu.split(",");
@@ -600,7 +601,7 @@ export default class containerSQL {
   }
   /**
    * creates ContainerResourceState object for given container
-   * @param id - id of contianer
+   * @param id - id of container
    *
    * @return ContainerResourceState
    */

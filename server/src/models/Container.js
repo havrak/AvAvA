@@ -1,3 +1,7 @@
+/**
+ * information about single container
+ *
+ */
 export default class Container {
   constructor(
     id,
