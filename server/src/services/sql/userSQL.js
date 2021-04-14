@@ -213,7 +213,7 @@ export default class userSQL {
         (err, rows) => {
           if (err && err.code == "ER_DUP_ENTRY") {
             console.log("User is already stored in DB");
-            this.getUserByEmail(user.email[0].value).then((result) => {
+            this.getUserByEmail(user.emails[0].value).then((result) => {
               resolve(result);
             });
           } else if (err) {
@@ -223,11 +223,11 @@ export default class userSQL {
               "INSERT INTO usersResourcesLimits (user_email, ram, cpu, disk, upload, download) VALUES (?,?,?,?,?,?)",
               [
                 user.emails[0].value,
-                2147483648,
-                systemconfig.frequency / 2,
-                10737418240,
-                1000000,
-                1000000,
+                systemconfig.defaultRamLimit,
+                systemconfig.frequency / systemconfig.defaultCouFraction,
+                systemconfig.defaultDiskSize,
+                systemconfig.defaultUpload,
+                systemconfig.defaultDownload,
               ],
               (err, rows) => {
                 if (err) throw err;

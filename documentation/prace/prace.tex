@@ -428,7 +428,7 @@ V aktuálním podobě se ověřuje zda je uživatel uveden buďto jako vlastník
 Eventuálně by měl superadmin a admin mýt právo cizí kontejnery do určité míry ovlivňovat.
 Konkrétně admin na ně pouze nahlížet a superadmin s nimi volně zacházet a měnit je.
 
-Ověření pomocí metody userSQL.doesUserOwnGivenProject(email, id) používá ještě routa /api/instances\#POST.
+Ověření metodou userSQL.doesUserOwnGivenProject(email, id) používá také routa /api/instances\#POST.
 Zde je třeba ověřit zda uživatel vlastní projekt, do kterého se snaží vytvořit nový kontejner.
 
 \chapter{Frontend}
@@ -964,7 +964,7 @@ Coins měl být sloupec sloužící u ekonomiky systému, k její implementaci v
 \textbf{usersResourcesLimits} | user\_id | ram | cpu | disk | upload | download |
 
 Tabulka usersResourcesLimits ukládá limity uživatelů.
-Aktuálně má uživatel k dispozici 2.8 GHz\footnote{server kde byl program vyvíjen měl 2 jádra o 2.8 GHz, jedná se tak o polovinu výkonu}, 1 GB ram, 8GB volného místa na disku, a download a upload 800kb/s.
+Aktuálně má uživatel k dispozici 2.8 GHz\footnote{server kde byl program vyvíjen měl 2 jádra o 2.8 GHz, jedná se tak o polovinu výkonu}, 2 GB ram, 8GB volného místa na disku, a download a upload 800kb/s.
 
 \subsection{mongoDB}
 

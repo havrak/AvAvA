@@ -77,7 +77,10 @@ export default class projectSQL {
                   );
                 }
                 if (i == rows.length - 1) {
-                  while (wait) let a =1; // wait till query finishes, TODO: come up with more elegant method, but this seems to work.
+                  while (wait) {
+                    let a = 1;
+                    a = 3;
+                  } // wait till query finishes, TODO: come up with more elegant method, but this seems to work.
                   resolve(userLimits);
                 }
               }
