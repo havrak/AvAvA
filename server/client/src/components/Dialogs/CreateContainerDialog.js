@@ -40,11 +40,54 @@ const CreateContainerDialog = ({
    createInstanceConfigData,
    createdContainer,
 }) => {
-   console.log(createdContainer);
+   // console.log(createdContainer);
+
+   let convertedRAM;
+   let convertedCPU;
+   let convertedDisk;
+   let convertedUpload;
+   let convertedDownload;
+   if (currentProject.limits?.RAM) {
+      convertedRAM = ramToMB(currentProject.state.RAM.free);
+   } else {
+      convertedRAM = ramToMB(userState.RAM.free);
+   }
+   if (currentProject.limits?.CPU) {
+      convertedCPU = CPUToMHz(currentProject.state.CPU.free);
+   } else {
+      convertedCPU = CPUToMHz(userState.CPU.free);
+   }
+   if (currentProject.limits?.disk) {
+      convertedDisk = diskToGB(currentProject.state.disk.free);
+   } else {
+      // console.log('fff')
+      convertedDisk = diskToGB(userState.disk.free);
+   }
+   if (currentProject.limits?.internet?.upload) {
+      convertedUpload = networkSpeedToMbits(currentProject.state.internet.upload.free);
+   } else {
+      convertedUpload = networkSpeedToMbits(userState.internet.upload.free);
+   }
+   if (currentProject.limits?.internet?.download) {
+      convertedDownload = networkSpeedToMbits(
+         currentProject.state.internet.download.free
+      );
+   } else {
+      convertedDownload = networkSpeedToMbits(userState.internet.download.free);
+   }
    const [errorMessage, setErrorMessage] = useState(null);
    const [passwordErrorMessage, setPasswordErrorMessage] = useState(null);
+   const allowedTepmlates = createInstanceConfigData.templates.filter(e => {
+      if(e.minDiskUsage <= diskFromGBToB(convertedDisk)){
+         return e;
+      }
+   });
+   if(allowedTepmlates.length === 0){
+      // notify('No container can be created with so low free disk space');
+      return null;
+   }
    const [selectedTemplate, setSelectedTemplate] = useState(
-      createInstanceConfigData.templates[0]
+      allowedTepmlates[0]
    );
 
    const handleClose = () => {
@@ -131,39 +174,6 @@ const CreateContainerDialog = ({
          createdContainer.current.templateId = item.id;
       }
    };
-
-   let convertedRAM;
-   let convertedCPU;
-   let convertedDisk;
-   let convertedUpload;
-   let convertedDownload;
-   if (currentProject.limits?.RAM) {
-      convertedRAM = ramToMB(currentProject.state.RAM.free);
-   } else {
-      convertedRAM = ramToMB(userState.RAM.free);
-   }
-   if (currentProject.limits?.CPU) {
-      convertedCPU = CPUToMHz(currentProject.state.CPU.free);
-   } else {
-      convertedCPU = CPUToMHz(userState.CPU.free);
-   }
-   if (currentProject.limits?.disk) {
-      convertedDisk = diskToGB(currentProject.state.disk.free);
-   } else {
-      convertedDisk = diskToGB(userState.disk.free);
-   }
-   if (currentProject.limits?.internet?.upload) {
-      convertedUpload = networkSpeedToMbits(currentProject.state.internet.upload.free);
-   } else {
-      convertedUpload = networkSpeedToMbits(userState.internet.upload.free);
-   }
-   if (currentProject.limits?.internet?.download) {
-      convertedDownload = networkSpeedToMbits(
-         currentProject.state.internet.download.free
-      );
-   } else {
-      convertedDownload = networkSpeedToMbits(userState.internet.download.free);
-   }
    const [showTemplates, setTemplatesShown] = useState(false);
    const [showApplicationsToInstall, setApplicationsToInstallShown] = useState(false);
    return (
@@ -278,7 +288,7 @@ const CreateContainerDialog = ({
                         // value={value}
                         // onChange={handleRadioChange}
                      >
-                        {createInstanceConfigData.templates.map((template) => {
+                        {allowedTepmlates.map((template) => {
                            return (
                               <RadioDiv
                                  checked={template.id === selectedTemplate.id}

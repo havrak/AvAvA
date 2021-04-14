@@ -97,7 +97,7 @@ export const projectIdPatch = (patchedProject, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(projectStateChangeFail(patchedProject.id));
-            notify(`Error occured: ${response.body.message}`);
+            notify(`Error occured: ${response?.body?.message}`);
          } else {
             console.log(data, "success");
             dispatch(projectGetSuccess(data));
