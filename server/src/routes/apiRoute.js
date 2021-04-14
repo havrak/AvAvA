@@ -26,13 +26,10 @@ import projectSQL from "../services/sql/projectSQL.js";
 import containerSQL from "../services/sql/containerSQL.js";
 import * as lxd from "./lxdRoute.js";
 
-//NOTE: replace with: let email = req.user.email;
-const email = "krystof.havranek@student.gyarab.cz";
-
 app.get("/api/combinedData", isLoggedIn, (req, res) => {
   //
   let toReturn = new UserData();
-  userSQL.getUserByEmail(email).then((result) => {
+  userSQL.getUserByEmail(req.user.email).then((result) => {
     if (result.statusCode == 400) {
       res.statusCode = 401;
       res.send({ message: result.status });
@@ -40,12 +37,12 @@ app.get("/api/combinedData", isLoggedIn, (req, res) => {
     toReturn.user = result;
     toReturn.hostInformation.CPU.model = os.cpus()[0].model; // this works, however as developnet isn't done on server one gets model nad frequency of his own cpu
     toReturn.hostInformation.CPU.frequency = systemconfig.frequency;
-    containerSQL.createCreateContainerData(email).then((result) => {
+    containerSQL.createCreateContainerData(req.user.email).then((result) => {
       toReturn.createInstanceConfigData = result;
-      userSQL.getUsersLimits(email).then((result) => {
+      userSQL.getUsersLimits(req.user.email).then((result) => {
         toReturn.userProjects = new UserProjects();
         toReturn.userProjects.limits = result;
-        userSQL.getAllUsersProjects(email).then((result) => {
+        userSQL.getAllUsersProjects(req.user.email).then((result) => {
           toReturn.userProjects.projects = new Array(result.length);
           let counter = 0;
           result.forEach((id) => {
@@ -66,59 +63,60 @@ app.get("/api/combinedData", isLoggedIn, (req, res) => {
 });
 
 app.post("/api/instances", isLoggedIn, (req, res) => {
-  //let email = req.user.email;
-  // email -> havranek.krystof@student.gyarab.cz
-  // TODO: check if user owns project in which he is trying to create new container
-  userSQL.doesUserOwnGivenProject(email, req.body.projectId).then((result) => {
-    if (result) {
-      containerSQL.createCreateContainerJSON(email, req.body).then((result) => {
-        if (result.statusCode && result.statusCode != 200) {
-          res.status(400).send(result.status);
-          return;
-        }
-        let id = result.name;
-        let projectId = result.project;
-        lxd.createInstance(result, result.appsToInstall).then((result) => {
-          if (result.statusCode != 200) {
-            containerSQL.removeContainer(id);
-            res.status(400).send({ message: result.status });
-            return;
-          }
-          // upload sshd_config
-          lxd
-            .postFileToInstance(
-              id,
-              projectId,
-              "../../config/serverconfiguartions/sshd_config",
-              "/etc/ssh/sshd_config"
-            )
-            .then((result) => {
-              lxd.execInstance(
-                id,
-                projectId,
-                ["systemctl enable ssh.service"],
-                false,
-                false
-              );
-              lxd.execInstance(
-                id,
-                projectId,
-                [`passwd  ${req.body.rootPassword}`],
-                false,
-                false
-              );
+  userSQL
+    .doesUserOwnGivenProject(req.user.email, req.body.projectId)
+    .then((result) => {
+      if (result) {
+        containerSQL
+          .createCreateContainerJSON(req.user.email, req.body)
+          .then((result) => {
+            if (result.statusCode && result.statusCode != 200) {
+              res.status(400).send(result.status);
+              return;
+            }
+            let id = result.name;
+            let projectId = result.project;
+            lxd.createInstance(result, result.appsToInstall).then((result) => {
+              if (result.statusCode != 200) {
+                containerSQL.removeContainer(id);
+                res.status(400).send({ message: result.status });
+                return;
+              }
+              // upload sshd_config
+              lxd
+                .postFileToInstance(
+                  id,
+                  projectId,
+                  "../../config/serverconfiguartions/sshd_config",
+                  "/etc/ssh/sshd_config"
+                )
+                .then((result) => {
+                  lxd.execInstance(
+                    id,
+                    projectId,
+                    ["systemctl enable ssh.service"],
+                    false,
+                    false
+                  );
+                  lxd.execInstance(
+                    id,
+                    projectId,
+                    [`passwd  ${req.body.rootPassword}`],
+                    false,
+                    false
+                  );
+                });
+              reloadHaproxy();
+              getContainerObject(id).then((result) => res.send(result));
             });
-          reloadHaproxy();
-          getContainerObject(id).then((result) => res.send(result));
-        });
-      });
-    } else {
-      res.statusCode = 400;
-      res.send(
-        "You are trying to create new contianer in project to which you don't have permission"
-      );
-    }
-  });
+          });
+      } else {
+        res.statusCode = 400;
+        res.send(
+          "You are trying to create new contianer in project to which you don't have permission"
+        );
+      }
+    });
 });
 
 app.get(
@@ -127,7 +125,7 @@ app.get(
   isProjectUsers,
   (req, res) =>
     containerSQL
-      .createCreateContainerData(email)
+      .createCreateContainerData(req.user.email)
       .then((result) => res.send(result))
 );
 
@@ -309,10 +307,10 @@ app.patch(
 );
 
 app.get("/api/projects", isLoggedIn, (req, res) => {
-  userSQL.getUsersLimits(email).then((result) => {
+  userSQL.getUsersLimits(req.user.email).then((result) => {
     let toReturn = new UserProjects();
     toReturn.limits = result;
-    userSQL.getAllUsersProjects(email).then((result) => {
+    userSQL.getAllUsersProjects(req.user.email).then((result) => {
       toReturn.projects = new Array(result.length);
       let counter = 0;
       result.forEach((id) => {
@@ -330,20 +328,22 @@ app.get("/api/projects", isLoggedIn, (req, res) => {
 });
 
 app.post("/api/projects", isLoggedIn, (req, res) => {
-  projectSQL.createCreateProjectJSON(email, req.body).then((project) => {
-    if (project.statusCode == 400) {
-      res.statusCode = 400;
-      res.send(project.status);
-    } else {
-      let id = project.name; // createProject will rewrite name variable thus it is easiest to store it in variable
-      lxd.createProject(project).then((result) => {
-        if (result.statusCode != 200) {
-          projectSQL.removeProject(id);
-          res.status(400).send({ message: result.status });
-        } else getProjectObject(id).then((result) => res.send(result));
-      });
-    }
-  });
+  projectSQL
+    .createCreateProjectJSON(req.user.email, req.body)
+    .then((project) => {
+      if (project.statusCode == 400) {
+        res.statusCode = 400;
+        res.send(project.status);
+      } else {
+        let id = project.name; // createProject will rewrite name variable thus it is easiest to store it in variable
+        lxd.createProject(project).then((result) => {
+          if (result.statusCode != 200) {
+            projectSQL.removeProject(id);
+            res.status(400).send({ message: result.status });
+          } else getProjectObject(id).then((result) => res.send(result));
+        });
+      }
+    });
 });
 
 app.get(
@@ -351,7 +351,7 @@ app.get(
   isLoggedIn,
   isProjectUsers,
   (req, res) => {
-    userSQL.getAllUsersProjects(email).then((projectIds) => {
+    userSQL.getAllUsersProjects(req.user.email).then((projectIds) => {
       let counter = 0;
       let toReturn = new UserStateWithHistory(new Array());
       projectIds.forEach((id) => {
@@ -380,7 +380,7 @@ app.patch(
   isProjectUsers,
   (req, res) => {
     projectSQL
-      .updateProjectLimits(req.body, req.params.projectId, email)
+      .updateProjectLimits(req.body, req.params.projectId, req.user.email)
       .then((result) => {
         if (result.haproxy) reloadHaproxy();
         getProjectObject(req.params.projectId).then((result) => {

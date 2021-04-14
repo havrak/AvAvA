@@ -9,12 +9,13 @@ import * as lxd from "../routes/lxdRoute.js";
  *
  */
 export const isLoggedIn = (req, res, next) => {
-  next();
-  //if (req.user) { // due to testing purposes authentifikation is removed.
-  //  next();
-  //} else {
-  //  res.sendStatus(401);
-  //}
+  //next();
+  if (req.user) {
+    // due to testing purposes authentifikation is removed.
+    next();
+  } else {
+    res.sendStatus(401);
+  }
 };
 
 /*  const to verify whether project which id was given in
@@ -23,13 +24,13 @@ export const isLoggedIn = (req, res, next) => {
  *
  */
 export const isProjectUsers = (req, res, next) => {
-  next();
-  // userSQL
-  //   .doesUserOwnGivenProject(req.params.projectId, req.user.email)
-  //   .then((result) => {
-  //     if (result) next();
-  //     else res.sendStatus(401);
-  //   });
+  //next();
+  userSQL
+    .doesUserOwnGivenProject(req.user.email, req.params.projectId)
+    .then((result) => {
+      if (result) next();
+      else res.sendStatus(401);
+    });
 };
 
 /*  const to verify whether container which id was given in
@@ -38,13 +39,13 @@ export const isProjectUsers = (req, res, next) => {
  *
  */
 export const isContainerUsers = (req, res, next) => {
-  next();
-  // userSQL
-  //   .doesUserOwnGivenContainer(req.params.instanceId, req.user.email)
-  //   .then((result) => {
-  //     if (result) next();
-  //     else res.sendStatus(401);
-  //   });
+  //next();
+  userSQL
+    .doesUserOwnGivenContainer(req.user.email, req.params.instanceId)
+    .then((result) => {
+      if (result) next();
+      else res.sendStatus(401);
+    });
 };
 
 export function getProjectObject(projectId) {

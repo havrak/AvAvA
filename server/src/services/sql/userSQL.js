@@ -1,6 +1,7 @@
 import mysql from "mysql";
 import User from "./../../models/User.js";
 import Limits from "./../../models/Limits.js";
+import containerSQL from "./containerSQL.js";
 import sqlconfig from "./../../../config/sqlconfig.js";
 import systemconfig from "./../../../config/systemconfig.js";
 import https from "https";
@@ -155,21 +156,21 @@ export default class userSQL {
   static doesUserOwnGivenContainer(email, id) {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
-      con.query(
-        "SELECT * FROM containers WHERE containers.id=?",
-        [id],
-        (err, rows) => {
-          this.doesUserOwnGivenProject(email, rows[0].project_id).then(
+      containerSQL.getProjectIdOfContainer(id).then((result) => {
+        if (result.statusCode == 400) {
+          resolve(false);
+        } else
+          this.doesUserOwnGivenProject(email, result).then(
             // if user is listed as owner or coworker on project to which container belongs he also has permission to modify such container
             (result) => {
               con.end();
               resolve(result);
             }
           );
-        }
-      );
+      });
     });
   }
+
   /**
    * return true if given user is owner or coworker on given project
    * @param	email - email of user
@@ -178,11 +179,13 @@ export default class userSQL {
    * @return boolean - true of owner has permission to the project
    */
   static doesUserOwnGivenProject(email, id) {
+    console.log(email + " project id " + id);
+
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
-        "SELECT * FROM projects LEFT JOIN users ON projects.owner_email=users.email LEFT JOIN projectsCoworkers ON projectsCoworkers.project_id=projects.id WHERE projects.id=? AND owner_email=? OR user_email=?",
-        [id, email, email],
+        "SELECT * FROM projects LEFT JOIN users ON projects.owner_email=users.email LEFT JOIN projectsCoworkers ON projectsCoworkers.project_id=projects.id WHERE owner_email=? OR user_email=? AND projects.id=?",
+        [email, email, id],
         (err, rows) => {
           if (err) throw err;
           con.end();
