@@ -41,7 +41,12 @@ const PatchContainerDialog = ({
    const handleUpdate = (event) => {
       const isThereANameError = checkForContainerNameErrors();
       const isThereAPasswordError = checkForPasswordErrors();
-      if (isThereANameError || (patchedContainer.current.rootPassword !== null ? true : false && isThereAPasswordError)) {
+      if (
+         isThereANameError ||
+         (patchedContainer.current.rootPassword !== null
+            ? true
+            : false && isThereAPasswordError)
+      ) {
          return;
       }
       patchedContainer.current.limits.RAM = ramFromMBToB(
@@ -70,11 +75,12 @@ const PatchContainerDialog = ({
 
    const checkForContainerNameErrors = () => {
       if (
-         currentContainer.name !== patchedContainer.current.name && currentProject.containers
+         currentContainer.name !== patchedContainer.current.name &&
+         currentProject.containers
             .map((item) => item.name)
             .includes(patchedContainer.current.name)
       ) {
-         console.log('fff')
+         console.log("fff");
          setErrorMessage("There is already project with this name present.");
          return true;
       } else if (!patchedContainer.current.name || patchedContainer.current.name === "") {
@@ -91,7 +97,7 @@ const PatchContainerDialog = ({
    };
 
    const handlePasswordType = (event) => {
-      if(event){
+      if (event) {
          patchedContainer.current.rootPassword = event.target.value;
       } else {
          patchedContainer.current.rootPassword = null;
@@ -118,36 +124,49 @@ const PatchContainerDialog = ({
    let convertedDisk;
    let convertedUpload;
    let convertedDownload;
-   if (currentProject.limits) {
+   if (currentProject?.limits?.RAM) {
       convertedRAM = ramToMB(
          currentProject.state.RAM.free + currentContainer.state.RAM.limit
       );
+   } else {
+      convertedRAM = ramToMB(userState.RAM.free + currentContainer.state.RAM.limit);
+   }
+   if (currentProject?.limits?.CPU) {
       convertedCPU = CPUToMHz(
          currentProject.state.CPU.free + currentContainer.state.CPU.limit
       );
+   } else {
+      convertedCPU = CPUToMHz(userState.CPU.free + currentContainer.state.CPU.limit);
+   }
+   if (currentProject?.limits?.disk) {
       convertedDisk = diskToGB(
          currentProject.state.disk.free + currentContainer.state.disk.limit
       );
+   } else {
+      convertedDisk = diskToGB(userState.disk.free + currentContainer.state.disk.limit);
+   }
+   if (currentProject?.limits?.internet.upload) {
       convertedUpload = networkSpeedToMbits(
          currentProject.state.internet.upload.free +
             currentContainer.state.internet.limits.upload
       );
+   } else {
+      convertedUpload = networkSpeedToMbits(
+         userState.internet.upload.free + currentContainer.state.internet.limits.upload
+      );
+   }
+   if (currentProject?.limits?.internet.download) {
       convertedDownload = networkSpeedToMbits(
          currentProject.state.internet.download.free +
             currentContainer.state.internet.limits.download
       );
    } else {
-      convertedRAM = ramToMB(userState.RAM.free + currentContainer.state.RAM.limit);
-      convertedCPU = CPUToMHz(userState.CPU.free + currentContainer.state.CPU.limit);
-      convertedDisk = diskToGB(userState.disk.free + currentContainer.state.disk.limit);
-      convertedUpload = networkSpeedToMbits(
-         userState.internet.upload.free + currentContainer.state.internet.limits.upload
-      );
       convertedDownload = networkSpeedToMbits(
          userState.internet.download.free +
             currentContainer.state.internet.limits.download
       );
    }
+
    return (
       <div>
          <Dialog
@@ -170,7 +189,10 @@ const PatchContainerDialog = ({
                   style={{ marginBottom: "20px" }}
                   helperText={errorMessage}
                />
-               <PasswordTextFieldWithToggle passwordErrorMessage={passwordErrorMessage} parentHandler={handlePasswordType} />
+               <PasswordTextFieldWithToggle
+                  passwordErrorMessage={passwordErrorMessage}
+                  parentHandler={handlePasswordType}
+               />
                {/* <CheckboxDiv
                   tooltipText={
                      "Container will be accessible via this kind of adress: container.project.yourname.servername.cz"
@@ -218,7 +240,9 @@ const PatchContainerDialog = ({
                   setValueToParentElement={(value) => {
                      patchedContainer.current.limits.internet.upload = value;
                   }}
-                  initialValue={networkSpeedToMbits(currentContainer.state.internet.limits.download)}
+                  initialValue={networkSpeedToMbits(
+                     currentContainer.state.internet.limits.download
+                  )}
                   max={convertedDownload}
                   unit={"Mbit/s"}
                />
@@ -228,7 +252,9 @@ const PatchContainerDialog = ({
                   setValueToParentElement={(value) => {
                      patchedContainer.current.limits.internet.download = value;
                   }}
-                  initialValue={networkSpeedToMbits(currentContainer.state.internet.limits.upload)}
+                  initialValue={networkSpeedToMbits(
+                     currentContainer.state.internet.limits.upload
+                  )}
                   max={convertedUpload}
                   unit={"Mbit/s"}
                />

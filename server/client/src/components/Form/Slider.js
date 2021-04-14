@@ -46,7 +46,9 @@ export function InputSlider({
       setValueToParentElement(newValue);
    };
    if (min > max) {
-      notify(`minimum number of resources needed for ${headding} is greater than maximum`)
+      notify(
+         `minimum number of resources needed for ${headding} is greater than maximum`
+      );
       return null;
    } else if (value < min) {
       handleSliderChange(null, min);
@@ -136,7 +138,7 @@ export function InputSliderWithSwitch({
               },
            ]
          : null;
-
+   console.log(marks);
    const handleSliderChange = (event, newValue) => {
       setValue(newValue);
       setValueToParentElement(newValue);

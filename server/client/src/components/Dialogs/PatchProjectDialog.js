@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 //source: https://github.com/tannerlinsley/react-table/tree/master/examples/material-UI-kitchen-sink
 import Button from "@material-ui/core/Button";
@@ -10,8 +8,8 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import { connect } from "react-redux";
 
-import {projectIdPatch} from 'actions/ProjectActions';
-import _ from 'lodash';
+import { projectIdPatch } from "actions/ProjectActions";
+import _ from "lodash";
 
 import { InputSliderWithSwitch } from "components/Form/Slider.js";
 import {
@@ -81,7 +79,10 @@ const PatchProjectDialog = ({
    };
 
    const checkForProjectNameErrors = () => {
-      if (patchedProject.current.name !== currentProject.name && projects.map((item) => item.name).includes(patchedProject.current.name)) {
+      if (
+         patchedProject.current.name !== currentProject.name &&
+         projects.map((item) => item.name).includes(patchedProject.current.name)
+      ) {
          setErrorMessage("There is already project with this name present.");
          return true;
       } else if (patchedProject.current.name === "") {
@@ -97,11 +98,55 @@ const PatchProjectDialog = ({
       return false;
    };
 
-   const convertedRAM = ramToMB(state.RAM.free + currentProject.state.RAM.usage + currentProject.state.RAM.allocated);
-   const convertedCPU = CPUToMHz(state.CPU.free + currentProject.state.CPU.usage + currentProject.state.CPU.allocated);
-   const convertedDisk = diskToGB(state.disk.free + currentProject.state.disk.usage + currentProject.state.disk.allocated);
-   const convertedUpload = networkSpeedToMbits(state.internet.upload.free + currentProject.state.internet.upload.usage + currentProject.state.internet.upload.allocated);
-   const convertedDownload = networkSpeedToMbits(state.internet.download.free + currentProject.state.internet.download.usage + currentProject.state.internet.download.allocated);
+   let convertedRAM;
+   let convertedCPU;
+   let convertedDisk;
+   let convertedUpload;
+   let convertedDownload;
+   if (currentProject?.limits?.RAM) {
+      convertedRAM = ramToMB(state.RAM.free + currentProject?.limits?.RAM);
+   } else {
+      convertedRAM = ramToMB(
+         state.RAM.free +
+            currentProject.state.RAM.usage +
+            currentProject.state.RAM.allocated
+      );
+   }
+   if (currentProject?.limits?.CPU) {
+      convertedCPU = CPUToMHz(state.CPU.free + currentProject?.limits?.CPU);
+   } else {
+      convertedCPU = CPUToMHz(
+         state.CPU.free +
+            currentProject.state.CPU.usage +
+            currentProject.state.CPU.allocated
+      );
+   }
+   if (currentProject?.limits?.disk) {
+      convertedDisk = diskToGB(state.disk.free + currentProject?.limits?.disk);
+   } else {
+      convertedDisk = diskToGB(
+         state.disk.free +
+            currentProject.state.disk.usage +
+            currentProject.state.disk.allocated
+      );
+   }
+   if (currentProject?.limits?.internet.upload) {
+   } else {
+      convertedUpload = networkSpeedToMbits(
+         state.internet.upload.free + currentProject?.limits?.internet.upload
+      );
+   }
+   if (currentProject?.limits?.internet.download) {
+      convertedDownload = networkSpeedToMbits(
+         state.internet.download.free + currentProject?.limits?.internet.download
+      );
+   } else {
+      convertedDownload = networkSpeedToMbits(
+         state.internet.download.free +
+            currentProject.state.internet.download.usage +
+            currentProject.state.internet.download.allocated
+      );
+   }
 
    return (
       <div>
@@ -154,21 +199,29 @@ const PatchProjectDialog = ({
                />
                <InputSliderWithSwitch
                   headding={"Download"}
-                  min={networkSpeedToMbits(currentProject.state.internet.download.allocated)}
+                  min={networkSpeedToMbits(
+                     currentProject.state.internet.download.allocated
+                  )}
                   setValueToParentElement={(value) => {
                      patchedProject.current.limits.internet.download = value;
                   }}
-                  initialValue={networkSpeedToMbits(currentProject?.limits?.internet.download)}
+                  initialValue={networkSpeedToMbits(
+                     currentProject?.limits?.internet.download
+                  )}
                   max={convertedDownload}
                   unit={"Mbit/s"}
                />
                <InputSliderWithSwitch
                   headding={"Upload"}
-                  min={networkSpeedToMbits(currentProject.state.internet.download.allocated)}
+                  min={networkSpeedToMbits(
+                     currentProject.state.internet.download.allocated
+                  )}
                   setValueToParentElement={(value) => {
                      patchedProject.current.limits.internet.upload = value;
                   }}
-                  initialValue={networkSpeedToMbits(currentProject?.limits?.internet.upload)}
+                  initialValue={networkSpeedToMbits(
+                     currentProject?.limits?.internet.upload
+                  )}
                   max={convertedUpload}
                   unit={"Mbit/s"}
                />
