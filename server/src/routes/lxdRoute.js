@@ -244,19 +244,6 @@ export function patchInstance(id, project, data) {
 	).then((res) => getOperation(res));
 }
 
-export async function execCommands(id, project, commands) {
-	for (let i = 0; i < commands.length; i++) {
-		let stat = await execInstance(id, project, commands[i], false);
-		if (debug || stat.statusCode != 200)
-			console.log({
-				container: `c${id} in p${project}`,
-				command: commands[i],
-				status: stat.statusCode,
-				desc: stat.status,
-			});
-	}
-}
-
 export function deleteInstance(id, project) {
 	return new Promise((resolve) =>
 		mkRequest(`/1.0/instances/c${id}?project=p${project}`, "DELETE").then(
@@ -378,6 +365,19 @@ export function execInstance(id, project, command, getOutput) {
 			);
 		} else return getOperation(res);
 	});
+}
+
+export async function execCommands(id, project, commands) {
+	for (let i = 0; i < commands.length; i++) {
+		let stat = await execInstance(id, project, commands[i], false);
+		if (debug || stat.statusCode != 200)
+			console.log({
+				container: `c${id} in p${project}`,
+				command: commands[i],
+				status: stat.statusCode,
+				desc: stat.status,
+			});
+	}
 }
 
 //uses piper to write a file to given path inside specified instance
