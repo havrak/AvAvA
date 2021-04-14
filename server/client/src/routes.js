@@ -30,8 +30,6 @@ import ContainerSnapshots from "views/Containers/Snapshots.js";
 // import Upgrade from "views/Upgrade.js";
 import PatchContainer from "components/RouteComponents/PatchContainer";
 import PatchProject from "components/RouteComponents/PatchProject";
-import UserHistoryState from "views/User/StateHistory";
-import ProjectHistoryState from "views/Projects/StateHistory";
 import ContainerHistoryState from "views/Containers/StateHistory";
 // import DownloadBackup from "components/RouteComponents/DownloadBackup";
 import ContainerBackup from 'views/Containers/Backup';
@@ -150,13 +148,6 @@ const routes = [
       layout: "/user",
    },
    {
-      path: "/history",
-      name: "Projects",
-      icon: "nc-icon nc-notes",
-      view: UserHistoryState,
-      layout: "/user",
-   },
-   {
       path: "/projects/:projectId",
       name: "Project",
       layout: "/user",
@@ -175,13 +166,6 @@ const routes = [
       name: "Containers",
       navLinks: projectsNavLinks,
       view: ProjectContainers,
-      layout: "/user",
-   },
-   {
-      path: "/projects/:projectId/history",
-      name: "Containers",
-      navLinks: projectsNavLinks,
-      view: ProjectHistoryState,
       layout: "/user",
    },
    {

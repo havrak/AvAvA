@@ -1,12 +1,10 @@
 import React, { Component } from "react";
 import "xterm/css/xterm.css";
 import { Terminal } from "xterm";
-// import * as attach from "xterm/lib/addons/attach/attach";
 import { ResizeObserver } from "resize-observer";
 import { connect } from "react-redux";
 import { createTerminalSocket } from "api/WebSockets";
 import { getCurrentProjectAndContainer } from "service/RoutesHelper";
-// Terminal.applyAddon(attach);
 import * as UserApi from "api/index";
 
 const api = new UserApi.DefaultApi();
@@ -29,13 +27,13 @@ class Console extends Component {
          // let shouldOutput = true;
          let firstTime = true;
 
-         const terminalSocket = createTerminalSocket(data.terminal);
-         terminalSocket.onopen = () => {
+         this.terminalSocket = createTerminalSocket(data.terminal);
+         this.terminalSocket.onopen = () => {
             // term.attach(socket);
             term.onData((data) => {
-               terminalSocket.send(data);
+               this.terminalSocket.send(data);
             });
-            terminalSocket.onmessage = (data) => {
+            this.terminalSocket.onmessage = (data) => {
                // if (shouldOutput) {
                   term.write(data.data);
                // } else {
@@ -45,16 +43,16 @@ class Console extends Component {
             term._initialized = true;
          };
 
-         const controlSocket = createTerminalSocket(data.control);
-         controlSocket.onopen = () => {
+         this.controlSocket = createTerminalSocket(data.control);
+         this.controlSocket.onopen = () => {
             // term.attach(socket);
-            controlSocket.onmessage = (d) => {
+            this.controlSocket.onmessage = (d) => {
                console.log(d);
             };
             const ro = new ResizeObserver(async () => {
                const dimensions = this.dimensions();
                // console.log(dimensions, "resized");
-               controlSocket.send(JSON.stringify({
+               this.controlSocket.send(JSON.stringify({
                   command: "window-resize",
                   args: {
                      width: dimensions.cols.toString(),
@@ -75,6 +73,11 @@ class Console extends Component {
          this.instanceId,
          successConsoleCreationCallback
       );
+   }
+
+   componentWillUnmount(){
+      this.terminalSocket.close();
+      this.controlSocket.close();
    }
 
    dimensions() {

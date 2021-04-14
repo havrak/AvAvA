@@ -11,7 +11,7 @@ import {
    UploadCircularStateChartCardForContainer,
    DownloadCircularStateChartCardForContainer,
    NumberOfProcessesCard,
-} from "components/Cards/state/CurrentContainerStateCards.js";
+} from "components/Cards/State/CurrentContainerStateCards.js";
 import {
    DeleteClickableIcon,
    StartClickableIcon,
@@ -65,7 +65,7 @@ function Info({
       setCustomizableBrandText(brand);
    }, []);
    useEffect(() => {
-      containerIdGet(currentProject.id, currentContainer.id);
+      containerIdGet(currentProject.id, currentContainer.id, notify);
    }, []);
 
    const [dialogOpen, setDialogOpen] = useState(false);
@@ -114,7 +114,7 @@ function Info({
                            </div>
                            <div className="information-item">
                               <b>Created on: </b>
-                              {currentContainer.createdOn}
+                              {new Date(currentContainer.createdOn).toLocaleString()}
                            </div>
                            <div className="information-item">
                               <b>Snapshots: </b>
@@ -194,11 +194,12 @@ function Info({
                            </div>
                            <div className="information-item">
                               <b>Last started on: </b>
-                              {currentContainer.lastStartedOn}
+                              {new Date(currentContainer.lastStartedOn).toLocaleString()}
                            </div>
                            <div className="information-item">
                               <b>Measured on: </b>
-                              {currentContainer.state.measuredOn}
+                              {/* {currentContainer.state.measuredOn} */}
+                              {new Date().toLocaleString()}
                            </div>
                         </Container>
                      </Card.Body>
@@ -281,26 +282,26 @@ const mapStateToProps = (state) => {
 
 const mapDispathToProps = (dispatch) => {
    return {
-      containerIdDelete: (id, containerDeleteFailNotification) => {
-         dispatch(containerIdDelete(id, containerDeleteFailNotification));
+      containerIdDelete: (id, containerDeleteFailNotification, notify) => {
+         dispatch(containerIdDelete(id, containerDeleteFailNotification, notify));
       },
-      containerIdStart: (id, containerDeleteFailNotification) => {
-         dispatch(containerIdStart(id, containerDeleteFailNotification));
+      containerIdStart: (id, containerDeleteFailNotification, notify) => {
+         dispatch(containerIdStart(id, containerDeleteFailNotification, notify));
       },
-      containerIdStop: (id, containerDeleteFailNotification) => {
-         dispatch(containerIdStop(id, containerDeleteFailNotification));
+      containerIdStop: (id, containerDeleteFailNotification, notify) => {
+         dispatch(containerIdStop(id, containerDeleteFailNotification, notify));
       },
-      containerIdFreeze: (id, containerDeleteFailNotification) => {
-         dispatch(containerIdFreeze(id, containerDeleteFailNotification));
+      containerIdFreeze: (id, containerDeleteFailNotification, notify) => {
+         dispatch(containerIdFreeze(id, containerDeleteFailNotification, notify));
       },
-      containerIdUnfreeze: (id, containerDeleteFailNotification) => {
-         dispatch(containerIdUnfreeze(id, containerDeleteFailNotification));
+      containerIdUnfreeze: (id, containerDeleteFailNotification, notify) => {
+         dispatch(containerIdUnfreeze(id, containerDeleteFailNotification, notify));
       },
       setCustomizableBrandText: (text) => {
          dispatch(setCustomizableBrandText(text));
       },
-      containerIdGet: (projectId, containerId) => {
-         dispatch(containerIdGet(projectId, containerId));
+      containerIdGet: (projectId, containerId, notify) => {
+         dispatch(containerIdGet(projectId, containerId, notify));
       },
    };
 };

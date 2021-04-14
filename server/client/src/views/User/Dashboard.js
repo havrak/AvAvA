@@ -11,7 +11,7 @@ import {
    DiskCircularStateChartCard,
    UploadCircularStateChartCard,
    DownloadCircularStateChartCard,
-} from "components/Cards/state/CurrentStateCards.js";
+} from "components/Cards/State/CurrentStateCards.js";
 import { ContainerCounter, ProjectCounter } from "components/Cards/Counters.js";
 import { connect } from "react-redux";
 
@@ -67,7 +67,7 @@ function Dashboard({ user, state, limits, combinedDataGet, setCustomizableBrandT
                {/* <Col sm="12" md="4" lg="4" xl="4">
                      <NumberOfProcessesCard numberOfProcesses={1}/>
                   </Col> */}
-               <Col sm="12" md="4" lg="4" xl="4">
+               {/* <Col sm="12" md="4" lg="4" xl="4">
                   <Card className="card-dashboard">
                      <Card.Header>
                         <Card.Title as="h4">History</Card.Title>
@@ -82,8 +82,8 @@ function Dashboard({ user, state, limits, combinedDataGet, setCustomizableBrandT
                         </Container>
                      </Card.Body>
                   </Card>
-               </Col>
-               <Col sm="12" md="4" lg="4" xl="4">
+               </Col> */}
+               {/* <Col sm="12" md="4" lg="4" xl="4">
                   <Card className="card-dashboard">
                      <Card.Header>
                         <Card.Title as="h4">
@@ -116,7 +116,7 @@ function Dashboard({ user, state, limits, combinedDataGet, setCustomizableBrandT
                         </Container>
                      </Card.Body>
                   </Card>
-               </Col>
+               </Col> */}
             </Row>
          </Container>
       </>

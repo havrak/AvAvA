@@ -13,18 +13,17 @@ import {
    DiskCircularStateChartCard,
    UploadCircularStateChartCard,
    DownloadCircularStateChartCard,
-} from "components/Cards/state/CurrentStateCards.js";
+} from "components/Cards/State/CurrentStateCards.js";
 import {
    CPUCircularStateChartCardWithoutLimits,
    RAMCircularStateChartCardWithoutLimits,
    DiskCircularStateChartCardWithoutLimits,
    UploadCircularStateChartCardWithoutLimits,
    DownloadCircularStateChartCardWithoutLimits,
-} from "components/Cards/state/CurrentProjectStateWithoutLimitsCards.js";
+} from "components/Cards/State/CurrentProjectStateWithoutLimitsCards.js";
 import { removePathParts, getCurrentProject } from "service/RoutesHelper";
 import { ContainerCounter, ProjectCounter } from "components/Cards/Counters.js";
 import { connect } from "react-redux";
-import { isPending } from "service/StateCalculator";
 
 function Info({
    currentProject,
@@ -91,7 +90,7 @@ function Info({
                            </div>
                            <div className="information-item">
                               <b>Created on: </b>
-                              {currentProject.createdOn}
+                              {new Date(currentProject.createdOn).toLocaleString()}
                            </div>
                            <div className="information-item">
                               <b>Owner: </b>
@@ -206,7 +205,7 @@ function Info({
                {/* <Col sm="12" md="4" lg="4" xl="4">
                      <NumberOfProcessesCard numberOfProcesses={1}/>
                   </Col> */}
-               <Col sm="12" md="4" lg="4" xl="4">
+               {/* <Col sm="12" md="4" lg="4" xl="4">
                   <Card className="card-dashboard">
                      <Card.Header>
                         <Card.Title as="h4">History</Card.Title>
@@ -221,7 +220,7 @@ function Info({
                         </Container>
                      </Card.Body>
                   </Card>
-               </Col>
+               </Col> */}
             </Row>
          </Container>
       </>
