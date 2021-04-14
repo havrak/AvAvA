@@ -13,7 +13,6 @@
 
 import superagent from "superagent";
 import querystring from "querystring";
-import { logout } from "actions/UserActions";
 import { store } from "../index";
 
 /**
@@ -350,9 +349,6 @@ export default class ApiClient {
          return null;
       }
       //ADDED - if true, it means
-      if (response.status === 401) {
-          store.dispatch(logout());
-      }
 
       // Rely on SuperAgent for parsing response body.
       // See http://visionmedia.github.io/superagent/#parsing-response-bodies
@@ -482,6 +478,9 @@ export default class ApiClient {
       }
 
       request.end((error, response) => {
+         if (response.status === 401) {
+            store.dispatch({ type: "LOGOUT", payload: {} });
+         }
          if (callback) {
             var data = null;
             if (!error) {
