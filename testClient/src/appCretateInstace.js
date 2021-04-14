@@ -2,18 +2,18 @@ const https = require("http");
 
 const route = "/api/instances";
 const data = JSON.stringify({
-  name: "otesanek2",
+  name: "bubak",
   rootPassword: "string",
-  projectId: 69,
+  projectId: 82,
   templateId: 2,
   applicationsToInstall: [],
   limits: {
-    RAM: 1409286144,
-    CPU: 1837500000,
-    disk: 4294967296,
+    RAM: 14,
+    CPU: 18,
+    disk: 0,
     internet: {
-      download: 400000,
-      upload: 400000,
+      download: 40,
+      upload: 40,
     },
   },
 });

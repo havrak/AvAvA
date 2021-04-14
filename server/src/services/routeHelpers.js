@@ -1,20 +1,28 @@
 import ProjectStateWithHistory from "../models/ProjectStateWithHistory.js";
 import OperationState from "../models/OperationState.js";
+import User from "../models/User.js";
 import userSQL from "./sql/userSQL.js";
 import projectSQL from "./sql/projectSQL.js";
 import containerSQL from "./sql/containerSQL.js";
 import * as lxd from "../routes/lxdRoute.js";
 
+const googleAuthOverride = false;
+
 /* const to verify whether user is logged in via google auth
  *
  */
 export const isLoggedIn = (req, res, next) => {
-  //next();
-  if (req.user) {
-    // due to testing purposes authentifikation is removed.
+  if (googleAuthOverride) {
+    req.user = new User();
+    req.user.email = "krystof.havranek@student.gyarab.cz";
     next();
   } else {
-    res.sendStatus(401);
+    if (req.user) {
+      // due to testing purposes authentifikation is removed.
+      next();
+    } else {
+      res.sendStatus(401);
+    }
   }
 };
 
@@ -53,12 +61,13 @@ export function getProjectObject(projectId) {
     projectSQL.createProjectObject(projectId).then((project) => {
       if (project.statusCode == 400) {
         resolve(project);
+      } else {
+        lxd.getInstances(project.containers).then((result) => {
+          if (result.statusCode) resolve(project);
+          project.containers = result;
+          resolve(project);
+        });
       }
-      lxd.getInstances(project.containers).then((result) => {
-        if (result.statusCode) resolve(project);
-        project.containers = result;
-        resolve(project);
-      });
     });
   });
 }

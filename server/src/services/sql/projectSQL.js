@@ -44,26 +44,27 @@ export default class projectSQL {
             [email],
             (err, rows) => {
               if (err) throw err;
+              let counter = 0;
+              let desiredCount = rows.length;
               for (let i = 0; i < rows.length; i++) {
-                let wait = false;
                 if (rows[i].ram != null) {
-                  // project can be withou limits
                   userLimits.RAM -= rows[i].ram;
                   userLimits.CPU -= rows[i].cpu;
                   userLimits.disk -= rows[i].disk;
                   userLimits.internet.upload -= rows[i].upload;
                   userLimits.internet.download -= rows[i].download;
+                  if (++counter == desiredCount) {
+                    con.end();
+                    resolve(userLimits);
+                  }
                 } else {
-                  wait = true;
                   con.query(
-                    // find limits of all contnainers in project whose limits are null and substract them from userLimits
                     "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.project_id=?",
                     [rows[i].project_id],
                     (err, rows) => {
                       if (err) throw err;
-                      if (rows[0] == undefined) {
-                        wait = false;
-                      } else {
+                      counter++;
+                      if (rows[0] != undefined) {
                         rows[0].forEach((row) => {
                           userLimits.RAM -= row.ram;
                           userLimits.CPU -= row.cpu;
@@ -71,22 +72,17 @@ export default class projectSQL {
                           userLimits.internet.upload -= row.upload;
                           userLimits.internet.download -= row.download;
                         });
-                        wait = false;
+                      }
+                      if (++counter == desiredCount) {
+                        con.end();
+                        resolve(userLimits);
                       }
                     }
                   );
                 }
-                if (i == rows.length - 1) {
-                  while (wait) {
-                    let a = 1;
-                    a = 3;
-                  } // wait till query finishes, TODO: come up with more elegant method, but this seems to work.
-                  resolve(userLimits);
-                }
+                // wait till query finishes, TODO: come up with more elegant method, but this seems to work.
               }
-              if (rows.length == 0) {
-                resolve(userLimits);
-              }
+              if (rows.length == 0) resolve(userLimits);
             }
           );
         }

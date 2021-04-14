@@ -329,8 +329,8 @@ export default class containerSQL {
               // first we will query for limits of user
               "SELECT * FROM usersResourcesLimits WHERE user_email=?",
               [ownerEmail],
-              (err, users) => {
-                userLimits = new Limits(
+              (err, rows) => {
+                let userLimits = new Limits(
                   rows[0].ram,
                   rows[0].cpu,
                   rows[0].disk,
@@ -338,26 +338,27 @@ export default class containerSQL {
                   rows[0].download
                 );
                 con.query(
-                  "SELECT * FROM projects LEFT JOIN projectsResourcesLimits ON projectsResourcesLimits.project_id = project.id WHERE project.owner_email = ?",
+                  "SELECT * FROM projects LEFT JOIN projectsResourcesLimits ON projectsResourcesLimits.project_id = projects.id WHERE projects.owner_email = ?",
                   [ownerEmail],
                   (err, rows) => {
                     rows.forEach((row, index) => {
-                      userLimits.RAM -= rows[i].ram;
-                      userLimits.CPU -= rows[i].cpu;
-                      userLimits.disk -= rows[i].disk;
-                      userLimits.internet.upload -= rows[i].upload;
-                      userLimits.internet.download -= rows[i].download;
+                      userLimits.RAM -= row.ram;
+                      userLimits.CPU -= row.cpu;
+                      userLimits.disk -= row.disk;
+                      userLimits.internet.upload -= row.upload;
+                      userLimits.internet.download -= row.download;
                     });
                     con.query(
-                      "SELECT * FROM containers LEFT JOIN containersResourcesLimits WHERE containers.project_id=?",
+                      "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containers.id=containersResourcesLimits.container_id WHERE containers.project_id=?",
                       [projectId],
                       (err, rows) => {
+                        if (err) throw err;
                         rows.forEach((row, index) => {
-                          userLimits.RAM -= rows[i].ram;
-                          userLimits.CPU -= rows[i].cpu;
-                          userLimits.disk -= rows[i].disk;
-                          userLimits.internet.upload -= rows[i].upload;
-                          userLimits.internet.download -= rows[i].download;
+                          userLimits.RAM -= row.ram;
+                          userLimits.CPU -= row.cpu;
+                          userLimits.disk -= row.disk;
+                          userLimits.internet.upload -= row.upload;
+                          userLimits.internet.download -= row.download;
                         });
                         con.end();
                         resolve(userLimits);
