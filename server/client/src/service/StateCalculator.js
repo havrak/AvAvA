@@ -48,39 +48,39 @@ export const addStateToUserData = (userData) => {
          addStateToProject(project);
          RAM.usage += project.state.RAM.usage;
          if (project?.limits?.RAM === null || project?.limits?.RAM === undefined) {
-            RAM.allocated += project.limits.RAM - project.state.RAM.usage;
-         } else {
             RAM.allocated += project.state.RAM.allocated;
+         } else {
+            RAM.allocated += project.limits.RAM - project.state.RAM.usage;
          }
 
          CPU.usedTime += project.state.CPU.usedTime;
          CPU.usage += project.state.CPU.usage;
          if (project?.limits?.CPU === null || project?.limits?.CPU === undefined ) {
-            CPU.allocated += project.limits.CPU - project.state.CPU.usage;
-         } else {
             CPU.allocated += project.state.CPU.allocated;
+         } else {
+            CPU.allocated += project.limits.CPU - project.state.CPU.usage;
          }
 
          disk.usage += project.state.disk.usage;
          if (project?.limits?.disk === null || project?.limits?.disk === undefined) {
-            disk.allocated += project.limits.disk - project.state.disk.usage;
-         } else {
             disk.allocated += project.state.disk.allocated;
+         } else {
+            disk.allocated += project.limits.disk - project.state.disk.usage;
          }
 
          internet.download.usage += project.state.internet.download.usage;
          if (project?.limits?.internet?.download === null || project?.limits?.internet?.download === undefined) {
+            internet.download.allocated += project.state.internet.download.allocated;
+         } else {
             internet.download.allocated +=
                project.limits.internet.download - project.state.internet.download.usage;
-         } else {
-            internet.download.allocated += project.state.internet.download.allocated;
          }
          internet.upload.usage += project.state.internet.upload.usage;
          if (project?.limits?.internet?.upload === null || project?.limits?.internet?.upload === undefined) {
+            internet.upload.allocated += project.state.internet.upload.allocated;
+         } else {
             internet.upload.allocated +=
                project.limits.internet.upload - project.state.internet.upload.usage;
-         } else {
-            internet.upload.allocated += project.state.internet.upload.allocated;
          }
 
          containers.running += project.state.containers.running;

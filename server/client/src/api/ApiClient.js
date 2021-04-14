@@ -478,7 +478,7 @@ export default class ApiClient {
       }
 
       request.end((error, response) => {
-         if (response.status === 401) {
+         if (response?.status === 401) {
             store.dispatch({ type: "LOGOUT", payload: {} });
          }
          if (callback) {
