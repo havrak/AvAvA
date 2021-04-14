@@ -87,7 +87,7 @@ export const containerPost = (container, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerPostFail(container.projectId, container.name));
-            notify(`Error occured: ${response.body.message}`);
+            notify(`Error occured: ${response?.body?.message}`);
          } else {
             // data.name = "asdf";
             // data.id = "123"; //TESTING PURPOSES

@@ -40,6 +40,7 @@ const CreateContainerDialog = ({
    createInstanceConfigData,
    createdContainer,
 }) => {
+   console.log(createdContainer);
    const [errorMessage, setErrorMessage] = useState(null);
    const [passwordErrorMessage, setPasswordErrorMessage] = useState(null);
    const [selectedTemplate, setSelectedTemplate] = useState(
@@ -136,19 +137,31 @@ const CreateContainerDialog = ({
    let convertedDisk;
    let convertedUpload;
    let convertedDownload;
-   if (currentProject.limits) {
+   if (currentProject.limits?.RAM) {
       convertedRAM = ramToMB(currentProject.state.RAM.free);
+   } else {
+      convertedRAM = ramToMB(userState.RAM.free);
+   }
+   if (currentProject.limits?.CPU) {
       convertedCPU = CPUToMHz(currentProject.state.CPU.free);
+   } else {
+      convertedCPU = CPUToMHz(userState.CPU.free);
+   }
+   if (currentProject.limits?.disk) {
       convertedDisk = diskToGB(currentProject.state.disk.free);
+   } else {
+      convertedDisk = diskToGB(userState.disk.free);
+   }
+   if (currentProject.limits?.internet?.upload) {
       convertedUpload = networkSpeedToMbits(currentProject.state.internet.upload.free);
+   } else {
+      convertedUpload = networkSpeedToMbits(userState.internet.upload.free);
+   }
+   if (currentProject.limits?.internet?.download) {
       convertedDownload = networkSpeedToMbits(
          currentProject.state.internet.download.free
       );
    } else {
-      convertedRAM = ramToMB(userState.RAM.free);
-      convertedCPU = CPUToMHz(userState.CPU.free);
-      convertedDisk = diskToGB(userState.disk.free);
-      convertedUpload = networkSpeedToMbits(userState.internet.upload.free);
       convertedDownload = networkSpeedToMbits(userState.internet.download.free);
    }
    const [showTemplates, setTemplatesShown] = useState(false);
@@ -303,6 +316,7 @@ const CreateContainerDialog = ({
                   }}
                   max={convertedDisk}
                   unit={"GB"}
+                  notify={notify}
                />
                <InputSlider
                   headding={"CPU"}
@@ -312,6 +326,7 @@ const CreateContainerDialog = ({
                   }}
                   max={convertedCPU}
                   unit={"MHz"}
+                  notify={notify}
                />
                <InputSlider
                   headding={"RAM"}
@@ -322,6 +337,7 @@ const CreateContainerDialog = ({
                   max={convertedRAM}
                   unit={"MB"}
                   helperTooltipText={"Guarantee"}
+                  notify={notify}
                />
                <InputSlider
                   headding={"Download"}
@@ -331,6 +347,7 @@ const CreateContainerDialog = ({
                   }}
                   max={convertedDownload}
                   unit={"Mbit/s"}
+                  notify={notify}
                />
                <InputSlider
                   headding={"Upload"}
@@ -340,6 +357,7 @@ const CreateContainerDialog = ({
                   }}
                   max={convertedUpload}
                   unit={"Mbit/s"}
+                  notify={notify}
                />
             </DialogContent>
             <DialogActions>

@@ -39,7 +39,7 @@ function Containers(props) {
       setCustomizableBrandText(brand);
    });
    useEffect(() => {
-      projectIdGet(currentProject.id);
+      projectIdGet(currentProject.id, notify);
    }, []);
 
    const views = {
@@ -534,11 +534,11 @@ const mapDispatchToProps = (dispatch) => {
       setCustomizableBrandText: (text) => {
          dispatch(setCustomizableBrandText(text));
       },
-      projectIdGet: (projectId) => {
-         dispatch(projectIdGet(projectId));
+      projectIdGet: (projectId, notify) => {
+         dispatch(projectIdGet(projectId, notify));
       },
-      projectIdDelete: (id, projectDeleteFailNotification) => {
-         dispatch(projectIdDelete(id, projectDeleteFailNotification));
+      projectIdDelete: (id, projectDeleteFailNotification, notify) => {
+         dispatch(projectIdDelete(id, projectDeleteFailNotification, notify));
       },
    };
 };
