@@ -31,9 +31,9 @@ export default class templateSQL {
 
   /**
    * looks up template by his id
-   * @params {id} id of template
+   * @param {id} id of template
    *
-   * @returns Template
+   * @return Template
    */
   static getTemplate(id) {
     return new Promise((resolve) => {

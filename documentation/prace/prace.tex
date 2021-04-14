@@ -99,15 +99,15 @@
 % Abstrakt (doporučený rozsah cca 80-200 slov; nejedná se o zadání práce)
 \def\Abstrakt{%
 Cílem práce je vytvořit kontejnerizační systém pro operační systém GNU/Linux.
-Ten by měl v jednoduchém a přehledném uživatelském prostředí umožnit žákům vytvořit si vlastný linuxový server.
-Na kterém si poté mohou hostovat svoje aplikace, webové stránky, či videohry.
+Ten by měl v jednoduchém a přehledném uživatelském prostředí umožnit žákům vytvořit si vlastní linuxový server.
+Na kterém si poté mohou hostovat svoje aplikace, webové stránky.
 Systém by se měl postarat o to, aby zdroje serveru byly spravedlivě rozdělené mezi jednotlivé uživatele.
 }
 
 \def\AbstraktEN{%
 Goal of the work is to create containerization system for GNU/Linux operating system.
 With its help students should be able to create their own private server in a easy to use webUI.
-On such server they will be able to host their applications, websites or video games.
+On such server they will be able to host their applications, websites.
 System should also guarantee fair redistribution of server resources.
 }
 \def\AbstraktDE{%
@@ -175,16 +175,20 @@ Das System sollte sich zusichern, damit die Serverressourcen gerecht auf die ind
 	\label{fig:architecture}
 \end{figure}
 
-Jádro práce stojí na lxd, což je kontejnerizační systém zabudovaný přímo do linuxového kernelu.
-Jedná se tak o nejvíce efektivní řešení, protože jednotlivé kontejnery mohou sdílet společný kernel.
-Jsou tak menší a rychlejší, než kdyby se jednalo o VPS.
-Backend s lxd komunikuje prostřednictvím REST API, které lxd přímo podporuje.
+Jádro práce stojí na LXD, což je kontejnerizační systém zabudovaný přímo do linuxového kernelu.
+Jedná se tak o nejefektivnější řešení, protože jednotlivé kontejnery mohou sdílet společný kernel.
+Jsou tedy menší a rychlejší, než kdyby se jednalo o VPS (Virtual Private Server).
 
-Samotný backend je napsán v nodejs a ke svému fungování využívá dva databázové systémy.
-Většinu informací ukládá do mySQL databáze, kvůli komplikacím s LXD byla později zavedena mongoDB.
+Hierarchie jednotlivých komponent projektu sestává z uživatelů, projektů, které těmto uživatelům náleží, a kontejnery, což jsou samotné virtuální servery, které si uživatel může pod hlavičkou projektu vytvořit, určené k testování, hostování webových stránek, či jiné.
+To umožňuje mít v serverech jistou organizaci, kde projekty představují třeba záložku a kontejnery pak její obsah.
+Zároveň také může uživatel omezit limity jednoho projektu, a získané prostředky přiřadit jinému projektu, kde třeba má testovací kontejnery, pro které potřebuje větší výkon atd.
+
+Backend s lxd komunikuje prostřednictvím REST API, které lxd přímo podporuje.
+Samotný backend je napsán v NodeJS a ke svému fungování využívá dva databázové systémy.
+Většinu informací ukládá do MySQL databáze, ale kvůli komplikacím s LXD byla později zavedena i MongoDB.
 
 Frontend je psán v ReactJS a s backendem komunikuje prostřednictvím vlastního REST API (jehož podrobná specifikace je uvedena v dokumentaci).
-Na frontendu může uživatel v pohodlném prostředí vytvářet nové kontejnery, projekty, či získat informace o jejich aktuálním stavu a mnohé další.
+Na frontendu může uživatel v pohodlném prostředí vytvářet nové kontejnery, projekty, získat informace o jejich aktuálním stavu a mnohé další.
 
 
 \section{Specifikace vlastního API}
@@ -197,7 +201,7 @@ Jeho technická specifikace se nachází v souboru USER.yaml.
 \subsubsection{\color{apiblue}{GET -- /api/combinedData}}
 
 Routa GET /api/combinedData vrací objekt UserData.
-Odpověď obsahuje informace o uživateli, informace potřebné k vytvoření nového kontejneru (Dostupné šablony a aplikace, které je možno nainstalovat.)
+Odpověď obsahuje data o uživateli, informace potřebné k vytvoření nového kontejneru (Dostupné šablony a aplikace, které je možno nainstalovat.)
 Mimo to je v odpovědi objekt UserProjects, který v sobě má uložené limity uživatele a informace o všech jeho projektech.
 Jedná se o jeden z prvních požadavků co frontend zavolá.
 
@@ -205,7 +209,7 @@ Jedná se o jeden z prvních požadavků co frontend zavolá.
 
 Routa POST /api/instances umožňuje uživateli vytvořit nový kontejner.
 Překročil li uživatel aktuální maximální limity, či vytvoření kontejneru selhalo vrátí se uživateli chybová hláška s kódem 400.
-Kontejner se pochopitelně smaže z databáze, kam je nutné ho provní uložit.
+Kontejner se pochopitelně smaže z databáze, kam je nutné ho prvně uložit.
 
 Požadavek také umožňuje nechat na kontejner nainstalovat aplikace, selže li jejich instalace uživatel se o tom nedozví.
 Kontejner se však nesmaže.
@@ -217,7 +221,7 @@ Na backendu se zároveň vygeneruje nový konfigurační soubory proxy (viz. Bac
 \subsubsection{\color{apiblue}{GET -- /api/instances/createInstanceConfigData}}
 
 Routa GET /api/instances/createInstanceConfigData slouží vrací objekt createInstanceConfigData.
-Je volána vždy před vytvořením nového kontejneru, aby uživatel měl na výběr mezi aktuální nabídkou šablon a aplikací, které je možno nainstalovat.
+Je volána vždy před vytvořením nového kontejneru, aby uživatel měl na výběr mezi nejnovější nabídkou šablon a aplikací, které je možno nainstalovat.
 
 \subsubsection{\color{apiblue}{GET -- /api/instances/\{id\}}}
 
@@ -259,6 +263,7 @@ V aktuální verzi není routa implementována, obnovení snapshotu se totiž ob
 Podobně jako u backupu se i u snapshotu musí řešit limity, zde jsou však uložené ve snapshotu.
 Uživatel by měl možnost vybrat si jaký snapshots chce obnovit a jaké jeho limity se mají dodržet.
 Logika obnovení byla příliš složitá a její realizace se nestihla včas udělat.
+Došli jsem také k závěru, že snapshoty by jsou potenciální bezpečností riziko, jelikož nejde limitovat místo, které zabírají.
 
 
 \subsubsection{\color{apigreen}{POST -- /api/instances/\{id\}/snapshots}}
@@ -273,7 +278,8 @@ Stejně jako další routy týkající se logiky snapshotů ani tato nebyla impl
 
 \subsubsection{\color{apicyan}{PATCH -- /api/instances/\{id\}/restore/\{snapshotsid\}}}
 
-Routa PATCH /api/instances/\{id\}/restore/\{snapshotsid\}
+Routa PATCH /api/instances/\{id\}/restore/\{snapshotsid\} by měla obnovit stav kontejneru dle snapshotu.
+Stejně jako další routy týkající se logiky snapshotů ani tato nebyla implementována.
 
 \subsubsection{\color{apiblue}{GET -- /api/instances/\{id\}/export}}
 
@@ -328,8 +334,6 @@ V něm jsou uložené limity uživatele a pole objektů Project s inforamcemi o 
 Routa POST /api/projects slouží k vytvoření nové projektu.
 Prvně se zkontroluje, zda uživatel má místo na jeho vytvoření.
 Pokud ano, tak se vygeneruje JSON, jenž se odešle do lxd.
-U projektu lze limitovat pouze využití ram a využití disku.
-Oba limity se v praxi ukázali problematické a v projektu s nastavenými limity nešel vytvořit žádný kontejner.
 
 Systém podporuje projekt s nulovými (null, ne nula) limity, aktuálně je však nejde mixovat.
 
@@ -372,13 +376,57 @@ Jedná se o právě přihlášeného uživatele.
 
 Routa GET /api/logout uživatel odhlásí ze systému.
 
+\section{LXD}
+
+Následující kapitola spěšně projede princip integrace LXD do našeho projektu.
+Programová stránka je později rozvedena v backednu.
+
+Veškeré dorozumívání se projektu s LXD probíhá přes REST API\footnote{\bibentry{lxd}}.
+Pro zjednodušení všech odchozích požadavků obsahuje backend soubor lxdRoute.js, který projektu poskytuje snadný a efektivní přístup k datům LXD.
+Tato kapitola uvádí výslednou strukturu komunikace mezi rozhraními, využité funkce poskytované LXD a s nimi spojené potřebné postupy – MongoDB a WebSocket komunikace.
+
+\subsubsection{Princip obecné komunikace s LXD}
+
+Všechny vnější požadavky na LXD prochází přes soubor lxdRoute.js, který je určen výhradně právě k tomuto účelu.
+Poskytuje metody pro každou jednoduchou akci potřebnou pro, jak zjištění/doplnění dat jistých objektů – projekty, kontejnery, jejich stav, zálohy nebo i snapshoty --, tak provedení určitých akcí -- změnit stav/limity kontejneru, spustit příkaz/konzoli, nahrát/stáhnout soubory/zálohy… Výsledky jsou zpracovány do využívaných údajů, které se vrátí volajícímu.
+Tím úloha prostředníka mezi backendem a LXD démonem končí.
+
+\subsection{Využité funkce LXD}
+
+Celkové množství funkcí, které LXD poskytuje, zdaleka převyšuje potřebu tohoto projektu, je proto nutné uvést, kterých prvků a rout bylo nakonec využito.
+Některé funkce byly v plánu, avšak, jak jsme posléze zjistili, jsou špatně implementovány a jejich použití v lepším případě nemá význam, v horším pak vyvolává náhodné chování kontejnerů (viz Práce s limity).
+
+Základními nezbytnými funkcemi jsou akce s kontejnery a vytváření a mazání projektů; funkce, jako vytváření profilů, .img souborů, clustery nebo práce se šablonami (templates), nebyly využity, neboť se veškerá omezení nastavují pomocí limitů a zdroje pocházejí z jednoho serveru, používá se proto všude jeden disk a jedno internetové připojení.
+Výběr z obrazů operačních systémů je také jen jeden – není důvod omezovat projektům výběr systému používaného pro kontejnery.
+
+Oproti funkcím projektu, kde využíváme jen routy na vytvoření a smazání, jsou u kontejnerů užívané téměř všechny routy.
+Většinou se ale jedná o jednoduché poslání dotazu na stav nebo měnění stavu kontejneru.
+
+\subsubsection{Zakomponování LXD do MongoDB}
+
+Zjišťování stavu se jen lehce komplikuje při vypnutém kontejneru, jelikož LXD v tomto stavu nevrací data o internetu a využitém disku.
+Pročež je potřeba chybějící data uložit, ještě když jsou k dispozici.
+Za tímto účelem byl využit databázový framework MongoDB.
+
+\subsubsection{Práce s limity}
+
+Náročnějšími funkcemi jsou pak používání virtuálního terminálu kontejneru (viz Komunikace přes WebSocket), a také nastavování limitů, což tvoří jednu z nejkomplikovanějších částí projektu, která vyžaduje vícero dalších, dotazu předcházejících operaci.
+
+Zdroje, které jsou k dispozici kontejnerům, se vytváří podle limitů projektu, přesněji jejich zbývající části, která je dostupná. Limity projektů se sestavují ve stejném vztahu k uživateli, jehož limity jsou předdefinované v základu stejně pro všechny uživatele.
+I uživatel si ale může navýšit své limity, a to zažádáním o navýšení limitů.
+
+\subsubsection{Využití komunikace přes protokol WS (websocket)}
+Pro jisté funkce bylo třeba zavést také používání protokolu WS.
+Dokumentace LXD uvádí, že je možné provádět veškeré operace tímto stylem, avšak pro jednoduchost a přehlednost byla tato možnost ponechána pouze pro nezbytné prvky projektu, kterými jsou funkce terminálu v kontejnerech a aktualizování rozměrů okna terminálu v LXD, aby byl výsledný text u klienta správně zobrazován.
+Tyto dvě funkce sdílejí stejnou cestu, na kterou se lze připojit, rozlišují se pomocí id websocketu -- /websockets/terminals/[id websocketu].
+
 
 \section{Autentifikace}
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[height=9.5cm]{../img/authentication.png}
-	\caption[Autentifikace přes googleAuth 2.0, vlastní tvorba]{Autentifikace přes googleAuth 2.0}
+	\caption[Autentifikace přes Google Auth, vlastní tvorba]{Autentifikace přes Google Auth}
 	\label{fig:architecture}
 \end{figure}
 
@@ -401,7 +449,7 @@ Tím je proces autentifikace hotov a začíná proces autorizace programu u Goog
 AvAvA tedy bude Google žádat, aby jí předal data o uživateli, která potřebuje.
 To dělá v obdélníku “odelsat request s kódem do google”.
 Pokud google vyhoví, zavolá callback, který mu byl nastaven při vytváření projektu v Google Console a odešle na něj chtěná data.
-V případě, že se uživatel přihlásil poprvé, je o něm uložen záznam do databáze, se kterým poté backend bude párovat kontejnery a projekty.
+Při první přihlášení se o něm uložen záznam do databáze, se kterým poté backend bude párovat kontejnery a projekty.
 Následně je vytvořena session mezi frontendem a backendem. Každá zpráva odteď bude v hlavičce obsahovat cookie soubor s ID uživatele.
 
 Po získání dat je uživatel přihlášen a může systém používat. Při odhlášení je session ukončena a už se dále user ID neposílá.
@@ -416,23 +464,23 @@ Pro implementaci tohoto procesu na backendu bylo využito knihovny passport.js, 
 
 Je také nutné zapsat kód, který se zavolá hned po přihlášení, tedy uložení do databáze - passport.use(...) a předat passportu clientId a secretId.
 
-Pro zjištění, zda je uživatel přihlášen je možné na kterékoliv z request objektů získat property req.user, ve které bude uložen výsledek posledního volání metody deserializeUser. V případě, že žádný uživatel není přihlášen, jeho hodnota je null. K tomuto účelu slouží metoda isLoggedIn
+Pro zjištění, zda je uživatel přihlášen je možné na kterékoliv z request objektů získat property req.user, ve které bude uložen výsledek posledního volání metody deserializeUser. V případě, že žádný uživatel není přihlášen, jeho hodnota je null. K tomuto účelu slouží metoda isLoggedIn.
 
 
 \subsection{Autorizace}
 
 Pro každý request do API se zkontroluje, zda je uživatel přihlášen.
 Není li přihlášen vrátí se mu kód 401 se zprávou, že není autentifikován.
-Jelikož metody počítají s emailem, který do requestů přidává googleAuth, tak není možné vykonat pro nepřihlášeného uživatele ani get requesty.
+Jelikož metody počítají s emailem, který do requestů přidává Google Auth, tak není možné vykonat pro nepřihlášeného uživatele ani get requesty.
 Navíc není, žádoucí aby uživatel viděl stav ostatních uživatelů.
 
-Routy, které obsahují id kontejneru, či projektu si ověřují zda je odesílatel requestu má právo upravovat kontejneru.
+Routy, které obsahují id kontejneru, či projektu si ověřují zda odesílatel requestu má právo upravovat kontejneru.
 U kontejneru, k tomu slouží metoda userSQL.doesUser\linebreak OwnGivenContainer(email,id).
 Ta interně zavolá metod userSQL.doesUserOwnGiven\linebreak Project(email, id), poté co zjistí id projektu z databáze.
 Činý tak jelikož pokud má uživatel právo na projektu, má zároveň právo na jeho kontejneru.
 
-V aktuálním podobě se ověřuje zda je uživatel uveden buďto jako vlastník, nebo spolupracovník na projektu.
-Eventuálně by měl superadmin a admin mýt právo cizí kontejnery do určité míry ovlivňovat.
+V aktuálním podobě se ověřuje, zda je uživatel uveden buďto jako vlastník, nebo spolupracovník na projektu.
+Eventuálně by měl superadmin a admin mít právo cizí kontejnery do určité míry ovlivňovat.
 Konkrétně admin na ně pouze nahlížet a superadmin s nimi volně zacházet a měnit je.
 
 Ověření metodou userSQL.doesUserOwnGivenProject(email, id) používá také routa /api/instances\#POST.
@@ -442,7 +490,7 @@ Zde je třeba ověřit zda uživatel vlastní projekt, do kterého se snaží vy
 \chapter{Frontend}
 
 Základem pro frontend se stal dashboard template\footnote{viz. \bibentry{templates}}.
- Požadavky aplikace ovšem tento template ani zdaleka nedokázal splnit. Jedinými částmi, které tedy přebrány je layout aplikace (soubor User), design Sidebaru a Navbaru, způsob strukturování složek včetně jejich mobilních verzí.
+ Požadavky aplikace ovšem tento template ani zdaleka nedokázal splnit. Jedinými částmi, které tedy přebrány je layout aplikace (soubor User), design Sidebaru a Navbaru, včetně jejich mobilních verzí.
  I tyto části ovšem musely být modifikovány, aby vyhovovaly všem nárokům aplikace.
  Zároveň také z templatu zůstaly scss soubory.
  Ty jsou ovšem využívány některými komponentami, takže zatím soubory nebyly z projektu vymazány.
@@ -479,7 +527,9 @@ Následující sekce popisuje strukturu souborů clienta.
 
 
 %public
+\newpage
 \subsubsection{Public}
+
 \begin{figure}[h]
 	\dirtree{%
 	.1 client.
@@ -487,7 +537,7 @@ Následující sekce popisuje strukturu souborů clienta.
 	.3 favicon.ico.
 	.3 index.html.
 	}
-	\caption[Struktura souborů frontendu, vlastní tvorba]{Struktura souborů frontend}
+	\caption[Struktura souborů frontendu -- public, vlastní tvorba]{Struktura souborů frontend -- public}
 	\label{fig:frontendStructure}
 \end{figure}
 Ve složce public se nachází pouze jeden HTML soubor s root divem, do kterého React zapisuje.
@@ -520,7 +570,7 @@ Soubor jsconfig.json poté dovolí importovat soubory pomocí absolutních cest 
 	\label{fig:frontendStructureSrc}
 \end{figure}
 Zdaleka nejdůležitější je ovšem src složka, která obsahuje samotný kód.
-Půjdeme-li popořadě, tak první složkou je actions, kde se nacházejí akce manipulující s Redux storem (viz kapitola 2..).
+Půjdeme-li popořadě, tak první složkou je actions, kde se nacházejí akce manipulující s Redux storem (viz kapitola 2.3).
 S ním také manipulují reducery ve složce redurcers.
 
 
@@ -613,7 +663,7 @@ Jedná se o různé druhy výpočtů, např. převádění jednotek, počítán�
 
 Soubor index.js je nejvyšším souborem, který do root divu v HTML vloží celý frontend.
 Zároveň obsahuje kód pro integraci reduxu.
-Soubor App.js obsahuje komponent, který seskupuje všechny layouty a dovoluje a podílí se na navigaci na frontendu (viz kapitola 2.4).
+Soubor App.js obsahuje komponentu, která seskupuje všechny layouty a dovoluje a podílí se na navigaci na frontendu (viz kapitola 2.4).
 Stejně tak si v kapitole probereme i soubor routes.js.
 
 \newpage
@@ -649,8 +699,21 @@ Ty jsou v ní dále rozděleny podle toho, do jaké kategorie spadají.
 Zde jsou vidět všechny tři kategorie.
 Ve složce Other se poté nacházejí stránky z templatu pro případ, kdy by bylo možné někdy použít některé z template komponentů.
 
-\newpage
 \section{API}
+
+Veškerý kód, který má něco společného s komunikaci s backendem či jinými externími zdroji sídlí ve složce api. Obsah této složky kromě WebSockets.js je generován pomocí programu swagger-codegen v již zmíněném Swagger editoru.
+
+Ve složce api/api se poté nachází soubor, kde jsou vygenerované metody odpovídající cestám na REST API, těmto metodám stačí předat specifikované parametry a na server se odešlou požadovaná data. Po získání odpovědi je zavolán předaný callback.
+
+Swagger codegen vygeneroval soubory, které jako API klienta používají knihovnu superagent. Jeho chování je specifikováno pomocí vygenerovaného souboru ApiClient. Vygenerovaný kód ovšem nestačí, např. pokud by vrácená odpověď byla 401, tak bylo nutné do souboru přidat příkaz na spuštění autentifikace.
+
+Ve složce models se nachází soubory odpovídající objektům z Open API specifikace. Na frontendu je ovšem vůbec nevyužívám, slouží tedy pouze samotnému fungování API.
+
+Vše je poté přehledně dostupné v souboru index.js, ze kterého jsou exportovány všechny objekty z model složky a cesty z api/api/DefaultAPI.js
+
+Posledním souborem je WebSockets.js, ve kterém se nachází metody vytvářející WebSocket spojení na backend. Momentálně se WebSockety využívají pouze pro vytvoření spojení pro terminál do kontejnerů, ale v budoucnosti je očekávané, že se jejich využití rozšíří. V případě, že bude spolu na jednom projektu spolupracovat více uživatelů, bude nutné pro vytvoření real-time systému updatovat změny pomocí duplexního spojení, kterým je právě WebSocket.
+
+Jelikož při developmentu nejsou backend a frontend na jednom portu, dochází ke CORS erroru. Na jeho vyřešení byla implementována http proxy (soubor setupProxy.js), která veškeré specifikované requesty přesouvá na port 5000 se stejnou adresou.
 
 
 \section{Redux}
@@ -745,11 +808,10 @@ Jak Navbar, tak i Sidebar jsou plně responzivní a přispůsobí se mobilnímu 
 	\begin{minipage}{0.48\textwidth}
 		\centering
 		\includegraphics[height=9cm]{../img/navbarResponsiveSiderbarOpened.png}
-		\caption[Responsivní interface na mobilu -- sidebar, vlastní tvorba]{Responsivní interface na mobilu -- sidebar\protect\footnotemark}
+		\caption[Responsivní interface na mobilu -- sidebar, vlastní tvorba]{Responsivní interface na mobilu -- sidebar}
 		\label{fig:mobileResS}
 	\end{minipage}
 \end{figure}
-\footnotetext{kontent na obrazovce se posune doleva při otevření menu}
 
 \newpage
 
@@ -823,18 +885,18 @@ Tyto zdroje jsou zablokované a nejde je využít v jiném projektu či kontejne
 
 Šedivě je zobrazeno volné místo, které je možné alokovat pro další projekty či kontejnery.
 Toto volné místo je přitom zobrazeno uvnitř samotného grafu v adekvátních jednotkách.
-Potom při umístění textu na střed grafu sehrál příspěvěk na Stack Overflowm\footnote{\bibentry{piChart}}   Dashboard zobrazuje uživatel hlavně proto, aby měl přehled o zdrojích, které může projektům alokovat, dává tedy největší smysl zobrazit právě hodnotu volného místa.
+V řešení problému umístění textu na střed grafu sehrál roli příspěvěk na StackOverflow\footnote{\bibentry{piChart}}.
+Dashboard zobrazuje uživatel hlavně proto, aby měl přehled o zdrojích, které může projektům alokovat, dává tedy největší smysl zobrazit právě hodnotu volného místa.
 O převod ze základních jednotek se stará třída UnitsConvertor ve třídě service.
-Předtím se ještě spočítat všechna potřebná data - volné zdroje, alokované zdroje, procenta, ... O to se stará třída service/StateCalculator.js, jejíž metody modifikují v reducerech stav Redux storu.
+Předtím se ještě spočítat všechna potřebná data -- volné zdroje, alokované zdroje, procenta, atd.
+O to se stará třída service/StateCalculator.js, jejíž metody modifikují v reducerech stav Redux storu.
 Z toho plyne, že data z Redux storu již budou mít všechna potřebná data pro zobrazení stavu k dispozici.
 
 Komponenty grafů se nacházejí ve složce components/Cards/State.
 Podobný hlavní panel jako Dashboard pro uživatelskou kategorii se nachází i v projektové a kontejnerové kategorii.
 Tam ovšem fungují grafy odlišně, a tak se v této složce nacházejí ještě další dva soubory s odlišnými grafy.
-\newpage
 
-
-\section{Přehled projektů}
+\subsection{Přehled projektů}
 
 
 \begin{figure}[h]
@@ -854,7 +916,7 @@ Tabulky se nyní vytváření pomocí instancování komponentu EnhancedTable, k
 Aby bylo zajištěno, že data jsou aktuální, tak při každém vykreslení stránky se pošle GET request na /api/projects.
 
 Vlastním přínosem do kódu bylo vytvoření SelectBoxu vlevo v Toolbaru, který dovoluje změnit pohled tabulky. Na obrázku níže (obrázek \ref{fig:ram}) můžete poté vidět seznam všech různých pohledů a také příklad jiného pohledu, konkrétně RAM.
-\newpage
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[height=3.8cm]{../img/ram.png}
@@ -886,7 +948,6 @@ Při kliknutí na Yes se vyšle akce na server a zároveň se změní Redux stor
 	\label{fig:detelePro}
 \end{figure}
 
-\newpage
 Jakmile přijde ze serveru zpráva o smazání, okamžitě se kontejner smaže.
 Vytvořit projekt je možné pomocí tlačítka + úplně nalevo Toolbaru. Po stisknutí se otevře následující
 
@@ -897,13 +958,201 @@ Vytvořit projekt je možné pomocí tlačítka + úplně nalevo Toolbaru. Po st
 	\label{fig:createPro}
 \end{figure}
 
-Při vytváření projektu je nutné specifikovat jeho jméno, které nesmí být delší než 30 znaků a nesmí se v listu projektů opakovat. Zároveň je možné specifikovat také limity. V případě, že se stiskne switch, je nastaven limit projektu na specifikovanou hodnotu, v opačném případě projekt nebude mít daný zdroj limitován a bude při výpočtech použit limit uživatele daného zdroje. Maximální limity jsou určeny jako volné místo ve stavu uživatele.
+Při vytváření projektu je nutné specifikovat jeho jméno, které nesmí být delší než 30 znaků a nesmí se v listu projektů opakovat.
+Zároveň je možné specifikovat také limity.
+V případě, že se stiskne switch, je nastaven limit projektu na specifikovanou hodnotu, v opačném případě projekt nebude mít daný zdroj limitován a bude při výpočtech použit limit uživatele daného zdroje.
+Maximální limity jsou určeny jako volné místo ve stavu uživatele.
 
 
 Po kliknutí na create se zobrazí stejný spinner jako u smazání, akorát s textem creating.
 
+\subsection{Informace o projektu}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=7cm]{../img/proinfo.png}
+	\caption[Informace o projektu, vlastní tvorba]{Informace o projektu}
+	\label{fig:proinfo}
+\end{figure}
+
+
+Stránka pro informace projektu je první ze stránek kategorie projektů.
+Na první pohled vypadá podobně jako Dashboard.
+Vpravo nahoře je vidět počet kontejnerů v projektu a dole jsou grafy, které fungují úplně na stejném principu jako grafy v Dashbaord.
+
+Liší se však v případě, že kontejner nemá nastavené limity u některého ze zdrojů.
+V takovém případě se zdroje kontejnerů vztahují přímo k uživatelským limitům.
+Platí tedy, že součet limitů zdroje projektů a limitů zdrojů kontejnerů v projektech, kde limity zdroje nejsou musí být menší než limit zdroje uživatele.
+Grafy v takovém případě vypadají takto.
+Oranžově jsou zobrazeny alokované zdroje pro kontejnery v daném projektu, červeně využité zdroje kontejnerů v projektu, tmavě hnědé jsou alokované zdroje uživatele u ostatních projektů a černě využité zdroje ostatních projektů.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=3cm]{../img/graphTop.png}
+	\caption[Informace o kontejneru, vlastní tvorba]{Alokace zdrojů u projektů}
+	\label{fig:prographtop}
+\end{figure}
+
+Všimněme si, že volná část zdrojů daného projektu musí být stejná jako volná část daného uživatelského zdroje.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=3cm]{../img/graphBot.png}
+	\caption[Informace o kontejneru, vlastní tvorba]{Alokace zdrojů u uživatele}
+	\label{fig:prographbot}
+\end{figure}
+
+
+Další rozdíl je v levé horní kartě, která zobrazuje základní info o projektu.
+Pro budoucí využití je také zobrazován Owner a Coworkers v daném projektu, přestože tyto funkce budou implementovány až v budoucnu.
+Nachází se zde také tlačítko Delete, které funguje stejně jako tlačítko Delete v předchozí kapitole.
+
+Oproti základní stránce také přibyly linky v navigaci, pomocí nichž se dá navigovat v rámci projektové kategorie.
+Info ukazuje na tuto stránku, Containers na přehled kontejnerů a Settings spustí dialog na nastavení projektu.
+
+\subsection{Přehled kontejnerů}
+
+Principielně se stránka nijak neliší od přehledu projektů.
+Zobrazovány jsou základní informace, limity a stav kontejnerů.
+Liší se hlavně funkcemi, které nabízí Toolbar.
+Ten je zde rozšířen o funkce start, stop a freeze.
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=1cm]{../img/contool.png}
+\caption[Toolbar pro kontejner, vlastní tvorba]{Toolbar pro kontejner}
+	\label{fig:proinfo}
+\end{figure}
+
+Po kliknutí na jednu z těchto ikon se vyvolá daná akce pro všechny označené kontejnery, u kterých je daná akce vhodná.
+V případě, že se např. pokusí uživatel nastartovat již běžící kontejner, akce se neprovede.
+Forma, kdy se zobrazí pouze takové akce, které jsou vhodné, není možná kvůli možnosti vykonat akci pro více kontejnerů najednou.
+
+Dialog pro vytvoření kontejneru je téměř totožný jako dialog pro vytvoření projektu.
+Nastavení limit je ovšem povinné, a tak jsou odstraněny switche.
+Jsou také přidány inputy pro heslo na root účet v daném kontejneru, checkbox button list pro základní aplikace, které je možné nainstalovat a radio button list pro výběr templatu.
+Zobrazí se přitom pouze ty templaty, jejichž minimální usage je menší než aktuální volné místo, které kontejner může potenciálně zabrat.
+
+\subsection{Nastavení projektu}
+Přes link settings v navigaci může uživatel změnit nastavení daného projektu.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=7cm]{../img/proset.png}
+	\caption[Nastavení projekt, vlastní tvorba]{Nastavení projektu}
+	\label{fig:proset}
+\end{figure}
+
+
+Na začátku se v dialogu zobrazí aktuálně nastavené jméno a limity, kdy počáteční limit je reprezentován labelem na slideru. Pokud se klikne na tlačítko update, odešle se žádost na server o změnu.
+
+\subsection{Informace o kontejneru}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=7cm]{../img/conInfo.png}
+	\caption[Informace o kontejneru, vlastní tvorba]{Informace o kontejneru}
+	\label{fig:coninfo}
+\end{figure}
+
+Stránka informací o projektu stojí opět na stejném základě jako ostatní stránky s informacemi. Nahoře se nachází karty s informacemi a tlačítky pro ovládání. Narozdíl od tabulky kontejnerů se zde tlačítka pro změna stavu mění na základě aktuálního stavu. Při spuštěném kontejneru tedy nemůžete kliknout na tlačítko start.
+
+Liší se také v grafech. Zatímco předešlé informační panely zobrazovaly, kolik zdrojů zbývá, zde je tomu kromě disku naopak, jelikož není potřeba zobrazovat alokované zdroje. V takovém případě je tato možnost uživatelsky přívětivější.
+Přibyla také karta pro zobrazení aktuálního počtu běžících procesů a také možnost zobrazit si historii stavů 2 hodiny nazpět. Tato stránka je ovšem stále ještě ve výrobě, nebudu jí tedy věnovat více prostoru.
+
+\subsection{Terminál}
+
+Jako terminálový emulátor byla využita knihovna xterm a při integraci do aplikace byly využity části kódu z githubu\footnote{\bibentry{xterm}}.
+
+Pro vytvoření spojení s terminálem kontejneru se pošle API request na backend, který vrátí data potřebná pro vytvoření spojení s terminálem. Ihned poté se na základě získaných dat vytvoří dva WebSockety. Přes první z nich se posílají terminálové příkazy a získávají výsledky. Druhý WebSocket slouží poté jako kontrolní WebSocket umožňující s manipulací terminálu. Posílají se přes něj příkazy pro změnu rozměrů kontejneru. To zajišťuje, že terminál je plně responzivní.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=7.3cm]{../img/terminal.png}
+	\caption[Terminál, vlastní tvorba]{Terminál}
+	\label{fig:projectOverview}
+\end{figure}
+
+
+Spojení s kontejnerem se začne vytvářet okamžitě po vykreslení komponentu (metoda componentWillMount) s konzolí a ukončuje tehdy, když je tento komponent odstraněn ze struktury (metoda compontWillUnmount).
+
+Jelikož jsou pro každý terminál vytvořené oddělené WebSockety, je možné otevřít více terminálů najednou. Dokonce je možné vytvořit i více terminálů do stejného kontejneru.
+
+
+
+\subsection{Backup}
+
+Backup je momentálně implementován tak, že při kliknutí na link Backup bude uživateli zobrazen odkaz, na který když klikne, bude otevřen nový tab, přes který se soubor stáhne. Záloha se nezačne odesílat automaticky, chvíli totiž trvá, než ji backend vytvoří. Tato prodleva je okolo 20 sekund.
+
+Aktuální způsob vůbec nepoužívá na stažení zálohy API klienta, veškeré stahování zařizuje přímo prohlížeč. Tento systém byl zvolen z důvodu, že http proxy nepropustí odpověď serveru typu stream. Jelikož se problém nepodařilo zatím vyřešit, bylo implementováno toto nouzové řešení.
+
+Jakmile bude však problém vyřešen, je připraven kód pro uživatelsky přívětivé stahování backupu. Při kliknutí na tlačítko se zobrazí spinner se zprávou Creating backup, který bude následně vystřídán textem, jež bude popisovat proces stahování.
+
+\subsection{Nastavení kontejneru}
+Při kliknutí na link Settings se zobrazí podobný dialog jako při nastavování projektu. Je možné změnit limity, jméno a pokud uživatel bude chtít, tak i root heslo. To poté nahradí stávající heslo kontejneru. Je tak vyřešená změna hesla pro kontejnery.
+
 
 \chapter{Backend}
+
+Kapitola backend se věnuje backednu progamu.
+V první sekci se zaměří na progamovou implementaci práce s LXD a v druhé popíše databáze, jenž projekt využívá.
+Poslední sekcí je networking, kde je rozebrána problematika sítí ve spojení s kontejnery.
+
+\section{LXD}
+
+Tato kapitola podrobněji vysvětluje samotné naprogramování podoby funkčnosti uvedené v kapitolách architektury LXD. Také jsou zde uvedeny prvky, které poskytují prostor pro snadné rozšíření stávajících funkcí.
+Veškerá komunikace projekt s LXD probíhá přes REST API. Pro zjednodušení požadavků obsahuje backend soubor lxdRoute.js, který zbytku backendu umožňuje snadno a efektivně přistupovat k údajům LXD. Ve zprostředkování všech těchto užitečných funkcí potřebných pro fungování tohoto projektu stálo ale nemálo překážek. Tato kapitola uvádí úhlavní problémy, jimž bylo čeleno, dále výslednou strukturu, a odděleně také sekci pro komunikaci přes WebSocket.
+
+\subsection{Standard odpovědí z rozhraní s LXD}
+Na začátek můžeme uvést některé standardy návratových hodnot z lxdRoute.js. Většinou je návratovou hodnotou metod status provedení akce, který je v tomto projektu reprezentován objektem OperationState. Ten obsahuje pouze proměnné status a statusCode. Jeho přední využití u všech metod je uložení dat o výsledném stavu akce/metody. Stav může být jakýkoli z http kódů, které LXD navrátí, pokud vrátí chybovou hlášku, její error\_code je uložen do pole statusCode a popis důvodu chyby samotné bude v statusu. Ve zbylých případech, kdy se nevrací OperationState, jako výchozí hodnota při úspěšném provedení akce, se jedná o doplnění dat do předaného objektu, kupříkladu již dříve zmíněné zjištění stavu.
+
+Zvláštní výjimku tvoří metoda execInstance, jež taktéž používá OperationState, ale pole status obsahuje text, vypsaný příkazem spuštěným v daném kontejneru, případně výstup do errorového proudu, pokud byl příkaz vykonán s návratovou hodnotou jinou než 0. StatusCode je potom buď 200, pokud se příkaz vykonal úspěšně, nebo 400, pokud příkaz skončil s jakýmkoli nenulovým exit statutem. K dispozici je ještě druhá forma vráceného OperationState objektu, tu získáme, pokud výslovně uvedeme, že nechceme obdržet výstup příkazu. Potom dostaneme statusCode s hodnotou představující návratovou hodnotu příkazu, který jsme zadali spustit.
+
+\subsection{Hlavní dorozumívací prvky}
+Komunikace všeho druhu má obvykle sjednocující formát, jako například výše uvedený systém návratových hodnot; REST API od LXD se tomu příliš neliší, hodí se proto jisté základní konsolidační funkce, které tyto společné prvky komunikace zpracovávají v jednotný a snadno použitelný výstup.
+
+Jelikož LXD poskytuje pouze zabezpečené připojení (HTTPS, WSS), stává se první nutností načtení klíče a certifikátu LXD. Ty jsou uloženy v serverové části pod složkou config, jejíž obsah je znám pouze backendu. Tyto, a pár dalších základních, neměnných dat, obsažených v podrobnostech každého dotazu na LXD, sestavuje metoda mkOpts(). Aby vyplnila všechny běžně potřebné informace k vytvoření requestu, přidává také předanou cestu a metodu (výchozí je GET). Tato metoda je určena pouze k připravení nezbytných základních dat, je tedy součástí každého dotazu na LXD.
+
+Vyšší, již specifikovanější nadstavbu, tvoří metoda mkRequest(), která je určena k maximálnímu zjednodušení vytváření běžných dotazů, aniž by tím výrazně omezila možnosti poskytované nodejs. Základy získává přes mkOpts() a případná JSON data k odeslání dále zpracuje a odešle LXD v requestu. Vrací vždy až kompletní odpověď LXD, už jako čitelný objekt. Tento přístup nelze využít pouze u metod, které pracují s proudy dat, jako je například posílání souborů a stahování nebo nahrávání záloh kontejnerů.
+
+Poslední ústřední metodu tvoří getOperation(), která na základě předaného objektu výsledné odpovědi LXD může vyčkat, dokud nedoběhne jakákoliv akce, na kterou se daná operace vztahuje. Častěji využívanou funkcí této metody je ale její návratový objekt OperationState, vyjadřující stav, či výsledek jakéhokoli LXD objektu, který je funkci předán. Použití tedy vede, mimo vyčkání na dokončení operací neurčité délky, především k odchytávání potenciálně vzniklých chyb, které LXD vrátilo a předat je jako jednoduchý, formátem vždy identický objekt. Dle něj se dále posuzuje, zda ukončit, či pokračovat, aktuální činnost volající metody.
+
+Tyto tři funkce tvoří hlavní rozhraní pro všechny metody v lxdRoute.js, jsou proto naprosto nepostradatelné a značně napomáhají psaní a přehlednosti jakýchkoliv metod komunikujících s LXD.
+
+\subsection{Potíže s limity}
+LXD ukazuje, že v něm existují všechny základní potřebné limity pro omezení využívání hardwarových zdrojů.
+Bohužel po dlouhém zkoumání a testování jsme si ověřili, jak moc jsou tyto informace nepravdivé.
+
+Na začátek je důležité uvést, že z původně plánovaného ovládání limitů (času procesoru, použité paměti RAM, využívaného disku a provozu internetu na projektech i kontejnerech LXD) bylo bohužel nezbytné přístup k limitům značně změnit.
+
+V první řadě se limity projektů vůbec nenastavují v LXD, jsou tedy používány pouze k výpočtu limitů kontejnerů, důvodem tohoto rozhodnutí bylo nesmyslné chování LXD, které po nastavení limitů projektu neumožňovalo vytvářet kontejnery. Důvodem prý bylo, že kontejnery musejí mít také nastavené limity, které byly nastaveny u projektu, přestože jsme toto při vytváření kontejnerů dodržovali.
+Druhým ústupkem z původního plánu bylo upuštění od omezování zabraného místa na disku, v tomto případě měly takto omezené kontejnery náhodné chování při startování – většinou se nespustily a vrátily chybovou hlášku, která byla naprosto zcestná\footnote{\bibentry{resolve}}.
+
+Startovní limity se nastavují kontejnerům vždy při vytvoření. Změny limitů jsou pak možné jejich záplatováním (voláním requestů s metodou PATCH). Výslednými limity, které zde byly nakonec použitelné, byly tedy pouze u kontejneru, a to procesor, pamět RAM a trafika komunikace na síti (download, upload).
+
+\subsection{Zpřístupnění WebSocket terminálu}
+
+Správné websockety dostane klient HTTP dotazem na /api/instances/[id]/console. Ten vrátí buď chybovou zprávu – něco pokazí (přeruší spojení), nebo pokud uživatel nemá oprávnění k přístupu ke kontejneru daného [id] –, nebo objekt s poli terminal a control, která představují ID websocketů, na které se klient může připojit pomocí již zmíněné cesty /websockets/terminals/[id websocketu], Socket terminálu přijímá jakýkoli vstup a rovnou jej přesměrovává na LXD, control oproti tomu sice také přeposílá cokoli dostane, ale pro projevení účinku musí každá zpráva odpovídat formátu vyžadovanému LXD (viz obrázek \ref{fig:resize}). Zde si lze povšimnout podivného zápisu čísel jako řetězců, domníváme se, že tento zápis byl zvolen pro umožnění změn šířky dle jiných jednotek, oproti výchozí jednotce – znak. Zda již je něco takového implementováno, nelze bohužel kvůli nedostačující dokumentaci LXD zjistit.
+
+\begin{figure}[h]
+\centering
+\begin{lstlisting}[tabsize=3]
+{
+	"command": "window-reize",
+	"args":{
+			"width": "80",
+			"height": "50,
+	}
+}
+\end{lstlisting}
+\caption{resize příkaz}
+\label{fig:resize}
+\end{figure}
+
+
+Websockety je nutné uložit, protože se vytvářejí spolu s voláním na získání jejich id od klienta, aby se na ně mohl poté připojit. Soubor websocket.js ve složce services, který se stará o veškerou práci s websockety mezi LXD a klientem, obsahuje k tomuto účelu mapu, jejíž záznamy jsou uloženy pod stringem id svého websocketu, který reprezentují. Objekt záznamu obsahuje samotný websocket, pod jehož id je uložen, dále proměnnou control, nebo terminal, obsahující id druhého LXD websocketu, se kterým se vážou, a pak také proměnnou s klientským websocketem, který se na jejich lxd websocket napojuje.
+
+Tyto proměnné se využívají ve websocketách klientova terminálu a obou lxd socketů (terminál a kontrola velikosti – control) – na nichž jsou zaregistrovány callbacky na ukončení spojení s websocketem, což ukončí i ostatní –, kde poskytují odkazy na ostatní websockety, aby mohly být při konci relace také zavřeny. Významově hlavní callback je na lxd socketu control, který se zavře a ukončí i zbylé sokety v moment, kdy uživatel zadá exit v hlavním shellu, který představoval terminál jeho kontejneru. Díky tomu není třeba zpracovávat zprávy ani jedné strany, a přesto poznáme, kdy uživatel vyšel z hlavního procesu. Pokud spojení ukončí klientský socket terminálu, uzavře se nejdřív lxd socket control, jehož ukončení již zajistí ukončení všech ostatních.
+
 
 
 \section{Databáze}
@@ -912,7 +1161,7 @@ Sytém používá dva databázové systémy -- mySQL (mariaDB) a mongoDB.
 Dle původních představ měl používat pouze mySQL.
 Kvůli komplikacím s lxd, kde nejde zjistit stav zastaveného/vypnutého kontejneru, byla později zavedena mongoDB.
 
-\subsection{mySQL}
+\subsection{MySQL}
 Následující sekce se zabývá strukturou mySQL databáze a metodami, které s databází zacházejí.
 
 
@@ -930,12 +1179,12 @@ Následující sekce se zabývá strukturou mySQL databáze a metodami, které s
 	\label{fig:sqlClasses}
 \end{figure}
 
-Valnou většinu dat projekt ukládá do mySQL databáze, kde je na tento účel vytvořeno aktuálně 10 tabulek.
+Valnou většinu dat projekt ukládá do MySQL databáze, kde je na tento účel vytvořeno aktuálně 10 tabulek.
 S databází pracují 4 soubory (viz. \ref{fig:sqlClasses}) \textit{containerSQL} zpracovává věci týkající se uživatelů, \textit{projectSQL} věci týkající se projektů, \textit{templateSQL} věci týkající se šablon a aplikací, v neposlední řadě \textit{userSQL} věci týkající se uživatele.
 
 \subsubsection{Tabulky}
 
-Tato sekce spěšně popíše obsah jednotlivých tabulek. A jejich vztah k ostatním. Kaskádové dependence jsou vždy stejné -- při smazání se smažou, při update se nic neděje.
+Tato sekce spěšně popíše obsah jednotlivých tabulek. A jejich vztah k ostatním. Kaskádové dependence jsou vždy stejné -- při smazání se podřadné záznamy smažou, při update se nic neděje.
 
 \vspace{0.3cm}
 \noindent
@@ -957,9 +1206,9 @@ Obsahuje dva cizí klíče a to project\_id, které určuje do jakého projektu 
 \noindent
 \textbf{containersResourcesLimits} | container\_id | ram | cpu | disk | upload | download |
 
-Tabulka containersResourcesLimits ukládá limity kontejneru, stejně jako u dalších .*ResourcesLimits tabulek byla v rámci normalizačních forem oddělena od tabulky containers.
+Tabulka containersResourcesLimits ukládá limity kontejneru, stejně jako u dalších ResourcesLimits tabulek byla v rámci normalizačních forem oddělena od tabulky containers.
 Tabulka obsahuje jeden cizí klíč, který zároveň funguje i jako primární klíč.
-Veškeré limity jsou uloženy v základních jednotkách, cpu je v abstraktní jednotce herz.
+Veškeré limity jsou uloženy v základních jednotkách, cpu je v abstraktní jednotce herz\footnote{Maximální hodnota je počet jader*kmitočet procesoru, do LXD se přepočítává na procenta} .
 
 \vspace{0.3cm}
 \noindent
@@ -967,7 +1216,7 @@ Veškeré limity jsou uloženy v základních jednotkách, cpu je v abstraktní 
 
 Tabulka containersResourcesLog slouží k logování stavu kontejnerů.
 Container\_id je cizím klíčem odkazující na kontejner, ke kterému log patří.
-V aktuální verzi jsou data uložen v poli, které uložené ve sloupci s typem text.
+V aktuální verzi jsou data uložena v poli, které uložené ve sloupci s typem text.
 Timestamp odkazuje na datum posledního zapsání, kdy byl zalogován předchozí stav není problém zjistit, jelikož se do tabulky zapisuje v pravidelných intervalech.
 
 Metoda na updateování stavu (updateLogsForContainer(id, state)) si jednoduše data rozdělí dle znaku: \textbf{,}.
@@ -1009,7 +1258,7 @@ V takovém případě je kontejnerům dostupný vešerý volný prostor, který 
 
 Tabulka templates slouží k uložení šablon, lde kterých se má vytvořit kontejner.
 Šablona je koncept, který se nenachází přímo v lxd, ale integruje dvě věci -- profily a image.
-Image je distribuce jaká se na systém má nainstalovat.
+Image je distribuce jaká se na systém dá nainstalovat.
 Profile je koncept z lxd, který obsahuje konfiguraci kontejneru.
 Eventuálně by měl uživatel možnost vytvářet si vlastní profily, které by obsahovali například konfiguraci networků.
 
@@ -1018,7 +1267,7 @@ Eventuálně by měl uživatel možnost vytvářet si vlastní profily, které b
 \textbf{users} | id | email | given\_name | family\_name | icon | role | coins |
 
 Tabulka users slouží k uložení uživatelů.
-Svoje data dostává z dat, které zasílá googleAuth 2.0.
+Svoje data dostává z dat, které zasílá Google Auth 2.0.
 Sloupce role a coins aktuálně nemají význam, role bude dělit uživatele mezi standardního uživatel, admina a superadmin.
 Admin a superadmin by měli právo zasahovat do kontejnerů jiných uživatelů.
 Coins měl být sloupec sloužící u ekonomiky systému, k její implementaci však nedošlo.
@@ -1031,8 +1280,15 @@ Coins měl být sloupec sloužící u ekonomiky systému, k její implementaci v
 Tabulka usersResourcesLimits ukládá limity uživatelů.
 Aktuálně má uživatel k dispozici 2.8 GHz\footnote{server kde byl program vyvíjen měl 2 jádra o 2.8 GHz, jedná se tak o polovinu výkonu}, 2 GB ram, 8GB volného místa na disku, a download a upload 800kb/s.
 
-\subsection{mongoDB}
+\subsection{MongoDB}
 
+MongoDB je výhodné pro použití při ukládání objektových struktur.
+V našem případě je tímto stav kontejneru, ze kterého musíme do databáze uložit velikost na disku a všechna data o síťových spojeních.
+Používáme pouze jednu databázi – lxd; tabulky by podle databázových pravidel SQL měly být tři (projekty, stavy kontejnerů a napojení stavů kontejnerů na projekty, případně ještě hlubší rozdělení na tabulku s id kontejnerů a id záznamů jejich stavu), ovšem pro zbytečnou komplikovanost, kterou by tento přístup představoval, se vytvářejí tabulky dynamicky a reprezentují stejnojmenné projekty (např. p1, p2).
+Záznamy jsou potom objekty, jejichž unikátní \_id je id kontejneru (c1, c2) a obsahují pole disk -- kam se ukládá velikost disku – a pole pro objekt obsahující síťové informace.
+
+
+Tabulky se vytvářejí a mažou spolu s projekty, stejně tak je tomu i u záznamů jednotlivých kontejnerů, avšak ty vytvoří pouze záznam s \_id, data o stavu se zapíšou pouze před každým vypnutím kontejneru, aby byla nejaktuálnější a zároveň obnovena pouze tehdy, když jsou potřeba -- pro doplnění scházejících dat z volání LXD při vypnutém kontejneru.
 
 \section{LXD}
 
@@ -1067,8 +1323,8 @@ Bylo by možné sice mít proxy na hostovi serveru, ale z bezpečnostních důvo
 
 Do kontejneru haproxy je aktuálně přesměrována traffic ze čtyř portů -- 80, 443, 2222 a 3000.
 Port 80 pochopitelně slouží na webové stránky pomocí protokolu http.
-443 je pro https, proxy má nastavený ssl certifikát.
-Ten stačí jeden pro celý systém, musí se však jednat o certifikát typu wildcard\footnote{certifikát, který zahrnuje i subdomény}.
+443 je pro https, proxy má nastavený vlastní ssl certifikát.
+Ten stačí jeden pro celý systém, musí se však jednat o certifikát typu wildcard\footnote{Certifikát, který zahrnuje i subdomény. Žáci si tak nemusí pořizovat vlastní.}.
 Systém byl testován na standardním certifikátu, čily připojení sice bylo zabezpečené, ale prohlížeč hlásil podezření z fishningu, jelikož se doména a doména na certifikátu neschodovali.
 Port 2222 slouží na připojení přes ssh, port 22 používá hošťovací počítač a z pochopitelných důvodů není přesměrován do proxy.
 Port 3000 je dostupný pro REST API aplikací, které na serveru budou běžet.
@@ -1080,7 +1336,7 @@ Pokud by měl nový kontejner stejné jméno, jako jiný systém vyhodí výjimk
 Tak je zaručena unikátnost domén, u mailu není takový problém nutno řešit, jelikož se jedná o školní emaily, které jsou vždy unikátní.
 
 Bohužel je možno elegantně forwardovat pouze http protokol.
-Většina TCP protokolů totiž neoperuje s SNI a řídí se pouze doménu.
+Většina TCP protokolů totiž neoperuje s SNI a řídí se pouze IP adresou.
 Z packetu tak nejde zjistit na jakou doménu se uživatel snaží dostat a tedy jakému kontejneru mý být protokol přiřazen.
 To by se týkalo i ssh, příkaz ssh však podporuje nastavit pomocí flagu -o ProxyCommand (viz. \ref{fig:sshcom}), packety poté sni v hlavičce mají a je možno poznat jakému kontejneru patří.
 \begin{figure}[h]
@@ -1104,22 +1360,6 @@ Aktuálně má formát konfiguračního souboru jisté rezervy, specificky co se
 Je však o trochu rychlejší než, kdyby byly použity pokročilé metody mapování, které HAProxy podporuje.
 
 
-% \chapter{Obrázky systému}
-% \begin{figure}[h]
-% 	\centering
-% 		\includegraphics[height=8cm]{../img/dataatad.jpg}
-% 		\caption[Obrazovka při běhu programu]{
-% 		Obrazovka při běhu programu
-% 	}
-% \end{figure}
-
-% \begin{figure}[h]
-% 	\centering
-% 		\includegraphics[height=8cm]{../img/sys.jpg}
-% 		\caption[Obrazovka s 2 moduly M5Stack]{
-% 		Obrazovka s 2 moduly M5Stack
-% 	}
-% \end{figure}
 
 \chapter*{}
 \pagenumbering{roman}

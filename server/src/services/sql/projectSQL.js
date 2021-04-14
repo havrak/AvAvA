@@ -66,7 +66,7 @@ export default class projectSQL {
                     (err, rows) => {
                       if (err) throw err;
                       if (rows[0] != undefined) {
-                        rows[0].forEach((row) => {
+                        rows.forEach((row) => {
                           userLimits.RAM -= row.ram;
                           userLimits.CPU -= row.cpu;
                           userLimits.disk -= row.disk;

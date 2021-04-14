@@ -2,14 +2,14 @@
 \addcontentsline{toc}{chapter}{Úvod}
 
 Cílem práce bylo postavit systém pro kontejnerizaci linuxového serveru, které by eventuálně mohl být nasazen na školním serveru.
-Systém by spravedlivě rozdělil zdroje mezi jednotlivé žáky a poskytl jim již volný prostor, kde mohou testovat svoje aplikace.
+Systém by spravedlivě rozdělil zdroje mezi jednotlivé žáky a poskytl jim volný prostor, kde mohou testovat svoje aplikace.
 Aktuálně totiž bylo problematické jen získat přístup na školní server.
 
-O frontend práce se staral Vladimír, backend byl rozdělen mezi Kryštofa a Josefa.
-Kde Josef se převážně věnoval propojení mezi backendem a lxd deamonem, zatímco Kryštof zpracoval integraci mySQL databáze.
+Co se týče rozdělení práce, tak frontend práce se staral Vladimír a backend byl rozdělen mezi Kryštofa a Josefa, kde Josef se převážně věnoval propojení mezi backendem a LXD deamonem, zatímco Kryštof zpracoval integraci MySQL databáze.
 Na spojení obou částí backendu a vytvoření route se podíleli oba členové týmu.
+Všichni tři členové se během práce podíleli na vytváření Open API 3 specifikace určující nejen způsob komunikace mezi frontendem a backendem, ale také i funkce které má projekt vlastně mít.
 
-Vývoj probíhal na GitHubu -- \url{https://github.com/havrak/AvAvA}, kde je aplikace dostupná pod licencí GPLv3.
-Projekt jsem testovali na vlastní VPS.
-
-
+Jednotlivé části byly vyvíjeny odděleně.
+Frontend byl testován na testovacím serveru, který byl vygenerován Swagger editorem, v němž se vytvářela API specifikace.
+Backend byl testován za pomocí jednoduchých skriptů umožňující posílat různé dotazy a požadavky.
+Komunikace probíhala přes vlastní Discord server a kód byl sdílen pomocí GitHubu -- \url{https://github.com/havrak/AvAvA}, kde je aplikace dostupná pod licencí GPLv3. Pro vývoj kódu byl zřízen VPS server, na kterém jsou umístěny programy potřebné pro fungování backendu.
