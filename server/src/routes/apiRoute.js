@@ -307,26 +307,24 @@ app.patch(
 );
 
 app.get("/api/projects", isLoggedIn, (req, res) => {
-  userSQL
-    .getUsersLimits("krystof.havranek@student.gyarab.cz")
-    .then((result) => {
-      let toReturn = new UserProjects();
-      toReturn.limits = result;
-      userSQL.getAllUsersProjects(req.user.email).then((result) => {
-        toReturn.projects = new Array(result.length);
-        let counter = 0;
-        result.forEach((id) => {
-          getProjectObject(id).then((result) => {
-            toReturn.projects[counter] = result;
-            counter++;
-            if (counter == toReturn.projects.length) res.send(toReturn);
-          });
+  userSQL.getUsersLimits(req.user.email).then((result) => {
+    let toReturn = new UserProjects();
+    toReturn.limits = result;
+    userSQL.getAllUsersProjects(req.user.email).then((result) => {
+      toReturn.projects = new Array(result.length);
+      let counter = 0;
+      result.forEach((id) => {
+        getProjectObject(id).then((result) => {
+          toReturn.projects[counter] = result;
+          counter++;
+          if (counter == toReturn.projects.length) res.send(toReturn);
         });
-        if (result.length == 0) {
-          res.send(toReturn);
-        }
       });
+      if (result.length == 0) {
+        res.send(toReturn);
+      }
     });
+  });
 });
 
 app.post("/api/projects", isLoggedIn, (req, res) => {
@@ -370,7 +368,7 @@ app.get(
   }
 );
 
-app.get("/api/projects/:projectId", isProjectUsers, isLoggedIn, (req, res) => {
+app.get("/api/projects/:projectId", isLoggedIn, isProjectUsers, (req, res) => {
   getProjectObject(req.params.projectId).then((result) => {
     res.send(result);
   });

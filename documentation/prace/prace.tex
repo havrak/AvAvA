@@ -181,8 +181,6 @@ Většinu informací ukládá do mySQL databáze, kvůli komplikacím s LXD byla
 Frontend je psán v ReactJS a s backendem komunikuje prostřednictvím vlastního REST API (jehož podrobná specifikace je uvedena v dokumentaci).
 Na frontendu může uživatel v pohodlném prostředí vytvářet nové kontejnery, projekty, či získat informace o jejich aktuálním stavu a mnohé další.
 
-\section{Sytém kontejnerů}
-
 
 \section{Specifikace vlastního API}
 
@@ -430,6 +428,7 @@ Konkrétně admin na ně pouze nahlížet a superadmin s nimi volně zacházet a
 
 Ověření metodou userSQL.doesUserOwnGivenProject(email, id) používá také routa /api/instances\#POST.
 Zde je třeba ověřit zda uživatel vlastní projekt, do kterého se snaží vytvořit nový kontejner.
+
 
 \chapter{Frontend}
 
