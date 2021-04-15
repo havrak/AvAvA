@@ -47,7 +47,7 @@ function App(props) {
          <BrowserRouter>
             <Switch>
                <Route path="/user" component={() => <UserLayout notify={notify}/>} />
-               <Redirect from="/" to="/user/dashboard" />
+               <Redirect from="/" exact={true} to="/user/dashboard" />
                <Route path="/userSetup" exact={true}>
                   <UserSetup />
                </Route>

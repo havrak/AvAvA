@@ -20,9 +20,12 @@ function UserSetup({ combinedDataGet, userData }) {
       // api.userGet(callback);
    }, []);
    if (userData?.user) {
-      return <Redirect to="/user/dashboard" />;
+      console.log(userData, 'user loaded loading');
+      // return <Redirect to="/user/dashboard" />;
       // console.log(userData);
+      // return null;
    } else {
+      console.log(userData, 'user setup loading');
       return (
          <div class="pageLoader">
             <BeatLoader color={"#212529"} loading={true} size={50} />
