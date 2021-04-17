@@ -20,8 +20,8 @@ function UserSetup({ combinedDataGet, userData }) {
       // api.userGet(callback);
    }, []);
    if (userData?.user) {
-      console.log(userData, 'user loaded loading');
-      // return <Redirect to="/user/dashboard" />;
+      // console.log(userData, 'user loaded loading');
+      return <Redirect to="/user/dashboard" />;
       // console.log(userData);
       // return null;
    } else {
