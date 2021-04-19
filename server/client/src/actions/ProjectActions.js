@@ -29,6 +29,7 @@ export const projectPost = (project, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(projectPostFail(project.name));
+            console.log(response);
             notify(`Error occured: ${response?.body?.message}`);
          } else {
             // data.name = "asdf";

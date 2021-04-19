@@ -101,7 +101,7 @@ const CreateProjectDialog = ({
    return (
       <div>
          <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-            <DialogTitle id="form-dialog-title">Create new container</DialogTitle>
+            <DialogTitle id="form-dialog-title">Create new project</DialogTitle>
             <DialogContent>
                <TextField
                   autoFocus
