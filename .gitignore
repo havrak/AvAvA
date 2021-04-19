@@ -3,6 +3,7 @@ nodejs-server-server-generated
 package-lock.json
 server/node_modules
 server/package-lock.json
+server/client/package-lock.json
 documentation/prace/literatura.aux
 documentation/prace/makra.aux
 documentation/prace/prace.aux

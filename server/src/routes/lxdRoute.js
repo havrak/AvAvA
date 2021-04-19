@@ -28,7 +28,7 @@ const crt = fs.readFileSync(
 	path.resolve(__dirname, "../../config/lxcclient.crt")
 );
 
-const debug = true;
+const debug = false;
 
 /**
  * Create basic options common for all lxd requests.
@@ -72,9 +72,15 @@ function mkRequest(path, method, data) {
 			let body = "";
 			res.setEncoding("utf8");
 			res.on("data", (d) => (body += d));
-			res.on("end", () =>
-				resolve(JSON.parse(body).metadata || JSON.parse(body))
-			);
+			res.on("end", () => {
+				body = JSON.parse(body);
+				if (body.error || body.metadata.status_code >= 300)
+					console.log({
+						path: path,
+						err: body.error || body.metadata.status,
+					});
+				resolve(body.metadata || body);
+			});
 		});
 		if (data) req.write(data);
 		req.end();
@@ -206,6 +212,8 @@ export function getInstances(instances) {
 		if (instances.length > 0)
 			instances.forEach((i) =>
 				getInstance(i).then((instance) => {
+					if (instance.statusCode && instance.statusCode != 200)
+						resolve(instance);
 					done++;
 					if (done == instances.length) resolve(instances);
 				})
@@ -249,7 +257,7 @@ export function getInstance(instance) {
 	return mkRequest(
 		`/1.0/instances/c${instance.id}?project=p${instance.projectId}`
 	).then((res) => {
-		if (res.error) return getOperation(res);
+		if (!res.stateful) return getOperation(res);
 		instance.createdOn = new Date(res.created_at);
 		instance.lastStartedOn = new Date(res.last_used_at);
 		instance.stateful = res.stateful;
@@ -550,6 +558,8 @@ export async function getState(id, project, rs) {
 		`/1.0/instances/c${id}/state?project=p${project}`
 	);
 	if (!data.status_code) return getOperation(data);
+	let dbdata = { networks: { other: [] } };
+	let proj = mdb.db("lxd").collection(`p${project}`);
 	//use the time efficiently and while the measurement waits
 	//for another measure, we put all available data in its place
 	await new Promise((resolve) => {
@@ -560,13 +570,17 @@ export async function getState(id, project, rs) {
 		rs.disk.devices[0].name = "root";
 		if (data.status_code != 102) {
 			//finds only space used by containers sharing the same pool -> unusable
-			/*execInstance(
+			execInstance(
 				id,
 				project,
 				"du -sh -B 1 --exclude=/dev --exclude=/proc --exclude=/sys / | awk '{print $1;exit}'"
 				// "df -B 1 | awk '/\\/$/{print $4;exit}'"
-			).then((res) => (rs.disk.devices[0].usage = parseInt(res.status)));*/
-			rs.disk.devices[0].usage = Math.floor((5 + Math.random()) * 100000000);
+			).then(
+				(res) =>
+					(rs.disk.devices[0].usage = dbdata.disk =
+						parseInt(res.status) - 1000000000)
+			);
+			// rs.disk.devices[0].usage = Math.floor((5 + Math.random()) * 100000000);
 			rs.numberOfProcesses = data.processes;
 			if (data.network)
 				Object.keys(data.network).forEach((key) => {
@@ -589,12 +603,13 @@ export async function getState(id, project, rs) {
 					switch (key) {
 						case "eth0":
 							network.limits = rs.internet.limits;
-							rs.internet = network;
+							rs.internet = dbdata.networks.internet = network;
 							break;
 						case "lo":
-							rs.loopback = network;
+							rs.loopback = dbdata.networks.loopback = network;
 							break;
 						default:
+							dbdata.networks.other.push(network);
 							rs.networks.push(network);
 					}
 				});
@@ -634,24 +649,38 @@ export async function getState(id, project, rs) {
 				counters.download.packetsRecieved = lxdc.packets_received;
 				counters.upload.packetsSent = lxdc.packets_sent;
 			});
+		proj.updateOne(
+			{ _id: `c${id}` },
+			{ $set: { data: dbdata } },
+			(err, result) => {
+				if (err)
+					console.log({
+						id: `c${id}`,
+						project: `p${project}`,
+						mdbErr: err,
+					});
+				else if (result.result.n == 0)
+					console.log({
+						id: `c${id}`,
+						project: `p${project}`,
+						mdbErr: "Not initialized",
+					});
+			}
+		);
 		return rs;
 	} else
 		return new Promise((resolve) =>
-			mdb
-				.db("lxd")
-				.collection(`p${project}`)
-				.findOne({ _id: `c${id}` }, (err, res) => {
-					if (!err) {
-						rs.CPU.usedTime = res.data.cpuTime;
-						rs.disk.devices[0].usage = res.data.disk;
-						res.data.networks.internet.limits = rs.internet.limits;
-						rs.internet = res.data.networks.internet;
-						rs.loopback = res.data.networks.loopback;
-						rs.networks = res.data.networks.other;
-					}
-					rs.CPU.usage = 0;
-					resolve(rs);
-				})
+			proj.findOne({ _id: `c${id}` }, (err, res) => {
+				if (!err) {
+					rs.CPU.usedTime = res.data.cpuTime;
+					rs.disk.devices[0].usage = res.data.disk;
+					rs.internet = res.data.networks.internet;
+					rs.loopback = res.data.networks.loopback;
+					rs.networks = res.data.networks.other;
+				}
+				rs.CPU.usage = 0;
+				resolve(rs);
+			})
 		);
 }
 
@@ -850,83 +879,10 @@ export function startInstance(id, project) {
  * @return {Object} - OperationStatus of the operaion
  */
 export function stopInstance(id, project) {
-	let data = { networks: { other: [] } };
-	return new Promise((resolve) =>
-		execInstance(
-			id,
-			project,
-			"du -sh -B 1 --exclude=/dev --exclude=/proc --exclude=/sys / | awk '{print $1;exit}'"
-			// "df -B 1 | awk '/\\/$/{print $4;exit}'"
-		).then((res) => {
-			if (res.statusCode != 0) resolve(res);
-			// data.disk = parseInt(res.status);
-			data.disk = Math.floor((5 + Math.random()) * 100000000);
-			mkRequest(`/1.0/instances/c${id}/state?project=p${project}`).then(
-				(res) => {
-					data.cpuTime = res.cpu.usage;
-					Object.keys(res.network).forEach((key) => {
-						let lxdn = res.network[key];
-						let network = new NS.NetworkState(
-							key,
-							lxdn.addresses,
-							lxdn.hwaddr,
-							lxdn.host_name,
-							lxdn.mtu,
-							lxdn.state,
-							lxdn.type
-						);
-						network.counters.download.usedSpeed = 0;
-						network.counters.upload.usedSpeed = 0;
-						network.counters.download.bytesRecieved =
-							lxdn.counters.bytes_received;
-						network.counters.upload.bytesSent = lxdn.counters.bytes_sent;
-						network.counters.download.packetsRecieved =
-							lxdn.counters.packets_received;
-						network.counters.upload.packetsSent =
-							lxdn.counters.packets_sent;
-						switch (key) {
-							case "eth0":
-								data.networks.internet = network;
-								break;
-							case "lo":
-								data.networks.loopback = network;
-								break;
-							default:
-								data.networks.other.push(network);
-								break;
-						}
-					});
-					mkRequest(
-						`/1.0/instances/c${id}/state?project=p${project}`,
-						"PUT",
-						{
-							action: "stop",
-							timeout: 60,
-						}
-					).then((res) =>
-						getOperation(res).then((res) => {
-							if (!res.error) {
-								let proj = mdb.db("lxd").collection(`p${project}`);
-								proj.updateOne(
-									{ _id: `c${id}` },
-									{ $set: { data: data } },
-									(err, result) => {
-										if (err)
-											res = new OperationState(err.toString(), 400);
-										if (result.result.n == 0)
-											console.log(
-												`mdb: c${id} in p${project} not initialized!`
-											);
-										resolve(res);
-									}
-								);
-							} else resolve(getOperation(res));
-						})
-					);
-				}
-			);
-		})
-	);
+	return mkRequest(`/1.0/instances/c${id}/state?project=p${project}`, "PUT", {
+		action: "stop",
+		timeout: 60,
+	}).then((res) => getOperation(res));
 }
 
 /**
