@@ -22,7 +22,7 @@ class Console extends Component {
       const term = new Terminal(this.dimensions());
       term.open(this.termElm);
       const successConsoleCreationCallback = (error, data, response) => {
-         data = response.body;
+         data = response?.body;
          this.term = term;
 
          // let shouldOutput = true;
