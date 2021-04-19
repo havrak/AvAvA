@@ -74,7 +74,10 @@ function mkRequest(path, method, data) {
 			res.on("data", (d) => (body += d));
 			res.on("end", () => {
 				body = JSON.parse(body);
-				if (body.error || body.metadata.status_code >= 300)
+				if (
+					body.error ||
+					(body.metadata && body.metadata.status_code >= 300)
+				)
 					console.log({
 						path: path,
 						err: body.error || body.metadata.status,
