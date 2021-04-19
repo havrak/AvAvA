@@ -670,6 +670,7 @@ export async function getState(id, project, rs) {
 					});
 			}
 		);
+		console.log(rs);
 		return rs;
 	} else
 		return new Promise((resolve) =>
