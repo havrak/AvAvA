@@ -14,6 +14,7 @@
 import superagent from "superagent";
 import querystring from "querystring";
 import { store } from "../index";
+import {debug} from 'config.js';
 
 /**
  * @module ApiClient
@@ -52,9 +53,9 @@ export default class ApiClient {
       /**
        * The default HTTP timeout for all API calls.
        * @type {Number}
-       * @default 60000
+       * @default 300_000
        */
-      this.timeout = 60000;
+      this.timeout = 300_000;
 
       /**
        * If set to false an additional timestamp parameter is added to all API GET calls to
@@ -476,8 +477,11 @@ export default class ApiClient {
             request.withCredentials();
          }
       }
-
+      
       request.end((error, response) => {
+         if(debug){
+            console.log('API CLIENT --- ', "REQUEST: ", request, "///", "RESPONSE:", response);
+         }
          if (response?.status === 401) {
             store.dispatch({ type: "LOGOUT", payload: {} });
          }

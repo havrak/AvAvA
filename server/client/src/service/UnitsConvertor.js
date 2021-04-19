@@ -70,8 +70,39 @@ export function HzToAdequateValue(Hz) {
    }
 }
 
+// export function ramToMB(bytes) {
+//    return Math.round(bytes / 1_000 / 1_000.0;
+// }
+
+// export function ramFromMBToB(MB) {
+//    return MB * 1_000_000;
+// }
+
+// export function diskToGB(bytes) {
+//    return Math.round(bytes / 1_000_000) / 1_000.0;
+// }
+
+// export function diskFromGBToB(GB) {
+//    return GB * 1_000_000_000;
+// }
+
+// export function CPUToMHz(Hz) {
+//    return Math.round(Hz / 1_000) / 1_000.0;
+// }
+
+// export function CPUFromMHzToHz(MHz) {
+//    return MHz * 1_000_000;
+// }
+
+// export function networkSpeedToMbits(bytes) {
+//    return Math.round(bytes / 1_000) / 1_000.0;
+// }
+
+// export function networkSpeedFromMBitsToBits(MBits) {
+//    return MBits * 1_000_000;
+// }
 export function ramToMB(bytes) {
-   return Math.round(bytes / 1_000) / 1_000.0;
+   return bytes / 1_000_000.0;
 }
 
 export function ramFromMBToB(MB) {
@@ -79,7 +110,7 @@ export function ramFromMBToB(MB) {
 }
 
 export function diskToGB(bytes) {
-   return Math.round(bytes / 1_000_000) / 1_000.0;
+   return bytes / 1_000_000_000.0;
 }
 
 export function diskFromGBToB(GB) {
@@ -87,7 +118,7 @@ export function diskFromGBToB(GB) {
 }
 
 export function CPUToMHz(Hz) {
-   return Math.round(Hz / 1_000) / 1_000.0;
+   return Hz / 1_000_00.0;
 }
 
 export function CPUFromMHzToHz(MHz) {
@@ -95,7 +126,7 @@ export function CPUFromMHzToHz(MHz) {
 }
 
 export function networkSpeedToMbits(bytes) {
-   return Math.round(bytes / 1_000) / 1_000.0;
+   return bytes / 1_000_000.0;
 }
 
 export function networkSpeedFromMBitsToBits(MBits) {
