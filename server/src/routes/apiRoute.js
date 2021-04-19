@@ -77,7 +77,7 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
 					.createCreateContainerJSON(req.user.email, req.body)
 					.then((result) => {
 						if (result.statusCode && result.statusCode != 200) {
-							res.status(400).send(result.status);
+							res.status(400).send({ message: result.status });
 							return;
 						}
 						let id = result.name;
@@ -147,9 +147,11 @@ app.delete(
 	isLoggedIn,
 	isContainerUsers,
 	(req, res) =>
-		deleteContainer(req.params.instanceId).then((result) =>
-			res.status(result.statusCode).send(result.status)
-		)
+		deleteContainer(req.params.instanceId).then((result) => {
+			if (res.statusCode != 200)
+				res.status(400).send({ message: result.status });
+			else res.send(res.status);
+		})
 );
 
 app.get(
@@ -210,10 +212,9 @@ app.patch(
 			.getProjectIdOfContainer(req.params.instanceId)
 			.then((result) => {
 				lxd.startInstance(req.params.instanceId, result).then((result) => {
-					if (result.statusCode == 400) {
-						res.statusCode = 400;
-						res.send({ message: result.status });
-					} else
+					if (result.statusCode == 400)
+						res.status(400).send({ message: result.status });
+					else
 						containerSQL
 							.updateContainerStateObject(
 								req.params.instanceId,
@@ -237,10 +238,9 @@ app.patch(
 		containerSQL
 			.getProjectIdOfContainer(req.params.instanceId)
 			.then((result) => {
-				if (result.statusCode == 400) {
-					res.statusCode = 400;
-					res.send({ message: result.status });
-				} else {
+				if (result.statusCode == 400)
+					res.status(400).send({ message: result.status });
+				else {
 					lxd.stopInstance(req.params.instanceId, result).then(
 						(result) => {
 							if (result.statusCode != 200)
@@ -272,8 +272,7 @@ app.patch(
 			.getProjectIdOfContainer(req.params.instanceId)
 			.then((result) => {
 				if (result.statusCode == 400) {
-					res.statusCode = 400;
-					res.send({ message: result.status });
+					res.status(400).send({ message: result.status });
 				} else {
 					lxd.freezeInstance(req.params.instanceId, result).then(
 						(result) => {
@@ -305,10 +304,9 @@ app.patch(
 		containerSQL
 			.getProjectIdOfContainer(req.params.instanceId)
 			.then((result) => {
-				if (result.statusCode == 400) {
-					res.statusCode = 400;
-					res.send({ message: result.status });
-				} else {
+				if (result.statusCode == 400)
+					res.status(400).send({ message: result.status });
+				else {
 					lxd.unfreezeInstance(req.params.instanceId, result).then(
 						(result) => {
 							if (result.statusCode && result.statusCode != 200)
@@ -346,9 +344,7 @@ app.get("/api/projects", isLoggedIn, (req, res) => {
 					if (counter == toReturn.projects.length) res.send(toReturn);
 				});
 			});
-			if (result.length == 0) {
-				res.send(toReturn);
-			}
+			if (result.length == 0) res.send(toReturn);
 		});
 	});
 });
@@ -357,10 +353,9 @@ app.post("/api/projects", isLoggedIn, (req, res) => {
 	projectSQL
 		.createCreateProjectJSON(req.user.email, req.body)
 		.then((project) => {
-			if (project.statusCode == 400) {
-				res.statusCode = 400;
-				res.send(project.status);
-			} else {
+			if (project.statusCode == 400)
+				res.status(400).send({ message: project.status });
+			else {
 				let id = project.name; // createProject will rewrite name variable thus it is easiest to store it in variable
 				lxd.createProject(project).then((result) => {
 					if (result.statusCode != 200) {
@@ -396,7 +391,9 @@ app.get(
 
 app.get("/api/projects/:projectId", isLoggedIn, isProjectUsers, (req, res) => {
 	getProjectObject(req.params.projectId).then((result) => {
-		res.send(result);
+		if (result.statusCode && result.statusCode != 200)
+			res.status(400).send({ message: result.status });
+		else res.send(result);
 	});
 });
 
@@ -409,8 +406,7 @@ app.patch(
 			.updateProjectLimits(req.body, req.params.projectId, req.user.email)
 			.then((result) => {
 				if (result.statusCode == 400) {
-					res.statusCode == 400;
-					res.send({ message: result.status });
+					res.status(400).send({ message: result.status });
 				} else {
 					if (result.haproxy) reloadHaproxy();
 					getProjectObject(req.params.projectId).then((result) => {
