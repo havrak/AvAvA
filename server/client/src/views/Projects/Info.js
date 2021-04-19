@@ -46,7 +46,7 @@ function Info({
       setCustomizableBrandText(brand);
    });
    useEffect(() => {
-      projectIdGet(currentProject.id);
+      projectIdGet(currentProject.id, notify);
    }, []);
 
    const [dialogOpen, setDialogOpen] = useState(false);
@@ -240,11 +240,11 @@ const mapDispathToProps = (dispatch) => {
       setCustomizableBrandText: (text) => {
          dispatch(setCustomizableBrandText(text));
       },
-      projectIdGet: (projectId) => {
-         dispatch(projectIdGet(projectId));
+      projectIdGet: (projectId, notify) => {
+         dispatch(projectIdGet(projectId, notify));
       },
-      projectIdDelete: (projectId) => {
-         dispatch(projectIdDelete(projectId));
+      projectIdDelete: (projectId, notify) => {
+         dispatch(projectIdDelete(projectId, notify));
       },
    };
 };
