@@ -28,7 +28,7 @@ const crt = fs.readFileSync(
 	path.resolve(__dirname, "../../config/lxcclient.crt")
 );
 
-const debug = false;
+const debug = true;
 
 /**
  * Create basic options common for all lxd requests.
@@ -260,7 +260,7 @@ export function getInstance(instance) {
 	return mkRequest(
 		`/1.0/instances/c${instance.id}?project=p${instance.projectId}`
 	).then((res) => {
-		if (!res.stateful) return getOperation(res);
+		if (!res.status_code || res.status_code > 200) return getOperation(res);
 		instance.createdOn = new Date(res.created_at);
 		instance.lastStartedOn = new Date(res.last_used_at);
 		instance.stateful = res.stateful;
