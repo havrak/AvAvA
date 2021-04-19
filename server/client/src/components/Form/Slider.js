@@ -45,16 +45,11 @@ export function InputSlider({
       setValue(newValue);
       setValueToParentElement(newValue);
    };
-   if (min > max) {
-      notify(
-         `minimum number of resources needed for ${headding} is greater than maximum`
-      );
-      return null;
-   } else if (value < min) {
-      handleSliderChange(null, min);
-   } else if (value > max) {
-      handleSliderChange(null, max);
-   }
+   //  if (value < min) {
+   //    handleSliderChange(null, min);
+   // } else if (value > max) {
+   //    handleSliderChange(null, max);
+   // }
 
    const handleInputChange = (event) => {
       if (event.target.value === "") {

@@ -58,7 +58,7 @@ function CircularStateChartCard({
                   [
                      "usedOtherProjects",
                      allocatedByOtherProjects,
-                     `<div class="ggl-tooltip"><b>used by other projects</b><br/>${allocatedOtherProjectsMessage}<br/>${
+                     `<div class="ggl-tooltip"><b>allocated to other projects</b><br/>${allocatedOtherProjectsMessage}<br/>${
                         allocatedByOtherProjects + baseUnit
                      }<br/>${allocatedByOtherProjectsPercent}%</div>`,
                   ],

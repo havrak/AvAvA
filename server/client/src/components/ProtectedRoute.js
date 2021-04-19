@@ -11,15 +11,15 @@ const ProtectedRoute = ({ component: Comp, userData, path, ...rest }) => {
       window.location.href = "/auth/google";
       return null;
    }
-   // return (
-   //    <Route
-   //       path={path}
-   //       {...rest}
-   //       render={(props) => {
-   //          return user ? <Comp {...props} /> : <Redirect to="/auth/google" />;
-   //       }}
-   //    />
-   // );
+   return (
+      <Route
+         path={path}
+         {...rest}
+         render={(props) => {
+            return user ? <Comp {...props} /> : <Redirect to="/auth/google" />;
+         }}
+      />
+   );
 };
 
 const mapStateToProps = (state) => {

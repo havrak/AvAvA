@@ -23,9 +23,9 @@ class Console extends Component {
       term.open(this.termElm);
       const successConsoleCreationCallback = (error, data, response) => {
          data = response.body;
+         this.term = term;
 
          // let shouldOutput = true;
-         let firstTime = true;
 
          this.terminalSocket = createTerminalSocket(data.terminal);
          this.terminalSocket.onopen = () => {
@@ -47,27 +47,16 @@ class Console extends Component {
          this.controlSocket.onopen = () => {
             // term.attach(socket);
             this.controlSocket.onmessage = (d) => {
-               console.log(d);
+               console.log(d, 'controlSocketOutput');
             };
             const ro = new ResizeObserver(async () => {
-               const dimensions = this.dimensions();
-               // console.log(dimensions, "resized");
-               this.controlSocket.send(JSON.stringify({
-                  command: "window-resize",
-                  args: {
-                     width: dimensions.cols.toString(),
-                     height: dimensions.rows.toString(),
-                  },
-               }));
-               term.resize(dimensions.cols, dimensions.rows);
-               // if (!firstTime) {
-               //    shouldOutput = false;
-               // }
-               firstTime = false;
+               this.resizeToAdequatedDimensions();
             });
+            setTimeout(e => {
+               this.resizeToAdequatedDimensions();
+            }, 1000)
             ro.observe(this.termElm);
          };
-         this.term = term;
       };
       api.instancesInstanceIdConsoleGet(
          this.instanceId,
@@ -75,9 +64,22 @@ class Console extends Component {
       );
    }
 
+   resizeToAdequatedDimensions(){
+      const dimensions = this.dimensions();
+      // console.log(dimensions, "resized");
+      this.controlSocket.send(JSON.stringify({
+         command: "window-resize",
+         args: {
+            width: dimensions.cols.toString(),
+            height: dimensions.rows.toString(),
+         },
+      }));
+      this.term.resize(dimensions.cols, dimensions.rows);
+   }
+
    componentWillUnmount(){
-      this.terminalSocket.close();
-      this.controlSocket.close();
+      this.terminalSocket?.close();
+      this.controlSocket?.close();
    }
 
    dimensions() {

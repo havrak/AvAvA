@@ -36,6 +36,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "resize-observer": "^1.0.0",
+    "streamify": "^1.0.0",
     "superagent": "^6.1.0",
     "xterm": "^4.11.0"
   },
