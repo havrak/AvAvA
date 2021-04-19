@@ -241,12 +241,12 @@ export default class userSQL {
             resolve(
               new User(
                 rows.insertId,
-                rows[0].email,
-                rows[0].given_name,
-                rows[0].family_name,
-                rows[0].role,
-                rows[0].icon,
-                rows[0].coins
+                user.emails[0].value,
+                user.name.givenName,
+                user.name.familyName,
+                0,
+                user.photos[0].value,
+                0
               )
             );
           }
