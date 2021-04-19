@@ -1,5 +1,6 @@
 import _ from "lodash";
 import * as StateCalculator from "service/StateCalculator";
+import {debug} from 'config.js';
 
 export const combinedUserDataReducer = (state = null, action) => {
    switch (action.type) {
@@ -133,10 +134,18 @@ export const combinedUserDataReducer = (state = null, action) => {
       case "CONTAINER_POST_FAIL": {
          const newState = _.cloneDeep(state);
          const projects = newState.userProjects.projects;
+         if(debug){
+            console.log('REDUCER - CONTAINER_POST_FAILED', 'action.payload:', action.payload);
+         }
+         console.log(projects);
          for (let i = 0; i < projects.length; i++) {
             if (projects[i].id === action.payload.projectId) {
+               console.log('In right project');
                for (let j = 0; j < projects[i].containers.length; j++) {
                   if (projects[i].containers[j].name === action.payload.containerName) {
+                     if(debug){
+                        console.log('REDUCER - CONTAINER_POST_FAILED', 'successfully found adequate container');
+                     }
                      projects[i].containers.splice(j, 1);
                      StateCalculator.addStateToUserData(newState);
                      return newState;

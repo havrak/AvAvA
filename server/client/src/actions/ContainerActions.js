@@ -1,6 +1,7 @@
 import * as UserApi from "api/index";
 
 const api = new UserApi.DefaultApi();
+import {debug} from 'config.js';
 
 export const startSpinnerContainerPost = (projectId, container) => {
    return {
@@ -65,8 +66,8 @@ export const containerPostFail = (projectId, containerName) => {
    return {
       type: "CONTAINER_POST_FAIL",
       payload: {
-         project: projectId,
-         container: containerName,
+         projectId: projectId,
+         containerName: containerName,
       },
    };
 };
@@ -85,6 +86,9 @@ export const containerPost = (container, notify) => {
    return (dispatch) => {
       dispatch(startSpinnerContainerPost(container.projectId, container));
       const callback = function (error, data, response) {
+         if(debug){
+            console.log('ACTION CALLBACK INITIATED ', 'response: ', response, error ? 'ERROR' : "SUCCESS", 'container:', container);
+         }
          if (error) {
             dispatch(containerPostFail(container.projectId, container.name));
             notify(`Error occured: ${response?.body?.message}`);

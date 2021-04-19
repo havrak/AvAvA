@@ -7,7 +7,7 @@
    white-space: nowrap;
 }
 
-.resource-header{
+.resource-header {
    display: flex;
 }
 
@@ -26,23 +26,26 @@
 }
 
 .resource-chart-headding p {
- padding:0;
- margin: 0px;
+   padding: 0;
+   margin: 0px;
 }
 
 .resource-chart-headding p.used-size {
- font-size: 17pt;
- color: #333333;
+   font-size: 17pt;
+   color: #333333;
 }
 
 .resource-chart-headding p.stat-name {
- line-height: 0.8;
- font-size: 12pt;
- color: #333333;
+   line-height: 0.8;
+   font-size: 12pt;
+   color: #333333;
 }
 
 .resource-chart-headding p.max-size {
    line-height: 0.8;
    font-size: 10pt;
    color: #555555;
-  }
+}
+
+svg > g:last-child > g:last-child { pointer-events: none }
+div.google-visualization-tooltip { pointer-events: none }
