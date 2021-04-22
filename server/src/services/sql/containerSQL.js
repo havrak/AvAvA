@@ -12,6 +12,7 @@ import Limits from "../../models/Limits.js";
 import templateSQL from "./templateSQL.js";
 import { NetworkState } from "../../models/NetworkState.js";
 import OperationState from "../../models/OperationState.js";
+import projectSQL from "./projectSQL.js";
 
 export default class containerSQL {
   // TODO: get rid of email
@@ -39,6 +40,9 @@ export default class containerSQL {
           config.limits.upload > result.upload ||
           config.limits.download > result.download
         ) {
+          console.log(config.limits);
+          console.log("resutl");
+          console.log(result);
           resolve(new OperationState("Limits are over current max", 400));
           return;
         }
@@ -161,6 +165,18 @@ export default class containerSQL {
     });
   }
 
+  static updateContainerLimits(id, limits) {
+    return new Promise((resolve) => {
+      const con = mysql.createConnection(sqlconfig);
+      con.query(
+        "SELECT * FROM projectsResourcesLimits LEFT JOIN containers ON containers.project_id=projectsResourcesLimits.project_id WHERE containers.id=?",
+        [id],
+        (err, rows) => {
+          if (err) throw err;
+        }
+      );
+    });
+  }
   /**
    * create stateHistory of given container, fills in what is stored in logs and current limits
    * @param id - id of container
@@ -325,49 +341,10 @@ export default class containerSQL {
           }
           // project either has its limit or not, so there is no need to check all variables
           if (rows[0].ram == null) {
-            con.query(
-              // first we will query for limits of user
-              "SELECT * FROM usersResourcesLimits WHERE user_email=?",
-              [ownerEmail],
-              (err, rows) => {
-                let userLimits = new Limits(
-                  rows[0].ram,
-                  rows[0].cpu,
-                  rows[0].disk,
-                  rows[0].upload,
-                  rows[0].download
-                );
-                con.query(
-                  "SELECT * FROM projects LEFT JOIN projectsResourcesLimits ON projectsResourcesLimits.project_id = projects.id WHERE projects.owner_email = ?",
-                  [ownerEmail],
-                  (err, rows) => {
-                    rows.forEach((row, index) => {
-                      userLimits.RAM -= row.ram;
-                      userLimits.CPU -= row.cpu;
-                      userLimits.disk -= row.disk;
-                      userLimits.internet.upload -= row.upload;
-                      userLimits.internet.download -= row.download;
-                    });
-                    con.query(
-                      "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containers.id=containersResourcesLimits.container_id WHERE containers.project_id=?",
-                      [projectId],
-                      (err, rows) => {
-                        if (err) throw err;
-                        rows.forEach((row, index) => {
-                          userLimits.RAM -= row.ram;
-                          userLimits.CPU -= row.cpu;
-                          userLimits.disk -= row.disk;
-                          userLimits.internet.upload -= row.upload;
-                          userLimits.internet.download -= row.download;
-                        });
-                        con.end();
-                        resolve(userLimits);
-                      }
-                    );
-                  }
-                );
-              }
-            );
+            projectSQL.createCreateProjectData(ownerEmail).then((result) => {
+              con.end();
+              resolve(result);
+            });
           } else {
             let limits = new Limits(
               rows[0].ram,
@@ -602,6 +579,7 @@ export default class containerSQL {
         }
       );
     });
+    790000;
   }
   /**
    * creates ContainerResourceState object for given container

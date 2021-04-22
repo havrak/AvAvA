@@ -4,6 +4,6 @@ export default {
   defaultRamLimit: 2147483648,
   defaultCouFraction: 2,
   defaultDiskSize: 10737418240,
-  defaultUpload: 1000000,
-  defaultDownload: 1000000,
+  defaultUpload: 25000000,
+  defaultDownload: 25000000,
 };
