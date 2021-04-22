@@ -45,6 +45,7 @@ export const combinedUserDataReducer = (state = null, action) => {
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
             if (newState.userProjects.projects[i].name === action.payload.name) {
                newState.userProjects.projects[i] = action.payload;
+               StateCalculator.addStateToUserData(newState);
                break;
             }
          }
@@ -258,6 +259,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                      const container = projects[i].containers[j];
                      container.state = stateHistory[stateHistory.length - 1];
                      container.stateHistory = stateHistory;
+                     StateCalculator.addStateToUserData(newState);
                      return newState;
                   }
                }
