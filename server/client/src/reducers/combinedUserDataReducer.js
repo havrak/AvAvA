@@ -29,7 +29,7 @@ export const combinedUserDataReducer = (state = null, action) => {
          // newState.userProjects.projects = [action.pyaload].concat(
          //    newState.userProjects.projects
          // );
-         return newState;
+         break;
       }
       case "START_SPINNER_PROJECT_POST": {
          const newState = _.cloneDeep(state);
@@ -46,62 +46,61 @@ export const combinedUserDataReducer = (state = null, action) => {
             if (newState.userProjects.projects[i].name === action.payload.name) {
                newState.userProjects.projects[i] = action.payload;
                StateCalculator.addStateToUserData(newState);
-               break;
+               return newState;
             }
          }
-         StateCalculator.addStateToUserData(newState);
-         return newState;
+         break;
       }
       case "PROJECT_POST_FAIL": {
          const newState = _.cloneDeep(state);
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
             if (newState.userProjects.projects[i].name === action.payload) {
                newState.userProjects.projects.splice(i, 1);
-               break;
+               return newState;
             }
          }
-         return newState;
+         break;
       }
       case "START_SPINNER_PROJECT_DELETE": {
          const newState = _.cloneDeep(state);
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
             if (newState.userProjects.projects[i].id === action.payload) {
                newState.userProjects.projects[i].pendingState = "Deleting";
-               break;
+               return newState;
             }
          }
-         return newState;
+         break;
       }
       case "START_SPINNER_PROJECT_PATCH": {
          const newState = _.cloneDeep(state);
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
             if (newState.userProjects.projects[i].id === action.payload) {
                newState.userProjects.projects[i].pendingState = "Changing settings";
-               break;
+               return newState;
             }
          }
-         return newState;
+         break;
       }
       case "PROJECT_DELETE_SUCCESS": {
          const newState = _.cloneDeep(state);
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
             if (newState.userProjects.projects[i].id === action.payload) {
                newState.userProjects.projects.splice(i, 1);
-               break;
+               StateCalculator.addStateToUserData(newState);
+               return newState;
             }
          }
-         StateCalculator.addStateToUserData(newState);
-         return newState;
+         break;
       }
       case "PROJECT_STATE_CHANGE_FAIL": {
          const newState = _.cloneDeep(state);
          for (let i = 0; i < newState.userProjects.projects.length; i++) {
             if (newState.userProjects.projects[i].id === action.payload) {
                newState.userProjects.projects[i].pendingState = null;
-               break;
+               return newState;
             }
          }
-         return newState;
+         break;
       }
       //containers
       case "START_SPINNER_CONTAINER_POST": {
@@ -116,7 +115,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                return newState;
             }
          }
-         return newState;
+         break;
       }
       case "CONTAINER_POST_SUCCESS": {
          const newState = _.cloneDeep(state);
@@ -133,7 +132,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                }
             }
          }
-         return newState;
+         break;
       }
       case "CONTAINER_POST_FAIL": {
          const newState = _.cloneDeep(state);
@@ -149,7 +148,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                }
             }
          }
-         return newState;
+         break;
       }
       case "START_SPINNER_CONTAINER": {
          const newState = _.cloneDeep(state);
@@ -163,6 +162,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                }
             }
          }
+         break;
       }
       case "START_SPINNER_CONTAINER_PATCH": {
          const newState = _.cloneDeep(state);
@@ -176,6 +176,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                }
             }
          }
+         break;
       }
       case "CONTAINER_DELETE_SUCCESS": {
          const newState = _.cloneDeep(state);
@@ -191,7 +192,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                }
             }
          }
-         return state;
+         break;
       }
       case "CONTAINER_STATE_CHANGE_SUCCESS": {
          const newState = _.cloneDeep(state);
@@ -207,6 +208,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                }
             }
          }
+         break;
       }
       case "CONTAINER_STATE_CHANGE_FAIL": {
          const newState = _.cloneDeep(state);
@@ -221,6 +223,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                }
             }
          }
+         break;
       }
       case "CONTAINER_GET_SUCCESS": {
          const newState = _.cloneDeep(state);
@@ -246,7 +249,7 @@ export const combinedUserDataReducer = (state = null, action) => {
          // newState.userProjects.projects[action.payload.projectId].containers = [action.payload.container].concat(
          //    newState.userProjects.projects[action.payload.projectId].containers
          // );
-         return newState;
+         break;
       }
       case "INSTANCES_ID_STATE_WITH_HISTORY_GET_SUCCESS": {
          const newState = _.cloneDeep(state);
@@ -265,6 +268,7 @@ export const combinedUserDataReducer = (state = null, action) => {
                }
             }
          }
+         break;
       }
       case "CREATE_INSTANCE_CONFIG_DATA_GET":
          const newState = _.cloneDeep(state);
@@ -275,4 +279,5 @@ export const combinedUserDataReducer = (state = null, action) => {
       default:
          return state;
    }
+   return state;
 };
