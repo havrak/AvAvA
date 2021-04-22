@@ -101,6 +101,7 @@ export function HzToAdequateValue(Hz) {
 // export function networkSpeedFromMBitsToBits(MBits) {
 //    return MBits * 1_000_000;
 // }
+
 export function ramToMB(bytes) {
    return bytes / 1_000_000.0;
 }
