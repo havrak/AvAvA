@@ -99,6 +99,9 @@ class Console extends Component {
    }
 
    render() {
+      if(!this.currentContainer){
+         
+      }
       return (
          <div className="App">
             <div style={{ backgroundColor: "black" }}>

@@ -10,9 +10,6 @@ import { removePathParts, getCurrentProjectAndContainer } from "service/RoutesHe
 import BeatLoader from "react-spinners/BeatLoader";
 
 function StateHistory({ currentProject, currentContainer, setCustomizableBrandText, instancesIdStateWithHistoryGet, notify }) {
-   if(!currentProject){
-      return <Redirect to={removePathParts(2)} />;
-   }
    const brand = [
       {
          text: currentProject.name,
@@ -33,6 +30,9 @@ function StateHistory({ currentProject, currentContainer, setCustomizableBrandTe
    useEffect(() => {
       instancesIdStateWithHistoryGet(currentProject.id, currentContainer.id, notify);
    }, []);
+   if(!currentProject){
+      return <Redirect to={removePathParts(2)} />;
+   }
    if(currentContainer.stateHistory){
       return <div style={{width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}><BeatLoader color={"#212529"} loading={true} size={50} /></div>
    }

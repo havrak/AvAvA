@@ -19,7 +19,7 @@ import {
 } from "service/UnitsConvertor.js";
 import ProjectsTableToolbar from "components/Tables/Toolbars/ProjectsTableToolbar";
 
-function Project(props) {
+function Projects(props) {
    const {
       projects,
       userState,
@@ -642,4 +642,4 @@ const mapDispatchToProps = (dispatch) => {
    };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Project);
+export default connect(mapStateToProps, mapDispatchToProps)(Projects);

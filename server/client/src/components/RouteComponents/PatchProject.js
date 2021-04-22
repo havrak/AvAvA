@@ -11,9 +11,6 @@ import {
 } from "service/UnitsConvertor.js";
 
 function PatchProject({ name, link, currentProject, notify }) {
-   if (!currentProject) {
-      return <Redirect to={removePathParts(2)} />;
-   }
    const [openDialog, setDialogOpen] = React.useState(false);
    const baseState = () => {
       return {
@@ -32,6 +29,9 @@ function PatchProject({ name, link, currentProject, notify }) {
    };
 
    const patchedProject = React.useRef(baseState());
+   if (!currentProject) {
+      return <Redirect to={removePathParts(2)} />;
+   }
    const openDialogHandler = () => {
       patchedProject.current = baseState();
       setDialogOpen(true);

@@ -41,6 +41,10 @@ const CreateContainerDialog = ({
    createdContainer,
 }) => {
    // console.log(createdContainer);
+   const [errorMessage, setErrorMessage] = useState(null);
+   const [passwordErrorMessage, setPasswordErrorMessage] = useState(null);
+   const [showTemplates, setTemplatesShown] = useState(false);
+   const [showApplicationsToInstall, setApplicationsToInstallShown] = useState(false);
 
    let convertedRAM;
    let convertedCPU;
@@ -75,20 +79,18 @@ const CreateContainerDialog = ({
    } else {
       convertedDownload = networkSpeedToMbits(userState.internet.download.free);
    }
-   const [errorMessage, setErrorMessage] = useState(null);
-   const [passwordErrorMessage, setPasswordErrorMessage] = useState(null);
    const allowedTepmlates = createInstanceConfigData.templates.filter(e => {
       if(e.minDiskUsage <= diskFromGBToB(convertedDisk)){
          return e;
       }
    });
+   const [selectedTemplate, setSelectedTemplate] = useState(
+      allowedTepmlates[0]
+   );
    if(allowedTepmlates.length === 0){
       // notify('No container can be created with so low free disk space');
       return null;
    }
-   const [selectedTemplate, setSelectedTemplate] = useState(
-      allowedTepmlates[0]
-   );
 
    const handleClose = () => {
       setOpen(false);
@@ -174,8 +176,6 @@ const CreateContainerDialog = ({
          createdContainer.current.templateId = item.id;
       }
    };
-   const [showTemplates, setTemplatesShown] = useState(false);
-   const [showApplicationsToInstall, setApplicationsToInstallShown] = useState(false);
    return (
       <div>
          <Dialog

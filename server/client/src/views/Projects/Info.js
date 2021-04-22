@@ -34,9 +34,6 @@ function Info({
    setCustomizableBrandText,
    notify,
 }) {
-   if (!currentProject) {
-      return <Redirect to={removePathParts(2)} />;
-   }
    const brand = [
       {
          text: currentProject.name,
@@ -48,8 +45,11 @@ function Info({
    useEffect(() => {
       projectIdGet(currentProject.id, notify);
    }, []);
-
    const [dialogOpen, setDialogOpen] = useState(false);
+   
+   if (!currentProject) {
+      return <Redirect to={removePathParts(2)} />;
+   }
 
    const deleteContainersHandler = () => {
       setDialogOpen(true);

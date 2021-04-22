@@ -13,9 +13,6 @@ import {removePathParts} from 'service/RoutesHelper'
 
 function PatchContainer({ name, link, currentProject, currentContainer, notify }) {
    const [openDialog, setDialogOpen] = React.useState(false);
-   if(!currentContainer){
-      return <Redirect to={removePathParts(2)} />;
-   }
    const baseState = () => {
       return {
          id: currentContainer.id,
@@ -35,6 +32,9 @@ function PatchContainer({ name, link, currentProject, currentContainer, notify }
       };
    };
    const patchedContainer = React.useRef(baseState());
+   if(!currentContainer){
+      return <Redirect to={removePathParts(2)} />;
+   }
    const openDialogHandler = () => {
       patchedContainer.current = baseState();
       setDialogOpen(true);

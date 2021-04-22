@@ -44,9 +44,6 @@ function Info({
    containerIdFreeze,
    containerIdUnfreeze,
 }) {
-   if (!currentContainer) {
-      return <Redirect to={removePathParts(3)} />;
-   }
    const brand = [
       {
          text: currentProject.name,
@@ -70,6 +67,10 @@ function Info({
 
    const [dialogOpen, setDialogOpen] = useState(false);
 
+   if (!currentContainer) {
+      return <Redirect to={removePathParts(2)} />;
+   }
+
    const startContainersHandler = () => {
       containerIdStart(currentProject.id, currentContainer.id, notify);
    };
@@ -84,7 +85,7 @@ function Info({
 
    const unfreezeContainerHandler = () => {
       containerIdUnfreeze(currentProject.id, currentContainer.id, notify);
-   }
+   };
 
    const deleteContainersHandler = () => {
       setDialogOpen(true);

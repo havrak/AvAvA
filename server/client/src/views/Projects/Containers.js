@@ -21,15 +21,7 @@ import { removePathParts, getCurrentProject } from "service/RoutesHelper";
 import ContainersTableToolbar from "components/Tables/Toolbars/ContainersTableToolbar";
 
 function Containers(props) {
-   const {
-      currentProject,
-      projectIdGet,
-      setCustomizableBrandText,
-      notify
-   } = props;
-   if (!currentProject) {
-      return <Redirect to={removePathParts(2)} />;
-   }
+   const { currentProject, projectIdGet, setCustomizableBrandText, notify } = props;
    const brand = [
       {
          text: currentProject.name,
@@ -52,6 +44,10 @@ function Containers(props) {
       Download: "Download",
    };
    const [view, setView] = useState(views["Basic info"]);
+
+   // if (!currentProject) {
+   //    return <Redirect to={removePathParts(2)} />;
+   // }
    const columns = React.useMemo(
       () => [
          {
@@ -102,10 +98,18 @@ function Containers(props) {
             view: views["Basic info"],
             Cell: (props) => {
                const data = props.row.original;
-               if(data.pendingState){
-                  return <b className={data.pendingState.toLowerCase()} >{data.pendingState}</b>
+               if (data.pendingState) {
+                  return (
+                     <b className={data.pendingState.toLowerCase()}>
+                        {data.pendingState}
+                     </b>
+                  );
                } else {
-                  return <b className={data.state.operationState.status.toLowerCase()} >{data.state.operationState.status}</b>
+                  return (
+                     <b className={data.state.operationState.status.toLowerCase()}>
+                        {data.state.operationState.status}
+                     </b>
+                  );
                }
             },
          },
@@ -501,7 +505,7 @@ function Containers(props) {
                <Col md="12">
                   <Card>
                      <CssBaseline />
-                     
+
                      <EnhancedTable
                         columns={columns}
                         data={currentProject.containers}
@@ -511,7 +515,7 @@ function Containers(props) {
                         view={view}
                         notify={notify}
                         setView={setView}
-                        tableToolbar={<ContainersTableToolbar project={currentProject}/>}
+                        tableToolbar={<ContainersTableToolbar project={currentProject} />}
                      />
                   </Card>
                </Col>

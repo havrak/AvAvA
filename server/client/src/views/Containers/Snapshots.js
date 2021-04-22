@@ -55,6 +55,9 @@ function Snapshots(props) {
       "Basic info": "Basic info",
    };
    const [view, setView] = useState(views["Basic info"]);
+   if(!currentContainer){
+      return <Redirect to={removePathParts(2)} />;
+   }
    const columns = React.useMemo(
       () => [
          {
