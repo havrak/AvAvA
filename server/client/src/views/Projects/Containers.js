@@ -13,7 +13,7 @@ import { projectIdDelete, projectIdGet } from "actions/ProjectActions";
 import { setCustomizableBrandText } from "actions/FrontendActions";
 import {
    bytesToAdequateValue,
-   bytesPerSecondToAdequateValue,
+   bitsPerSecondToAdequateValue,
    secondsToAdequateValue,
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
@@ -139,7 +139,7 @@ function Containers(props) {
             accessor: "state.internet.limits.download",
             view: views["Limits"],
             Cell: ({ value }) => {
-               return value ? bytesPerSecondToAdequateValue(value).getMessage() : "-";
+               return value ? bitsPerSecondToAdequateValue(value).getMessage() : "-";
             },
          },
          {
@@ -147,7 +147,7 @@ function Containers(props) {
             accessor: "state.internet.limits.upload",
             view: views["Limits"],
             Cell: ({ value }) => {
-               return value ? bytesPerSecondToAdequateValue(value).getMessage() : "-";
+               return value ? bitsPerSecondToAdequateValue(value).getMessage() : "-";
             },
          },
          // RAM
@@ -356,7 +356,7 @@ function Containers(props) {
                   accessor: "state.internet.counters.download.usedSpeed",
                   view: views["Download"],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateValue(value).getMessage();
+                     return bitsPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
@@ -389,7 +389,7 @@ function Containers(props) {
                   accessor: "state.internet.counters.download.freeSpeed",
                   view: views["Download"],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateValue(value).getMessage();
+                     return bitsPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
@@ -424,7 +424,7 @@ function Containers(props) {
                   accessor: "state.internet.counters.upload.usedSpeed",
                   view: views["Upload"],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateValue(value).getMessage();
+                     return bitsPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
@@ -457,7 +457,7 @@ function Containers(props) {
                   accessor: "state.internet.counters.upload.freeSpeed",
                   view: views["Upload"],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateValue(value).getMessage();
+                     return bitsPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {

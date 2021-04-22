@@ -1,4 +1,4 @@
-class Container {
+class UnitContainer {
    constructor(value, unit) {
       this.value = value;
       this.unit = unit;
@@ -19,54 +19,32 @@ const prefixes = {
 };
 
 export function bytesToAdequateValue(bytes) {
-   if (bytes >= 1_000_000_000_000) {
-      return new Container(Math.round(bytes / 10_000_000_000) / 100.0, "TB");
-   } else if (bytes >= 1_000_000_000) {
-      return new Container(Math.round(bytes / 10_000_000) / 100.0, "GB");
-   } else if (bytes >= 1_000_000) {
-      return new Container(Math.round(bytes / 10_000) / 100.0, "MB");
-   } else if (bytes >= 1_000) {
-      return new Container(Math.round(bytes / 10.0) / 100.0, "KB");
-   } else {
-      return new Container(bytes, "B");
-   }
+   return toAdequatevalue(bytes, 'B');
 }
 
-export function bytesPerSecondToAdequateValue(bytes) {
-   if (bytes >= 1_000_000_000_000) {
-      return new Container(Math.round(bytes / 10_000_000_000) / 100.0, "Tbit/s");
-   } else if (bytes >= 1_000_000_000) {
-      return new Container(Math.round(bytes / 10_000_000) / 100.0, "Gbit/s");
-   } else if (bytes >= 1_000_000) {
-      return new Container(Math.round(bytes / 10_000) / 100.0, "Mbit/s");
-   } else if (bytes >= 1_000) {
-      return new Container(Math.round(bytes / 10.0) / 100.0, "Kbit/s");
-   } else {
-      return new Container(bytes, "bit/s");
-   }
+export function bitsPerSecondToAdequateValue(bytesPerSecond) {
+   return toAdequatevalue(bytesPerSecond, 'bit/s');
 }
 
-export function secondsToAdequateValue(bytes) {
-   if (bytes >= 1_000_000_000) {
-      return new Container(Math.round(bytes / 10_000_000.0) / 100.0, "s");
-   } else if (bytes >= 1_000_000) {
-      return new Container(Math.round(bytes / 10_000.0) / 100.0, "ms");
-   } else if (bytes >= 1_000) {
-      return new Container(Math.round(bytes / 10.0) / 100.0, "µs");
-   } else {
-      return new Container(bytes, "ns");
-   }
+export function secondsToAdequateValue(seconds) {
+   return toAdequatevalue(seconds, 's');
 }
 
 export function HzToAdequateValue(Hz) {
-   if (Hz >= 1_000_000_000) {
-      return new Container(Math.round(Hz / 10_000_000) / 100.0, "GHz");
-   } else if (Hz >= 1_000_000) {
-      return new Container(Math.round(Hz / 10_000) / 100.0, "MHz");
-   } else if (Hz >= 1_000) {
-      return new Container(Math.round(Hz / 10.0) / 100.0, "KHz");
+   return toAdequatevalue(Hz, 'Hz');
+}
+
+function toAdequatevalue(value, unit){
+   if (value >= prefixes.T) {
+      return new UnitContainer(Math.round(value / 10_000_000_000) / 100.0, `T${unit}`);
+   } else if (value >= prefixes.G) {
+      return new UnitContainer(Math.round(value / 10_000_000) / 100.0, `G${unit}`);
+   } else if (value >= prefixes.M) {
+      return new UnitContainer(Math.round(value / 10_000) / 100.0, `M${unit}`);
+   } else if (value >= prefixes.K) {
+      return new UnitContainer(Math.round(value / 10.0) / 100.0, `K${unit}`);
    } else {
-      return new Container(Hz, "Hz");
+      return new UnitContainer(value, unit);
    }
 }
 
@@ -75,15 +53,15 @@ export function HzToAdequateValue(Hz) {
 // }
 
 // export function ramFromMBToB(MB) {
-//    return MB * 1_000_000;
+//    return MB * prefixes.M;
 // }
 
 // export function diskToGB(bytes) {
-//    return Math.round(bytes / 1_000_000) / 1_000.0;
+//    return Math.round(bytes / prefixes.M) / 1_000.0;
 // }
 
 // export function diskFromGBToB(GB) {
-//    return GB * 1_000_000_000;
+//    return GB * prefixes.G;
 // }
 
 // export function CPUToMHz(Hz) {
@@ -91,7 +69,7 @@ export function HzToAdequateValue(Hz) {
 // }
 
 // export function CPUFromMHzToHz(MHz) {
-//    return MHz * 1_000_000;
+//    return MHz * prefixes.M;
 // }
 
 // export function networkSpeedToMbits(bytes) {
@@ -99,39 +77,39 @@ export function HzToAdequateValue(Hz) {
 // }
 
 // export function networkSpeedFromMBitsToBits(MBits) {
-//    return MBits * 1_000_000;
+//    return MBits * prefixes.M;
 // }
 
 export function ramToMB(bytes) {
-   return bytes / 1_000_000.0;
+   return bytes / prefixes.M;
 }
 
 export function ramFromMBToB(MB) {
-   return MB * 1_000_000;
+   return MB * prefixes.M;
 }
 
 export function diskToGB(bytes) {
-   return bytes / 1_000_000_000.0;
+   return bytes / prefixes.G;
 }
 
 export function diskFromGBToB(GB) {
-   return GB * 1_000_000_000;
+   return GB * prefixes.G;
 }
 
 export function CPUToMHz(Hz) {
-   return Hz / 1_000_00.0;
+   return Hz / prefixes.M;
 }
 
 export function CPUFromMHzToHz(MHz) {
-   return MHz * 1_000_000;
+   return MHz * prefixes.M;
 }
 
 export function networkSpeedToMbits(bytes) {
-   return bytes / 1_000_000.0;
+   return bytes / prefixes.M;
 }
 
 export function networkSpeedFromMBitsToBits(MBits) {
-   return MBits * 1_000_000;
+   return MBits * prefixes.M;
 }
 
 //https://www.codegrepper.com/code-examples/javascript/how+to+show+only+hours+and+minutes+from+javascript+date

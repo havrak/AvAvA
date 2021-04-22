@@ -13,7 +13,7 @@ import { userProjectsGet } from "actions/UserActions";
 import { setCustomizableBrandText } from "actions/FrontendActions";
 import {
    bytesToAdequateValue,
-   bytesPerSecondToAdequateValue,
+   bitsPerSecondToAdequateValue,
    secondsToAdequateValue,
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
@@ -155,7 +155,7 @@ function Project(props) {
             accessor: "limits.internet.download",
             view: views["Limits"],
             Cell: ({ value }) => {
-               return value ? bytesPerSecondToAdequateValue(value).getMessage() : "-";
+               return value ? bitsPerSecondToAdequateValue(value).getMessage() : "-";
             },
          },
          {
@@ -163,7 +163,7 @@ function Project(props) {
             accessor: "limits.internet.upload",
             view: views["Limits"],
             Cell: ({ value }) => {
-               return value ? bytesPerSecondToAdequateValue(value).getMessage() : "-";
+               return value ? bitsPerSecondToAdequateValue(value).getMessage() : "-";
             },
          },
          // RAM
@@ -429,7 +429,7 @@ function Project(props) {
                   accessor: "state.internet.download.usage",
                   view: views["Download"],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateValue(value).getMessage();
+                     return bitsPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
@@ -449,7 +449,7 @@ function Project(props) {
                   accessor: "state.internet.download.allocated",
                   view: views["Download"],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateValue(value).getMessage();
+                     return bitsPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
@@ -471,8 +471,8 @@ function Project(props) {
                   Cell: (props) => {
                      const data = props.row.original;
                      return data.limits?.internet?.download
-                        ? bytesPerSecondToAdequateValue(props.value).getMessage()
-                        : bytesPerSecondToAdequateValue(
+                        ? bitsPerSecondToAdequateValue(props.value).getMessage()
+                        : bitsPerSecondToAdequateValue(
                              userState.internet.download.free
                           ).getMessage();
                   },
@@ -510,7 +510,7 @@ function Project(props) {
                   accessor: "state.internet.upload.usage",
                   view: views["Upload"],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateValue(value).getMessage();
+                     return bitsPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
@@ -530,7 +530,7 @@ function Project(props) {
                   accessor: "state.internet.upload.allocated",
                   view: views["Upload"],
                   Cell: ({ value }) => {
-                     return bytesPerSecondToAdequateValue(value).getMessage();
+                     return bitsPerSecondToAdequateValue(value).getMessage();
                   },
                },
                {
@@ -552,8 +552,8 @@ function Project(props) {
                   Cell: (props) => {
                      const data = props.row.original;
                      return data.limits?.internet?.upload
-                        ? bytesPerSecondToAdequateValue(props.value).getMessage()
-                        : bytesPerSecondToAdequateValue(
+                        ? bitsPerSecondToAdequateValue(props.value).getMessage()
+                        : bitsPerSecondToAdequateValue(
                              userState.internet.upload.free
                           ).getMessage();
                   },

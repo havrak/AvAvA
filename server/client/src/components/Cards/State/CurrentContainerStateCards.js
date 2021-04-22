@@ -6,7 +6,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 
 import {
    bytesToAdequateValue,
-   bytesPerSecondToAdequateValue,
+   bitsPerSecondToAdequateValue,
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
 import { secondsToAdequateValue } from "service/UnitsConvertor";
@@ -159,7 +159,7 @@ export function DownloadCircularStateChartCardForContainer({ download, max }) {
             download.bytesFromStart
          ).getMessage()} <br />All packets reveived: ${download.packetsFromStart} <br />`}
          stateName={"Download"}
-         convertorCallback={bytesPerSecondToAdequateValue}
+         convertorCallback={bitsPerSecondToAdequateValue}
          baseUnit={"b/s"}
          headdingTypeLeft={false}
       />
@@ -180,7 +180,7 @@ export function UploadCircularStateChartCardForContainer({ upload, max }) {
             upload.bytesFromStart
          ).getMessage()} <br />All packets sent: ${upload.packetsFromStart} <br />`}
          stateName={"Upload"}
-         convertorCallback={bytesPerSecondToAdequateValue}
+         convertorCallback={bitsPerSecondToAdequateValue}
          baseUnit={"b/s"}
          headdingTypeLeft={false}
       />

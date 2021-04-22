@@ -6,7 +6,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { calculatePercent } from "service/StateCalculator";
 import {
    bytesToAdequateValue,
-   bytesPerSecondToAdequateValue,
+   bitsPerSecondToAdequateValue,
    HzToAdequateValue,
 } from "service/UnitsConvertor.js";
 
@@ -177,7 +177,7 @@ export function DownloadCircularStateChartCardWithoutLimits({
          stateData={downloadState}
          max={max}
          stateName={"Download"}
-         convertorCallback={bytesPerSecondToAdequateValue}
+         convertorCallback={bitsPerSecondToAdequateValue}
          baseUnit={"b/s"}
       />
    );
@@ -194,7 +194,7 @@ export function UploadCircularStateChartCardWithoutLimits({
          parentStateData={parentUploadState}
          stateData={uploadState}
          stateName={"Upload"}
-         convertorCallback={bytesPerSecondToAdequateValue}
+         convertorCallback={bitsPerSecondToAdequateValue}
          baseUnit={"b/s"}
       />
    );
