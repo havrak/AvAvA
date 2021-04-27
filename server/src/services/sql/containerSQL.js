@@ -26,8 +26,6 @@ export default class containerSQL {
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       this.getFreeSpaceForContainer(config.projectId, email).then((result) => {
-        console.log("result");
-        console.log(result);
         if (result.statusCode == 400) {
           resolve(result);
           return;
@@ -37,12 +35,21 @@ export default class containerSQL {
           config.limits.RAM > result.RAM ||
           config.limits.CPU > result.CPU ||
           config.limits.disk > result.disk ||
-          config.limits.upload > result.upload ||
-          config.limits.download > result.download
+          config.limits.internet.upload > result.internet.upload ||
+          config.limits.internet.download > result.internet.download
         ) {
-          console.log(config.limits);
-          console.log("resutl");
-          console.log(result);
+          // console.log("limits of desired container");
+          // console.log(config.limits);
+          // console.log("result");
+          // console.log(result);
+          // console.log("bools: ");
+          // console.log(config.limits.RAM > result.RAM);
+          // console.log(config.limits.CPU > result.CPU);
+          // console.log(config.limits.disk > result.disk);
+          // console.log(config.limits.internet.upload > result.internet.upload);
+          // console.log(
+          //   config.limits.internet.download > result.internet.download
+          // );
           resolve(new OperationState("Limits are over current max", 400));
           return;
         }
@@ -59,6 +66,7 @@ export default class containerSQL {
             }
             if (config.limits.disk < rows[0].min_disk_size) {
               con.end();
+              console.log("disk limit too small");
               resolve(
                 new OperationState(
                   "Not enough free space to create desired container",
@@ -689,7 +697,7 @@ export default class containerSQL {
             stream.write("\n");
 
             stream.write(
-              "\tuse_backend bac_web_systemconfig if { hdr(host) -i " +
+              "\tuse_backend bac_web_host if { hdr(host) -i " +
                 proxyconfig.domain +
                 " }\n"
             );
@@ -711,7 +719,7 @@ export default class containerSQL {
             stream.write("\ttimeout client 50000\n");
             stream.write("\n");
             stream.write(
-              "\tuse_backend bac_web_systemconfig if { hdr(host) -i " +
+              "\tuse_backend bac_web_host if { hdr(host) -i " +
                 proxyconfig.domain +
                 " }\n"
             );
@@ -724,10 +732,10 @@ export default class containerSQL {
                   " }\n"
               );
             });
-            // frontend rest api
+            // frontend react
             stream.write("\n");
             stream.write("\n");
-            stream.write("frontend fe_rest\n");
+            stream.write("frontend fe_react\n");
             stream.write(
               "\tbind *:3000 ssl crt " +
                 proxyconfig.pemfilepath +
@@ -742,7 +750,39 @@ export default class containerSQL {
             stream.write("\n");
 
             stream.write(
-              "\tuse_backend bac_rest_systemconfig if { hdr(host) -i " +
+              "\tuse_backend bac_react_host if { hdr(host) -i " +
+                proxyconfig.domain +
+                " }\n"
+            );
+
+            rows.forEach((row, index) => {
+              stream.write(
+                "\tuse_backend bac_react_c" +
+                  row.id +
+                  " if { hdr(host) -i " +
+                  row.url +
+                  " }\n"
+              );
+            });
+            // frontend rest api
+            stream.write("\n");
+            stream.write("\n");
+            stream.write("frontend fe_rest\n");
+            stream.write(
+              "\tbind *:5000 ssl crt " +
+                proxyconfig.pemfilepath +
+                " no-tls-tickets ca-file " +
+                proxyconfig.cabundle +
+                "\n"
+            );
+            stream.write("\ttimeout client 5000\n");
+            stream.write("\treqadd X-Forwarded-Proto:\\ https\n");
+            stream.write("\toption http-keep-alive\n");
+            stream.write("\toption forwardfor\n");
+            stream.write("\n");
+
+            stream.write(
+              "\tuse_backend bac_rest_host if { hdr(host) -i " +
                 proxyconfig.domain +
                 " }\n"
             );
@@ -792,11 +832,11 @@ export default class containerSQL {
             // web backend
             stream.write("\n");
             stream.write("\n");
-            stream.write("backend bac_web_systemconfig\n");
+            stream.write("backend bac_web_host\n");
             stream.write("\thttp-request set-header X-Client-IP %[src]\n");
             stream.write("\tredirect scheme https if !{ ssl_fc }\n");
             stream.write(
-              "\tserver systemconfig " +
+              "\tserver host " +
                 proxyconfig.ipAdressOfHostOnLxdbr0 +
                 ":81 check\n"
             );
@@ -809,20 +849,40 @@ export default class containerSQL {
                 "\tserver c" + row.id + " c" + row.id + ".lxd:80 check\n"
               );
             });
-            // ssh backend
+            // rest backend
             stream.write("\n");
             stream.write("\n");
-            stream.write("backend bac_rest_systemconfig\n");
+            stream.write("backend bac_rest_host\n");
             stream.write("\thttp-request set-header X-Client-IP %[src]\n");
             stream.write("\tredirect scheme https if !{ ssl_fc }\n");
             stream.write(
-              "\tserver systemconfig " +
+              "\tserver host " +
                 proxyconfig.ipAdressOfHostOnLxdbr0 +
                 ":3001 check\n"
             );
             rows.forEach((row, index) => {
               stream.write("\n");
               stream.write("backend bac_rest_c" + row.id + "\n");
+              stream.write("\thttp-request set-header X-Client-IP %[src]\n");
+              stream.write("\tredirect scheme https if !{ ssl_fc }\n");
+              stream.write(
+                "\tserver c" + row.id + " c" + row.id + ".lxd:5000 check\n"
+              );
+            });
+            // react backend
+            stream.write("\n");
+            stream.write("\n");
+            stream.write("backend bac_react_host\n");
+            stream.write("\thttp-request set-header X-Client-IP %[src]\n");
+            stream.write("\tredirect scheme https if !{ ssl_fc }\n");
+            stream.write(
+              "\tserver host " +
+                proxyconfig.ipAdressOfHostOnLxdbr0 +
+                ":3001 check\n"
+            );
+            rows.forEach((row, index) => {
+              stream.write("\n");
+              stream.write("backend bac_react_c" + row.id + "\n");
               stream.write("\thttp-request set-header X-Client-IP %[src]\n");
               stream.write("\tredirect scheme https if !{ ssl_fc }\n");
               stream.write(

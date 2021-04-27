@@ -15,7 +15,7 @@ export default class projectSQL {
    *
    * @return Limits - free space available for project
    */
-  static createCreateProjectData(email) {
+  static createCreateProjectData(email, id) {
     return new Promise((resolve) => {
       let userLimits;
       const con = mysql.createConnection(sqlconfig);
@@ -39,53 +39,56 @@ export default class projectSQL {
             rows[0].upload,
             rows[0].download
           );
-          con.query(
-            "SELECT * FROM projects LEFT JOIN projectsResourcesLimits ON projects.id = projectsResourcesLimits.project_id LEFT JOIN users ON projects.owner_email=users.email WHERE users.email=?",
-            [email],
-            (err, rows) => {
-              if (err) throw err;
-              let counter = 0; // variable to make sure all projects of user are checked as con.query is synchronous
-              let desiredCount = rows.length;
-              for (let i = 0; i < rows.length; i++) {
-                if (rows[i].ram != null) {
-                  userLimits.RAM -= rows[i].ram;
-                  userLimits.CPU -= rows[i].cpu;
-                  userLimits.disk -= rows[i].disk;
-                  userLimits.internet.upload -= rows[i].upload;
-                  userLimits.internet.download -= rows[i].download;
-                  if (++counter == desiredCount) {
-                    console.log(resolve);
-                    con.end();
-                    resolve(userLimits);
-                  }
-                } else {
-                  // for project that doesn't have  limits it is necessary to check all its container
-                  con.query(
-                    "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.project_id=?",
-                    [rows[i].project_id],
-                    (err, rows) => {
-                      if (err) throw err;
-                      if (rows[0] != undefined) {
-                        rows.forEach((row) => {
-                          userLimits.RAM -= row.ram;
-                          userLimits.CPU -= row.cpu;
-                          userLimits.disk -= row.disk;
-                          userLimits.internet.upload -= row.upload;
-                          userLimits.internet.download -= row.download;
-                        });
-                      }
-                      if (++counter == desiredCount) {
-                        con.end();
-                        resolve(userLimits);
-                      }
-                    }
-                  );
+          let queryCommand =
+            "SELECT * FROM projects LEFT JOIN projectsResourcesLimits ON projects.id = projectsResourcesLimits.project_id LEFT JOIN users ON projects.owner_email=users.email WHERE users.email=?";
+          if (id != null) {
+            queryCommand =
+              "SELECT * FROM projects LEFT JOIN projectsResourcesLimits ON projects.id = projectsResourcesLimits.project_id LEFT JOIN users ON projects.owner_email=users.email WHERE users.email=? AND projects.id !=?";
+          }
+          con.query(queryCommand, [email, id], (err, rows) => {
+            //check if this works
+            if (err) throw err;
+            let counter = 0; // variable to make sure all projects of user are checked as con.query is synchronous
+            let desiredCount = rows.length;
+            for (let i = 0; i < rows.length; i++) {
+              if (rows[i].ram != null) {
+                userLimits.RAM -= rows[i].ram;
+                userLimits.CPU -= rows[i].cpu;
+                userLimits.disk -= rows[i].disk;
+                userLimits.internet.upload -= rows[i].upload;
+                userLimits.internet.download -= rows[i].download;
+                if (++counter == desiredCount) {
+                  console.log(resolve);
+                  con.end();
+                  resolve(userLimits);
                 }
-                // wait till query finishes, TODO: come up with more elegant method, but this seems to work.
+              } else {
+                // for project that doesn't have  limits it is necessary to check all its container
+                con.query(
+                  "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.project_id=?",
+                  [rows[i].project_id],
+                  (err, rows) => {
+                    if (err) throw err;
+                    if (rows[0] != undefined) {
+                      rows.forEach((row) => {
+                        userLimits.RAM -= row.ram;
+                        userLimits.CPU -= row.cpu;
+                        userLimits.disk -= row.disk;
+                        userLimits.internet.upload -= row.upload;
+                        userLimits.internet.download -= row.download;
+                      });
+                    }
+                    if (++counter == desiredCount) {
+                      con.end();
+                      resolve(userLimits);
+                    }
+                  }
+                );
               }
-              if (rows.length == 0) resolve(userLimits);
+              // wait till query finishes, TODO: come up with more elegant method, but this seems to work.
             }
-          );
+            if (rows.length == 0) resolve(userLimits);
+          });
         }
       );
     });
@@ -122,6 +125,25 @@ export default class projectSQL {
               }
             );
           }
+          let minimalLimits = newLimits(0, 0, 0, 0, 0);
+          if (rows[0].ram == null) {
+            con.query(
+              "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.project_id=?",
+              [id],
+              (err, rows) => {
+                rows.forEach((row, index) => {
+                  minimalLimits.subtractFromLimits(
+                    row.ram,
+                    row.cpu,
+                    row.disk,
+                    row.upload,
+                    row.download
+                  );
+                });
+              }
+            );
+            // need to check minimal size
+          }
           let ramChange = newLimits.limits.RAM - rows[0].ram;
           let cpuChange = newLimits.limits.CPU - rows[0].cpu;
           let diskChange = newLimits.limits.disk - rows[0].disk;
@@ -135,8 +157,15 @@ export default class projectSQL {
             uploadChange >= 0 &&
             downloadChange >= 0
           ) {
-            this.createCreateProjectData(email).then((result) => {
-              console.log(result);
+            this.createCreateProjectData(email, id).then((result) => {
+              // should take into account containers that are in the projects
+              // console.log("free space to create new project");
+              // console.log(result);
+              // console.log("currentProjectLimits");
+              // console.log(rows[0]);
+              // console.log("desired limits");
+              // console.log(newLimits);
+
               if (
                 ramChange <= result.RAM &&
                 cpuChange <= result.CPU &&

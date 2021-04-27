@@ -13,7 +13,6 @@ import authRoutes from "./routes/authRoute.js";
 import containerSQL from "./services/sql/containerSQL.js";
 import * as lxd from "./routes/lxdRoute.js";
 import { resolve } from "node:dns";
-
 app.use(
   cookieSession({
     maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -25,7 +24,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 authRoutes(app);
-
 // app.use(cors());
 
 //v produkci bude react soubory obs flushovat node server

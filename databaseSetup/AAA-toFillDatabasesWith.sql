@@ -4,6 +4,9 @@ INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("
 INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("ranger", "prohlížeč souborů pro terminál", "https://camo.githubusercontent.com/b410f2706397b50e183a62e72ea470c31109928d92bbfa357848413843545e33/68747470733a2f2f72616e6765722e6769746875622e696f2f72616e6765725f6c6f676f2e706e67", "ranger");
 INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("apache", "http server", "https://en.wikipedia.org/wiki/File:Apache_HTTP_server_logo_(2016).svg", "apache2");
 INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("nginx", "http server", "https://en.wikipedia.org/wiki/File:Nginx_logo.svg", "nginx-core");
+INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("node", "javascript framework for crateing backend of web apps", "https://www.ict.social/images/5728/nodejs_logo.png", "nodejs");
+INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("npm", "package manager to go along with nodejs", "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Npm-logo.svg/1280px-Npm-logo.svg.png", "npm");
+INSERT INTO appsToInstall (name, description, icon_path, package_name) VALUES ("mosh", "alternative to ssh", "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Npm-logo.svg/1280px-Npm-logo.svg.png", "mosh");
 
 
 -- templates
