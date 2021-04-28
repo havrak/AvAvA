@@ -602,6 +602,8 @@ export async function getState(id, project, rs) {
 				counters.download.packetsFromStart = lxdc.packets_received;
 				counters.upload.packetsFromStart = lxdc.packets_sent;
 			});
+		if (rs.internet.counters.download.usedSpeed > rs.internet.limits.download) rs.internet.counters.download.usedSpeed = rs.internet.limits.download;
+		if (rs.internet.counters.upload.usedSpeed > rs.internet.limits.upload) rs.internet.counters.upload.usedSpeed = rs.internet.limits.upload;
 		rs.disk.devices[0].usage = dbdata.disk = parseInt((await execInstance(
 			id,
 			project,
@@ -631,8 +633,17 @@ export async function getState(id, project, rs) {
 				rs.disk.devices[0].usage = res.data.disk;
 				res.data.networks.internet.limits = rs.internet.limits;
 				rs.internet = res.data.networks.internet;
+				rs.internet.counters.download.usedSpeed = 0;
+				rs.internet.counters.upload.usedSpeed = 0;
 				rs.loopback = res.data.networks.loopback;
+				rs.loopback.counters.download.usedSpeed = 0;
+				rs.loopback.counters.upload.usedSpeed = 0;
 				rs.networks = res.data.networks.other;
+				Object.keys(rs.network).forEach((key) => {
+					let net = rs.network[key].counters;
+					net.download.usedSpeed = 0;
+					net.upload.usedSpeed = 0;
+				});
 			} else {
 				rs.CPU.usedTime = 0;
 				rs.disk.devices[0].usage = 0;
