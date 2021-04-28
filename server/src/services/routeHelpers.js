@@ -185,7 +185,6 @@ export function getContainerStateWithHistory(id) {
 let queue = new Array();
 export function reloadHaproxy() {
   return new Promise((resolve) => {
-    console.log("relOAasasadad");
     queue.push(() =>
       containerSQL.generateHaProxyConfigurationFile().then((result) =>
         lxd

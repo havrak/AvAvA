@@ -310,7 +310,6 @@ export default class projectSQL {
    * @return Project - project object with all data available from databse about it, rest is filled in by lxd
    */
   static createProjectObject(id) {
-    console.log(id);
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(

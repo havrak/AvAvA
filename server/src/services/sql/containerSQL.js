@@ -101,7 +101,6 @@ export default class containerSQL {
                   "" +
                   parseInt((config.limits.CPU / systemconfig.frequency) * 100) +
                   "%";
-                console.log(createContainerJSON.config["limits.cpu.allowance"]);
                 createContainerJSON.devices.eth0["limits.ingress"] =
                   "" + config.limits.internet.upload + "";
                 createContainerJSON.devices.eth0["limits.egress"] =
@@ -152,7 +151,6 @@ export default class containerSQL {
    * @return id - id of project
    */
   static getProjectIdOfContainer(id) {
-    console.log(id);
     return new Promise((resolve) => {
       const con = mysql.createConnection(sqlconfig);
       con.query(
@@ -747,10 +745,13 @@ export default class containerSQL {
             stream.write("\treqadd X-Forwarded-Proto:\\ https\n");
             stream.write("\toption http-keep-alive\n");
             stream.write("\toption forwardfor\n");
+            stream.write(
+              "\ttcp-request content set-var(sess.dst) ssl_fc_sni\n"
+            );
             stream.write("\n");
 
             stream.write(
-              "\tuse_backend bac_react_host if { hdr(host) -i " +
+              "\tuse_backend bac_react_host if { var(sess.dst) -i " +
                 proxyconfig.domain +
                 " }\n"
             );
@@ -759,7 +760,7 @@ export default class containerSQL {
               stream.write(
                 "\tuse_backend bac_react_c" +
                   row.id +
-                  " if { hdr(host) -i " +
+                  " if { var(sess.dst) -i " +
                   row.url +
                   " }\n"
               );
@@ -779,10 +780,13 @@ export default class containerSQL {
             stream.write("\treqadd X-Forwarded-Proto:\\ https\n");
             stream.write("\toption http-keep-alive\n");
             stream.write("\toption forwardfor\n");
+            stream.write(
+              "\ttcp-request content set-var(sess.dst) ssl_fc_sni\n"
+            );
             stream.write("\n");
 
             stream.write(
-              "\tuse_backend bac_rest_host if { hdr(host) -i " +
+              "\tuse_backend bac_rest_host if { var(sess.dst) -i " +
                 proxyconfig.domain +
                 " }\n"
             );
@@ -791,7 +795,43 @@ export default class containerSQL {
               stream.write(
                 "\tuse_backend bac_rest_c" +
                   row.id +
-                  " if { hdr(host) -i " +
+                  " if { var(sess.dst) -i " +
+                  row.url +
+                  " }\n"
+              );
+            });
+
+            // frontend rest2 api
+            stream.write("\n");
+            stream.write("\n");
+            stream.write("frontend fe_rest2\n");
+            stream.write(
+              "\tbind *:2000 ssl crt " +
+                proxyconfig.pemfilepath +
+                " no-tls-tickets ca-file " +
+                proxyconfig.cabundle +
+                "\n"
+            );
+            stream.write("\ttimeout client 5000\n");
+            stream.write("\treqadd X-Forwarded-Proto:\\ https\n");
+            stream.write("\toption http-keep-alive\n");
+            stream.write("\toption forwardfor\n");
+            stream.write(
+              "\ttcp-request content set-var(sess.dst) ssl_fc_sni\n"
+            );
+            stream.write("\n");
+
+            stream.write(
+              "\tuse_backend bac_rest2_host if { var(sess.dst) -i " +
+                proxyconfig.domain +
+                " }\n"
+            );
+
+            rows.forEach((row, index) => {
+              stream.write(
+                "\tuse_backend bac_rest2_c" +
+                  row.id +
+                  " if { var(sess.dst) -i " +
                   row.url +
                   " }\n"
               );
@@ -867,6 +907,26 @@ export default class containerSQL {
               stream.write("\tredirect scheme https if !{ ssl_fc }\n");
               stream.write(
                 "\tserver c" + row.id + " c" + row.id + ".lxd:5000 check\n"
+              );
+            });
+            // rest2 backend
+            stream.write("\n");
+            stream.write("\n");
+            stream.write("backend bac_rest2_host\n");
+            stream.write("\thttp-request set-header X-Client-IP %[src]\n");
+            stream.write("\tredirect scheme https if !{ ssl_fc }\n");
+            stream.write(
+              "\tserver host " +
+                proxyconfig.ipAdressOfHostOnLxdbr0 +
+                ":2001 check\n"
+            );
+            rows.forEach((row, index) => {
+              stream.write("\n");
+              stream.write("backend bac_rest2_c" + row.id + "\n");
+              stream.write("\thttp-request set-header X-Client-IP %[src]\n");
+              stream.write("\tredirect scheme https if !{ ssl_fc }\n");
+              stream.write(
+                "\tserver c" + row.id + " c" + row.id + ".lxd:2000 check\n"
               );
             });
             // react backend
