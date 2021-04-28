@@ -527,6 +527,7 @@ export function postResponseToInstance(id, project, response, dstPath) {
 export async function getState(id, project, rs) {
 	let data = await mkRequest(`/1.0/instances/c${id}/state?project=p${project}`);
 	if (!data.status_code) return getOperation(data);
+	let time = Date.now();
 	let dbdata = { networks: { other: [] } };
 	let proj = mdb.db("lxd").collection(`p${project}`);
 	//use the time efficiently and while the measurement waits
@@ -571,8 +572,10 @@ export async function getState(id, project, rs) {
 	}, 1000);
 	if (data.status_code != 102) {
 		let dataNew = await mkRequest(`/1.0/instances/c${id}/state?project=p${project}`);
+		time = Date.now() - time;
 		rs.CPU.usage =
-			((rs.CPU.usedTime = dataNew.cpu.usage) - data.cpu.usage) / 10000000000 * rs.CPU.limit; // limit is in Hz
+			((rs.CPU.usedTime = dataNew.cpu.usage) - data.cpu.usage) / 1000000 / time * rs.CPU.limit; // limit is in Hz
+		if (rs.CPU.usage > rs.CPU.limit) rs.CPU.usage = rs.CPU.limit;
 		if (dataNew.network)
 			Object.keys(dataNew.network).forEach((key) => {
 				let lxdc = dataNew.network[key].counters;
@@ -592,14 +595,19 @@ export async function getState(id, project, rs) {
 							}
 				}
 				// speed is in b/s, because we measure with 1s delay
-				console.log(lxdc.bytes_received, counters.download.bytesFromStart)
-				counters.download.usedSpeed = lxdc.bytes_received - counters.download.bytesFromStart;
+				counters.download.usedSpeed = (lxdc.bytes_received - counters.download.bytesFromStart) / time * 8000;//*1000 to get from millis to seconds, *8 to get b/s
 				counters.download.bytesFromStart = lxdc.bytes_received;
-				counters.upload.usedSpeed = lxdc.bytes_sent - counters.upload.bytesFromStart;
+				counters.upload.usedSpeed = (lxdc.bytes_sent - counters.upload.bytesFromStart) / time * 8000;
 				counters.upload.bytesFromStart = lxdc.bytes_sent;
 				counters.download.packetsFromStart = lxdc.packets_received;
 				counters.upload.packetsFromStart = lxdc.packets_sent;
 			});
+		rs.disk.devices[0].usage = dbdata.disk = parseInt((await execInstance(
+			id,
+			project,
+			"du -sh -B 1 --exclude=/dev --exclude=/proc --exclude=/sys / | awk '{print $1;exit}'"
+			// "df -B 1 | awk '/\\/$/{print $4;exit}'"
+		)).status) - 1000000000;
 		proj.updateOne({ _id: `c${id}` }, { $set: { data: dbdata } }, (err, result) => {
 			if (err)
 				console.log({
@@ -614,12 +622,6 @@ export async function getState(id, project, rs) {
 					mdbErr: "Not initialized",
 				});
 		});
-		rs.disk.devices[0].usage = parseInt((await execInstance(
-			id,
-			project,
-			"du -sh -B 1 --exclude=/dev --exclude=/proc --exclude=/sys / | awk '{print $1;exit}'"
-			// "df -B 1 | awk '/\\/$/{print $4;exit}'"
-		)).status) - 1000000000;
 		rs.disk.devices[0].name = "root";
 		return rs;
 	} else return new Promise((resolve) =>
