@@ -1,6 +1,6 @@
 node_modules
 nodejs-server-server-generated
-config/serverconfiguartions/haproxy.cfg
+server/config/serverconfiguartions/haproxy.cfg
 package-lock.json
 server/node_modules
 server/package-lock.json

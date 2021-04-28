@@ -1327,7 +1327,7 @@ Systém byl testován na standardním certifikátu, čily připojení sice bylo 
 Port 2222 slouží na připojení přes ssh, port 22 používá hošťovací počítač a z pochopitelných důvodů není přesměrován do proxy.
 Port 3000 je dostupný pro REST API aplikací, které na serveru budou běžet.
 
-Kotejnerům je automaticky přirazena doména v následujícím tvaru \textit{\{jméno kotejneru\}.\{jméno projekty\}.\{část emailu uživatel, před @\}.\{doména serveru\}}.
+Kotejnerům je automaticky přirazena doména v následujícím tvaru \textit{\{jméno kontejneru\}.\{jméno projektu\}.\{část emailu uživatel, před @\}.\{doména serveru\}}.
 Například kontejner pojmenovaný \textit{rumburak} v projektu \textit{web} uživatele \textit{belzebub@email.com} na serveru s doménou \textit{avava.cz} bude mít doménu {rumburak.web.belzebub.avava.cz}.
 Mezery ve jméně kontejneru, či projektu se domény odstraní.
 Pokud by měl nový kontejner stejné jméno, jako jiný systém vyhodí výjimku.
