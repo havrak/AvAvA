@@ -21,14 +21,10 @@ import * as NS from "../models/NetworkState.js";
 // import Template from "../models/Template.js";
 import OperationState from "../models/OperationState.js";
 import Snapshot from "../models/Snapshot.js";
-const key = fs.readFileSync(
-	path.resolve(__dirname, "../../config/lxcclient.key")
-);
-const crt = fs.readFileSync(
-	path.resolve(__dirname, "../../config/lxcclient.crt")
-);
+const key = fs.readFileSync(path.resolve(__dirname, "../../config/lxcclient.key"));
+const crt = fs.readFileSync(path.resolve(__dirname, "../../config/lxcclient.crt"));
 
-const debug = true;
+const debug = false;
 
 /**
  * Create basic options common for all lxd requests.
@@ -58,8 +54,7 @@ function mkOpts(path, method = "GET") {
  */
 function mkRequest(path, method, data) {
 	let opts = mkOpts(path, method);
-	if (debug && !path.includes("operation"))
-		console.log({ path: path, method: method, data: data });
+	if (debug && !path.includes("operation")) console.log({ path: path, method: method, data: data });
 	if (data) {
 		data = JSON.stringify(data);
 		opts.headers = {
@@ -212,8 +207,7 @@ export function getInstances(instances) {
 		if (instances.length > 0)
 			instances.forEach((i) =>
 				getInstance(i).then((instance) => {
-					if (instance.statusCode && instance.statusCode != 200)
-						resolve(instance);
+					if (instance.statusCode && instance.statusCode != 200) resolve(instance);
 					done++;
 					if (done == instances.length) resolve(instances);
 				})
@@ -255,9 +249,7 @@ export async function createInstance(data, commands) {
  * @return {Object} - the filled in object
  */
 export function getInstance(instance) {
-	return mkRequest(
-		`/1.0/instances/c${instance.id}?project=p${instance.projectId}`
-	).then((res) => {
+	return mkRequest(`/1.0/instances/c${instance.id}?project=p${instance.projectId}`).then((res) => {
 		if (!res.status_code || res.status_code > 200) return getOperation(res);
 		instance.createdOn = new Date(res.created_at);
 		instance.lastStartedOn = new Date(res.last_used_at);
@@ -272,9 +264,7 @@ export function getInstance(instance) {
 		}*/
 		return getSnapshots(instance.id, instance.projectId).then((snap) => {
 			instance.snapshots = snap;
-			return getState(instance.id, instance.projectId, instance.state).then(
-				(state) => instance
-			);
+			return getState(instance.id, instance.projectId, instance.state).then((state) => instance);
 		});
 	});
 }
@@ -287,11 +277,9 @@ export function getInstance(instance) {
  * @return {Object} - OperationStatus of the operaion
  */
 export function patchInstance(id, project, data) {
-	return mkRequest(
-		`/1.0/instances/${id}?project=${project}`,
-		"PATCH",
-		data
-	).then((res) => getOperation(res));
+	return mkRequest(`/1.0/instances/${id}?project=${project}`, "PATCH", data).then((res) =>
+		getOperation(res)
+	);
 }
 
 /**
@@ -302,16 +290,15 @@ export function patchInstance(id, project, data) {
  */
 export function deleteInstance(id, project) {
 	return new Promise((resolve) =>
-		mkRequest(`/1.0/instances/c${id}?project=p${project}`, "DELETE").then(
-			(res) =>
-				getOperation(res).then((res) =>
-					mdb
-						.db("lxd")
-						.collection(`p${project}`)
-						.deleteOne({ _id: `c${id}` }, (err, data) =>
-							resolve(err ? new OperationState(JSON.stringify(err), 400) : res)
-						)
-				)
+		mkRequest(`/1.0/instances/c${id}?project=p${project}`, "DELETE").then((res) =>
+			getOperation(res).then((res) =>
+				mdb
+					.db("lxd")
+					.collection(`p${project}`)
+					.deleteOne({ _id: `c${id}` }, (err, data) =>
+						resolve(err ? new OperationState(JSON.stringify(err), 400) : res)
+					)
+			)
 		)
 	);
 }
@@ -346,9 +333,7 @@ export function getConsole(id, project) {
 			}
 		);
 		connections.set(terminal, { ws: term, control: control });
-		term.on("error", (error) =>
-			console.log(`/p${project}/c${id}/console ERROR:  ${error}`)
-		);
+		term.on("error", (error) => console.log(`/p${project}/c${id}/console ERROR:  ${error}`));
 		let ws = new WebSocket(
 			`wss://127.0.0.1:8443/1.0/operations/${res.id}/websocket?secret=${res.metadata.fds.control}`,
 			{
@@ -358,9 +343,7 @@ export function getConsole(id, project) {
 			}
 		);
 		connections.set(control, { ws: ws, terminal: terminal });
-		ws.on("error", (error) =>
-			console.log(`/p${project}/c${id}/consoleControl ERROR:  ${error}`)
-		);
+		ws.on("error", (error) => console.log(`/p${project}/c${id}/consoleControl ERROR:  ${error}`));
 		ws.on("close", () => {
 			ws = connections.get(control);
 			term = connections.get(terminal);
@@ -410,9 +393,7 @@ export function execInstance(id, project, command, getOutput) {
 									req.setEncoding("utf8");
 									req.on("data", (d) => (body += d));
 									req.on("end", () =>
-										resolve(
-											new OperationState(body.trim(), res.metadata.return)
-										)
+										resolve(new OperationState(body.trim(), res.metadata.return))
 									);
 								}
 							)
@@ -459,10 +440,7 @@ export async function execCommands(id, project, commands) {
 function postToInstance(id, project, piper, dstPath, headers) {
 	if (!isNaN(parseFloat(project))) id = `c${id}`;
 	if (!isNaN(parseFloat(project))) project = `p${project}`;
-	let opts = mkOpts(
-		`/1.0/instances/${id}/files?project=${project}&path=${dstPath}`,
-		"POST"
-	);
+	let opts = mkOpts(`/1.0/instances/${id}/files?project=${project}&path=${dstPath}`, "POST");
 	opts.headers = headers;
 	opts.headers["Content-Type"] = "application/octet-stream";
 	return new Promise((resolve) => {
@@ -567,11 +545,10 @@ export async function getState(id, project, rs) {
 				// "df -B 1 | awk '/\\/$/{print $4;exit}'"
 			).then((res) => {
 				if (res.status && res.statusCode < 400)
-					rs.disk.devices[0].usage = dbdata.disk =
-						parseInt(res.status) - 1000000000;
+					rs.disk.devices[0].usage = dbdata.disk = parseInt(res.status) - 1000000000;
 				else
 					proj.findOne({ _id: `c${id}` }, (err, res) => {
-						if (!err) rs.disk.devices[0].usage = res.data.disk;
+						if (!err && res.data && res.data.disk) rs.disk.devices[0].usage = res.data.disk;
 						else rs.disk.devices[0].usage = 300000000;
 					});
 			});
@@ -607,10 +584,9 @@ export async function getState(id, project, rs) {
 		} else resolve();
 	}, 1000);
 	if (data.status_code != 102) {
-		let dataNew = await mkRequest(
-			`/1.0/instances/c${id}/state?project=p${project}`
-		);
-		rs.CPU.usage = ((rs.CPU.usedTime = dataNew.cpu.usage) - data.cpu.usage) / 1000000000 * 100 * rs.CPU.limit; // limit is in Hz
+		let dataNew = await mkRequest(`/1.0/instances/c${id}/state?project=p${project}`);
+		rs.CPU.usage =
+			((rs.CPU.usedTime = dataNew.cpu.usage) - data.cpu.usage) / 1000000000000 * 100 * rs.CPU.limit; // limit is in Hz
 		if (data.network)
 			Object.keys(data.network).forEach((key) => {
 				let lxdc = data.network[key].counters;
@@ -630,32 +606,27 @@ export async function getState(id, project, rs) {
 							}
 				}
 				// speed is in b/s, because we measure with 1s delay
-				counters.download.usedSpeed =
-					lxdc.bytes_received - counters.download.bytesFromStart;
+				counters.download.usedSpeed = lxdc.bytes_received - counters.download.bytesFromStart;
 				counters.download.bytesFromStart = lxdc.bytes_received;
 				counters.upload.usedSpeed = lxdc.bytes_sent - counters.upload.bytesFromStart;
 				counters.upload.bytesFromStart = lxdc.bytes_sent;
 				counters.download.packetsFromStart = lxdc.packets_received;
 				counters.upload.packetsFromStart = lxdc.packets_sent;
 			});
-		proj.updateOne(
-			{ _id: `c${id}` },
-			{ $set: { data: dbdata } },
-			(err, result) => {
-				if (err)
-					console.log({
-						id: `c${id}`,
-						project: `p${project}`,
-						mdbErr: err,
-					});
-				else if (result.result.n == 0)
-					console.log({
-						id: `c${id}`,
-						project: `p${project}`,
-						mdbErr: "Not initialized",
-					});
-			}
-		);
+		proj.updateOne({ _id: `c${id}` }, { $set: { data: dbdata } }, (err, result) => {
+			if (err)
+				console.log({
+					id: `c${id}`,
+					project: `p${project}`,
+					mdbErr: err,
+				});
+			else if (result.result.n == 0)
+				console.log({
+					id: `c${id}`,
+					project: `p${project}`,
+					mdbErr: "Not initialized",
+				});
+		});
 		return rs;
 	} else
 		return new Promise((resolve) =>
@@ -681,25 +652,19 @@ export async function getState(id, project, rs) {
  */
 export function getSnapshots(id, project) {
 	return new Promise((resolve) =>
-		mkRequest(`/1.0/instances/c${id}/snapshots?project=p${project}`).then(
-			(snaps) => {
-				let prefix = `/1.0/instances/c${id}/snapshots/s`.length;
-				let suffix = `?project=p${project}`.length;
-				let snapshots = new Array();
-				if (snaps.length > 0)
-					snaps.forEach((name) =>
-						getSnapshot(
-							id,
-							project,
-							name.substring(prefix, name.length - suffix)
-						).then((snap) => {
-							snapshots.push(snap);
-							if (snapshots.length == snaps.length) resolve(snapshots);
-						})
-					);
-				else resolve(snapshots);
-			}
-		)
+		mkRequest(`/1.0/instances/c${id}/snapshots?project=p${project}`).then((snaps) => {
+			let prefix = `/1.0/instances/c${id}/snapshots/s`.length;
+			let suffix = `?project=p${project}`.length;
+			let snapshots = new Array();
+			if (snaps.length > 0)
+				snaps.forEach((name) =>
+					getSnapshot(id, project, name.substring(prefix, name.length - suffix)).then((snap) => {
+						snapshots.push(snap);
+						if (snapshots.length == snaps.length) resolve(snapshots);
+					})
+				);
+			else resolve(snapshots);
+		})
 	);
 }
 
@@ -711,17 +676,12 @@ export function getSnapshots(id, project) {
  * @return {Object} - OperationStatus of the operaion
  */
 export function createSnapshot(instanceId, projectId, snapshotId, stateful) {
-	return mkRequest(
-		`/1.0/instances/c${instanceId}/snapshots?project=p${projectId}`,
-		"POST",
-		{
-			name: `s${snapshotId}`,
-			stateful: stateful,
-		}
-	).then((operation) =>
+	return mkRequest(`/1.0/instances/c${instanceId}/snapshots?project=p${projectId}`, "POST", {
+		name: `s${snapshotId}`,
+		stateful: stateful,
+	}).then((operation) =>
 		getOperation(operation).then((res) => {
-			if (res.statusCode == 200)
-				return getSnapshot(instanceId, projectId, snapshotId);
+			if (res.statusCode == 200) return getSnapshot(instanceId, projectId, snapshotId);
 			else return res;
 		})
 	);
@@ -762,9 +722,7 @@ export function deleteSnapshot(instanceId, projectId, snapshotId) {
  * @return {Object} - OperationStatus of the operaion
  */
 export async function exportInstance(id, project, stream) {
-	let res = await mkRequest(
-		`/1.0/instances/c${id}/backups?project=p${project}`
-	);
+	let res = await mkRequest(`/1.0/instances/c${id}/backups?project=p${project}`);
 	if (res.error_code) return getOperation(res);
 	let bid = res.length;
 	for (let i = 0; i < res.length; i++) {
@@ -774,23 +732,17 @@ export async function exportInstance(id, project, stream) {
 	bid++;
 	let expiry = new Date();
 	expiry.setHours(expiry.getHours() + 5);
-	res = await mkRequest(
-		`/1.0/instances/c${id}/backups?project=p${project}`,
-		"POST",
-		{
-			name: `b${bid}`,
-			expires_at: expiry,
-			instance_only: true,
-			optimized_storage: true,
-			//    compression_algorithm: "xz",
-		}
-	);
+	res = await mkRequest(`/1.0/instances/c${id}/backups?project=p${project}`, "POST", {
+		name: `b${bid}`,
+		expires_at: expiry,
+		instance_only: true,
+		optimized_storage: true,
+		//    compression_algorithm: "xz",
+	});
 	res = await getOperation(res);
 	if (res.statusCode == 200) {
 		let req = https.request(
-			mkOpts(
-				`/1.0/instances/c${id}/backups/b${bid}/export?project=p${project}`
-			),
+			mkOpts(`/1.0/instances/c${id}/backups/b${bid}/export?project=p${project}`),
 			(res) => {
 				res.pipe(stream);
 				stream.on("finish", () => deleteBackup(id, project, bid));
@@ -984,14 +936,11 @@ export function deleteProfilesOf(projectId) {
 			return new Promise((resolve) =>
 				profiles.forEach((profile) => {
 					if (!profile.endsWith("/default"))
-						mkRequest(`${profile}?project=p${projectId}`, "DELETE").then(
-							(res) => {
-								if (res.status_code != 200) error = getOperation(res);
-								done++;
-								if (done == profiles.length)
-									resolve(error || getOperation(res));
-							}
-						);
+						mkRequest(`${profile}?project=p${projectId}`, "DELETE").then((res) => {
+							if (res.status_code != 200) error = getOperation(res);
+							done++;
+							if (done == profiles.length) resolve(error || getOperation(res));
+						});
 				})
 			);
 		} else return new OperationState(`No profiles.`, 200);

@@ -22,13 +22,13 @@ export class NetworkState {
   counters = {
     download: {
       usedSpeed: undefined,
-      bytesRecieved: undefined,
-      packetsRecieved: undefined,
+      bytesFromStart: undefined,
+      packetsFromStart: undefined,
     },
     upload: {
       usedSpeed: undefined,
-      bytesSent: undefined,
-      packetsSent: undefined,
+      bytesFromStart: undefined,
+      packetsFromStart: undefined,
     },
   };
   hwaddr;
