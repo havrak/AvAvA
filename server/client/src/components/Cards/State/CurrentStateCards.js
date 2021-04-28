@@ -80,6 +80,7 @@ export function CircularStateChartCard({
                      2: { color: "#E9ECEF" },
                   },
                   tooltip: { isHtml: true, trigger: "visible" },
+                  sliceVisibilityThreshold: 0
                }}
                rootProps={{ "data-testid": "1" }}
             />

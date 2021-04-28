@@ -69,6 +69,7 @@ export function CircularStateChartCardForContainer({
                      1: { color: "#E9ECEF" },
                   },
                   tooltip: { isHtml: true, trigger: "visible" },
+                  sliceVisibilityThreshold: 0
                }}
                rootProps={{ "data-testid": "1" }}
             />

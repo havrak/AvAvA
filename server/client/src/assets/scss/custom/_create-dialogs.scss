@@ -13,6 +13,10 @@
    width: 100%;
    margin-left: -12px;
    margin-bottom: 5px;
+   display: flex;
+   flex-direction: row;
+   flex-wrap: nowrap;
+   align-items: center;
 }
 
 .dialog {

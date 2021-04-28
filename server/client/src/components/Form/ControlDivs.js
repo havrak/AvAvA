@@ -17,9 +17,10 @@ export function CheckboxDiv({ inputText, tooltipText, handler, iconSource }) {
                setValue(!value);
             }}
          />
-         <span>{inputText}</span>{" "}
+         <span>
+            {inputText} <HelpIcon tooltipText={tooltipText} />
+         </span>
          {/* <img style={{height: "20px"}} src={iconSource}></img>{" "} */}
-         <HelpIcon tooltipText={tooltipText} />
       </div>
    );
 }
@@ -33,8 +34,9 @@ export function RadioDiv({ checked, handleChange, inputText, tooltipText }) {
             checked={checked}
             onClick={handleChange}
          />
-         <span>{inputText} </span>
-         <HelpIcon tooltipText={tooltipText} />
+         <span>
+            {inputText} <HelpIcon tooltipText={tooltipText} />
+         </span>
       </div>
    );
 }

@@ -64,6 +64,7 @@ function ContainersTableToolbar(props) {
    const openDialogHandler = () => {
       instancesCreateInstanceConfigDataGet();
       createdContainer.current = containerCreateBaseState(project.id, createInstanceConfigData.templates[0]);
+      if(createInstanceConfigData)
       setDialogOpen(true);
    };
 

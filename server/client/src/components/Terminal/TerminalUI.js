@@ -15,8 +15,10 @@ export class TerminalUI {
    }
 
    startListening() {
-      this.terminal.onData((data) => {
+      this.terminal.onData((data, e) => {
          this.sendInput(data);
+         e.domEvent.stopPropagation()
+         e.domEvent.preventDefault()
       });
       this.socket.on("output", (data) => {
          this.write(data);

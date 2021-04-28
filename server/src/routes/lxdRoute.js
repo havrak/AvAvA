@@ -592,6 +592,7 @@ export async function getState(id, project, rs) {
 							}
 				}
 				// speed is in b/s, because we measure with 1s delay
+				console.log(lxdc.bytes_received, counters.download.bytesFromStart)
 				counters.download.usedSpeed = lxdc.bytes_received - counters.download.bytesFromStart;
 				counters.download.bytesFromStart = lxdc.bytes_received;
 				counters.upload.usedSpeed = lxdc.bytes_sent - counters.upload.bytesFromStart;

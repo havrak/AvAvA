@@ -30,12 +30,17 @@ class Console extends Component {
          this.terminalSocket = createTerminalSocket(data.terminal);
          this.terminalSocket.onopen = () => {
             // term.attach(socket);
+            // term.onKey((key) => {
+            //    console.log(key.domEvent);
+            //    key.domEvent.stopPropagation();
+            //    key.domEvent.preventDefault();
+            // });
             term.onData((data) => {
                this.terminalSocket.send(data);
             });
             this.terminalSocket.onmessage = (data) => {
                // if (shouldOutput) {
-                  term.write(data.data);
+               term.write(data.data);
                // } else {
                //    shouldOutput = true;
                // }
@@ -47,37 +52,36 @@ class Console extends Component {
          this.controlSocket.onopen = () => {
             // term.attach(socket);
             this.controlSocket.onmessage = (d) => {
-               console.log(d, 'controlSocketOutput');
+               console.log(d, "controlSocketOutput");
             };
             const ro = new ResizeObserver(async () => {
                this.resizeToAdequatedDimensions();
             });
-            setTimeout(e => {
+            setTimeout((e) => {
                this.resizeToAdequatedDimensions();
-            }, 1000)
+            }, 1000);
             ro.observe(this.termElm);
          };
       };
-      api.instancesInstanceIdConsoleGet(
-         this.instanceId,
-         successConsoleCreationCallback
-      );
+      api.instancesInstanceIdConsoleGet(this.instanceId, successConsoleCreationCallback);
    }
 
-   resizeToAdequatedDimensions(){
+   resizeToAdequatedDimensions() {
       const dimensions = this.dimensions();
       // console.log(dimensions, "resized");
-      this.controlSocket.send(JSON.stringify({
-         command: "window-resize",
-         args: {
-            width: dimensions.cols.toString(),
-            height: dimensions.rows.toString(),
-         },
-      }));
+      this.controlSocket.send(
+         JSON.stringify({
+            command: "window-resize",
+            args: {
+               width: dimensions.cols.toString(),
+               height: dimensions.rows.toString(),
+            },
+         })
+      );
       this.term.resize(dimensions.cols, dimensions.rows);
    }
 
-   componentWillUnmount(){
+   componentWillUnmount() {
       this.terminalSocket?.close();
       this.controlSocket?.close();
    }
@@ -99,8 +103,7 @@ class Console extends Component {
    }
 
    render() {
-      if(!this.currentContainer){
-         
+      if (!this.currentContainer) {
       }
       return (
          <div className="App">
