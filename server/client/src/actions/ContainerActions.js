@@ -176,7 +176,7 @@ export const containerIdFreeze = (projectId, containerId, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
-            notify(`Error occured: ${response.body.message}`);
+            notify(`Error occured: ${response?.body?.message}`);
          } else {
             dispatch(containerStateChangeSuccess(projectId, data));
          }

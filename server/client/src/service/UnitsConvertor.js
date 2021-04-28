@@ -85,7 +85,7 @@ export function ramToMB(bytes) {
 }
 
 export function ramFromMBToB(MB) {
-   return MB * prefixes.M;
+   return Math.round(MB * prefixes.M);
 }
 
 export function diskToGB(bytes) {
@@ -93,7 +93,7 @@ export function diskToGB(bytes) {
 }
 
 export function diskFromGBToB(GB) {
-   return GB * prefixes.G;
+   return Math.round(GB * prefixes.G);
 }
 
 export function CPUToMHz(Hz) {
@@ -101,7 +101,7 @@ export function CPUToMHz(Hz) {
 }
 
 export function CPUFromMHzToHz(MHz) {
-   return MHz * prefixes.M;
+   return Math.round(MHz * prefixes.M);
 }
 
 export function networkSpeedToMbits(bytes) {
@@ -109,7 +109,7 @@ export function networkSpeedToMbits(bytes) {
 }
 
 export function networkSpeedFromMBitsToBits(MBits) {
-   return MBits * prefixes.M;
+   return Math.round(MBits * prefixes.M);
 }
 
 //https://www.codegrepper.com/code-examples/javascript/how+to+show+only+hours+and+minutes+from+javascript+date
