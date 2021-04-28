@@ -858,7 +858,7 @@ export default class containerSQL {
             stream.write(
               "\tserver host " +
                 proxyconfig.ipAdressOfHostOnLxdbr0 +
-                ":3001 check\n"
+                ":5001 check\n"
             );
             rows.forEach((row, index) => {
               stream.write("\n");

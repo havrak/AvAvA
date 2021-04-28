@@ -123,14 +123,10 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
     });
 });
 
-app.get(
-  "/api/instances/createInstanceConfigData",
-  isLoggedIn,
-  isProjectUsers,
-  (req, res) =>
-    containerSQL
-      .createCreateContainerData(req.user.email)
-      .then((result) => res.send(result))
+app.get("/api/instances/createInstanceConfigData", isLoggedIn, (req, res) =>
+  containerSQL
+    .createCreateContainerData(req.user.email)
+    .then((result) => res.send(result))
 );
 
 app.get(
