@@ -82,9 +82,7 @@ app.post("/api/instances", isLoggedIn, (req, res) => {
             }
             let id = result.name;
             let projectId = result.project;
-            let tmp = new Array();
-            tmp.push(result.appsToInstall);
-            lxd.createInstance(result, tmp).then((result) => {
+            lxd.createInstance(result, result.appsToInstall).then((result) => {
               if (result.statusCode != 200) {
                 containerSQL.removeContainer(id);
                 res.status(400).send({ message: result.status });

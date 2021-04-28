@@ -106,30 +106,34 @@ export default class containerSQL {
                 createContainerJSON.devices.eth0["limits.egress"] =
                   "" + config.limits.internet.download + "";
                 createContainerJSON.appsToInstall = "";
-
                 if (config.applicationsToInstall.length > 0) {
-                  createContainerJSON.appsToInstall += "sleep 5; ";
+                  createContainerJSON.appsToInstall = new Array();
+                  createContainerJSON.appsToInstall.push("sleep 5");
+                  let installCommand = "";
                   switch (rows[0].image_name) {
                     case "Ubuntu":
-                      createContainerJSON.appsToInstall +=
-                        "apt-get update && apt-get -yyq install ";
+                      createContainerJSON.appsToInstall.push("apt update");
+                      installCommand += "apt -yyq install";
                       break;
                     case "Debian":
-                      createContainerJSON.appsToInstall +=
-                        "apt-get update && apt-get -yyq install ";
+                      createContainerJSON.appsToInstall.push("apt update");
+                      installCommand += "apt -yyq install";
                       break;
                     case "CentOS":
-                      createContainerJSON.appsToInstall +=
-                        "yum clean all && yum install ";
+                      createContainerJSON.appsToInstall.push("yum clean all");
+                      installCommand += "yum install";
                       break;
                   }
                   con.query("SELECT * FROM appsToInstall", (err, apps) => {
                     if (err) throw err;
                     apps.forEach((app, index) => {
                       if (config.applicationsToInstall.includes(app.id)) {
-                        config.applicationsToInstall += app.package_name + " ";
+                        createContainerJSON.appsToInstall.push(
+                          installCommand + " " + app.package_name
+                        );
                       }
                     });
+                    console.log(createContainerJSON);
                     resolve(createContainerJSON);
                   });
                 } else {
