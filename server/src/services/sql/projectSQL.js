@@ -125,25 +125,25 @@ export default class projectSQL {
               }
             );
           }
-          let minimalLimits = newLimits(0, 0, 0, 0, 0);
-          if (rows[0].ram == null) {
-            con.query(
-              "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.project_id=?",
-              [id],
-              (err, rows) => {
-                rows.forEach((row, index) => {
-                  minimalLimits.subtractFromLimits(
-                    row.ram,
-                    row.cpu,
-                    row.disk,
-                    row.upload,
-                    row.download
-                  );
-                });
-              }
-            );
-            // need to check minimal size
-          }
+          // let minimalLimits = new Limits(0, 0, 0, 0, 0);
+          // if (rows[0].ram == null) {
+          //   con.query(
+          //     "SELECT * FROM containers LEFT JOIN containersResourcesLimits ON containersResourcesLimits.container_id=containers.id WHERE containers.project_id=?",
+          //     [id],
+          //     (err, rows) => {
+          //       rows.forEach((row, index) => {
+          //         minimalLimits.subtractFromLimits(
+          //           row.ram,
+          //           row.cpu,
+          //           row.disk,
+          //           row.upload,
+          //           row.download
+          //         );
+          //       });
+          //     }
+          //   );
+          //   // need to check minimal size
+          // }
           let ramChange = newLimits.limits.RAM - rows[0].ram;
           let cpuChange = newLimits.limits.CPU - rows[0].cpu;
           let diskChange = newLimits.limits.disk - rows[0].disk;
