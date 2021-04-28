@@ -538,20 +538,6 @@ export async function getState(id, project, rs) {
 		rs.disk.devices[0].name = "root";
 		if (data.status_code != 102) {
 			//finds only space used by containers sharing the same pool -> unusable
-			execInstance(
-				id,
-				project,
-				"du -sh -B 1 --exclude=/dev --exclude=/proc --exclude=/sys / | awk '{print $1;exit}'"
-				// "df -B 1 | awk '/\\/$/{print $4;exit}'"
-			).then((res) => {
-				if (res.status && res.statusCode < 400)
-					rs.disk.devices[0].usage = dbdata.disk = parseInt(res.status) - 1000000000;
-				else
-					proj.findOne({ _id: `c${id}` }, (err, res) => {
-						if (!err && res.data && res.data.disk) rs.disk.devices[0].usage = res.data.disk;
-						else rs.disk.devices[0].usage = 300000000;
-					});
-			});
 			rs.numberOfProcesses = data.processes;
 			if (data.network)
 				Object.keys(data.network).forEach((key) => {
@@ -586,7 +572,7 @@ export async function getState(id, project, rs) {
 	if (data.status_code != 102) {
 		let dataNew = await mkRequest(`/1.0/instances/c${id}/state?project=p${project}`);
 		rs.CPU.usage =
-			((rs.CPU.usedTime = dataNew.cpu.usage) - data.cpu.usage) / 1000000000000 * 100 * rs.CPU.limit; // limit is in Hz
+			((rs.CPU.usedTime = dataNew.cpu.usage) - data.cpu.usage) / 10000000000 * rs.CPU.limit; // limit is in Hz
 		if (dataNew.network)
 			Object.keys(dataNew.network).forEach((key) => {
 				let lxdc = dataNew.network[key].counters;
@@ -627,21 +613,37 @@ export async function getState(id, project, rs) {
 					mdbErr: "Not initialized",
 				});
 		});
+		rs.disk.devices[0].usage = parseInt((await execInstance(
+			id,
+			project,
+			"du -sh -B 1 --exclude=/dev --exclude=/proc --exclude=/sys / | awk '{print $1;exit}'"
+			// "df -B 1 | awk '/\\/$/{print $4;exit}'"
+		)).status) - 1000000000;
+		rs.disk.devices[0].name = "root";
 		return rs;
-	} else
-		return new Promise((resolve) =>
-			proj.findOne({ _id: `c${id}` }, (err, res) => {
-				if (!err) {
-					rs.CPU.usedTime = res.data.cpuTime;
-					rs.disk.devices[0].usage = res.data.disk;
-					rs.internet = res.data.networks.internet;
-					rs.loopback = res.data.networks.loopback;
-					rs.networks = res.data.networks.other;
-				}
-				rs.CPU.usage = 0;
-				resolve(rs);
-			})
-		);
+	} else return new Promise((resolve) =>
+		proj.findOne({ _id: `c${id}` }, (err, res) => {
+			if (!err) {
+				rs.CPU.usedTime = res.data.cpuTime;
+				rs.disk.devices[0].usage = res.data.disk;
+				res.data.networks.internet.limits = rs.internet.limits;
+				rs.internet = res.data.networks.internet;
+				rs.loopback = res.data.networks.loopback;
+				rs.networks = res.data.networks.other;
+			} else {
+				rs.CPU.usedTime = 0;
+				rs.disk.devices[0].usage = 0;
+				console.log({
+					id: `c${id}`,
+					project: `p${project}`,
+					mdbErr: err,
+				});
+			}
+			rs.disk.devices[0].name = "root";
+			rs.CPU.usage = 0;
+			resolve(rs);
+		})
+	);
 }
 
 /**
