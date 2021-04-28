@@ -234,10 +234,10 @@ export async function createInstance(data, commands) {
 			await deleteInstance(id, data.project);
 			return res;
 		}
-		mdb
+		await new Promise(resolve => mdb
 			.db("lxd")
 			.collection(`p${data.project}`)
-			.insertOne({ _id: data.name, data: null }, () => { });
+			.insertOne({ _id: data.name, data: null }, () => resolve()));
 		execCommands(id, data.project, commands);
 	}
 	return res;
@@ -628,7 +628,7 @@ export async function getState(id, project, rs) {
 		return rs;
 	} else return new Promise((resolve) =>
 		proj.findOne({ _id: `c${id}` }, (err, res) => {
-			if (!err) {
+			if (!err && res && res.data) {
 				rs.CPU.usedTime = res.data.cpuTime;
 				rs.disk.devices[0].usage = res.data.disk;
 				res.data.networks.internet.limits = rs.internet.limits;
