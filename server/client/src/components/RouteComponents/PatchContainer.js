@@ -32,8 +32,11 @@ function PatchContainer({ name, link, currentProject, currentContainer, notify }
       };
    };
    const patchedContainer = React.useRef(baseState());
-   if(!currentContainer){
-      return <Redirect to={removePathParts(2)} />;
+   // if(!currentContainer){
+   //    return <Redirect to={removePathParts(2)} />;
+   // }
+   if(!currentContainer || !currentProject){
+      return null;
    }
    const openDialogHandler = () => {
       patchedContainer.current = baseState();
