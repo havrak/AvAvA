@@ -234,10 +234,15 @@ export async function createInstance(data, commands) {
 			await deleteInstance(id, data.project);
 			return res;
 		}
-		await new Promise(resolve => mdb
+		let dbData = {
+			disk: 300000000,
+			cpuTime: 0,
+			networks: { internet: new NetworkState(), loopback: new NetworkState(), other: [] }
+		}
+		mdb
 			.db("lxd")
 			.collection(`p${data.project}`)
-			.insertOne({ _id: data.name, data: null }, () => resolve()));
+			.insertOne({ _id: data.name, data: dbData }, () => { });
 		execCommands(id, data.project, commands);
 	}
 	return res;
@@ -639,8 +644,8 @@ export async function getState(id, project, rs) {
 				rs.loopback.counters.download.usedSpeed = 0;
 				rs.loopback.counters.upload.usedSpeed = 0;
 				rs.networks = res.data.networks.other;
-				Object.keys(rs.network).forEach((key) => {
-					let net = rs.network[key].counters;
+				Object.keys(rs.networks).forEach((key) => {
+					let net = rs.networks[key].counters;
 					net.download.usedSpeed = 0;
 					net.upload.usedSpeed = 0;
 				});
