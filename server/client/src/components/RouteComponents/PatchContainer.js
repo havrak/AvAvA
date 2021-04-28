@@ -15,18 +15,18 @@ function PatchContainer({ name, link, currentProject, currentContainer, notify }
    const [openDialog, setDialogOpen] = React.useState(false);
    const baseState = () => {
       return {
-         id: currentContainer.id,
-         name: currentContainer.name,
-         owner: currentContainer.owner,
+         id: currentContainer?.id,
+         name: currentContainer?.name,
+         owner: currentContainer?.owner,
          // connectToContainer: currentContainer.connectToContainer,
          rootPassword: null,
          limits: {
-            RAM: ramToMB(currentContainer.state.RAM.limit),
-            CPU: CPUToMHz(currentContainer.state.CPU.limit),
-            disk: diskToGB(currentContainer.state.disk.limit),
+            RAM: ramToMB(currentContainer?.state?.RAM?.limit),
+            CPU: CPUToMHz(currentContainer?.state?.CPU?.limit),
+            disk: diskToGB(currentContainer?.state?.disk?.limit),
             internet: {
-               upload: networkSpeedToMbits(currentContainer.state.internet.limits.upload),
-               download: networkSpeedToMbits(currentContainer.state.internet.limits.download),
+               upload: networkSpeedToMbits(currentContainer?.state?.internet?.limits?.upload),
+               download: networkSpeedToMbits(currentContainer?.state?.internet?.limits?.download),
             },
          },
       };

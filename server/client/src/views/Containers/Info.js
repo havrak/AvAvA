@@ -46,12 +46,12 @@ function Info({
 }) {
    const brand = [
       {
-         text: currentProject.name,
+         text: currentProject?.name,
          link: removePathParts(3),
          connectChar: "/",
       },
       {
-         text: currentContainer.name,
+         text: currentContainer?.name,
          connectChar: " - ",
       },
       {
@@ -62,13 +62,16 @@ function Info({
       setCustomizableBrandText(brand);
    }, []);
    useEffect(() => {
-      containerIdGet(currentProject.id, currentContainer.id, notify);
+      containerIdGet(currentProject?.id, currentContainer?.id, notify);
    }, []);
 
    const [dialogOpen, setDialogOpen] = useState(false);
 
    if (!currentContainer) {
       return <Redirect to={removePathParts(2)} />;
+   }
+   if (!currentProject) {
+      return <Redirect to={removePathParts(4)} />;
    }
 
    const startContainersHandler = () => {

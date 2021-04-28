@@ -14,23 +14,26 @@ function PatchProject({ name, link, currentProject, notify }) {
    const [openDialog, setDialogOpen] = React.useState(false);
    const baseState = () => {
       return {
-         id: currentProject.id,
-         name: currentProject.name,
+         id: currentProject?.id,
+         name: currentProject?.name,
          limits: {
-            RAM: ramToMB(currentProject.limits?.RAM),
-            CPU: CPUToMHz(currentProject.limits?.CPU),
-            disk: diskToGB(currentProject.limits?.disk),
+            RAM: ramToMB(currentProject?.limits?.RAM),
+            CPU: CPUToMHz(currentProject?.limits?.CPU),
+            disk: diskToGB(currentProject?.limits?.disk),
             internet: {
-               upload: networkSpeedToMbits(currentProject.limits?.internet?.upload),
-               download: networkSpeedToMbits(currentProject.limits?.internet?.download),
+               upload: networkSpeedToMbits(currentProject?.limits?.internet?.upload),
+               download: networkSpeedToMbits(currentProject?.limits?.internet?.download),
             },
          },
       };
    };
 
    const patchedProject = React.useRef(baseState());
-   if (!currentProject) {
-      return <Redirect to={removePathParts(2)} />;
+   // if (!currentProject) {
+   //    return <Redirect to={removePathParts(2)} />;
+   // }
+   if(!currentProject){
+      return null;
    }
    const openDialogHandler = () => {
       patchedProject.current = baseState();

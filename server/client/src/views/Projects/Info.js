@@ -36,14 +36,14 @@ function Info({
 }) {
    const brand = [
       {
-         text: currentProject.name,
+         text: currentProject?.name,
       },
    ];
    useEffect(() => {
       setCustomizableBrandText(brand);
    });
    useEffect(() => {
-      projectIdGet(currentProject.id, notify);
+      projectIdGet(currentProject?.id, notify);
    }, []);
    const [dialogOpen, setDialogOpen] = useState(false);
    

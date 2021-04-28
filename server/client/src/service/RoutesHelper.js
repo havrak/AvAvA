@@ -70,9 +70,10 @@ function currentProjectId() {
    for (let i = 0; i < splitted.length; i++) {
       if (splitted[i] === "projects" && i + 1 < splitted.length) {
          result.projectId = parseInt(splitted[i + 1]);
-         return result;
+         break;
       }
    }
+   return result;
 }
 export function getCurrentProject(projects) {
    const { projectId } = currentProjectId();
