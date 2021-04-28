@@ -587,9 +587,9 @@ export async function getState(id, project, rs) {
 		let dataNew = await mkRequest(`/1.0/instances/c${id}/state?project=p${project}`);
 		rs.CPU.usage =
 			((rs.CPU.usedTime = dataNew.cpu.usage) - data.cpu.usage) / 1000000000000 * 100 * rs.CPU.limit; // limit is in Hz
-		if (data.network)
-			Object.keys(data.network).forEach((key) => {
-				let lxdc = data.network[key].counters;
+		if (dataNew.network)
+			Object.keys(dataNew.network).forEach((key) => {
+				let lxdc = dataNew.network[key].counters;
 				let counters;
 				switch (key) {
 					case "eth0":
