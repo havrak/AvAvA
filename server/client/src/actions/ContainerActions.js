@@ -31,7 +31,7 @@ export const containerIdPatch = (projectId, containerPatched, notify) => {
          dispatch(startSpinnerContainerPatch(projectId, containerPatched.id));
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerPatched.id));
-            notify(`Error occured: ${response.body.message}`);
+            notify(`Error occured: ${response?.body?.message}`);
          } else {
             console.log(data, "success");
             dispatch(containerGetSuccess(projectId, data));
@@ -206,7 +206,7 @@ export const containerIdDelete = (projectId, containerId, notify) => {
       const callback = function (error, data, response) {
          if (error) {
             dispatch(containerStateChangeFail(projectId, containerId));
-            notify(`Error occured: ${response.body.message}`);
+            notify(`Error occured: ${response?.body?.message}`);
          } else {
             dispatch(containerDeleteSuccess(projectId, containerId));
          }
